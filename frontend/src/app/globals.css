@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+    /* already px */
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+/* Global thin scrollbar */
+* {
+  scrollbar-width: thin;
+  /* Firefox */
+  scrollbar-color: #a0aec0 #f7fafc;
+  /* thumb + track */
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: 6px;
+  /* scrollbar width */
+  height: 6px;
+  /* horizontal scrollbar height */
+}
+
+*::-webkit-scrollbar-track {
+  background: #f7fafc;
+  /* track color */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #a0aec0;
+  /* thumb color */
+  border-radius: 9999px;
+  /* fully rounded */
+}
+
+/* remove orange outline on input and select dropdown focus:visible */
+input:focus-visible,
+select:focus-visible {
+  outline: none !important;
+}
+
+@media (max-width: 767px) {
+  h1 {
+    font-size: 14px !important;
+    /* 0.875rem */
+    line-height: 20px !important;
+    /* 1.25rem */
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  a,
+  p,
+  ul,
+  li,
+  label,
+  button,
+  select,
+  div,
+  span {
+    font-size: 12px !important;
+    /* 0.75rem */
+    line-height: 16px !important;
+    /* 1rem */
+  }
+
+  button {
+    padding: 8px !important;
+  }
+
+  select {
+    height: 36px !important;
+    padding-top: 8px !important;
+    /* 0.5rem */
+    padding-bottom: 8px !important;
+    /* 0.5rem */
+  }
+
+  .flex input {
+    height: 36px !important;
+    /* 2.25rem */
+  }
+
+  svg:not(.logo-svg, .header-icon) {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  /* input,
+  select,
+  textarea {
+    font-size: 16px;
+  } */
+}
