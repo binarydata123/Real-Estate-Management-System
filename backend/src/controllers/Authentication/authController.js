@@ -96,7 +96,7 @@ const registrationController = {
 
         try {
             // Find user by email and include password field
-            const user = await User.findOne({ email }).select('+password');
+            const user = await User.findOne({ email }).select('+password').populate('agency', 'name slug email phone logoUrl');
             if (!user) {
                 return res.status(401).json({ message: 'Invalid email or password.' });
             }
@@ -116,7 +116,14 @@ const registrationController = {
                     name: user.name,
                     email: user.email,
                     role: user.role,
-                    agency: user.agency ? { _id: user.agency } : null,
+                    agency: user.agency ? {
+                        _id: user.agency._id,
+                        name: user.agency.name,
+                        slug: user.agency.slug,
+                        email: user.agency.email,
+                        phone: user.agency.phone,
+                        logoUrl: user.agency.logoUrl
+                    } : null,
                 },
             });
         } catch (error) {
@@ -140,19 +147,29 @@ const registrationController = {
     },
 
     checkSession: async (req, res) => {
-        // If this controller is reached, the 'protect' middleware has already
-        // verified the token and attached the user to req.user.
         try {
-            // The user is authenticated. We can send back the user details
-            // to confirm the session is valid and to provide up-to-date user info.
+            const user = await User.findById(req.user._id).populate('agency', 'name slug email phone logoUrl');
+
+            if (!user) {
+                // This should not happen if the token is valid, but as a safeguard:
+                return res.status(404).json({ message: "User associated with this session not found." });
+            }
+
             res.status(200).json({
                 message: "Session active.",
                 user: {
-                    _id: req.user._id,
-                    name: req.user.name,
-                    email: req.user.email,
-                    role: req.user.role,
-                    agency: req.user.agency ? { _id: req.user.agency } : null,
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    agency: user.agency ? {
+                        _id: user.agency._id,
+                        name: user.agency.name,
+                        slug: user.agency.slug,
+                        email: user.agency.email,
+                        phone: user.agency.phone,
+                        logoUrl: user.agency.logoUrl
+                    } : null,
                 },
             });
         } catch (error) {
