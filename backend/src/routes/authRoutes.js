@@ -4,5 +4,6 @@ import registrationController from '../controllers/Authentication/authController
 const router = express.Router();
 
 router.post('/register-agency', registrationController.registerAgency);
+router.post('/login', registrationController.loginUser);
 
 export default router;

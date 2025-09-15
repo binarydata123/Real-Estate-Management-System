@@ -36,7 +36,7 @@ export const NotificationSettings: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       alert('Notification preferences saved! (Demo mode)');
     } catch (error) {
-      alert('Demo mode: Settings save simulated');
+      console.error('Demo mode: Settings save simulated', error);
     } finally {
       setLoading(false);
     }

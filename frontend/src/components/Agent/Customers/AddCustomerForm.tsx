@@ -5,30 +5,19 @@ import { useAuth } from '@/context/AuthContext';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-
-const customerSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    whatsapp: z.string().optional(),
-    email: z.string().email('Invalid email').optional().or(z.literal('')),
-    phone: z.string().optional(),
-    budget_min: z.number().min(0, 'Budget must be positive').optional(),
-    budget_max: z.number().min(0, 'Budget must be positive').optional(),
-    source: z.enum(['website', 'referral', 'social_media', 'advertisement', 'walk_in', 'cold_call', 'other']),
-    notes: z.string().optional(),
-});
-
-type CustomerFormData = z.infer<typeof customerSchema>;
+import { createCustomer } from '@/lib/Agent/CustomerAPI';
+import axios from 'axios';
+import { CustomerFormData, customerSchema } from '@/schemas/Agent/customerSchema';
 
 interface AddCustomerFormProps {
     onClose: () => void;
-    onSuccess?: () => void;
+    onSuccess: () => void;
 }
 
 export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({ onClose, onSuccess }) => {
     const { currentAgency } = useAgency();
-    const { user } = useAuth();
+    const { user, session } = useAuth();
     const [loading, setLoading] = useState(false);
     const [showMoreInfo, setShowMoreInfo] = useState(false);
 
@@ -42,17 +31,20 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({ onClose, onSuc
     const budgetMin = watch('budget_min');
 
     const onSubmit = async (data: CustomerFormData) => {
-        if (!currentAgency || !user) return;
+        if (!currentAgency || !user || !session) return;
 
         setLoading(true);
         try {
-            // Demo mode - simulate success
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            alert('Customer added successfully! (Demo mode)');
-            onSuccess?.();
+            await createCustomer(currentAgency.id, data);
+            alert('Customer added successfully!');
+            onSuccess();
             onClose();
         } catch (error) {
-            alert('Demo mode: Customer creation simulated');
+            if (axios.isAxiosError(error) && error.response) {
+                alert(error.response.data.message || 'Failed to create customer.');
+            } else {
+                alert('An unexpected error occurred.');
+            }
         } finally {
             setLoading(false);
         }

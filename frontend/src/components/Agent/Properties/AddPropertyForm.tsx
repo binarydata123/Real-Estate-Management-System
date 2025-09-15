@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { useAgency } from '@/context/AgencyContext';
 import { useAuth } from '@/context/AuthContext';
-import { ArrowLeft } from 'lucide-react';
 import BackButton from '@/components/Common/BackButton';
 import Image from 'next/image';
 
@@ -46,16 +45,15 @@ export const AddPropertyForm: React.FC = () => {
 
     const watchedType = watch('type');
 
-    const onSubmit = async (data: PropertyFormData) => {
+    const onSubmit = async () => {
         if (!currentAgency || !user) return;
 
         setLoading(true);
         try {
             // Demo mode - simulate success
             await new Promise(resolve => setTimeout(resolve, 1000));
-            alert('Property added successfully! (Demo mode)');
         } catch (error) {
-            alert('Demo mode: Property creation simulated');
+            console.error('Demo mode: Property creation simulated', error);
         } finally {
             setLoading(false);
         }
@@ -293,6 +291,7 @@ export const AddPropertyForm: React.FC = () => {
                         Cancel
                     </button>
                     <button
+                        onClick={onSubmit}
                         type="submit"
                         disabled={loading}
                         className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

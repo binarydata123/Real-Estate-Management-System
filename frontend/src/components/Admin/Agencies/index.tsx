@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { MoreVertical, Search, PlusCircle, Building2, CheckCircle, Clock, XCircle } from 'lucide-react';
 import AddAgencyModal from './AddAgencyModal';
+import Image from 'next/image';
 
 // Mock data - in a real app, you'd fetch this from your API
 const agencies = [
@@ -178,7 +179,8 @@ export default function Agencies() {
                                         <tr key={agency.id}>
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                                 <div className="flex items-center">
-                                                    <div className="h-10 w-10 flex-shrink-0"><img className="h-10 w-10 rounded-full" src={agency.logo_url} alt={`${agency.name} logo`} /></div>
+                                                    <div className="h-10 w-10 flex-shrink-0">
+                                                        <Image width={100} height={100} className="h-10 w-10 rounded-full" src={agency.logo_url} alt={`${agency.name} logo`} /></div>
                                                     <div className="ml-4"><div className="font-medium text-gray-900 dark:text-white">{agency.name}</div></div>
                                                 </div>
                                             </td>

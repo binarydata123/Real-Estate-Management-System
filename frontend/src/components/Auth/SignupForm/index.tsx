@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -25,7 +24,6 @@ type SignupFormData = z.infer<typeof signupSchema>;
 const SignupForm = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
 
     // 2. Set up react-hook-form
     const {
@@ -89,7 +87,7 @@ const SignupForm = () => {
                 </div>
 
                 {/* Signup Form */}
-                <form onSubmit={handleSubmit(handleSignup)} className="space-y-3 md:space-y-6">
+                <form onSubmit={handleSubmit(handleSignup)} className="space-y-2 md:space-y-6">
                     {error && (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-2 md:p-4">
                             <p className="text-red-600 text-sm">{error}</p>

@@ -9,10 +9,12 @@ import {
     CalendarIcon,
     ChartBarIcon,
     Cog6ToothIcon,
-    XMarkIcon
+    XMarkIcon,
+    ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import { useAgency } from '@/context/AgencyContext';
 import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
 
 const navigation = [
     { name: 'Dashboard', href: '/agent/dashboard', icon: HomeIcon },
@@ -31,6 +33,7 @@ interface SidebarProps {
 
 export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     const { currentAgency } = useAgency();
+    const { signOut } = useAuth();
     const pathname = usePathname();
 
     return (
@@ -98,8 +101,8 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                             href={item.href}
                             onClick={onClose}
                             className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isActive
-                                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                 }`}
                         >
                             <Icon className="mr-3 h-5 w-5" aria-hidden="true" />
@@ -109,11 +112,15 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 })}
             </nav>
 
-            {/* REAMS Branding */}
-            <div className="p-4 border-t border-gray-200">
-                <div className="flex items-center justify-center text-gray-400">
-                    <span className="text-xs font-medium">Powered by REAMS</span>
-                </div>
+            {/* Logout Button */}
+            <div className="md:px-3 md:py-4 border-t border-gray-200 text-center mx-auto w-full">
+                <button
+                    onClick={() => signOut()}
+                    className="flex w-full justify-center text-red-500 items-center px-2 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                >
+                    <ArrowRightOnRectangleIcon className="mr-1 h-5 w-5" aria-hidden="true" />
+                    Sign Out
+                </button>
             </div>
         </div>
     );

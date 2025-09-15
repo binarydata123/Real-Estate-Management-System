@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { Edit, Eye, Trash2, Mail, Briefcase, BarChart2 } from 'lucide-react';
+import Image from 'next/image';
 
 // A more comprehensive user type based on Supabase auth and your DB schema
 export interface UserProfile {
@@ -59,7 +60,9 @@ export default function UserCard({ user, onEdit, onDelete, onViewProfile }: User
     return (
         <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 transform hover:scale-105 transition-transform duration-300">
             <div className="flex flex-col items-center p-6">
-                <img
+                <Image
+                    width={200}
+                    height={200}
                     className="w-24 h-24 mb-3 rounded-full shadow-lg object-cover"
                     src={avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`}
                     alt={`${fullName} avatar`}

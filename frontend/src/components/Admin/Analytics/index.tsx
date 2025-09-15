@@ -2,6 +2,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Users, Home, DollarSign, Activity, TrendingUp, UserPlus, Star } from 'lucide-react';
+import Image from 'next/image';
 
 // --- Mock Data (replace with your actual data fetching) ---
 const monthlySignups = [
@@ -147,7 +148,7 @@ export default function Analytics() {
                         {topAgents.map(agent => (
                             <li key={agent.id} className="flex items-center justify-between">
                                 <div className="flex items-center">
-                                    <img className="w-10 h-10 rounded-full object-cover mr-4" src={agent.avatar} alt={agent.name} />
+                                    <Image width={50} height={50} className="w-10 h-10 rounded-full object-cover mr-4" src={agent.avatar} alt={agent.name} />
                                     <div>
                                         <p className="font-semibold text-gray-800 dark:text-gray-200">{agent.name}</p>
                                         <p className="text-sm text-gray-500 dark:text-gray-400">{agent.deals} deals closed</p>

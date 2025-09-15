@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import api from '../api';
 
 /**
@@ -10,4 +10,8 @@ import api from '../api';
  */
 export const registerAgency = async (data: RegistrationData): Promise<AxiosResponse> => {
     return api.post('/auth/register-agency', data);
+};
+
+export const loginUser = async (data: LoginData): Promise<AxiosResponse> => {
+    return api.post('/auth/login', data);
 };

@@ -11,7 +11,6 @@ import { PropertyCard } from "./PropertyCard";
 
 export const Properties: React.FC = () => {
     const [showAddForm, setShowAddForm] = useState(false);
-    const [filters, setFilters] = useState<Record<string, any>>({});
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [propertyToShare, setPropertyToShare] = useState<Property | null>(null);
@@ -95,7 +94,7 @@ export const Properties: React.FC = () => {
             </div>
 
             {/* Filters */}
-            <PropertyFilters onFilterChange={setFilters} />
+            <PropertyFilters onFilterChange={() => { }} />
 
             {/* Properties Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">

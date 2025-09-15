@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { XMarkIcon, MapPinIcon, CurrencyRupeeIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 
 

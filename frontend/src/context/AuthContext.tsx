@@ -1,44 +1,37 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Loader } from 'lucide-react';
+import { loginUser } from '@/lib/Authentication/RegistrationAPI';
+import { AxiosError } from 'axios';
 
 export const AUTH_SESSION_KEY = 'auth-session';
 
-// --- Local Types to replace Supabase ---
+// --- Custom Auth Types ---
 export interface User {
     id: string;
-    email?: string;
-    app_metadata: {
-        provider?: string;
-        [key: string]: any;
-    };
-    user_metadata: {
-        [key: string]: any;
-    };
-    aud: string;
-    created_at: string;
+    name: string;
+    email: string;
+    agency?: { id: string };
 }
 
 export interface Session {
     access_token: string;
-    refresh_token: string;
     user: User;
-    token_type: string;
-    expires_in: number;
-    expires_at?: number;
 }
 
-export type SignInWithPasswordCredentials = Record<string, any>;
-export type AuthTokenResponsePassword = { data: { user: User | null; session: Session | null }; error: any };
-// --- End Local Types ---
+export type AuthResponse = {
+    data: { user: User | null; session: Session | null };
+    error: { message: string } | null;
+};
+// --- End Custom Auth Types ---
 
 interface AuthContextType {
     user: User | null;
     session: Session | null;
     loading: boolean;
-    signIn: (credentials: SignInWithPasswordCredentials) => Promise<AuthTokenResponsePassword>;
+    signIn: (credentials: LoginData) => Promise<AuthResponse>;
     signOut: () => Promise<void>;
 }
 
@@ -64,26 +57,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const pathname = usePathname();
 
     useEffect(() => {
-        const mockUser: User = {
-            id: 'demo-user-id',
-            email: 'demo@example.com',
-            app_metadata: { provider: 'email' },
-            user_metadata: { name: 'Demo User' },
-            aud: 'authenticated',
-            created_at: new Date().toISOString(),
+        const checkSession = () => {
+            try {
+                const sessionStr = localStorage.getItem(AUTH_SESSION_KEY);
+                if (sessionStr) {
+                    const savedSession: Session = JSON.parse(sessionStr);
+                    // NOTE: In a production app, you should verify the token with the backend here.
+                    // For this project, we'll trust the localStorage session.
+                    // The API interceptor will fail if the token is invalid.
+                    setSession(savedSession);
+                    setUser(savedSession.user);
+                }
+            } catch (error) {
+                console.error("Failed to parse session from localStorage", error);
+                localStorage.removeItem(AUTH_SESSION_KEY);
+            } finally {
+                setLoading(false);
+            }
         };
-        const mockSession: Session = {
-            access_token: 'demo-access-token',
-            refresh_token: 'demo-refresh-token',
-            user: mockUser,
-            token_type: 'bearer',
-            expires_in: 3600,
-            expires_at: Math.floor(Date.now() / 1000) + 3600,
-        };
-        setUser(mockUser);
-        setSession(mockSession);
-        localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(mockSession));
-        setLoading(false);
+
+        checkSession();
     }, []);
 
 
@@ -96,18 +89,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
     }, [user, loading, router, pathname]);
 
-    const signIn = async (credentials: SignInWithPasswordCredentials) => {
-        // Mock sign-in for frontend development
-        if (user && session) {
-            // Return a success-like response. The LoginForm will handle the redirect.
-            return { data: { user, session }, error: null };
+    const signIn = async (credentials: LoginData): Promise<AuthResponse> => {
+        try {
+            const response = await loginUser(credentials);
+            const { token, user: apiUser, agency } = response.data;
+
+            const user: User = {
+                id: apiUser.id,
+                name: apiUser.name,
+                email: apiUser.email,
+                agency: agency,
+            };
+
+            const newSession: Session = {
+                access_token: token,
+                user: user,
+            };
+
+            setSession(newSession);
+            setUser(user);
+            localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(newSession));
+
+            return { data: { user, session: newSession }, error: null };
+        } catch (error) {
+            const axiosError = error as AxiosError<{ message: string }>;
+            const errorMessage = axiosError.response?.data?.message || 'An unknown error occurred during sign-in.';
+            return { data: { user: null, session: null }, error: { message: errorMessage } };
         }
-        // This part should ideally not be reached if the mock is set up correctly.
-        return { data: { user: null, session: null }, error: { name: 'MockAuthError', message: 'Mock user not found' } as any };
     };
 
     const signOut = async () => {
-        console.log('Mock sign out');
         setUser(null);
         setSession(null);
         localStorage.removeItem(AUTH_SESSION_KEY);

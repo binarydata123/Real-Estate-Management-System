@@ -11,6 +11,11 @@ declare global {
         agencySlug: string;
     }
 
+    interface LoginData {
+        email: string;
+        password: string;
+    }
+
     type AgencyStatus = "approved" | "pending" | "rejected";
 
     interface Agency {
@@ -43,6 +48,7 @@ declare global {
 
 export {
     RegistrationData,
+    LoginData,
     AgencyStatus,
     Agency,
     Property

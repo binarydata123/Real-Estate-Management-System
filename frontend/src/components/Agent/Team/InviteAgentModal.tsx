@@ -37,7 +37,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({ onClose, onS
       onSuccess?.();
       onClose();
     } catch (error) {
-      alert('Demo mode: Invitation sending simulated');
+      console.error('Demo mode: Invitation sending simulated', error);
     } finally {
       setLoading(false);
     }

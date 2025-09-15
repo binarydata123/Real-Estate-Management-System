@@ -43,7 +43,7 @@ export const SecuritySettings: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       alert('Security settings saved! (Demo mode)');
     } catch (error) {
-      alert('Demo mode: Settings save simulated');
+      console.error('Demo mode: Settings save simulated', error);
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export const SecuritySettings: React.FC = () => {
       setShowPasswordForm(false);
       alert('Password changed successfully! (Demo mode)');
     } catch (error) {
-      alert('Demo mode: Password change simulated');
+      console.error('Demo mode: Password change simulated', error);
     } finally {
       setLoading(false);
     }
@@ -157,10 +157,7 @@ export const SecuritySettings: React.FC = () => {
           <div>
             <h4 className="font-medium text-gray-900">Password</h4>
             <p className="text-sm text-gray-600">
-              Last changed: {preferences.password_last_changed
-                ? format(new Date(preferences.password_last_changed), 'MMM dd, yyyy')
-                : 'Never'
-              }
+              Last changed: Never
             </p>
           </div>
           <button

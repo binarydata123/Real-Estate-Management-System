@@ -59,7 +59,7 @@ export const Customers: React.FC = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
-                    <p className="text-gray-600 md:mt-1">Manage your customer relationships</p>
+                    <p className="text-gray-600 md:mt-1">Manage your customer </p>
                 </div>
                 <button
                     onClick={() => setShowAddForm(true)}

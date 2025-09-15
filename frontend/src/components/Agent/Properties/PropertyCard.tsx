@@ -2,11 +2,8 @@ import React from 'react';
 import {
     MapPinIcon,
     ShareIcon,
-    EyeIcon,
-    HeartIcon,
-    CurrencyRupeeIcon
+    EyeIcon
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import { BathIcon, BedDoubleIcon, RulerIcon } from 'lucide-react';
 
@@ -22,8 +19,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     property,
     onShare,
     onView,
-    onFavorite,
-    isFavorited = false
 }) => {
     const formatPrice = (price: number) => {
         if (price >= 10000000) { // 1 crore

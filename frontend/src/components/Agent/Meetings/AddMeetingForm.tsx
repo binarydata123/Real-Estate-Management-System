@@ -35,11 +35,11 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({ onClose, onSucce
         { id: '3', title: 'Spacious 4BHK Villa' },
     ];
 
-    const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<MeetingFormData>({
+    const { register, handleSubmit, formState: { errors } } = useForm<MeetingFormData>({
         resolver: zodResolver(meetingSchema),
     });
 
-    const onSubmit = async (data: MeetingFormData) => {
+    const onSubmit = async () => {
         setLoading(true);
         try {
             // Demo mode - simulate success
@@ -48,7 +48,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({ onClose, onSucce
             onSuccess?.();
             onClose();
         } catch (error) {
-            alert('Demo mode: Meeting scheduling simulated');
+            console.error('Demo mode: Meeting scheduling simulated', error);
         } finally {
             setLoading(false);
         }

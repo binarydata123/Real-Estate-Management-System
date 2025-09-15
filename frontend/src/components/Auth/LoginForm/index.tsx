@@ -4,22 +4,37 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 
+const loginSchema = z.object({
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(1, 'Password is required'),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
 export const LoginForm = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const { signIn } = useAuth();
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+    });
+
+    const handleLogin = async (data: LoginFormData) => {
         setLoading(true);
         setError(null);
 
-        const { error } = await signIn({ email, password });
+        const { error } = await signIn(data);
 
         if (error) {
             setError(error.message || "Invalid credentials");
@@ -44,7 +59,7 @@ export const LoginForm = () => {
                 </div>
 
                 {/* Login Form */}
-                <form onSubmit={handleLogin} className="space-y-3 md:space-y-6">
+                <form onSubmit={handleSubmit(handleLogin)} className="space-y-2 md:space-y-6">
                     {error && (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                             <p className="text-red-600 text-sm">{error}</p>
@@ -61,12 +76,11 @@ export const LoginForm = () => {
                         <input
                             id="email"
                             type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
+                            {...register('email')}
                             className="w-full md:px-4 px-2 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Enter your email"
                         />
+                        {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
                     </div>
 
                     <div>
@@ -79,12 +93,11 @@ export const LoginForm = () => {
                         <input
                             id="password"
                             type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
+                            {...register('password')}
                             className="w-full md:px-4 px-2 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Enter your password"
                         />
+                        {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
                     </div>
 
                     <button
@@ -96,37 +109,28 @@ export const LoginForm = () => {
                     </button>
                 </form>
 
-                {/* Footer */}
-                <div className="md:mt-6 mt-2 text-center">
-                    <div className="mb-2 md:mb-4 p-2 md:p-4 bg-blue-50 rounded-lg">
-                        <h3 className="font-medium text-blue-900 mb-2">
-                            Demo Login Credentials
-                        </h3>
-                        <div className="text-sm text-blue-800 space-y-1">
-                            <p>
-                                <strong>Agent Dashboard:</strong> Any email/password
-                            </p>
-                            <p>
-                                <strong>User Dashboard:</strong>{" "}
-                                <Link
-                                    href="/user-dashboard"
-                                    className="underline hover:text-blue-900"
-                                >
-                                    Click here to access
-                                </Link>
-                            </p>
-                        </div>
+                {/* Footer with registration and forgot password */}
+                <div className="md:mt-6 mt-2 text-center space-y-1">
+                    <div>
+                        <Link
+                            href="/auth/forgot-password"
+                            className="inline-block text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                        >
+                            Forgot your password?
+                        </Link>
                     </div>
-                    <p className="text-sm text-gray-500">
-                        Don&apos;t have an account?{" "}
+
+                    <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
+                        <span>Don’t have an account?</span>
                         <Link
                             href="/auth/signup"
-                            className="text-blue-600 hover:text-blue-700 font-medium"
+                            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
                         >
                             Create Agency
                         </Link>
-                    </p>
+                    </div>
                 </div>
+
             </div>
         </div>
     );
