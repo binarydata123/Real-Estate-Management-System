@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
-import { useAgency } from '@/context/AgencyContext';
 import { useAuth } from '@/context/AuthContext';
 import BackButton from '@/components/Common/BackButton';
 import Image from 'next/image';
@@ -13,7 +12,6 @@ import { propertySchema } from '@/schemas/Agent/propertySchema';
 type PropertyFormData = z.infer<typeof propertySchema>;
 
 export const AddPropertyForm: React.FC = () => {
-    const { currentAgency } = useAgency();
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [images, setImages] = useState<string[]>(['https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg']);
@@ -30,7 +28,7 @@ export const AddPropertyForm: React.FC = () => {
     const watchedType = watch('type');
 
     const onSubmit = async () => {
-        if (!currentAgency || !user) return;
+        if (!user) return;
 
         setLoading(true);
         try {

@@ -1,7 +1,7 @@
 'use client'
 import { AgentHeader } from '@/components/Agent/Common/AgentHeader';
 import { AgentSidebar } from '@/components/Agent/Common/AgentSidebar';
-import { useAgency } from '@/context/AgencyContext';
+import { useAuth } from '@/context/AuthContext';
 import { BuildingOfficeIcon } from '@heroicons/react/24/outline';
 import { Calendar, CalendarIcon, LayoutDashboard, Loader, MoreVertical } from 'lucide-react';
 import Link from 'next/link';
@@ -13,9 +13,8 @@ interface LayoutProps {
 }
 
 export default function AgentLayout({ children }: LayoutProps) {
-    const { loading } = useAgency();
+    const { loading } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-    const { currentAgency } = useAgency();
 
     const footerLinks = [
         {
@@ -84,7 +83,7 @@ export default function AgentLayout({ children }: LayoutProps) {
                     {children}
                 </main>
                 {/* Footer Links */}
-                <div className="fixed bottom-0 left-0 w-full   py-2 md:hidden" style={{ backgroundColor: currentAgency?.primary_color }}>
+                <div className="fixed bottom-0 left-0 w-full   py-2 md:hidden" style={{ backgroundColor: "#2563eb" }}>
                     <div className="grid grid-cols-5 gap-2 text-white">
                         {footerLinks
                             // .filter((link) => hasPerm(permissionKeyMap[link.id]))

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../models/UserModel.js';
+import { User } from '../models/Common/UserModel.js';
 
 /**
  * Middleware to protect routes by verifying a JWT.

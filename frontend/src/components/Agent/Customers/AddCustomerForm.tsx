@@ -1,12 +1,10 @@
 'use client';
 
-import { useAgency } from '@/context/AgencyContext';
 import { useAuth } from '@/context/AuthContext';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { createCustomer } from '@/lib/Agent/CustomerAPI';
 import axios from 'axios';
 import { CustomerFormData, customerSchema } from '@/schemas/Agent/customerSchema';
 
@@ -16,7 +14,6 @@ interface AddCustomerFormProps {
 }
 
 export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({ onClose, onSuccess }) => {
-    const { currentAgency } = useAgency();
     const { user, session } = useAuth();
     const [loading, setLoading] = useState(false);
     const [showMoreInfo, setShowMoreInfo] = useState(false);
@@ -30,12 +27,11 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({ onClose, onSuc
 
     const budgetMin = watch('budget_min');
 
-    const onSubmit = async (data: CustomerFormData) => {
-        if (!currentAgency || !user || !session) return;
+    const onSubmit = async () => {
+        if (!user || !session) return;
 
         setLoading(true);
         try {
-            await createCustomer(currentAgency.id, data);
             alert('Customer added successfully!');
             onSuccess();
             onClose();

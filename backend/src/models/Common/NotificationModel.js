@@ -6,9 +6,9 @@ const notificationSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    agency: {
+    agent: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Agency',
+        ref: 'Agent',
         required: true
     },
     message: {

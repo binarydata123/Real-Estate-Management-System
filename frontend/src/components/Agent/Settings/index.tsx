@@ -7,14 +7,12 @@ import {
     PaintBrushIcon,
     UsersIcon
 } from '@heroicons/react/24/outline';
-import { useAgency } from '@/context/AgencyContext';
 import { useAuth } from '@/context/AuthContext';
 import { TeamManagement } from '../Team/TeamManagement';
 import { NotificationSettings } from './NotificationSettings';
 import { SecuritySettings } from './SecuritySettings';
 
 export const Settings: React.FC = () => {
-    const { currentAgency } = useAgency();
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
 
@@ -88,7 +86,6 @@ export const Settings: React.FC = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    defaultValue={currentAgency?.name}
                                     className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                 />
                             </div>
@@ -102,7 +99,6 @@ export const Settings: React.FC = () => {
                                     </span>
                                     <input
                                         type="text"
-                                        defaultValue={currentAgency?.slug}
                                         className="flex-1 md:px-4 px-2 py-2 border border-gray-300 rounded-r-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
@@ -131,12 +127,12 @@ export const Settings: React.FC = () => {
                                 <div className="flex items-center space-x-3">
                                     <input
                                         type="color"
-                                        defaultValue={currentAgency?.primary_color}
+                                        defaultValue={"#2563eb"}
                                         className="h-10 w-16 border border-gray-300 rounded"
                                     />
                                     <input
                                         type="text"
-                                        defaultValue={currentAgency?.primary_color}
+                                        defaultValue={"#2563eb"}
                                         className="flex-1 md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
@@ -148,12 +144,12 @@ export const Settings: React.FC = () => {
                                 <div className="flex items-center space-x-3">
                                     <input
                                         type="color"
-                                        defaultValue={currentAgency?.secondary_color}
+                                        defaultValue={"#64748b"}
                                         className="h-10 w-16 border border-gray-300 rounded"
                                     />
                                     <input
                                         type="text"
-                                        defaultValue={currentAgency?.secondary_color}
+                                        defaultValue={"#64748b"}
                                         className="flex-1 md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
@@ -165,7 +161,6 @@ export const Settings: React.FC = () => {
                             </label>
                             <input
                                 type="url"
-                                defaultValue={currentAgency?.logo_url as string}
                                 placeholder="https://example.com/logo.png"
                                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                             />
