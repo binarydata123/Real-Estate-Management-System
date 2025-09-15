@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import axios from 'axios';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
-import { registerAgency } from '@/lib/Authentication/RegistrationAPI';
+import { registerAgency } from '@/lib/Authentication/AuthenticationAPI';
 
 // 1. Define the validation schema with Zod
 const signupSchema = z.object({

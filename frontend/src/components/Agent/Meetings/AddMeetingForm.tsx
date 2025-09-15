@@ -4,13 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { XMarkIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { meetingSchema } from '@/schemas/Agent/meetingSchema';
 
-const meetingSchema = z.object({
-    customer_name: z.string().min(1, 'Customer name is required'),
-    property_title: z.string().optional(),
-    scheduled_date: z.string().min(1, 'Date is required'),
-    scheduled_time: z.string().min(1, 'Time is required'),
-});
 
 type MeetingFormData = z.infer<typeof meetingSchema>;
 

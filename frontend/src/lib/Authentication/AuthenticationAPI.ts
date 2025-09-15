@@ -15,3 +15,11 @@ export const registerAgency = async (data: RegistrationData): Promise<AxiosRespo
 export const loginUser = async (data: LoginData): Promise<AxiosResponse> => {
     return api.post('/auth/login', data);
 };
+
+export const checkSession = async (token: string): Promise<AxiosResponse> => {
+    return api.get('/auth/check-session', {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}

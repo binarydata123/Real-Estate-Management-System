@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { Agency } from '../../models/AgencyModel.js';
 import { User } from '../../models/UserModel.js';
 import generateToken from '../../utils/generateToken.js';
@@ -33,13 +34,13 @@ const registrationController = {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            // 2. Create the user (AgencyAdmin)
+            // 2. Create the user (agency)
             const user = new User({
                 name: fullName,
                 email,
                 password: hashedPassword,
                 phone,
-                role: 'AgencyAdmin',
+                role: 'agency',
             });
             const createdUser = await user.save({ session });
 
@@ -75,8 +76,8 @@ const registrationController = {
             res.status(201).json({
                 message: 'Agency registration successful! You can now log in.',
                 token: generateToken(createdUser._id),
-                user: { id: createdUser._id, name: createdUser.name, email: createdUser.email },
-                agency: { id: createdAgency._id, name: createdAgency.name, slug: createdAgency.slug },
+                user: { _id: createdUser._id, name: createdUser.name, email: createdUser.email },
+                agency: { _id: createdAgency._id, name: createdAgency.name, slug: createdAgency.slug },
             });
         } catch (error) {
             await session.abortTransaction();
@@ -110,9 +111,14 @@ const registrationController = {
             // Successful login
             res.json({
                 message: 'Login successful!',
-                token: generateToken(user._id),
-                user: { id: user._id, name: user.name, email: user.email },
-                agency: user.agency ? { id: user.agency } : null,
+                token: generateToken(user._id), // Keep token at top level
+                user: { // Nest all user-related data under a 'user' object for consistency
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    agency: user.agency ? { _id: user.agency } : null,
+                },
             });
         } catch (error) {
             res.status(500).json({ message: 'Server error during login.' });
@@ -131,6 +137,29 @@ const registrationController = {
 
         } catch (error) {
             res.status(500).json({ message: 'Server error during password reset.' });
+        }
+    },
+
+    checkSession: async (req, res) => {
+        // If this controller is reached, the 'protect' middleware has already
+        // verified the token and attached the user to req.user.
+        try {
+            // The user is authenticated. We can send back the user details
+            // to confirm the session is valid and to provide up-to-date user info.
+            res.status(200).json({
+                message: "Session active.",
+                user: {
+                    _id: req.user._id,
+                    name: req.user.name,
+                    email: req.user.email,
+                    role: req.user.role,
+                    agency: req.user.agency ? { _id: req.user.agency } : null,
+                },
+            });
+        } catch (error) {
+            // This catch block is for unexpected errors within this controller.
+            console.error("Session check controller error:", error);
+            res.status(500).json({ message: "Server error during session check." });
         }
     }
 }
