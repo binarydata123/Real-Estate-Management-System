@@ -1,11 +1,11 @@
 import express from "express";
 import {
   createCustomer,
-  getCustomers,
-  getCustomerById,
-  updateCustomer,
   deleteCustomer,
-} from "../controllers/Agent/CustomerController";
+  getCustomerById,
+  getCustomers,
+  updateCustomer,
+} from "../../../controllers/Agent/CustomerController";
 
 const router = express.Router();
 
