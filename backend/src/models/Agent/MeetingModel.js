@@ -1,13 +1,43 @@
+import mongoose from "mongoose";
+
 const meetingSchema = new mongoose.Schema({
-    title: String,
-    agenda: String,
-    date: Date,
-    time: String,
-    participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    property: { type: mongoose.Schema.Types.ObjectId, ref: "Property" },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    status: { type: String, enum: ["Scheduled", "Completed", "Cancelled"], default: "Scheduled" },
-    createdAt: { type: Date, default: Date.now },
+  customer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Customer",
+    required: [true, "Customer is required"],
+  },
+  property: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Property",
+    default: null,
+  },
+  agency: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Agency",
+    required: [true, "Agency is required"],
+  },
+  date: {
+    type: Date,
+    required: [true, "Date is required"],
+  },
+  status: {
+    type: String,
+    enum: {
+      values: ["scheduled", "completed", "cancelled", "rescheduled"],
+      message:
+        "Status must be one of: scheduled, completed, cancelled, rescheduled",
+    },
+    default: "scheduled",
+  },
+  time: {
+    type: String,
+    match: [
+      /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+      "Time must be in HH:mm format",
+    ],
+    default: null,
+  },
+  createdAt: { type: Date, default: Date.now },
 });
 
-export const Meeting = mongoose.model("Meeting", meetingSchema);
+export const Meetings = mongoose.model("Meetings", meetingSchema);
