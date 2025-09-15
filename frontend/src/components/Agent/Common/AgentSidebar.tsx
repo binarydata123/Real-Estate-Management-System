@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
     HomeIcon,
@@ -30,10 +31,9 @@ interface SidebarProps {
 }
 
 export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-    // const { currentAgency } = useAgency();
-    const { signOut } = useAuth();
+    const { signOut, user } = useAuth();
     const pathname = usePathname();
-
+    console.log(user)
     return (
         <div
             className={`
@@ -45,34 +45,34 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <div className="flex justify-between items-center border-b border-gray-200">
                 {/* Agency Branding */}
                 <div className="md:p-5 p-2">
-                    {/* {currentAgency ? ( */}
-                    <div className="flex items-center space-x-3">
-                        {/* {currentAgency.logo_url ? (
+                    {user ? (
+                        <div className="flex items-center space-x-3">
+                            {user?.agency?.logoUrl ? (
                                 <Image
-                                    src={currentAgency.logo_url}
-                                    alt={'Real Estate Agency'}
+                                    src={user?.agency?.logoUrl || ''}
+                                    alt={user.agency.name}
                                     className="h-10 w-10 rounded-lg object-cover"
                                     width={40}
                                     height={40}
                                 />
-                            ) : ( */}
-                        <div
-                            className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
-                            style={{ backgroundColor: "#2563eb" }}
-                        >
-                            {"Real Estate Agency".charAt(0)}
+                            ) : (
+                                <div
+                                    className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
+                                    style={{ backgroundColor: "#2563eb" }}
+                                >
+                                    {user.agency?.name.charAt(0)}
+                                </div>
+                            )}
+                            <div>
+                                <h2 className="font-semibold text-gray-900">{user.agency?.name}</h2>
+                                <p className="text-sm text-gray-500">Real Estate Agency</p>
+                            </div>
                         </div>
-                        {/* )} */}
-                        <div>
-                            <h2 className="font-semibold text-gray-900">Real Estate Agency</h2>
-                            <p className="text-sm text-gray-500">Real Estate Agency</p>
-                        </div>
-                    </div>
-                    {/* ) : (
+                    ) : (
                         <div className="text-center">
                             <p className="text-sm text-gray-500">No agency selected</p>
                         </div>
-                    )} */}
+                    )}
                 </div>
 
                 {/* Close button for mobile */}
@@ -114,7 +114,7 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <div className="md:px-3 md:py-4 border-t border-gray-200 text-center mx-auto w-full">
                 <button
                     onClick={() => signOut()}
-                    className="flex w-full justify-center text-red-500 items-center px-2 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                    className="flex w-full justify-center text-red-500 items-center px-2 py-2 text-sm font-medium rounded-lg  hover:bg-red-50 hover:text-red-700 transition-colors"
                 >
                     <ArrowRightOnRectangleIcon className="mr-1 h-5 w-5" aria-hidden="true" />
                     Sign Out
