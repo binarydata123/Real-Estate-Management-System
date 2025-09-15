@@ -12,8 +12,6 @@ import {
     XMarkIcon,
     ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
-import { useAgency } from '@/context/AgencyContext';
-import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 
 const navigation = [
@@ -32,7 +30,7 @@ interface SidebarProps {
 }
 
 export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-    const { currentAgency } = useAgency();
+    // const { currentAgency } = useAgency();
     const { signOut } = useAuth();
     const pathname = usePathname();
 
@@ -47,34 +45,34 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <div className="flex justify-between items-center border-b border-gray-200">
                 {/* Agency Branding */}
                 <div className="md:p-5 p-2">
-                    {currentAgency ? (
-                        <div className="flex items-center space-x-3">
-                            {currentAgency.logo_url ? (
+                    {/* {currentAgency ? ( */}
+                    <div className="flex items-center space-x-3">
+                        {/* {currentAgency.logo_url ? (
                                 <Image
                                     src={currentAgency.logo_url}
-                                    alt={currentAgency.name}
+                                    alt={'Real Estate Agency'}
                                     className="h-10 w-10 rounded-lg object-cover"
                                     width={40}
                                     height={40}
                                 />
-                            ) : (
-                                <div
-                                    className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
-                                    style={{ backgroundColor: currentAgency.primary_color }}
-                                >
-                                    {currentAgency.name.charAt(0)}
-                                </div>
-                            )}
-                            <div>
-                                <h2 className="font-semibold text-gray-900">{currentAgency.name}</h2>
-                                <p className="text-sm text-gray-500">Real Estate Agency</p>
-                            </div>
+                            ) : ( */}
+                        <div
+                            className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
+                            style={{ backgroundColor: "#2563eb" }}
+                        >
+                            {"Real Estate Agency".charAt(0)}
                         </div>
-                    ) : (
+                        {/* )} */}
+                        <div>
+                            <h2 className="font-semibold text-gray-900">Real Estate Agency</h2>
+                            <p className="text-sm text-gray-500">Real Estate Agency</p>
+                        </div>
+                    </div>
+                    {/* ) : (
                         <div className="text-center">
                             <p className="text-sm text-gray-500">No agency selected</p>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 {/* Close button for mobile */}

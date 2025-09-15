@@ -1,10 +1,9 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { Agency } from '../../models/AgencyModel.js';
-import { User } from '../../models/UserModel.js';
+import { Agency } from '../../models/Agent/AgencyModel.js';
+import { User } from '../../models/Common/UserModel.js';
 import generateToken from '../../utils/generateToken.js';
-import { Notification } from '../../models/NotificationModel.js';
+import { Notification } from '../../models/Common/NotificationModel.js';
 
 const registrationController = {
     registerAgency: async (req, res) => {

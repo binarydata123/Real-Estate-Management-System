@@ -1,8 +1,7 @@
-import agentRoutes from "./agentRoutes.js";
-import propertyRoutes from "./propertyRoutes.js";
-import userRoutes from "./userRoutes.js";
-import authRoutes from "./authRoutes.js";
-import customerRoutes from "./customerRoutes.js";
+import agentRoutes from "./Agent/index.js";
+import propertyRoutes from "./Agent/Property/index.js";
+import userRoutes from "./Common/User/index.js";
+import authRoutes from "./Authentication/index.js";
 import express from "express";
 
 const router = express.Router();
