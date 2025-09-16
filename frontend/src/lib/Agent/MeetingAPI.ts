@@ -12,6 +12,9 @@ export const updateMeeting = async (
 ) => {
   return await api.put(`/agents/meetings/update/${id}`, meetingData);
 };
+export const updateMeetingStatus = async (id: string, status: string) => {
+  return await api.put(`/agents/meetings/update-status/${id}`, { status });
+};
 // ✅ Get meeting by ID
 export const getMeetingById = async (id: string) => {
   return await api.get(`/agents/meetings/getById/${id}`);
@@ -21,6 +24,12 @@ export const deleteMeeting = async (id: string) => {
   return await api.delete(`/agents/meetings/delete/${id}`);
 };
 // ✅ Get all meetings
-export const getMeetingsByAgency = async (agencyId: string) => {
-  return await api.get(`/agents/meetings/get-all/${agencyId}`);
+export const getMeetingsByAgency = async (
+  agencyId: string,
+  page = 1,
+  limit = 10
+) => {
+  return await api.get(
+    `/agents/meetings/get-all/${agencyId}?page=${page}&limit=${limit}`
+  );
 };

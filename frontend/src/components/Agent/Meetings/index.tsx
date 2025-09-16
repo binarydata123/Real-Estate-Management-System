@@ -3,28 +3,43 @@ import React, { useEffect, useState } from "react";
 import { PlusIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { AddMeetingForm } from "./AddMeetingForm";
-import { getMeetingsByAgency } from "@/lib/Agent/MeetingAPI";
+import {
+  getMeetingsByAgency,
+  updateMeetingStatus,
+} from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
 import { EditMeetingForm } from "./EditMeetingForm";
 import ConfirmDialog from "../Common/confirmDialogBox";
+import { Pagination } from "../Common/Pagination";
 
 export const Meetings: React.FC = () => {
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [showEditForm, setShowEditForm] = React.useState(false);
   const [meetingId, setMeetingId] = useState<string | null>(null);
+  const [meetingStatus, setMeetingStatus] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const { user } = useAuth();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
 
-  const fetchMeetings = async () => {
+  const fetchMeetings = async (page = 1) => {
     if (!user?.agency?._id) return;
-    const meetings = await getMeetingsByAgency(user?.agency?._id);
-    console.log(meetings.data.data);
-    setMeetings(meetings.data.data);
+    const res = await getMeetingsByAgency(user?.agency?._id, page, 10); // 10 per page
+    setMeetings(res.data.data);
+    setTotalPages(res.data.pagination.totalPages);
+    // setCurrentPage(res.data.pagination.page);
   };
-  const onEdit = (id: string) => {
+
+  // page change handler
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchMeetings(page);
+  };
+  const onEdit = (id: string, status?: string) => {
     setShowEditForm(true);
     setMeetingId(id);
+    if (status) setMeetingStatus(status);
   };
   const onCancel = (id: string) => {
     setShowConfirmDialog(true);
@@ -33,8 +48,10 @@ export const Meetings: React.FC = () => {
   useEffect(() => {
     fetchMeetings();
   }, [user?.agency?._id]);
-  const handleDelete = () => {
+  const handleStatusChange = async (status: string) => {
     setShowConfirmDialog(false);
+    if (meetingId) await updateMeetingStatus(meetingId, status);
+    fetchMeetings(currentPage);
   };
 
   const getStatusColor = (status: string) => {
@@ -114,7 +131,7 @@ export const Meetings: React.FC = () => {
 
                   <div>
                     <p className="text-gray-600 mb-1">Property</p>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 break-words">
                       {typeof meeting.property === "string"
                         ? meeting.property
                         : meeting.property?.title || "No property info"}
@@ -135,7 +152,7 @@ export const Meetings: React.FC = () => {
                   </span>
                 )}
 
-                {meeting.status === "scheduled" && (
+                {meeting.status !== "cancelled" && (
                   <div className="flex md:flex-col flex-row gap-2">
                     <button
                       // onClick={() => onJoin?.(meeting)}
@@ -154,6 +171,18 @@ export const Meetings: React.FC = () => {
                       className="text-red-600 hover:text-red-700 text-sm font-medium"
                     >
                       Cancel
+                    </button>
+                  </div>
+                )}
+                {meeting.status === "cancelled" && (
+                  <div className="flex md:flex-col flex-row gap-2">
+                    <button
+                      onClick={() => {
+                        onEdit?.(meeting._id, "rescheduled");
+                      }}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                      Reschedule
                     </button>
                   </div>
                 )}
@@ -188,7 +217,7 @@ export const Meetings: React.FC = () => {
           onClose={() => setShowAddForm(false)}
           onSuccess={() => {
             setShowAddForm(false);
-            fetchMeetings();
+            fetchMeetings(currentPage);
           }}
         />
       )}
@@ -196,23 +225,34 @@ export const Meetings: React.FC = () => {
       {showEditForm && (
         <EditMeetingForm
           meetingId={meetingId}
+          meetingStatus={meetingStatus}
           onClose={() => setShowEditForm(false)}
           onSuccess={() => {
             setShowEditForm(false);
-            fetchMeetings();
+            fetchMeetings(currentPage);
           }}
         />
       )}
       <ConfirmDialog
         open={showConfirmDialog}
         onCancel={() => setShowConfirmDialog(false)}
-        onConfirm={handleDelete}
+        onConfirm={() => handleStatusChange("cancelled")}
         heading="Are you sure?"
         description="This meeting will be cancelled, and this action cannot be undone"
         confirmText="Cancel meeting"
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"
       />
+      {meetings.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          siblingCount={1}
+          showFirstLast={true}
+          showPrevNext={true}
+        />
+      )}
     </div>
   );
 };
