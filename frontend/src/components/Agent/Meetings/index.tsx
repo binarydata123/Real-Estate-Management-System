@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { EditMeetingForm } from "./EditMeetingForm";
 import ConfirmDialog from "../Common/confirmDialogBox";
 import { Pagination } from "../Common/Pagination";
+import { NoData } from "../Common/NoData";
 
 export const Meetings: React.FC = () => {
   const [showAddForm, setShowAddForm] = React.useState(false);
@@ -193,22 +194,14 @@ export const Meetings: React.FC = () => {
       </div>
 
       {meetings.length === 0 && (
-        <div className="text-center py-12">
-          <CalendarIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No meetings scheduled
-          </h3>
-          <p className="text-gray-500 mb-6">
-            Start scheduling meetings with your customers
-          </p>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Schedule Your First Meeting
-          </button>
-        </div>
+        <NoData
+          icon={<CalendarIcon className="h-24 w-24 text-gray-400" />}
+          buttonIcon={<PlusIcon className="h-5 w-5 mr-2" />}
+          heading="No meetings scheduled"
+          description="Start scheduling meetings with your customers"
+          buttonText="Schedule Your First Meeting"
+          onButtonClick={() => setShowAddForm(true)}
+        />
       )}
 
       {/* Add Meeting Modal */}
@@ -238,21 +231,20 @@ export const Meetings: React.FC = () => {
         onCancel={() => setShowConfirmDialog(false)}
         onConfirm={() => handleStatusChange("cancelled")}
         heading="Are you sure?"
-        description="This meeting will be cancelled, and this action cannot be undone"
+        description="Cancelling this meeting is permanent and cannot be reversed. Please confirm your action."
         confirmText="Cancel meeting"
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"
       />
-      {meetings.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          siblingCount={1}
-          showFirstLast={true}
-          showPrevNext={true}
-        />
-      )}
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        siblingCount={1}
+        showFirstLast={true}
+        showPrevNext={true}
+      />
     </div>
   );
 };
