@@ -60,16 +60,21 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
         property: data.property || null,
         agency: user?.agency?._id,
         date: data.date,
-        time: data.time || null,
+        time: data.time,
         status: data.status,
       };
       await createMeeting(payload);
       alert("Meeting scheduled successfully!");
       onSuccess?.();
       onClose();
-    } catch (error: any) {
-      console.error("Failed to schedule meeting:", error);
-      alert(error.message || "Failed to schedule meeting");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Failed to update meeting:", error);
+        alert(error.message);
+      } else {
+        console.error("Failed to update meeting:", error);
+        alert("Failed to update meeting");
+      }
     } finally {
       setLoading(false);
     }

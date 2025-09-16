@@ -12,19 +12,30 @@ export const createMeeting = async (req, res) => {
   }
 };
 
-// Get all meetings
-// GET /agents/meetings/agency/:agencyId
+
+// GET /agents/meetings/get-all/:id?page=1&limit=10
 export const getMeetingsByAgency = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(req.params);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    const meetings = await Meetings.find({ agency: id });
-    // .populate("customer")
-    // .populate("property")
-    // .populate("agency");
+    const total = await Meetings.countDocuments({ agency: id });
+    const meetings = await Meetings.find({ agency: id })
+      .skip(skip)
+      .limit(limit)
+      .sort({ date: -1 }); // optional: sort by latest
 
-    res.json({ success: true, data: meetings });
+    res.json({
+      success: true,
+      data: meetings,
+      pagination: {
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -53,6 +64,33 @@ export const updateMeeting = async (req, res) => {
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,
       req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedMeeting) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Meeting not found" });
+    }
+
+    res.json({ success: true, data: updatedMeeting });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+export const updateMeetingStatus = async (req, res) => {
+  try {
+    const { status } = req.body; // only accept status
+    console.log(req.body);
+    if (!status) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Status is required" });
+    }
+
+    const updatedMeeting = await Meetings.findByIdAndUpdate(
+      req.params.id,
+      { status }, // only update status
       { new: true, runValidators: true }
     );
 
