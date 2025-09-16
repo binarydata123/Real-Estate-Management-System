@@ -24,7 +24,9 @@ export const getCustomers = async (req, res) => {
         .status(400)
         .json({ success: false, message: "userId is required" });
     }
-    const customers = await Customer.find({ agencyId: userId });
+    const customers = await Customer.find({ agencyId: userId }).sort({
+      _id: -1,
+    });
     res.json({ success: true, data: customers });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

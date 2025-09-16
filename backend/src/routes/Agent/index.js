@@ -1,6 +1,4 @@
 import express from "express";
-import customerRoutes from "../Agent/Customer/index.js";
-
 import customerRoutes from "./Customer/index.js";
 import meetingRoutes from "./Meetings/index.js";
 

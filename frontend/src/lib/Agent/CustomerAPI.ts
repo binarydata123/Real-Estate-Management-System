@@ -25,3 +25,6 @@ export const updateCustomer = async (
   );
   return response;
 };
+export const deleteCustomerById = async (id: string) => {
+  return await api.delete(`/agents/customers/delete/${id}`);
+};
