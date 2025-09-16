@@ -1,44 +1,41 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { PlusIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { AddMeetingForm } from "./AddMeetingForm";
-import { getAllMeetings } from "@/lib/Agent/MeetingAPI";
+import { getMeetingsByAgency } from "@/lib/Agent/MeetingAPI";
+import { useAuth } from "@/context/AuthContext";
+import { EditMeetingForm } from "./EditMeetingForm";
+import ConfirmDialog from "../Common/confirmDailogBox";
 
 export const Meetings: React.FC = () => {
   const [showAddForm, setShowAddForm] = React.useState(false);
+  const [showEditForm, setShowEditForm] = React.useState(false);
+  const [meetingId, setMeetingId] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
 
-  // Mock meetings data
-  const meetings = [
-    {
-      id: "1",
-      customer: "Sarah Johnson",
-      property: "Luxury 3BHK Apartment",
-      scheduled_at: "2025-01-10T10:00:00Z",
-      status: "scheduled",
-    },
-    {
-      id: "2",
-      customer: "Michael Chen",
-      property: "Premium Commercial Office",
-      scheduled_at: "2025-01-10T14:30:00Z",
-      status: "scheduled",
-    },
-    {
-      id: "3",
-      customer: "David Wilson",
-      property: "Spacious Villa",
-      scheduled_at: "2025-01-08T16:00:00Z",
-      status: "completed",
-    },
-  ];
   const fetchMeetings = async () => {
-    const meetings = await getAllMeetings();
-    console.log(meetings);
+    if (!user?.agency?._id) return;
+    const meetings = await getMeetingsByAgency(user?.agency?._id);
+    console.log(meetings.data.data);
+    setMeetings(meetings.data.data);
+  };
+  const onEdit = (id: string) => {
+    setShowEditForm(true);
+    setMeetingId(id);
+  };
+  const onCancel = (id: string) => {
+    setShowConfirmDialog(true);
+    setMeetingId(id);
   };
   useEffect(() => {
     fetchMeetings();
-  }, []);
+  }, [user?.agency?._id]);
+  const handleDelete = () => {
+    setShowConfirmDialog(false);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -76,7 +73,7 @@ export const Meetings: React.FC = () => {
       <div className="md:space-y-4 space-y-2">
         {meetings.map((meeting) => (
           <div
-            key={meeting.id}
+            key={meeting._id}
             className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex flex-col md:flex-row items-start justify-between">
@@ -101,11 +98,16 @@ export const Meetings: React.FC = () => {
                     <div className="flex gap-1">
                       <div className="flex items-center text-gray-900 mb-1">
                         {/* <ClockIcon className="h-4 w-4 mr-2" /> */}
-                        {format(new Date(meeting.scheduled_at), "MMM dd, yyyy")}
+                        {meeting?.date &&
+                          format(new Date(meeting.date), "MMM dd, yyyy")}
                         ,
                       </div>
                       <p className="font-medium text-gray-900">
-                        {format(new Date(meeting.scheduled_at), "hh:mm a")}
+                        {meeting?.time &&
+                          format(
+                            new Date(`1970-01-01T${meeting.time}:00`),
+                            "hh:mm a"
+                          )}
                       </p>
                     </div>
                   </div>
@@ -121,13 +123,15 @@ export const Meetings: React.FC = () => {
 
               {/* Right: status + actions */}
               <div className="flex md:flex-col flex-row justify-between items-end md:space-y-2 w-full md:w-auto">
-                <span
-                  className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl  text-xs font-medium ${getStatusColor(
-                    meeting.status
-                  )}`}
-                >
-                  {meeting.status}
-                </span>
+                {meeting.status && (
+                  <span
+                    className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl  text-xs font-medium ${getStatusColor(
+                      meeting.status
+                    )}`}
+                  >
+                    {meeting.status}
+                  </span>
+                )}
 
                 {meeting.status === "scheduled" && (
                   <div className="flex md:flex-col flex-row gap-2">
@@ -138,13 +142,13 @@ export const Meetings: React.FC = () => {
                       Join
                     </button>
                     <button
-                      // onClick={() => onEdit?.(meeting)}
+                      onClick={() => onEdit?.(meeting._id)}
                       className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                     >
                       Edit
                     </button>
                     <button
-                      // onClick={() => onCancel?.(meeting)}
+                      onClick={() => onCancel?.(meeting._id)}
                       className="text-red-600 hover:text-red-700 text-sm font-medium"
                     >
                       Cancel
@@ -183,10 +187,30 @@ export const Meetings: React.FC = () => {
           onSuccess={() => {
             setShowAddForm(false);
             fetchMeetings();
-            // Refresh meetings list
           }}
         />
       )}
+      {/* Edit Meeting Modal */}
+      {showEditForm && (
+        <EditMeetingForm
+          meetingId={meetingId}
+          onClose={() => setShowEditForm(false)}
+          onSuccess={() => {
+            setShowEditForm(false);
+            fetchMeetings();
+          }}
+        />
+      )}
+      <ConfirmDialog
+        open={showConfirmDialog}
+        onCancel={() => setShowConfirmDialog(false)}
+        onConfirm={handleDelete}
+        heading="Are you sure?"
+        description="This meeting will be cancelled, and this action cannot be undone"
+        confirmText="Cancel meeting"
+        cancelText="Back"
+        confirmColor="bg-red-600 hover:bg-red-700"
+      />
     </div>
   );
 };

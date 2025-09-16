@@ -21,6 +21,6 @@ export const deleteMeeting = async (id: string) => {
   return await api.delete(`/agents/meetings/delete/${id}`);
 };
 // ✅ Get all meetings
-export const getAllMeetings = async () => {
-  return await api.get(`/agents/meetings/get-all`);
+export const getMeetingsByAgency = async (agencyId: string) => {
+  return await api.get(`/agents/meetings/get-all/${agencyId}`);
 };

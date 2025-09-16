@@ -13,9 +13,16 @@ export const createMeeting = async (req, res) => {
 };
 
 // Get all meetings
-export const getMeetings = async (req, res) => {
+// GET /agents/meetings/agency/:agencyId
+export const getMeetingsByAgency = async (req, res) => {
   try {
-    const meetings = await Meetings.find();
+    const { id } = req.params;
+    console.log(req.params);
+
+    const meetings = await Meetings.find({ agency: id });
+    // .populate("customer")
+    // .populate("property")
+    // .populate("agency");
 
     res.json({ success: true, data: meetings });
   } catch (error) {

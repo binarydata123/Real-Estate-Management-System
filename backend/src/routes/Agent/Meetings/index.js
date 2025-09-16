@@ -3,7 +3,7 @@ import {
   createMeeting,
   deleteMeeting,
   getMeetingById,
-  getMeetings,
+  getMeetingsByAgency,
   updateMeeting,
 } from "../../../controllers/Agent/MeetingsController.js";
 
@@ -13,7 +13,7 @@ const router = express.Router();
 router.post("/create", createMeeting);
 
 // Read
-router.get("/get-all", getMeetings);
+router.get("/get-all/:id", getMeetingsByAgency);
 router.get("/getById/:id", getMeetingById);
 
 // Update
