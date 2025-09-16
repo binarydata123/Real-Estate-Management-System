@@ -71,6 +71,18 @@ declare global {
     assigned_agent: string;
     minimumBudget: number;
   }
+  interface Meeting {
+    _id: string;
+    customer?: string;
+    property?: string | Partial<Property>;
+    agency?: Partial<Agency>;
+    date?: string;
+    time?: string;
+    status?: "scheduled" | "completed" | "cancelled" | "rescheduled";
+    notes?: string;
+    created_at?: string;
+    updated_at?: string;
+  }
 }
 
 export {
@@ -79,6 +91,7 @@ export {
   AgencyStatus,
   Agency,
   Property,
-  CustomerResponse,
+  Meeting,
   CustomerFormData,
+  CustomerResponse,
 };

@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useState, useEffect } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   XMarkIcon,
@@ -8,24 +8,27 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
-import { createMeeting } from "@/lib/Agent/MeetingAPI";
-import { SubmitHandler } from "react-hook-form";
+import { updateMeeting, getMeetingById } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
 
-interface AddMeetingFormProps {
+interface EditMeetingFormProps {
+  meetingId: string | null;
+  meetingStatus?: string | null;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
+export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
+  meetingId,
+  meetingStatus,
   onClose,
   onSuccess,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [initialData, setInitialData] = useState<MeetingFormData | null>(null);
   const { user } = useAuth();
-  console.log(user);
 
-  // Mock data for dropdowns - use IDs instead of names
+  // Mock data (replace with real queries if needed)
   const mockCustomers = [
     { id: "64f0c1b2f1e2a4b123456789", name: "Sarah Johnson" },
     { id: "64f0c1b2f1e2a4b123456788", name: "Michael Chen" },
@@ -38,33 +41,55 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
     { id: "64f0c2b2f1e2a4b123456782", title: "Spacious 4BHK Villa" },
   ];
 
-  const mockAgencyId = "64f0c2b2f1e2a4b123456789"; // example ObjectId
-
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<MeetingFormData>({
     resolver: zodResolver(meetingSchema),
-    defaultValues: {
-      status: "scheduled",
-      agency: mockAgencyId,
-    },
   });
+
+  // Fetch existing meeting data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!meetingId) return;
+        const result = await getMeetingById(meetingId);
+        const meeting = result.data.data;
+        setInitialData(meeting);
+        console.log(meeting);
+        // Format date for <input type="date">
+        const formattedDate = meeting.date
+          ? new Date(meeting.date).toISOString().split("T")[0]
+          : "";
+
+        // Prefill form
+        setValue("customer", meeting.customer);
+        setValue("property", meeting.property || null);
+        setValue("agency", meeting.agency);
+        setValue("date", formattedDate);
+        setValue("time", meeting.time || "");
+        setValue("status", meetingStatus || meeting.status);
+      } catch (err) {
+        console.error("Failed to load meeting:", err);
+        alert("Failed to load meeting details");
+        onClose();
+      }
+    };
+
+    fetchData();
+  }, [meetingId, setValue, onClose]);
 
   const onSubmit: SubmitHandler<MeetingFormData> = async (data) => {
     setLoading(true);
     try {
       const payload: MeetingFormData = {
-        customer: data.customer,
-        property: data.property || null,
+        ...data,
         agency: user?.agency?._id,
-        date: data.date,
-        time: data.time,
-        status: data.status,
       };
-      await createMeeting(payload);
-      alert("Meeting scheduled successfully!");
+      if (meetingId) await updateMeeting(meetingId, payload);
+      alert("Meeting updated successfully!");
       onSuccess?.();
       onClose();
     } catch (error: unknown) {
@@ -80,6 +105,16 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
     }
   };
 
+  if (!initialData) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg shadow-xl p-6">
+          <p>Loading meeting details...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -87,7 +122,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
         <div className="sticky top-0 bg-white border-b border-gray-200 md:p-6 p-2">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
-              Schedule Meeting
+              Edit Meeting
             </h2>
             <span
               onClick={onClose}
@@ -205,7 +240,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
               disabled={loading}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Scheduling..." : "Schedule Meeting"}
+              {loading ? "Updating..." : "Update Meeting"}
             </button>
           </div>
         </form>

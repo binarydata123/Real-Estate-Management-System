@@ -8,13 +8,22 @@ import { AxiosError } from 'axios';
 
 export const AUTH_SESSION_KEY = 'auth-session';
 
+export interface Agency {
+    _id: string;
+    name: string;
+    slug: string;
+    email: string;
+    phone: string;
+    logoUrl?: string;
+}
+
 // --- Custom Auth Types ---
 export interface User {
     _id: string;
     name: string;
     email: string;
     role: string;
-    agency?: { _id: string };
+    agency?: Agency;
 }
 
 export interface Session {
