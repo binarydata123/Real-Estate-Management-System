@@ -31,7 +31,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-gray-800/50 z-50"
+      className="fixed inset-0 flex items-center justify-center bg-gray-800/50 z-50 p-4 sm:p-0"
       onClick={handleBackdropClick}
     >
       <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-lg">
@@ -68,4 +68,3 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 };
 
 export default ConfirmDialog;
-    
