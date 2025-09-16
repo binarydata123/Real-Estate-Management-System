@@ -1,3 +1,4 @@
+'use client'
 import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import {
@@ -8,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
 import { NotificationCenter } from './Notification';
+import InstallButton from '@/components/Common/InstallButton';
 
 interface HeaderProps {
     onMenuButtonClick: () => void;
@@ -16,6 +18,7 @@ interface HeaderProps {
 export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     const { user, signOut } = useAuth();
     const [showNotifications, setShowNotifications] = React.useState<boolean>(false);
+
 
     return (
         <>
@@ -78,7 +81,7 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                                     </Transition>
                                 </Menu>
                             )} */}
-
+                            <InstallButton />
                             {/* Notifications */}
                             <span
                                 onClick={() => setShowNotifications(true)}

@@ -1,5 +1,14 @@
 // types/global.d.ts
 declare global {
+  // PWA related types
+  interface BeforeInstallPromptEvent extends Event {
+    readonly platforms: string[];
+    readonly userChoice: Promise<{
+      outcome: "accepted" | "dismissed";
+      platform: string;
+    }>;
+    prompt(): Promise<void>;
+  }
   // Auth related types
   interface RegistrationData {
     fullName: string;
@@ -94,4 +103,5 @@ export {
   Meeting,
   CustomerFormData,
   CustomerResponse,
+  BeforeInstallPromptEvent,
 };
