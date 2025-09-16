@@ -6,7 +6,7 @@ import { AddMeetingForm } from "./AddMeetingForm";
 import { getMeetingsByAgency } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
 import { EditMeetingForm } from "./EditMeetingForm";
-import ConfirmDialog from "../Common/confirmDailogBox";
+import ConfirmDialog from "../Common/confirmDialogBox";
 
 export const Meetings: React.FC = () => {
   const [showAddForm, setShowAddForm] = React.useState(false);
@@ -115,7 +115,9 @@ export const Meetings: React.FC = () => {
                   <div>
                     <p className="text-gray-600 mb-1">Property</p>
                     <p className="font-medium text-gray-900">
-                      {meeting.property ?? "—"}
+                      {typeof meeting.property === "string"
+                        ? meeting.property
+                        : meeting.property?.title || "No property info"}
                     </p>
                   </div>
                 </div>
