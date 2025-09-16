@@ -1,4 +1,3 @@
-
 import { Customer } from "../../models/Agent/CustomerModel.js";
 
 // Create a new customer
@@ -6,7 +5,11 @@ export const createCustomer = async (req, res) => {
   try {
     const customer = new Customer(req.body);
     const savedCustomer = await customer.save();
-    res.status(201).json({ success: true, data: savedCustomer });
+    res.status(201).json({
+      success: true,
+      data: savedCustomer,
+      message: "Customer has been successfully added.",
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -15,7 +18,13 @@ export const createCustomer = async (req, res) => {
 // Get all customers
 export const getCustomers = async (req, res) => {
   try {
-    const customers = await Customer.find().populate("agency", "name");
+    const { userId } = req.query;
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "userId is required" });
+    }
+    const customers = await Customer.find({ agencyId: userId });
     res.json({ success: true, data: customers });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -25,9 +34,14 @@ export const getCustomers = async (req, res) => {
 // Get a single customer by ID
 export const getCustomerById = async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id).populate("agency", "name");
+    const customer = await Customer.findById(req.params.id).populate(
+      "agencyId",
+      "name"
+    );
     if (!customer) {
-      return res.status(404).json({ success: false, message: "Customer not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Customer not found" });
     }
     res.json({ success: true, data: customer });
   } catch (error) {
@@ -38,18 +52,23 @@ export const getCustomerById = async (req, res) => {
 // Update a customer
 export const updateCustomer = async (req, res) => {
   try {
-    const updatedCustomer = await Customer.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    ).populate("agency", "name");
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const updatedCustomer = await Customer.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    }).populate("agencyId", "name");
 
     if (!updatedCustomer) {
-      return res.status(404).json({ success: false, message: "Customer not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Customer not found" });
     }
 
     res.json({ success: true, data: updatedCustomer });
   } catch (error) {
+    console.error("Error updating customer:", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -59,7 +78,9 @@ export const deleteCustomer = async (req, res) => {
   try {
     const deletedCustomer = await Customer.findByIdAndDelete(req.params.id);
     if (!deletedCustomer) {
-      return res.status(404).json({ success: false, message: "Customer not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Customer not found" });
     }
     res.json({ success: true, message: "Customer deleted successfully" });
   } catch (error) {
