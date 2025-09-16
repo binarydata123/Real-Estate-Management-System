@@ -5,8 +5,8 @@ import { PlusIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
 import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
 import { useAuth } from "@/context/AuthContext";
-import ConfirmDialog from "../Common/confirmDialogBox";
 import CustomerModal from "./customerModal";
+import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
