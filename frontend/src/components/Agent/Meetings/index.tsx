@@ -9,9 +9,9 @@ import {
 } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
 import { EditMeetingForm } from "./EditMeetingForm";
-import ConfirmDialog from "../Common/confirmDialogBox";
-import { Pagination } from "../Common/Pagination";
-import { NoData } from "../Common/NoData";
+import ConfirmDialog from "../../Common/ConfirmDialogBox";
+import { Pagination } from "../../Common/Pagination";
+import { NoData } from "../../Common/NoData";
 
 export const Meetings: React.FC = () => {
   const [showAddForm, setShowAddForm] = React.useState(false);
