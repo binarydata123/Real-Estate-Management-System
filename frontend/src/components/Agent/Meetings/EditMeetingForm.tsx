@@ -13,12 +13,14 @@ import { useAuth } from "@/context/AuthContext";
 
 interface EditMeetingFormProps {
   meetingId: string | null;
+  meetingStatus?: string | null;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
 export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   meetingId,
+  meetingStatus,
   onClose,
   onSuccess,
 }) => {
@@ -64,11 +66,11 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
 
         // Prefill form
         setValue("customer", meeting.customer);
-        setValue("property", meeting.property || "");
+        setValue("property", meeting.property || null);
         setValue("agency", meeting.agency);
         setValue("date", formattedDate);
         setValue("time", meeting.time || "");
-        setValue("status", meeting.status);
+        setValue("status", meetingStatus || meeting.status);
       } catch (err) {
         console.error("Failed to load meeting:", err);
         alert("Failed to load meeting details");
@@ -90,9 +92,14 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
       alert("Meeting updated successfully!");
       onSuccess?.();
       onClose();
-    } catch (error: any) {
-      console.error("Failed to update meeting:", error);
-      alert(error.message || "Failed to update meeting");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Failed to update meeting:", error);
+        alert(error.message);
+      } else {
+        console.error("Failed to update meeting:", error);
+        alert("Failed to update meeting");
+      }
     } finally {
       setLoading(false);
     }

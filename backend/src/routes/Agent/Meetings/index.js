@@ -5,6 +5,7 @@ import {
   getMeetingById,
   getMeetingsByAgency,
   updateMeeting,
+  updateMeetingStatus,
 } from "../../../controllers/Agent/MeetingsController.js";
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router.get("/getById/:id", getMeetingById);
 
 // Update
 router.put("/update/:id", updateMeeting);
+router.put("/update-status/:id", updateMeetingStatus);
 
 // Delete
 router.delete("/delete/:id", deleteMeeting);
