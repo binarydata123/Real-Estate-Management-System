@@ -9,7 +9,7 @@ const router = express.Router();
 
 // routes
 router.use("/auth", authRoutes);
-router.use("/agents", agentRoutes);
+router.use("/agent", agentRoutes);
 router.use("/properties", propertyRoutes);
 router.use("/users", userRoutes);
 router.use("/common", commonRoutes);
