@@ -5,8 +5,10 @@ import { PlusIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
 import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
 import { useAuth } from "@/context/AuthContext";
-import CustomerModal from "./customerModal";
+import CustomerModal from "./CustomerModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
+import { Pagination } from "@/components/Common/Pagination";
+import SearchInput from "@/components/Common/SearchInput";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -22,6 +24,20 @@ export const Customers: React.FC = () => {
   const [viewCustomer, setViewCustomer] = useState<CustomerFormData | null>(
     null
   );
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
   const handleDeleteClick = (customer: CustomerFormData) => {
     setSelectedCustomer(customer);
@@ -40,14 +56,17 @@ export const Customers: React.FC = () => {
     }
   };
 
-  const getAllCustomers = async () => {
-    // console.log(loading, "here loading");
+  const getAllCustomers = async (page = 1, search: string = "") => {
     if (!user?._id) return;
     try {
       setLoading(true);
-      const res = await getCustomers(user._id);
-      if (res.success === true) {
+      const res = await getCustomers(user._id, page, limit, search);
+      if (res.success) {
         setCustomers(res.data);
+        const current = res.pagination?.page ?? 1;
+        const total = res.pagination?.totalPages ?? 1;
+        setCurrentPage(current);
+        setTotalPages(total);
       }
     } catch (error) {
       console.error("Failed to fetch customers:", error);
@@ -57,8 +76,14 @@ export const Customers: React.FC = () => {
   };
 
   useEffect(() => {
-    getAllCustomers();
-  }, [user?._id]);
+    getAllCustomers(currentPage, debouncedSearchTerm);
+  }, [user?._id, currentPage, debouncedSearchTerm]);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -91,19 +116,31 @@ export const Customers: React.FC = () => {
   return (
     <div className="space-y-2">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        {/* Title */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
-          <p className="text-gray-600 md:mt-1">Manage your customer </p>
+          <p className="text-gray-600 md:mt-1">Manage your customer</p>
         </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="flex items-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Customer
-        </button>
+
+        {/* Search + Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
+          <SearchInput
+            placeholder="Search by name, email, or phone"
+            value={searchTerm}
+            onChange={setSearchTerm}
+            className="flex-1 sm:max-w-md"
+          />
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center justify-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add Customer
+          </button>
+        </div>
       </div>
+
       {/* Loading Placeholder */}
       {loading ? (
         <div className="text-center py-12">
@@ -208,15 +245,11 @@ export const Customers: React.FC = () => {
                           Delete
                         </span>
                         <span
-                          // onClick={() => {
-                          //   setViewCustomer(customer);
-                          //   setIsModalOpen(true);
-                          // }}
                           onClick={() => {
                             setViewCustomer(customer);
                             setOpen(true);
                           }}
-                          className="text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
+                          className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
                         >
                           View
                         </span>
@@ -238,13 +271,17 @@ export const Customers: React.FC = () => {
               <p className="text-gray-500 mb-6">
                 Start building your customer base
               </p>
-              <button
-                onClick={() => setShowAddForm(true)}
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <PlusIcon className="h-5 w-5 mr-2" />
-                Add Your First Customer
-              </button>
+              {!debouncedSearchTerm && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={() => setShowAddForm(true)}
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <PlusIcon className="h-5 w-5 mr-2" />
+                    Add Customer
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </>
@@ -261,7 +298,7 @@ export const Customers: React.FC = () => {
             setEditingCustomer(null);
             getAllCustomers();
           }}
-          initialData={editingCustomer || undefined}
+          initialData={editingCustomer ?? undefined}
           customerId={editingCustomer?._id}
         />
       )}
@@ -287,6 +324,15 @@ export const Customers: React.FC = () => {
         open={open}
         onClose={() => setOpen(false)}
         customer={viewCustomer}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        siblingCount={1}
+        showFirstLast={true}
+        showPrevNext={true}
       />
     </div>
   );
