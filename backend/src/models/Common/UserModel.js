@@ -1,50 +1,53 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: [true, 'Full name is required'],
-        trim: true,
+      type: String,
+      required: [true, "Full name is required"],
+      trim: true,
     },
     email: {
-        type: String,
-        required: [true, 'Email is required'],
-        unique: true,
-        lowercase: true,
-        trim: true,
-        match: [/\S+@\S+\.\S+/, 'is not a valid email address'],
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/\S+@\S+\.\S+/, "is not a valid email address"],
     },
     phone: {
-        type: String,
-        trim: true,
+      type: String,
+      trim: true,
     },
     password: {
-        type: String,
-        required: [true, 'Password is required'],
-        minlength: 6,
-        select: false, // Don't send back password field by default
+      type: String,
+      required: [true, "Password is required"],
+      minlength: 6,
+      select: false, // Don't send back password field by default
     },
     role: {
-        type: String,
-        enum: ['admin', 'agency', 'agent', 'customer'],
-        default: 'agency',
+      type: String,
+      enum: ["admin", "agency", "agent", "customer"],
+      default: "agency",
     },
-    agency: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Agency',
+    agencyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Agency",
     },
     status: {
-        type: String,
-        enum: ['pending', 'active', 'inactive'],
-        default: 'active',
+      type: String,
+      enum: ["pending", "active", "inactive"],
+      default: "active",
     },
     profilePictureUrl: {
-        type: String,
-        default: '',
+      type: String,
+      default: "",
     },
-}, {
+  },
+  {
     timestamps: true,
-});
+  }
+);
 
-export const User = mongoose.model('User', userSchema);
+export const User = mongoose.model("User", userSchema);

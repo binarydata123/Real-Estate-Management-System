@@ -5,9 +5,25 @@ export const createCustomer = async (req, res) => {
   try {
     const customer = new Customer(req.body);
     const savedCustomer = await customer.save();
+    const defaultPassword = "Pa$$w0rd!";
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+
+    // 3. Create corresponding User entry
+    const user = new User({
+      name: savedCustomer.fullName,
+      email: savedCustomer.email,
+      phone: savedCustomer.phoneNumber,
+      password: hashedPassword,
+      role: "customer",
+      agencyId: savedCustomer.agencyId,
+      status: "active",
+    });
+
+    await user.save();
     res.status(201).json({
       success: true,
       data: savedCustomer,
+      user: savedUser,
       message: "Customer has been successfully added.",
     });
   } catch (error) {
@@ -87,14 +103,23 @@ export const updateCustomer = async (req, res) => {
     const updatedCustomer = await Customer.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
-    }).populate("agencyId", "name");
+    });
 
     if (!updatedCustomer) {
       return res
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-
+    await User.findOneAndUpdate(
+      { email: updatedCustomer.email },
+      {
+        name: updatedCustomer.fullName,
+        email: updatedCustomer.email,
+        phone: updatedCustomer.phoneNumber,
+        agencyId: updatedCustomer.agencyId,
+      },
+      { new: true }
+    );
     res.json({ success: true, data: updatedCustomer });
   } catch (error) {
     console.error("Error updating customer:", error);
