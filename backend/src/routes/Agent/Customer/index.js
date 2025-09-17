@@ -2,7 +2,6 @@ import express from "express";
 import {
   createCustomer,
   deleteCustomer,
-  getCustomerById,
   getCustomers,
   updateCustomer,
 } from "../../../controllers/Agent/CustomerController.js";
@@ -14,7 +13,6 @@ router.post("/create", createCustomer);
 
 // Read
 router.get("/get-all", getCustomers);
-router.get("/getById/:id", getCustomerById);
 
 // Update
 router.put("/update/:id", updateCustomer);

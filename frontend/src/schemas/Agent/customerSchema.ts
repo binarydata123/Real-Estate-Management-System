@@ -3,7 +3,7 @@ import { z } from "zod";
 export const customerSchema = z.object({
   fullName: z.string().min(1, "fullName is required"),
   whatsAppNumber: z.string().optional(),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
+  email: z.string().min(1, "Email is required").email("Invalid email"),
   phoneNumber: z.string().optional(),
   minimumBudget: z.number().min(0, "Budget must be positive").optional(),
   maximumBudget: z.number().min(0, "Budget must be positive").optional(),

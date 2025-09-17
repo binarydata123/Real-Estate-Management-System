@@ -8,9 +8,19 @@ export const createCustomer = async (customerData: CustomerFormDataSchema) => {
   );
 };
 
-export const getCustomers = async (userId: string) => {
+export const getCustomers = async (
+  userId: string,
+  page: number,
+  limit: number,
+  search = ""
+) => {
+  const query = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+    search,
+  });
   const response = await api.get<CustomerResponse>(
-    `/agents/customers/get-all?userId=${userId}`
+    `/agents/customers/get-all?userId=${userId}&${query}`
   );
   return response.data;
 };
