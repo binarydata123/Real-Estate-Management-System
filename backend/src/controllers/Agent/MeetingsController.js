@@ -1,26 +1,41 @@
+import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
+import { User } from "../../models/Common/UserModel.js";
+import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
 // Create a new meeting
 export const createMeeting = async (req, res) => {
   try {
-    console.log("calling create api");
     const meeting = new Meetings(req.body);
     const savedMeeting = await meeting.save();
-    console.log(req.body.agencyId, req.body.customerId);
+    const user = await User.findOne({ agencyId: req.body.agencyId });
+    const customer = await Customer.findOne({ _id: req.body.customerId });
+    await createNotification({
+      agencyId: req.body.agencyId,
+      userId: user._id,
+      message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
+      type: "meeting_scheduled",
+    });
+    await createNotification({
+      userId: customer._id,
+      message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+      type: "meeting_scheduled",
+    });
+
     // ✅ Push notification to meeting creator
     await sendPushNotification({
-      userId: req.body.agencyId,
+      userId: user._id,
       title: "Meeting Scheduled",
-      message: `You have successfully scheduled a meeting with ${req.body.customer} on ${req.body.date} at ${req.body.time}.`,
+      message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
       urlPath: "meetings",
     });
 
     // ✅ Push notification to another participant
     await sendPushNotification({
-      userId: req.body.customerId,
+      userId: customer._id,
       title: "New Meeting Invitation",
-      message: `${req.body.agencyId} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+      message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
       urlPath: "meetings",
     });
 

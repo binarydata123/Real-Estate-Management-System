@@ -92,6 +92,35 @@ export const getCustomers = async (req, res) => {
   }
 };
 
+export const getCustomersForDropDown = async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "userId is required" });
+    }
+
+    const customers = await Customer.find({ agencyId: userId });
+
+    if (!customers || customers.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No customers found",
+        data: [],
+      });
+    }
+
+    res.json({
+      success: true,
+      data: customers,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Update a customer
 export const updateCustomer = async (req, res) => {
   try {
