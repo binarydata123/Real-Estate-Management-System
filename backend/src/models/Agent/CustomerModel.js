@@ -1,18 +1,18 @@
 import mongoose from "mongoose";
 
-const phoneRegex = /^\+?[1-9]\d{1,14}$/; 
+const phoneRegex = /^\+?[1-9]\d{1,14}$/;
 // E.164 international format (+<countryCode><number>)
 
 const customerSchema = new mongoose.Schema({
-  fullName: { 
-    type: String, 
-    required: [true, "Full name is required"], 
-    trim: true 
-  },
-  email: { 
-    type: String, 
+  fullName: {
+    type: String,
+    required: [true, "Full name is required"],
     trim: true,
-    match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"], 
+  },
+  email: {
+    type: String,
+    trim: true,
+    match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
   },
   phoneNumber: {
     type: String,
@@ -30,13 +30,13 @@ const customerSchema = new mongoose.Schema({
         `${props.value} is not a valid WhatsApp number (use +<countryCode><number>)`,
     },
   },
-  maximumBudget: { 
-    type: Number, 
-    min: [0, "Maximum budget must be a positive number"], 
+  maximumBudget: {
+    type: Number,
+    min: [0, "Maximum budget must be a positive number"],
   },
-  minimumBudget: { 
-    type: Number, 
-    min: [0, "Minimum budget must be a positive number"], 
+  minimumBudget: {
+    type: Number,
+    min: [0, "Minimum budget must be a positive number"],
     validate: {
       validator: function (v) {
         return !this.maximumBudget || v <= this.maximumBudget;
@@ -56,7 +56,8 @@ const customerSchema = new mongoose.Schema({
         "cold_call",
         "other",
       ],
-      message: "Lead source must be one of: website, referral, social_media, advertisement, walk_in, cold_call, other",
+      message:
+        "Lead source must be one of: website, referral, social_media, advertisement, walk_in, cold_call, other",
     },
   },
   initialNotes: { type: String },
@@ -71,22 +72,23 @@ const customerSchema = new mongoose.Schema({
         "not_interested",
         "follow_up",
       ],
-      message: "Status must be one of: new, interested, negotiating, converted, not_interested, follow_up",
+      message:
+        "Status must be one of: new, interested, negotiating, converted, not_interested, follow_up",
     },
     default: "new",
   },
-  role: { 
-    type: String, 
+  role: {
+    type: String,
     default: "Customer",
     enum: {
       values: ["Customer"],
       message: "Role must be Customer",
-    }
+    },
   },
-  agency: { 
-    type: mongoose.Schema.Types.ObjectId, 
+  agencyId: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Agency",
-    required: [true, "Agency reference is required"], 
+    required: [true, "Agency reference is required"],
   },
   createdAt: { type: Date, default: Date.now },
 });
