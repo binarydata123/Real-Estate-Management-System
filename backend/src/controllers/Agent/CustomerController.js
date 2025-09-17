@@ -128,13 +128,19 @@ export const updateCustomer = async (req, res) => {
 // Delete a customer
 export const deleteCustomer = async (req, res) => {
   try {
-    const deletedCustomer = await Customer.findByIdAndDelete(req.params.id);
+    const customerId = req.params.id;
+    const deletedCustomer = await Customer.findByIdAndDelete(customerId);
     if (!deletedCustomer) {
       return res
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    res.json({ success: true, message: "Customer deleted successfully" });
+    await User.deleteOne({ email: deletedCustomer.email });
+
+    res.json({
+      success: true,
+      message: "Customer and user deleted successfully",
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

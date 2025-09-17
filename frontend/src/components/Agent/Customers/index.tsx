@@ -271,13 +271,17 @@ export const Customers: React.FC = () => {
               <p className="text-gray-500 mb-6">
                 Start building your customer base
               </p>
-              <button
-                onClick={() => setShowAddForm(true)}
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <PlusIcon className="h-5 w-5 mr-2" />
-                Add Your First Customer
-              </button>
+              {!debouncedSearchTerm && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={() => setShowAddForm(true)}
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <PlusIcon className="h-5 w-5 mr-2" />
+                    Add Customer
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </>
