@@ -62,6 +62,10 @@ export const AddPropertyForm: React.FC = () => {
             gated_community: false,
             status: 'Available',
             rera_status: 'Not Available',
+            overlooking: [], // Initialize as empty array
+            water_source: [], // Initialize as empty array
+            features: [], // Initialize as empty array
+            amenities: [], // Initialize as empty array
         } satisfies Partial<PropertyFormData>
     });
 
