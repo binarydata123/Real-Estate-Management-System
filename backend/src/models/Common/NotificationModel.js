@@ -6,9 +6,9 @@ const notificationSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    agent: {
+    agencyId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Agent',
+        ref: 'Agency',
         required: true
     },
     message: {
@@ -17,7 +17,7 @@ const notificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['welcome', 'new_lead', 'task_assigned', 'meeting_scheduled', 'property_updated'],
+        enum: ['welcome', 'new_lead', 'task_assigned', 'meeting_scheduled', 'property_updated', 'property_added'],
         default: 'welcome'
     },
     read: {

@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'agency', 'agent', 'customer'],
         default: 'agency',
     },
-    agency: {
+    agencyId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Agency',
     },

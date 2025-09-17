@@ -61,7 +61,7 @@ const registrationController = {
             // 5. Create a welcome notification
             const notification = new Notification({
                 user: createdUser._id,
-                agency: createdAgency._id,
+                agencyId: createdAgency._id,
                 message: `Welcome to ${agencyName}! Your agency is set up and ready to go.`,
                 type: 'welcome',
                 link: '/dashboard' // Optional: link to the dashboard
@@ -96,7 +96,7 @@ const registrationController = {
 
         try {
             // Find user by email and include password field
-            const user = await User.findOne({ email }).select('+password').populate('agency', 'name slug email phone logoUrl');
+            const user = await User.findOne({ email }).select('+password').populate('agencyId', 'name slug email phone logoUrl');
             if (!user) {
                 return res.status(401).json({ message: 'Invalid email or password.' });
             }
@@ -116,13 +116,13 @@ const registrationController = {
                     name: user.name,
                     email: user.email,
                     role: user.role,
-                    agency: user.agency ? {
-                        _id: user.agency._id,
-                        name: user.agency.name,
-                        slug: user.agency.slug,
-                        email: user.agency.email,
-                        phone: user.agency.phone,
-                        logoUrl: user.agency.logoUrl
+                    agency: user.agencyId ? {
+                        _id: user.agencyId._id,
+                        name: user.agencyId.name,
+                        slug: user.agencyId.slug,
+                        email: user.agencyId.email,
+                        phone: user.agencyId.phone,
+                        logoUrl: user.agencyId.logoUrl
                     } : null,
                 },
             });
@@ -148,7 +148,7 @@ const registrationController = {
 
     checkSession: async (req, res) => {
         try {
-            const user = await User.findById(req.user._id).populate('agency', 'name slug email phone logoUrl');
+            const user = await User.findById(req.user._id).populate('agencyId', 'name slug email phone logoUrl');
 
             if (!user) {
                 // This should not happen if the token is valid, but as a safeguard:
@@ -162,13 +162,13 @@ const registrationController = {
                     name: user.name,
                     email: user.email,
                     role: user.role,
-                    agency: user.agency ? {
-                        _id: user.agency._id,
-                        name: user.agency.name,
-                        slug: user.agency.slug,
-                        email: user.agency.email,
-                        phone: user.agency.phone,
-                        logoUrl: user.agency.logoUrl
+                    agency: user.agencyId ? {
+                        _id: user.agencyId._id,
+                        name: user.agencyId.name,
+                        slug: user.agencyId.slug,
+                        email: user.agencyId.email,
+                        phone: user.agencyId.phone,
+                        logoUrl: user.agencyId.logoUrl
                     } : null,
                 },
             });
