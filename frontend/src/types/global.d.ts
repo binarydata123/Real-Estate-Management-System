@@ -82,7 +82,7 @@ declare global {
   }
   interface Meeting {
     _id: string;
-    customer?: string;
+    customer?: Partial<CustomerFormData>;
     property?: string | Partial<Property>;
     agency?: Partial<Agency>;
     date?: string;
