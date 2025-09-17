@@ -9,9 +9,14 @@
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace frontend\" \"npm run dev --workspace backend\"",
     "build": "npm run build --workspace frontend ",
-    "start": "npm run start --workspace backend"
+    "start": "npm run start --workspace backend",
+    "prod": "npm run build && npm run start"
   },
   "devDependencies": {
     "concurrently": "^9.0.0"
+  },
+  "dependencies": {
+    "web-push": "^3.6.7",
+    "@heroicons/react": "^2.2.0"
   }
 }

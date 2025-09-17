@@ -14,12 +14,12 @@ router.post("/create", createCustomer);
 
 // Read
 router.get("/get-all", getCustomers);
-router.get("getById/:id", getCustomerById);
+router.get("/getById/:id", getCustomerById);
 
 // Update
-router.put("update/:id", updateCustomer);
+router.put("/update/:id", updateCustomer);
 
 // Delete
-router.delete("delete/:id", deleteCustomer);
+router.delete("/delete/:id", deleteCustomer);
 
 export default router;

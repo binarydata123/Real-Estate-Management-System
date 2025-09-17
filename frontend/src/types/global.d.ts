@@ -3,7 +3,10 @@ declare global {
   // PWA related types
   interface BeforeInstallPromptEvent extends Event {
     readonly platforms: string[];
-    readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+    readonly userChoice: Promise<{
+      outcome: "accepted" | "dismissed";
+      platform: string;
+    }>;
     prompt(): Promise<void>;
   }
   // Auth related types
@@ -49,7 +52,34 @@ declare global {
     images: string[];
     created_at: string;
   }
+  interface CustomerResponse {
+    success: boolean;
+    data: CustomerFormData[];
+    message: string;
+  }
 
+  interface CustomerFormData {
+    _id: string;
+    fullName: string;
+    whatsAppNumber?: string;
+    email?: string;
+    phoneNumber?: string;
+    minimumBudget?: number;
+    maximumBudget?: number;
+    leadSource:
+      | "website"
+      | "referral"
+      | "social_media"
+      | "advertisement"
+      | "walk_in"
+      | "cold_call"
+      | "other";
+    initialNotes?: string;
+    agencyId?: string;
+    status: string;
+    assigned_agent: string;
+    minimumBudget: number;
+  }
   interface Meeting {
     _id: string;
     customer?: string;
@@ -64,4 +94,14 @@ declare global {
   }
 }
 
-export { RegistrationData, LoginData, AgencyStatus, Agency, Property, Meeting, BeforeInstallPromptEvent };
+export {
+  RegistrationData,
+  LoginData,
+  AgencyStatus,
+  Agency,
+  Property,
+  Meeting,
+  CustomerFormData,
+  CustomerResponse,
+  BeforeInstallPromptEvent,
+};
