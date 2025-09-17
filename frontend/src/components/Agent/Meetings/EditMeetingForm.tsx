@@ -10,7 +10,7 @@ import {
 import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
 import { updateMeeting, getMeetingById } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
-import { getCustomers } from "@/lib/Agent/CustomerAPI";
+import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
 
 interface EditMeetingFormProps {
   meetingId: string | null;
@@ -62,7 +62,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
           : "";
 
         // Prefill form
-        setValue("customerId", meeting.customer);
+        setValue("customerId", meeting.customerId);
         setValue("propertyId", meeting.propertyId || null);
         setValue("agencyId", meeting.agencyId);
         setValue("date", formattedDate);
@@ -81,7 +81,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   useEffect(() => {
     const init = async () => {
       if (user?._id) {
-        const customers = await getCustomers(user._id);
+        const customers = await getCustomersForDropDown(user._id);
 
         // extract only _id and fullName
         const filtered = customers.data

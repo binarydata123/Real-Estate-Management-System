@@ -15,14 +15,5 @@ export const {
   VAPID_PUBLIC_KEY,
   VAPID_PRIVATE_KEY,
   FRONTEND_URL,
+  API_URL
 } = process.env;
-
-console.log(
-  PORT,
-  MONGO_URI,
-  JWT_SECRET,
-  JWT_EXPIRES_IN,
-  VAPID_PUBLIC_KEY,
-  VAPID_PRIVATE_KEY,
-  FRONTEND_URL
-);
