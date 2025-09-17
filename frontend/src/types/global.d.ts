@@ -55,7 +55,8 @@ declare global {
   interface CustomerResponse {
     success: boolean;
     data: CustomerFormData[];
-    message: string;
+    message?: string;
+    pagination?: Pagination;
   }
 
   interface CustomerFormData {
@@ -79,6 +80,13 @@ declare global {
     status: string;
     assigned_agent: string;
     minimumBudget: number;
+  }
+
+  interface Pagination {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
   }
   interface Meeting {
     _id: string;
@@ -104,4 +112,5 @@ export {
   CustomerFormData,
   CustomerResponse,
   BeforeInstallPromptEvent,
+  Pagination,
 };

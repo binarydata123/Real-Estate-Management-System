@@ -18,21 +18,48 @@ export const createCustomer = async (req, res) => {
 // Get all customers
 export const getCustomers = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const { userId, page = 1, limit = 10, search } = req.query;
+
     if (!userId) {
       return res
         .status(400)
         .json({ success: false, message: "userId is required" });
     }
-    const customers = await Customer.find({ agencyId: userId }).sort({
-      _id: -1,
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const searchQuery = search
+      ? {
+          agencyId: userId,
+          $or: [
+            { fullName: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { whatsAppNumber: { $regex: search, $options: "i" } },
+          ],
+        }
+      : { agencyId: userId };
+
+    const totalCustomers = await Customer.countDocuments(searchQuery);
+
+    const customers = await Customer.find(searchQuery)
+      .sort({ _id: -1 })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
+
+    res.json({
+      success: true,
+      data: customers,
+      pagination: {
+        total: totalCustomers,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(totalCustomers / limitNumber),
+      },
     });
-    res.json({ success: true, data: customers });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // Get a single customer by ID
 export const getCustomerById = async (req, res) => {
   try {
