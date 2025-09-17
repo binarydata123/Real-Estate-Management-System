@@ -1,4 +1,6 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
+import { User } from "../../models/Common/UserModel.js";
+import bcrypt from "bcryptjs";
 
 // Create a new customer
 export const createCustomer = async (req, res) => {
@@ -23,7 +25,6 @@ export const createCustomer = async (req, res) => {
     res.status(201).json({
       success: true,
       data: savedCustomer,
-      user: savedUser,
       message: "Customer has been successfully added.",
     });
   } catch (error) {
@@ -62,6 +63,20 @@ export const getCustomers = async (req, res) => {
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber);
 
+    if (!customers || customers.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No customers found",
+        data: [],
+        pagination: {
+          total: 0,
+          page: pageNumber,
+          limit: limitNumber,
+          totalPages: 0,
+        },
+      });
+    }
+
     res.json({
       success: true,
       data: customers,
@@ -74,23 +89,6 @@ export const getCustomers = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
-  }
-};
-// Get a single customer by ID
-export const getCustomerById = async (req, res) => {
-  try {
-    const customer = await Customer.findById(req.params.id).populate(
-      "agencyId",
-      "name"
-    );
-    if (!customer) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Customer not found" });
-    }
-    res.json({ success: true, data: customer });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
   }
 };
 

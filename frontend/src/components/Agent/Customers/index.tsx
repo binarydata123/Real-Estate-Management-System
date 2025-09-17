@@ -5,10 +5,10 @@ import { PlusIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
 import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
 import { useAuth } from "@/context/AuthContext";
-import CustomerModal from "./customerModal";
+import CustomerModal from "./CustomerModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { Pagination } from "@/components/Common/Pagination";
-import SearchInput from "@/components/Common/searchInput";
+import SearchInput from "@/components/Common/SearchInput";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -294,7 +294,7 @@ export const Customers: React.FC = () => {
             setEditingCustomer(null);
             getAllCustomers();
           }}
-          initialData={editingCustomer || undefined}
+          initialData={editingCustomer ?? undefined}
           customerId={editingCustomer?._id}
         />
       )}

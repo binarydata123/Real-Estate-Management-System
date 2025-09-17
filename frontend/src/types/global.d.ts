@@ -61,9 +61,9 @@ declare global {
 
   interface CustomerFormData {
     _id: string;
+    email: string | "";
     fullName: string;
     whatsAppNumber?: string;
-    email?: string;
     phoneNumber?: string;
     minimumBudget?: number;
     maximumBudget?: number;
