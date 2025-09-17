@@ -1,4 +1,5 @@
 import { Meetings } from "../../models/Agent/MeetingModel.js";
+import { sendPushNotification } from "../../utils/pushService.js";
 
 // Create a new meeting
 export const createMeeting = async (req, res) => {
@@ -6,12 +7,18 @@ export const createMeeting = async (req, res) => {
     console.log("calling create api");
     const meeting = new Meetings(req.body);
     const savedMeeting = await meeting.save();
+    console.log(req.body.agency, req.body.customer);
+    await sendPushNotification({
+      userId: req.body._id,
+      title: "New Request",
+      message: `A meeting has been scheduled with ${req.body.customer} on ${req.body.date} at ${req.body.time}.`,
+      urlPath: "",
+    });
     res.status(201).json({ success: true, data: savedMeeting });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
 
 // GET /agents/meetings/get-all/:id?page=1&limit=10
 export const getMeetingsByAgency = async (req, res) => {
