@@ -10,17 +10,23 @@ export const createCustomer = async (customerData: CustomerFormDataSchema) => {
 
 export const getCustomers = async (
   userId: string,
-  page: number,
-  limit: number,
+  page?: number,
+  limit?: number,
   search = ""
 ) => {
-  const query = new URLSearchParams({
-    page: page.toString(),
-    limit: limit.toString(),
-    search,
-  });
+  const params: Record<string, string> = {};
+  if (page !== undefined) {
+    params.page = page.toString();
+  }
+  if (limit !== undefined) {
+    params.limit = limit.toString();
+  }
+  if (search) {
+    params.search = search;
+  }
+  const query = new URLSearchParams(params);
   const response = await api.get<CustomerResponse>(
-    `/agents/customers/get-all?userId=${userId}&${query}`
+    `/agents/customers/get-all?userId=${userId}&${query.toString()}`
   );
   return response.data;
 };

@@ -52,6 +52,7 @@ export const getCustomers = async (req, res) => {
             { fullName: { $regex: search, $options: "i" } },
             { email: { $regex: search, $options: "i" } },
             { whatsAppNumber: { $regex: search, $options: "i" } },
+            { phoneNumber: { $regex: search, $options: "i" } },
           ],
         }
       : { agencyId: userId };
