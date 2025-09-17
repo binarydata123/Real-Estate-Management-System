@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -11,6 +11,7 @@ import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
 import { createMeeting } from "@/lib/Agent/MeetingAPI";
 import { SubmitHandler } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
+import { getCustomers } from "@/lib/Agent/CustomerAPI";
 
 interface AddMeetingFormProps {
   onClose: () => void;
@@ -24,21 +25,15 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   console.log(user);
-
-  // Mock data for dropdowns - use IDs instead of names
-  const mockCustomers = [
-    { id: "64f0c1b2f1e2a4b123456789", name: "Sarah Johnson" },
-    { id: "64f0c1b2f1e2a4b123456788", name: "Michael Chen" },
-    { id: "64f0c1b2f1e2a4b123456787", name: "David Wilson" },
-  ];
+  const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
+    []
+  );
 
   const mockProperties = [
     { id: "64f0c2b2f1e2a4b123456780", title: "Luxury 3BHK Apartment" },
     { id: "64f0c2b2f1e2a4b123456781", title: "Premium Commercial Office" },
     { id: "64f0c2b2f1e2a4b123456782", title: "Spacious 4BHK Villa" },
   ];
-
-  const mockAgencyId = "64f0c2b2f1e2a4b123456789"; // example ObjectId
 
   const {
     register,
@@ -48,7 +43,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
     resolver: zodResolver(meetingSchema),
     defaultValues: {
       status: "scheduled",
-      agency: mockAgencyId,
+      agencyId: user?.agency?._id,
     },
   });
 
@@ -56,9 +51,9 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
     setLoading(true);
     try {
       const payload: MeetingFormData = {
-        customer: data.customer,
-        property: data.property || null,
-        agency: user?.agency?._id,
+        customerId: data.customerId,
+        propertyId: data.propertyId || null,
+        agencyId: user?.agency?._id,
         date: data.date,
         time: data.time,
         status: data.status,
@@ -79,6 +74,25 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const init = async () => {
+      if (user?._id) {
+        const customers = await getCustomers(user._id);
+
+        // extract only _id and fullName
+        const filtered = customers.data
+          .map((c: CustomerFormData) => ({
+            id: c._id,
+            name: c.fullName,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        setCustomers(filtered);
+      }
+    };
+    init();
+  }, [user?._id]);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -110,19 +124,19 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
                 Customer Name *
               </label>
               <select
-                {...register("customer")}
+                {...register("customerId")}
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select a customer</option>
-                {mockCustomers.map((customer) => (
+                {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
                     {customer.name}
                   </option>
                 ))}
               </select>
-              {errors.customer && (
+              {errors.customerId && (
                 <p className="text-red-600 text-sm mt-1">
-                  {errors.customer.message}
+                  {errors.customerId.message}
                 </p>
               )}
             </div>
@@ -132,7 +146,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
                 Property (Optional)
               </label>
               <select
-                {...register("property")}
+                {...register("propertyId")}
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select a property</option>
@@ -142,9 +156,9 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
                   </option>
                 ))}
               </select>
-              {errors.property && (
+              {errors.propertyId && (
                 <p className="text-red-600 text-sm mt-1">
-                  {errors.property.message}
+                  {errors.propertyId.message}
                 </p>
               )}
             </div>

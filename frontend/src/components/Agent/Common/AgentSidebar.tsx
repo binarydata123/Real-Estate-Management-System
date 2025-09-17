@@ -33,7 +33,7 @@ interface SidebarProps {
 export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     const { signOut, user } = useAuth();
     const pathname = usePathname();
-    console.log(user)
+
     return (
         <div
             className={`

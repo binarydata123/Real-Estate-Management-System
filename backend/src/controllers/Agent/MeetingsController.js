@@ -7,13 +7,23 @@ export const createMeeting = async (req, res) => {
     console.log("calling create api");
     const meeting = new Meetings(req.body);
     const savedMeeting = await meeting.save();
-    console.log(req.body.agency, req.body.customer);
+    console.log(req.body.agencyId, req.body.customerId);
+    // ✅ Push notification to meeting creator
     await sendPushNotification({
-      userId: req.body._id,
-      title: "New Request",
-      message: `A meeting has been scheduled with ${req.body.customer} on ${req.body.date} at ${req.body.time}.`,
-      urlPath: "",
+      userId: req.body.agencyId,
+      title: "Meeting Scheduled",
+      message: `You have successfully scheduled a meeting with ${req.body.customer} on ${req.body.date} at ${req.body.time}.`,
+      urlPath: "meetings",
     });
+
+    // ✅ Push notification to another participant
+    await sendPushNotification({
+      userId: req.body.customerId,
+      title: "New Meeting Invitation",
+      message: `${req.body.agencyId} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+      urlPath: "meetings",
+    });
+
     res.status(201).json({ success: true, data: savedMeeting });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -28,21 +38,24 @@ export const getMeetingsByAgency = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const total = await Meetings.countDocuments({ agency: id });
-    const meetings = await Meetings.find({ agency: id })
+    const total = await Meetings.countDocuments({ agencyId: id });
+    const meetings = await Meetings.find({ agencyId: id })
+      .populate("customerId", "fullName")
+      // .populate("propertyId", "title")
       .skip(skip)
       .limit(limit)
-      .sort({ date: -1 }); // optional: sort by latest
+      .sort({ date: -1 })
+      .lean();
 
-    res.json({
-      success: true,
-      data: meetings,
-      pagination: {
-        total,
-        page,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
+    const formattedMeetings = meetings.map((m) => ({
+      ...m,
+      customer: m.customerId,
+      customerId: undefined,
+      // property: m.propertyId,
+      // propertyId: undefined,
+    }));
+
+    res.json({ success: true, data: formattedMeetings });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

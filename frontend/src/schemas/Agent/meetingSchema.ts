@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const meetingSchema = z.object({
-  customer: z
+  customerId: z
     .string()
     .min(1, "Customer is required")
     .regex(/^[0-9a-fA-F]{24}$/, "Customer must be a valid ObjectId"),
 
-  property: z
+  propertyId: z
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, "Property must be a valid ObjectId")
     .optional()
@@ -14,7 +14,7 @@ export const meetingSchema = z.object({
 
     .nullable(),
 
-  agency: z
+  agencyId: z
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, "Agency must be a valid ObjectId")
     .optional()

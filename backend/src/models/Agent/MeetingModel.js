@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 
 const meetingSchema = new mongoose.Schema({
-  customer: {
+  customerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Customer",
     required: [true, "Customer is required"],
   },
-  property: {
+  propertyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Property",
     default: null,
   },
-  agency: {
+  agencyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Agency",
     required: [true, "Agency is required"],

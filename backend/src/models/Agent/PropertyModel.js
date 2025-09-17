@@ -1,3 +1,6 @@
+import mongoose from "mongoose";
+
+
 const propertySchema = new mongoose.Schema({
   // Basic Info
   title: { type: String, required: true, trim: true },
@@ -23,6 +26,7 @@ const propertySchema = new mongoose.Schema({
   facing: {
     type: String,
     enum: [
+      "",
       "North", "South", "East", "West",
       "North-East", "North-West",
       "South-East", "South-West",
@@ -31,11 +35,11 @@ const propertySchema = new mongoose.Schema({
   overlooking: [{ type: String }],
 
   // Age / Transaction Details
-  property_age: { type: String, enum: ["New", "1-5 years", "5-10 years", "10+ years"] },
+  property_age: { type: String, enum: ["", "New", "1-5 years", "5-10 years", "10+ years"] },
   transaction_type: { type: String, enum: ["New", "Resale"], default: "New" },
   ownership_type: {
     type: String,
-    enum: ["Freehold", "Leasehold", "Co-operative Society", "Power of Attorney"],
+    enum: ["", "Freehold", "Leasehold", "Co-operative Society", "Power of Attorney"],
   },
   gated_community: { type: Boolean, default: false },
 
@@ -74,7 +78,7 @@ const propertySchema = new mongoose.Schema({
 
   // Relational
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true },
-  agency: { type: mongoose.Schema.Types.ObjectId, ref: "Agency", index: true },
+  agencyId: { type: mongoose.Schema.Types.ObjectId, ref: "Agency", index: true },
   status: {
     type: String,
     enum: ["Available", "Pending", "Sold", "Rented"],
