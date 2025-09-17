@@ -1,0 +1,116 @@
+import { Notification } from "../../models/Common/NotificationModel";
+// Create a new notification
+export const createNotification = async (req, res) => {
+  try {
+    const { user, agencyId, message, type, link } = req.body;
+
+    const notification = await Notification.create({
+      user,
+      agencyId: agencyId || null,
+      message,
+      type: type || "welcome",
+      link: link || "",
+    });
+
+    res.status(201).json({ success: true, data: notification });
+  } catch (error) {
+    console.error("Error creating notification:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Get all notifications for a user
+export const getUserNotifications = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const notifications = await Notification.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({ success: true, data: notifications });
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Get unread notifications for a user
+export const getUnreadNotifications = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const notifications = await Notification.find({ user: userId, read: false })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({ success: true, data: notifications });
+  } catch (error) {
+    console.error("Error fetching unread notifications:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Mark a notification as read
+export const markAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const notification = await Notification.findByIdAndUpdate(
+      id,
+      { read: true },
+      { new: true }
+    );
+
+    if (!notification) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Notification not found" });
+    }
+
+    res.json({ success: true, data: notification });
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Delete a notification
+export const deleteNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const notification = await Notification.findByIdAndDelete(id);
+
+    if (!notification) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Notification not found" });
+    }
+
+    res.json({ success: true, message: "Notification deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Mark all notifications for a user as read
+export const markAllAsRead = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const result = await Notification.updateMany(
+      { user: userId, read: false },
+      { $set: { read: true } }
+    );
+
+    res.json({
+      success: true,
+      message: `${result.modifiedCount} notification(s) marked as read`,
+    });
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

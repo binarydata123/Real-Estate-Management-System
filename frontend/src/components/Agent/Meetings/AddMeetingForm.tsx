@@ -11,7 +11,7 @@ import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
 import { createMeeting } from "@/lib/Agent/MeetingAPI";
 import { SubmitHandler } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
-import { getCustomers } from "@/lib/Agent/CustomerAPI";
+import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
 
 interface AddMeetingFormProps {
   onClose: () => void;
@@ -78,7 +78,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   useEffect(() => {
     const init = async () => {
       if (user?._id) {
-        const customers = await getCustomers(user._id);
+        const customers = await getCustomersForDropDown(user._id);
 
         // extract only _id and fullName
         const filtered = customers.data
