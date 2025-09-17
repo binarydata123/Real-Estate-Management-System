@@ -10,6 +10,7 @@ import {
 import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
 import { updateMeeting, getMeetingById } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
+import { getCustomers } from "@/lib/Agent/CustomerAPI";
 
 interface EditMeetingFormProps {
   meetingId: string | null;
@@ -27,13 +28,9 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [initialData, setInitialData] = useState<MeetingFormData | null>(null);
   const { user } = useAuth();
-
-  // Mock data (replace with real queries if needed)
-  const mockCustomers = [
-    { id: "64f0c1b2f1e2a4b123456789", name: "Sarah Johnson" },
-    { id: "64f0c1b2f1e2a4b123456788", name: "Michael Chen" },
-    { id: "64f0c1b2f1e2a4b123456787", name: "David Wilson" },
-  ];
+  const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
+    []
+  );
 
   const mockProperties = [
     { id: "64f0c2b2f1e2a4b123456780", title: "Luxury 3BHK Apartment" },
@@ -65,9 +62,9 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
           : "";
 
         // Prefill form
-        setValue("customer", meeting.customer);
-        setValue("property", meeting.property || null);
-        setValue("agency", meeting.agency);
+        setValue("customerId", meeting.customer);
+        setValue("propertyId", meeting.propertyId || null);
+        setValue("agencyId", meeting.agencyId);
         setValue("date", formattedDate);
         setValue("time", meeting.time || "");
         setValue("status", meetingStatus || meeting.status);
@@ -81,12 +78,31 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
     fetchData();
   }, [meetingId, setValue, onClose]);
 
+  useEffect(() => {
+    const init = async () => {
+      if (user?._id) {
+        const customers = await getCustomers(user._id);
+
+        // extract only _id and fullName
+        const filtered = customers.data
+          .map((c: CustomerFormData) => ({
+            id: c._id,
+            name: c.fullName,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        setCustomers(filtered);
+      }
+    };
+    init();
+  }, [user?._id]);
+
   const onSubmit: SubmitHandler<MeetingFormData> = async (data) => {
     setLoading(true);
     try {
       const payload: MeetingFormData = {
         ...data,
-        agency: user?.agency?._id,
+        agencyId: user?.agency?._id,
       };
       if (meetingId) await updateMeeting(meetingId, payload);
       alert("Meeting updated successfully!");
@@ -145,19 +161,19 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
                 Customer Name *
               </label>
               <select
-                {...register("customer")}
+                {...register("customerId")}
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select a customer</option>
-                {mockCustomers.map((customer) => (
+                {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
                     {customer.name}
                   </option>
                 ))}
               </select>
-              {errors.customer && (
+              {errors.customerId && (
                 <p className="text-red-600 text-sm mt-1">
-                  {errors.customer.message}
+                  {errors.customerId.message}
                 </p>
               )}
             </div>
@@ -167,7 +183,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
                 Property (Optional)
               </label>
               <select
-                {...register("property")}
+                {...register("propertyId")}
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select a property</option>
@@ -177,9 +193,9 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
                   </option>
                 ))}
               </select>
-              {errors.property && (
+              {errors.propertyId && (
                 <p className="text-red-600 text-sm mt-1">
-                  {errors.property.message}
+                  {errors.propertyId.message}
                 </p>
               )}
             </div>
