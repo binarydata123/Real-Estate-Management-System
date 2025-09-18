@@ -12,7 +12,6 @@ import { EditMeetingForm } from "./EditMeetingForm";
 import ConfirmDialog from "../../Common/ConfirmDialogBox";
 import { Pagination } from "../../Common/Pagination";
 import { NoData } from "../../Common/NoData";
-import { getNotifications } from "@/lib/Common/Notifications";
 
 export const Meetings: React.FC = () => {
   const [showAddForm, setShowAddForm] = React.useState(false);
