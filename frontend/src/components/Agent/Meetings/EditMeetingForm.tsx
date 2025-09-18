@@ -55,7 +55,6 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         const result = await getMeetingById(meetingId);
         const meeting = result.data.data;
         setInitialData(meeting);
-        console.log(meeting);
         // Format date for <input type="date">
         const formattedDate = meeting.date
           ? new Date(meeting.date).toISOString().split("T")[0]

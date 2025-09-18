@@ -1,4 +1,4 @@
-import { Notification } from "../../models/Common/NotificationModel";
+import { Notification } from "../../models/Common/NotificationModel.js";
 // Create a new notification
 export const createNotification = async (req, res) => {
   try {
@@ -23,12 +23,40 @@ export const createNotification = async (req, res) => {
 export const getUserNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
+    const { type, page = 1, limit = 10 } = req.query; // ✅ type filter + pagination
 
-    const notifications = await Notification.find({ user: userId })
+    const query = { userId };
+
+    // ✅ if type is provided, filter by type
+    if (type && type !== "unread") {
+      query.type = type; // e.g. "unread", "meeting_scheduled", etc.
+    }
+    if (type == "unread") {
+      query.read = false;
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    // ✅ fetch notifications
+    const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
       .lean();
 
-    res.json({ success: true, data: notifications });
+    // ✅ count total for pagination
+    const total = await Notification.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: notifications,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     console.error("Error fetching notifications:", error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -40,7 +68,10 @@ export const getUnreadNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const notifications = await Notification.find({ user: userId, read: false })
+    const notifications = await Notification.countDocuments({
+      userId: userId,
+      read: false,
+    })
       .sort({ createdAt: -1 })
       .lean();
 
