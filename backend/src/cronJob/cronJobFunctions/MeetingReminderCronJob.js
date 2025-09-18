@@ -55,7 +55,6 @@ export async function meetingReminderCronJob(mode = "today") {
         return meetingDateTime >= start && meetingDateTime <= end;
       });
     }
-    console.log(meetings);
     for (let meeting of meetings) {
       const user = await User.findOne({ agencyId: meeting.agencyId._id });
 

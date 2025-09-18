@@ -24,7 +24,6 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
-  console.log(user);
   const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
     []
   );
