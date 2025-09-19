@@ -278,8 +278,8 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   ? "Updating..."
                   : "Creating..."
                 : customerId
-                ? "Update Customer"
-                : "Add Customer"}
+                  ? "Update Customer"
+                  : "Add Customer"}
             </button>
           </div>
         </form>

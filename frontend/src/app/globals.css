@@ -118,7 +118,7 @@ select:focus-visible {
   }
 
   .flex input:not([type="checkbox"]) {
-    height: 36px !important;
+    height: 34px !important;
   }
 
 

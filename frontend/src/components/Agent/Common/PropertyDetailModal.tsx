@@ -68,20 +68,22 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
           {/* Image Gallery */}
           <div className="mb-2 md:mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {property.images.map((image, index) => (
-                <div
-                  key={index}
-                  className="aspect-[4/3] overflow-hidden rounded-lg"
-                >
-                  <Image
-                    width={500}
-                    height={500}
-                    src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${image.url}`}
-                    alt={`${property.title} - Image ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
+              {property?.images &&
+                property?.images.length > 0 &&
+                property.images.map((image, index) => (
+                  <div
+                    key={index}
+                    className="aspect-[4/3] overflow-hidden rounded-lg"
+                  >
+                    <Image
+                      width={500}
+                      height={500}
+                      src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${image.url}`}
+                      alt={`${property.title} - Image ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
             </div>
           </div>
 

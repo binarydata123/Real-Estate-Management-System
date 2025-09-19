@@ -134,9 +134,6 @@ export const Properties: React.FC = () => {
             property={property}
             onView={handleViewProperty}
             onShare={handleShareProperty}
-            onFavorite={(property) =>
-              console.log("Favorite property:", property)
-            }
           />
         ))}
       </div>

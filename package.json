@@ -13,12 +13,7 @@
     "prod": "npm run build && npm run start"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
-  },
-  "dependencies": {
-    "@heroicons/react": "^2.2.0",
-    "node-cron": "^4.2.1",
-    "path": "^0.12.7",
-    "web-push": "^3.6.7"
+    "concurrently": "^9.0.0",
+    "eslint-plugin-spellcheck": "^0.0.20"
   }
 }
