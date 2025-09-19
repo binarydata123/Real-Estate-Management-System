@@ -9,6 +9,11 @@ declare global {
     }>;
     prompt(): Promise<void>;
   }
+  interface UserRef {
+    _id: string;
+    name: string;
+    email?: string;
+  }
   // Auth related types
   interface RegistrationData {
     fullName: string;
@@ -36,7 +41,13 @@ declare global {
     joined: string;
   }
 
+  interface ImageData {
+    url: string;
+    alt?: string;
+    isPrimary?: boolean;
+  }
   interface Property {
+    _id: string;
     id: string;
     title: string;
     type: string;
@@ -49,7 +60,7 @@ declare global {
     bedrooms?: number;
     bathrooms?: number;
     status: string;
-    images: string[];
+    images: ImageData[];
     created_at: string;
   }
   interface CustomerResponse {
@@ -100,6 +111,24 @@ declare global {
     created_at?: string;
     updated_at?: string;
   }
+
+  interface SharePropertyFormData {
+    propertyId: Property;
+    sharedWithUserId: CustomerFormData;
+    message?: string;
+    sharedByUserId: UserRef;
+    agencyId: string;
+    _id: string;
+    status: string;
+    createdAt: string;
+  }
+
+  interface sharePropertyResponse {
+    success: boolean;
+    data: SharePropertyFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
 }
 
 export {
@@ -113,4 +142,5 @@ export {
   CustomerResponse,
   BeforeInstallPromptEvent,
   Pagination,
+  SharePropertyFormData,
 };
