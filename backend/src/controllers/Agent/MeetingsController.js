@@ -9,7 +9,7 @@ export const createMeeting = async (req, res) => {
   try {
     const meeting = new Meetings(req.body);
     const savedMeeting = await meeting.save();
-    const user = await User.findOne({ agencyId: req.body.agencyId });
+    const user = req.user._id;
     const customer = await Customer.findOne({ _id: req.body.customerId });
     await createNotification({
       agencyId: req.body.agencyId,
@@ -48,29 +48,89 @@ export const createMeeting = async (req, res) => {
 // GET /agents/meetings/get-all/:id?page=1&limit=10
 export const getMeetingsByAgency = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.user.agencyId;
+    const { status } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const total = await Meetings.countDocuments({ agencyId: id });
-    const meetings = await Meetings.find({ agencyId: id })
+    const now = new Date();
+
+    let query = { agencyId: id };
+
+    if (status === "upcoming") {
+      query.$expr = {
+        $and: [
+          { $ne: ["$status", "cancelled"] },
+          {
+            $gte: [
+              {
+                $dateFromString: {
+                  dateString: {
+                    $concat: [
+                      { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                      "T",
+                      "$time",
+                      ":00",
+                    ],
+                  },
+                },
+              },
+              now,
+            ],
+          },
+        ],
+      };
+    } else if (status === "past") {
+      query.$expr = {
+        $and: [
+          { $ne: ["$status", "cancelled"] },
+          {
+            $lt: [
+              {
+                $dateFromString: {
+                  dateString: {
+                    $concat: [
+                      { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                      "T",
+                      "$time",
+                      ":00",
+                    ],
+                  },
+                },
+              },
+              now,
+            ],
+          },
+        ],
+      };
+    } else if (status === "cancelled") {
+      query.status = "cancelled";
+    }
+
+    const total = await Meetings.countDocuments(query);
+
+    const meetings = await Meetings.find(query)
       .populate("customerId", "fullName")
-      // .populate("propertyId", "title")
       .skip(skip)
       .limit(limit)
-      .sort({ date: -1 })
+      .sort({ date: status === "past" ? -1 : 1 })
       .lean();
 
     const formattedMeetings = meetings.map((m) => ({
       ...m,
       customer: m.customerId,
       customerId: undefined,
+      isPast: status === "past",
       // property: m.propertyId,
       // propertyId: undefined,
     }));
 
-    res.json({ success: true, data: formattedMeetings });
+    res.json({
+      success: true,
+      data: formattedMeetings,
+      total,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -79,7 +139,8 @@ export const getMeetingsByAgency = async (req, res) => {
 // Get a meeting by ID
 export const getMeetingById = async (req, res) => {
   try {
-    const meeting = await Meetings.findById(req.params.id);
+    const agencyId = req.user.agencyId;
+    const meeting = await Meetings.findOne({ _id: req.params.id, agencyId });
 
     if (!meeting) {
       return res
@@ -96,6 +157,7 @@ export const getMeetingById = async (req, res) => {
 // Update a meeting
 export const updateMeeting = async (req, res) => {
   try {
+    const agencyId = req.user.agencyId;
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,
       req.body,

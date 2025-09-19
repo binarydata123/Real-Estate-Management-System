@@ -129,14 +129,14 @@ const registrationController = {
       // Successful login
       res.json({
         message: "Login successful!",
-        token: generateToken(user._id), // Keep token at top level
+        token: generateToken(user._id, user.role), // Keep token at top level
         user: {
           // Nest all user-related data under a 'user' object for consistency
           _id: user._id,
           name: user.name,
           email: user.email,
           role: user.role,
-          agencyId: user.agencyId
+          agency: user.agencyId
             ? {
                 _id: user.agencyId._id,
                 name: user.agencyId.name,

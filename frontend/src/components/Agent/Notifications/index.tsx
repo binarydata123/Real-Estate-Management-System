@@ -33,7 +33,7 @@ const typeConfig: Record<
     icon: <UserPlus className="w-5 h-5 text-green-500" />,
     color: "bg-green-100 border-green-300",
     label: "New Lead",
-  },
+  },  
   task_assigned: {
     icon: <ClipboardList className="w-5 h-5 text-purple-500" />,
     color: "bg-purple-100 border-purple-300",

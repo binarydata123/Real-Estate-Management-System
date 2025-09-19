@@ -24,12 +24,15 @@ export const deleteMeeting = async (id: string) => {
   return await api.delete(`/agent/meetings/delete/${id}`);
 };
 // ✅ Get all meetings
+// frontend API wrapper
+// MeetingAPI.ts
 export const getMeetingsByAgency = async (
   agencyId: string,
+  status: "upcoming" | "past" | "cancelled",
   page = 1,
   limit = 10
 ) => {
   return await api.get(
-    `/agent/meetings/get-all/${agencyId}?page=${page}&limit=${limit}`
+    `/agent/meetings/get-all?status=${status}&page=${page}&limit=${limit}`
   );
 };

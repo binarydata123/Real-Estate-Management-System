@@ -90,6 +90,7 @@ declare global {
   }
   interface Meeting {
     _id: string;
+    isPast?: boolean;
     customer?: Partial<CustomerFormData>;
     property?: string | Partial<Property>;
     agency?: Partial<Agency>;
