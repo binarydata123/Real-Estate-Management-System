@@ -46,19 +46,17 @@ export const getNotifications = async (
   }>
 > => {
   const { type, page = 1, limit = 10 } = options || {};
-  const result = await api.get(`/common/notification/get-by-user/${userId}`, {
+  const result = await api.get(`/common/notification/get-by-user`, {
     params: { type, page, limit },
   });
   return result;
 };
 
 // Get unread notifications for a user
-export const getUnreadNotificationsCount = async (
-  userId: string
-): Promise<AxiosResponse<number>> => {
-  const result = await api.get(
-    `/common/notification/get-unread-notifications/${userId}`
-  );
+export const getUnreadNotificationsCount = async (): Promise<
+  AxiosResponse<number>
+> => {
+  const result = await api.get(`/common/notification/get-unread-notifications`);
   return result.data;
 };
 
@@ -68,8 +66,8 @@ export const markAsRead = async (id: string): Promise<AxiosResponse> => {
 };
 
 // Mark all notifications for a user as read
-export const markAllAsRead = async (userId: string): Promise<AxiosResponse> => {
-  return api.patch(`/common/notification/mark-all-read/${userId}`);
+export const markAllAsRead = async (): Promise<AxiosResponse> => {
+  return api.patch(`/common/notification/mark-all-read`);
 };
 
 // Delete a notification

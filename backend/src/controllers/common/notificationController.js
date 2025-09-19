@@ -2,10 +2,10 @@ import { Notification } from "../../models/Common/NotificationModel.js";
 // Create a new notification
 export const createNotification = async (req, res) => {
   try {
-    const { user, agencyId, message, type, link } = req.body;
+    const { agencyId, message, type, link } = req.body;
 
     const notification = await Notification.create({
-      user,
+      userId: req.user._id,
       agencyId: agencyId || null,
       message,
       type: type || "welcome",
@@ -22,7 +22,7 @@ export const createNotification = async (req, res) => {
 // Get all notifications for a user
 export const getUserNotifications = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user._id;
     const { type, page = 1, limit = 10 } = req.query; // ✅ type filter + pagination
 
     const query = { userId };
@@ -66,7 +66,7 @@ export const getUserNotifications = async (req, res) => {
 // Get unread notifications for a user
 export const getUnreadNotifications = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user._id;
 
     const notifications = await Notification.countDocuments({
       userId: userId,
@@ -86,9 +86,10 @@ export const getUnreadNotifications = async (req, res) => {
 export const markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user._id;
 
     const notification = await Notification.findByIdAndUpdate(
-      id,
+      { id, userId },
       { read: true },
       { new: true }
     );
@@ -110,8 +111,9 @@ export const markAsRead = async (req, res) => {
 export const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user._id;
 
-    const notification = await Notification.findByIdAndDelete(id);
+    const notification = await Notification.findByIdAndDelete({ id, userId });
 
     if (!notification) {
       return res
@@ -129,10 +131,10 @@ export const deleteNotification = async (req, res) => {
 // Mark all notifications for a user as read
 export const markAllAsRead = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user._id;
 
     const result = await Notification.updateMany(
-      { user: userId, read: false },
+      { userId: userId, read: false },
       { $set: { read: true } }
     );
 

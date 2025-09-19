@@ -18,6 +18,7 @@ export const AgentDashboard = () => {
   );
   const [showShareModal, setShowShareModal] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recentProperties: any[] = [
     {
       id: "1",

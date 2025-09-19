@@ -113,7 +113,7 @@ const NotificationsPage: React.FC = () => {
   const fetchUnreadCount = async () => {
     try {
       if (!user?._id) return;
-      const res = await getUnreadNotificationsCount(user._id);
+      const res = await getUnreadNotificationsCount();
       setUnreadCount(res.data);
     } catch (err) {
       console.error("Error fetching notifications:", err);
@@ -133,9 +133,9 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  const handleMarkAllRead = async (id: string) => {
+  const handleMarkAllRead = async () => {
     if (unreadCount === 0) return;
-    const result = await markAllAsRead(id);
+    const result = await markAllAsRead();
     if (result.data.success) {
       fetchNotifications();
       fetchUnreadCount();
@@ -162,7 +162,7 @@ const NotificationsPage: React.FC = () => {
           <button
             onClick={() => {
               if (user?._id) {
-                handleMarkAllRead(user._id);
+                handleMarkAllRead();
               }
             }}
             className="flex items-center gap-2 md:px-4 px-3 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all"
