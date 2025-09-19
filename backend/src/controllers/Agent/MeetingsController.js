@@ -116,7 +116,6 @@ export const updateMeeting = async (req, res) => {
 export const updateMeetingStatus = async (req, res) => {
   try {
     const { status } = req.body; // only accept status
-    console.log(req.body);
     if (!status) {
       return res
         .status(400)

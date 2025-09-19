@@ -32,6 +32,16 @@ export const Meetings: React.FC = () => {
     // setCurrentPage(res.data.pagination.page);
   };
 
+  useEffect(() => {
+    fetchMeetings();
+  }, [user?.agency?._id]);
+
+  const handleStatusChange = async (status: string) => {
+    setShowConfirmDialog(false);
+    if (meetingId) await updateMeetingStatus(meetingId, status);
+    fetchMeetings(currentPage);
+  };
+
   // page change handler
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -45,14 +55,6 @@ export const Meetings: React.FC = () => {
   const onCancel = (id: string) => {
     setShowConfirmDialog(true);
     setMeetingId(id);
-  };
-  useEffect(() => {
-    fetchMeetings();
-  }, [user?.agency?._id]);
-  const handleStatusChange = async (status: string) => {
-    setShowConfirmDialog(false);
-    if (meetingId) await updateMeetingStatus(meetingId, status);
-    fetchMeetings(currentPage);
   };
 
   const getStatusColor = (status: string) => {

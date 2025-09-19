@@ -48,15 +48,7 @@ export function usePushSubscription() {
           ...detectDevice(),
           id: getOrCreateDeviceId(),
         };
-        console.log("able to call the api");
 
-        console.log(
-          "[PWA] Push subscription successful",
-          userId,
-          role,
-          subscription,
-          device
-        );
         await savePushSubscription({
           userId,
           role,
@@ -64,7 +56,6 @@ export function usePushSubscription() {
           device,
         });
 
-        // console.log("[PWA] Push subscription successful", device, subscription);
         return subscription;
       } catch (err) {
         console.error("[PWA] Push subscription failed:", err);

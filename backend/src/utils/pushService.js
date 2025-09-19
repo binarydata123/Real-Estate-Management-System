@@ -6,8 +6,7 @@ import {
   VAPID_PUBLIC_KEY,
 } from "../config/env.js";
 
-// Configure web-push
-console.log(VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+
 webPush.setVapidDetails(
   "mailto:binarydata.code@mail.com",
   VAPID_PUBLIC_KEY,
