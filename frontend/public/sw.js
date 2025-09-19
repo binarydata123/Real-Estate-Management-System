@@ -1,13 +1,24 @@
-/* public/sw.js */ self.addEventListener("push", function (event) {
+/* public/sw.js */
+self.addEventListener("push", function (event) {
   const data = event.data.json();
 
-  // Show notification
+  // Show notification with actions
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: "/icons/app-icon-192.png",
       badge: "/icons/app-icon-192.png",
-      data: { url: data.url, message: data.body },
+      data: {
+        url: data.url,
+        message: data.body,
+        userId: data.userId,
+        meetingId: data.meetingId,
+        token: data.token,
+      },
+      actions: [
+        { action: "confirm", title: "👍 Confirm" },
+        { action: "cancel", title: "👎 Cancel" },
+      ],
     })
   );
 
@@ -24,10 +35,37 @@
     })()
   );
 });
+const API_BASE_URL = "http://localhost:5001/api";
 
-self.addEventListener("notificationclick", function (event) {
+self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  if (event.notification.data) {
-    event.waitUntil(clients.openWindow(event.notification.data));
+
+  const { meetingId, token } = event.notification.data;
+  console.log(event.action);
+
+  if (event.action === "confirm") {
+    event.waitUntil(
+      fetch(`${API_BASE_URL}/agent/meetings/update-status/${meetingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "confirmed" }),
+      })
+    );
+  } else if (event.action === "cancel") {
+    event.waitUntil(
+      fetch(`${API_BASE_URL}/agent/meetings/update-status/${meetingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "cancelled" }),
+      })
+    );
+  } else {
+    event.waitUntil(clients.openWindow(event.notification.data?.url || "/"));
   }
 });
