@@ -26,7 +26,9 @@ const eslintConfig = [
         { argsIgnorePattern: "^_" },
       ],
       "react-hooks/exhaustive-deps": "off",
-    },
+      // no misSpells rule
+      "no-misspell": "off",
+    }
   },
 ];
 

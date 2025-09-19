@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { ToastProvider } from "@/context/ToastContext";
 import SpeakMessage from "@/components/Common/SpeakMessage";
 
 const geistSans = Geist({
@@ -32,6 +33,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* <h1>Root Layout</h1> */}
+        <ToastProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ToastProvider>
         <SpeakMessage />
         <AuthProvider>{children}</AuthProvider>
       </body>

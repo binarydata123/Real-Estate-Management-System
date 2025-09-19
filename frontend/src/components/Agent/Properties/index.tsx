@@ -107,7 +107,7 @@ export const Properties: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <PropertyFilters onFilterChange={() => {}} />
+      <PropertyFilters onFilterChange={() => { }} />
 
       {/* Properties Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
@@ -117,9 +117,6 @@ export const Properties: React.FC = () => {
             property={property}
             onView={handleViewProperty}
             onShare={handleShareProperty}
-            onFavorite={(property) =>
-              console.log("Favorite property:", property)
-            }
           />
         ))}
       </div>

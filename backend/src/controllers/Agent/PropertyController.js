@@ -25,7 +25,6 @@ export const createProperty = async (req, res) => {
             conference_rooms: body.conference_rooms ? Number(body.conference_rooms) : undefined,
             floor_number: body.floor_number ? Number(body.floor_number) : undefined,
             total_floors: body.total_floors ? Number(body.total_floors) : undefined,
-            parking_count: body.parking_count ? Number(body.parking_count) : undefined,
 
             // Convert string boolean to actual boolean
             gated_community: body.gated_community === 'true',

@@ -7,8 +7,8 @@ interface PropertyCardProps {
   property: Property;
   onShare?: (property: Property) => void;
   onView?: (property: Property) => void;
-  onFavorite?: (property: Property) => void;
-  isFavorited?: boolean;
+  onToggleFavorite?: (property: Property) => void;
+  isFavorite?: boolean;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({
