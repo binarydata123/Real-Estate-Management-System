@@ -1,10 +1,27 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
+import { User } from "../../models/Common/UserModel.js";
+import bcrypt from "bcryptjs";
 
 // Create a new customer
 export const createCustomer = async (req, res) => {
   try {
     const customer = new Customer(req.body);
     const savedCustomer = await customer.save();
+    const defaultPassword = "Pa$$w0rd!";
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+
+    // 3. Create corresponding User entry
+    const user = new User({
+      name: savedCustomer.fullName,
+      email: savedCustomer.email,
+      phone: savedCustomer.phoneNumber,
+      password: hashedPassword,
+      role: "customer",
+      agencyId: savedCustomer.agencyId,
+      status: "active",
+    });
+
+    await user.save();
     res.status(201).json({
       success: true,
       data: savedCustomer,
@@ -18,36 +35,90 @@ export const createCustomer = async (req, res) => {
 // Get all customers
 export const getCustomers = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const { userId, page = 1, limit = 10, search } = req.query;
+
     if (!userId) {
       return res
         .status(400)
         .json({ success: false, message: "userId is required" });
     }
-    const customers = await Customer.find({ agencyId: userId }).sort({
-      _id: -1,
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const searchQuery = search
+      ? {
+          agencyId: userId,
+          $or: [
+            { fullName: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { whatsAppNumber: { $regex: search, $options: "i" } },
+            { phoneNumber: { $regex: search, $options: "i" } },
+          ],
+        }
+      : { agencyId: userId };
+
+    const totalCustomers = await Customer.countDocuments(searchQuery);
+
+    const customers = await Customer.find(searchQuery)
+      .sort({ _id: -1 })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
+
+    if (!customers || customers.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No customers found",
+        data: [],
+        pagination: {
+          total: 0,
+          page: pageNumber,
+          limit: limitNumber,
+          totalPages: 0,
+        },
+      });
+    }
+
+    res.json({
+      success: true,
+      data: customers,
+      pagination: {
+        total: totalCustomers,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(totalCustomers / limitNumber),
+      },
     });
-    res.json({ success: true, data: customers });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Get a single customer by ID
-export const getCustomerById = async (req, res) => {
+export const getCustomersForDropDown = async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id).populate(
-      "agencyId",
-      "name"
-    );
-    if (!customer) {
+    const { userId } = req.query;
+
+    if (!userId) {
       return res
-        .status(404)
-        .json({ success: false, message: "Customer not found" });
+        .status(400)
+        .json({ success: false, message: "userId is required" });
     }
-    res.json({ success: true, data: customer });
+
+    const customers = await Customer.find({ agencyId: userId });
+
+    if (!customers || customers.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No customers found",
+        data: [],
+      });
+    }
+
+    res.json({
+      success: true,
+      data: customers,
+    });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -60,14 +131,23 @@ export const updateCustomer = async (req, res) => {
     const updatedCustomer = await Customer.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
-    }).populate("agencyId", "name");
+    });
 
     if (!updatedCustomer) {
       return res
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-
+    await User.findOneAndUpdate(
+      { email: updatedCustomer.email },
+      {
+        name: updatedCustomer.fullName,
+        email: updatedCustomer.email,
+        phone: updatedCustomer.phoneNumber,
+        agencyId: updatedCustomer.agencyId,
+      },
+      { new: true }
+    );
     res.json({ success: true, data: updatedCustomer });
   } catch (error) {
     console.error("Error updating customer:", error);
@@ -78,13 +158,19 @@ export const updateCustomer = async (req, res) => {
 // Delete a customer
 export const deleteCustomer = async (req, res) => {
   try {
-    const deletedCustomer = await Customer.findByIdAndDelete(req.params.id);
+    const customerId = req.params.id;
+    const deletedCustomer = await Customer.findByIdAndDelete(customerId);
     if (!deletedCustomer) {
       return res
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    res.json({ success: true, message: "Customer deleted successfully" });
+    await User.deleteOne({ email: deletedCustomer.email });
+
+    res.json({
+      success: true,
+      message: "Customer and user deleted successfully",
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

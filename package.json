@@ -13,9 +13,7 @@
     "prod": "npm run build && npm run start"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
-  },
-  "dependencies": {
-    "web-push": "^3.6.7"
+    "concurrently": "^9.0.0",
+    "eslint-plugin-spellcheck": "^0.0.20"
   }
 }

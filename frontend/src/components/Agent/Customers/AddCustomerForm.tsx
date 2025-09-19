@@ -28,7 +28,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
   const { user, session } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
-  console.log(initialData, "initialData");
+  // console.log(initialData, "initialData");
   const {
     register,
     handleSubmit,
@@ -125,20 +125,23 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                 </p>
               )}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-                WhatsApp Number
-              </label>
-              <input
-                type="tel"
-                {...register("whatsAppNumber")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="+91 98765 43210"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Used for deduplication and communication
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 md:gap-6 gap-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  {...register("email")}
+                  className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="john@example.com"
+                />
+                {errors.email && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -148,20 +151,19 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 md:gap-6 gap-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-                    Email Address
+                    WhatsApp Number
                   </label>
                   <input
-                    type="email"
-                    {...register("email")}
+                    type="tel"
+                    {...register("whatsAppNumber")}
                     className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="john@example.com"
+                    placeholder="+91 98765 43210"
                   />
-                  {errors.email && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.email.message}
-                    </p>
-                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Used for deduplication and communication
+                  </p>
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
                     Phone Number

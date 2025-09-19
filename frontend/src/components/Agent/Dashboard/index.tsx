@@ -18,7 +18,8 @@ export const AgentDashboard = () => {
   );
   const [showShareModal, setShowShareModal] = useState(false);
 
-  const recentProperties: Property[] = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recentProperties: any[] = [
     {
       id: "1",
       title: "Luxury 3BHK Apartment",
@@ -32,7 +33,11 @@ export const AgentDashboard = () => {
       bathrooms: 2,
       status: "available",
       images: [
-        "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
+        {
+          url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
+          alt: "Luxury 3BHK Apartment",
+          isPrimary: true,
+        },
       ],
       created_at: "2025-01-09T10:00:00Z",
       description:
@@ -49,7 +54,11 @@ export const AgentDashboard = () => {
       size_unit: "sq ft",
       status: "available",
       images: [
-        "https://images.pexels.com/photos/373912/pexels-photo-373912.jpeg",
+        {
+          url: "https://images.pexels.com/photos/373912/pexels-photo-373912.jpeg",
+          alt: "Premium Commercial Office",
+          isPrimary: true,
+        },
       ],
       created_at: "2025-01-08T14:30:00Z",
       description:

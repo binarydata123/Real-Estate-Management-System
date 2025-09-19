@@ -1,26 +1,49 @@
+import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
+import { User } from "../../models/Common/UserModel.js";
+import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
+import generateToken from "../../utils/generateToken.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
 // Create a new meeting
 export const createMeeting = async (req, res) => {
   try {
-    console.log("calling create api");
     const meeting = new Meetings(req.body);
     const savedMeeting = await meeting.save();
-    console.log(req.body.agencyId, req.body.customerId);
+    console.log(savedMeeting);
+    const user = req.user._id;
+    const customer = await Customer.findOne({ _id: req.body.customerId });
+    const agentToken = generateToken(req.user._id, req.user.role);
+    console.log(agentToken);
+    // const customerToken = generateToken(customer._id, customer.role);
+    await createNotification({
+      agencyId: req.body.agencyId,
+      userId: user._id,
+      message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
+      type: "meeting_scheduled",
+    });
+    await createNotification({
+      userId: customer._id,
+      message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+      type: "meeting_scheduled",
+    });
+
     // ✅ Push notification to meeting creator
     await sendPushNotification({
-      userId: req.body.agencyId,
+      userId: user._id,
+      meetingId: savedMeeting._id,
+      token: agentToken,
       title: "Meeting Scheduled",
-      message: `You have successfully scheduled a meeting with ${req.body.customer} on ${req.body.date} at ${req.body.time}.`,
+      message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
       urlPath: "meetings",
     });
 
     // ✅ Push notification to another participant
     await sendPushNotification({
-      userId: req.body.customerId,
+      userId: customer._id,
+      meetingId: savedMeeting._id,
       title: "New Meeting Invitation",
-      message: `${req.body.agencyId} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+      message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
       urlPath: "meetings",
     });
 
@@ -33,29 +56,89 @@ export const createMeeting = async (req, res) => {
 // GET /agents/meetings/get-all/:id?page=1&limit=10
 export const getMeetingsByAgency = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.user.agencyId;
+    const { status } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const total = await Meetings.countDocuments({ agencyId: id });
-    const meetings = await Meetings.find({ agencyId: id })
+    const now = new Date();
+
+    let query = { agencyId: id };
+
+    if (status === "upcoming") {
+      query.$expr = {
+        $and: [
+          { $ne: ["$status", "cancelled"] },
+          {
+            $gte: [
+              {
+                $dateFromString: {
+                  dateString: {
+                    $concat: [
+                      { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                      "T",
+                      "$time",
+                      ":00",
+                    ],
+                  },
+                },
+              },
+              now,
+            ],
+          },
+        ],
+      };
+    } else if (status === "past") {
+      query.$expr = {
+        $and: [
+          { $ne: ["$status", "cancelled"] },
+          {
+            $lt: [
+              {
+                $dateFromString: {
+                  dateString: {
+                    $concat: [
+                      { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                      "T",
+                      "$time",
+                      ":00",
+                    ],
+                  },
+                },
+              },
+              now,
+            ],
+          },
+        ],
+      };
+    } else if (status === "cancelled") {
+      query.status = "cancelled";
+    }
+
+    const total = await Meetings.countDocuments(query);
+
+    const meetings = await Meetings.find(query)
       .populate("customerId", "fullName")
-      // .populate("propertyId", "title")
       .skip(skip)
       .limit(limit)
-      .sort({ date: -1 })
+      .sort({ date: status === "past" ? -1 : 1 })
       .lean();
 
     const formattedMeetings = meetings.map((m) => ({
       ...m,
       customer: m.customerId,
       customerId: undefined,
+      isPast: status === "past",
       // property: m.propertyId,
       // propertyId: undefined,
     }));
 
-    res.json({ success: true, data: formattedMeetings });
+    res.json({
+      success: true,
+      data: formattedMeetings,
+      total,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -64,7 +147,8 @@ export const getMeetingsByAgency = async (req, res) => {
 // Get a meeting by ID
 export const getMeetingById = async (req, res) => {
   try {
-    const meeting = await Meetings.findById(req.params.id);
+    const agencyId = req.user.agencyId;
+    const meeting = await Meetings.findOne({ _id: req.params.id, agencyId });
 
     if (!meeting) {
       return res
@@ -81,6 +165,7 @@ export const getMeetingById = async (req, res) => {
 // Update a meeting
 export const updateMeeting = async (req, res) => {
   try {
+    const agencyId = req.user.agencyId;
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -100,8 +185,8 @@ export const updateMeeting = async (req, res) => {
 };
 export const updateMeetingStatus = async (req, res) => {
   try {
+    console.log(req.body, req.params);
     const { status } = req.body; // only accept status
-    console.log(req.body);
     if (!status) {
       return res
         .status(400)
@@ -113,8 +198,10 @@ export const updateMeetingStatus = async (req, res) => {
       { status }, // only update status
       { new: true, runValidators: true }
     );
+    console.log(updatedMeeting);
 
     if (!updatedMeeting) {
+      console.log("meeting not found");
       return res
         .status(404)
         .json({ success: false, message: "Meeting not found" });

@@ -9,6 +9,11 @@ declare global {
     }>;
     prompt(): Promise<void>;
   }
+  interface UserRef {
+    _id: string;
+    name: string;
+    email?: string;
+  }
   // Auth related types
   interface RegistrationData {
     fullName: string;
@@ -36,8 +41,15 @@ declare global {
     joined: string;
   }
 
+  interface ImageData {
+    url: string;
+    alt?: string;
+    isPrimary?: boolean;
+  }
+
   interface Property {
-    id: string;
+    _id?: string;
+    id?: string;
     title: string;
     type: string;
     description: string;
@@ -49,20 +61,22 @@ declare global {
     bedrooms?: number;
     bathrooms?: number;
     status: string;
-    images: string[];
+    image?: string[];
+    images: ImageData[];
     created_at: string;
   }
   interface CustomerResponse {
     success: boolean;
     data: CustomerFormData[];
-    message: string;
+    message?: string;
+    pagination?: Pagination;
   }
 
   interface CustomerFormData {
     _id: string;
+    email: string | "";
     fullName: string;
     whatsAppNumber?: string;
-    email?: string;
     phoneNumber?: string;
     minimumBudget?: number;
     maximumBudget?: number;
@@ -80,8 +94,16 @@ declare global {
     assigned_agent: string;
     minimumBudget: number;
   }
+
+  interface Pagination {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }
   interface Meeting {
     _id: string;
+    isPast?: boolean;
     customer?: Partial<CustomerFormData>;
     property?: string | Partial<Property>;
     agency?: Partial<Agency>;
@@ -91,6 +113,24 @@ declare global {
     notes?: string;
     created_at?: string;
     updated_at?: string;
+  }
+
+  interface SharePropertyFormData {
+    propertyId: Property;
+    sharedWithUserId: CustomerFormData;
+    message?: string;
+    sharedByUserId: UserRef;
+    agencyId: string;
+    _id: string;
+    status: string;
+    createdAt: string;
+  }
+
+  interface sharePropertyResponse {
+    success: boolean;
+    data: SharePropertyFormData[];
+    message?: string;
+    pagination?: Pagination;
   }
 }
 
@@ -104,4 +144,6 @@ export {
   CustomerFormData,
   CustomerResponse,
   BeforeInstallPromptEvent,
+  Pagination,
+  SharePropertyFormData,
 };

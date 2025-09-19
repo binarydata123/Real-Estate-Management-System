@@ -23,13 +23,30 @@ export const Meetings: React.FC = () => {
   const { user } = useAuth();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-
+  const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "cancelled">(
+    "upcoming"
+  );
   const fetchMeetings = async (page = 1) => {
     if (!user?.agency?._id) return;
-    const res = await getMeetingsByAgency(user?.agency?._id, page, 10); // 10 per page
+    const res = await getMeetingsByAgency(
+      user?.agency?._id,
+      activeTab,
+      page,
+      10
+    ); // 10 per page
     setMeetings(res.data.data);
-    setTotalPages(res.data.pagination.totalPages);
+    setTotalPages(Math.ceil(res.data.total / 10));
     // setCurrentPage(res.data.pagination.page);
+  };
+
+  useEffect(() => {
+    fetchMeetings();
+  }, [user?.agency?._id, activeTab]);
+
+  const handleStatusChange = async (status: string) => {
+    setShowConfirmDialog(false);
+    if (meetingId) await updateMeetingStatus(meetingId, status);
+    fetchMeetings(currentPage);
   };
 
   // page change handler
@@ -45,14 +62,6 @@ export const Meetings: React.FC = () => {
   const onCancel = (id: string) => {
     setShowConfirmDialog(true);
     setMeetingId(id);
-  };
-  useEffect(() => {
-    fetchMeetings();
-  }, [user?.agency?._id]);
-  const handleStatusChange = async (status: string) => {
-    setShowConfirmDialog(false);
-    if (meetingId) await updateMeetingStatus(meetingId, status);
-    fetchMeetings(currentPage);
   };
 
   const getStatusColor = (status: string) => {
@@ -86,7 +95,40 @@ export const Meetings: React.FC = () => {
           Schedule Meeting
         </button>
       </div>
-
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-4" aria-label="Tabs">
+          <button
+            onClick={() => setActiveTab("upcoming")}
+            className={`px-3 py-2 font-medium text-sm rounded-t-md ${
+              activeTab === "upcoming"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            Upcoming Meetings
+          </button>
+          <button
+            onClick={() => setActiveTab("past")}
+            className={`px-3 py-2 font-medium text-sm rounded-t-md ${
+              activeTab === "past"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            Past Meetings
+          </button>
+          <button
+            onClick={() => setActiveTab("cancelled")}
+            className={`px-3 py-2 font-medium text-sm rounded-t-md ${
+              activeTab === "cancelled"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            Cancelled
+          </button>
+        </nav>
+      </div>
       {/* Meetings List */}
       <div className="md:space-y-4 space-y-2">
         {meetings.map((meeting) => (
@@ -143,7 +185,7 @@ export const Meetings: React.FC = () => {
 
               {/* Right: status + actions */}
               <div className="flex md:flex-col flex-row justify-between items-end md:space-y-2 w-full md:w-auto">
-                {meeting.status && (
+                {meeting.status && !meeting.isPast && (
                   <span
                     className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl  text-xs font-medium ${getStatusColor(
                       meeting.status
@@ -153,7 +195,7 @@ export const Meetings: React.FC = () => {
                   </span>
                 )}
 
-                {meeting.status !== "cancelled" && (
+                {meeting.status !== "cancelled" && !meeting.isPast && (
                   <div className="flex md:flex-col flex-row gap-2">
                     <button
                       // onClick={() => onJoin?.(meeting)}
@@ -175,7 +217,7 @@ export const Meetings: React.FC = () => {
                     </button>
                   </div>
                 )}
-                {meeting.status === "cancelled" && (
+                {(meeting.status === "cancelled" || meeting.isPast) && (
                   <div className="flex md:flex-col flex-row gap-2">
                     <button
                       onClick={() => {
@@ -196,11 +238,31 @@ export const Meetings: React.FC = () => {
       {meetings.length === 0 && (
         <NoData
           icon={<CalendarIcon className="h-24 w-24 text-gray-400" />}
-          buttonIcon={<PlusIcon className="h-5 w-5 mr-2" />}
-          heading="No meetings scheduled"
-          description="Start scheduling meetings with your customers"
-          buttonText="Schedule Your First Meeting"
-          onButtonClick={() => setShowAddForm(true)}
+          heading={
+            activeTab === "upcoming"
+              ? "No meetings scheduled"
+              : activeTab === "past"
+              ? "No past meetings"
+              : "No cancelled meetings"
+          }
+          description={
+            activeTab === "upcoming"
+              ? "Plan ahead by scheduling new meetings with your customers."
+              : activeTab === "past"
+              ? "Once meetings are completed, they’ll show up here for your records."
+              : "Cancelled meetings will be listed here if any were called off."
+          }
+          buttonIcon={
+            activeTab === "upcoming" ? (
+              <PlusIcon className="h-5 w-5 mr-2" />
+            ) : undefined
+          }
+          buttonText={
+            activeTab === "upcoming" ? "Schedule Your First Meeting" : undefined
+          }
+          onButtonClick={
+            activeTab === "upcoming" ? () => setShowAddForm(true) : undefined
+          }
         />
       )}
 

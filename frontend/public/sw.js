@@ -1,25 +1,71 @@
 /* public/sw.js */
 self.addEventListener("push", function (event) {
-    if (event.data) {
-      const data = event.data.json();
-      const title = data.title || "New Notification";
-      const options = {
-        body: data.body || "",
-        icon: "/icons/app-icon-192.png",
-        badge: "/icons/app-icon-192.png",
-        data: data.url || "/",
-      };
-  
-      event.waitUntil(self.registration.showNotification(title, options));
-    }
-  });
-  
-  self.addEventListener("notificationclick", function (event) {
-    event.notification.close();
-    if (event.notification.data) {
-      event.waitUntil(
-        clients.openWindow(event.notification.data)
-      );
-    }
-  });
-  
+  const data = event.data.json();
+
+  // Show notification with actions
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: "/icons/app-icon-192.png",
+      badge: "/icons/app-icon-192.png",
+      data: {
+        url: data.url,
+        message: data.body,
+        userId: data.userId,
+        meetingId: data.meetingId,
+        token: data.token,
+      },
+      actions: [
+        { action: "confirm", title: "👍 Confirm" },
+        { action: "cancel", title: "👎 Cancel" },
+      ],
+    })
+  );
+
+  // Send message to clients
+  event.waitUntil(
+    (async () => {
+      const allClients = await clients.matchAll({ includeUncontrolled: true });
+      for (const client of allClients) {
+        client.postMessage({
+          type: "SPEAK_MESSAGE",
+          message: data.body,
+        });
+      }
+    })()
+  );
+});
+const API_BASE_URL = "http://localhost:5001/api";
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const { meetingId, token } = event.notification.data;
+  console.log(event.action);
+
+  if (event.action === "confirm") {
+    event.waitUntil(
+      fetch(`${API_BASE_URL}/agent/meetings/update-status/${meetingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "confirmed" }),
+      })
+    );
+  } else if (event.action === "cancel") {
+    event.waitUntil(
+      fetch(`${API_BASE_URL}/agent/meetings/update-status/${meetingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "cancelled" }),
+      })
+    );
+  } else {
+    event.waitUntil(clients.openWindow(event.notification.data?.url || "/"));
+  }
+});

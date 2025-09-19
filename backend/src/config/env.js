@@ -15,4 +15,5 @@ export const {
   VAPID_PUBLIC_KEY,
   VAPID_PRIVATE_KEY,
   FRONTEND_URL,
+  API_URL
 } = process.env;

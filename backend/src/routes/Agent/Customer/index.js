@@ -2,8 +2,8 @@ import express from "express";
 import {
   createCustomer,
   deleteCustomer,
-  getCustomerById,
   getCustomers,
+  getCustomersForDropDown,
   updateCustomer,
 } from "../../../controllers/Agent/CustomerController.js";
 
@@ -11,10 +11,11 @@ const router = express.Router();
 
 // Create
 router.post("/create", createCustomer);
+getCustomersForDropDown;
 
 // Read
 router.get("/get-all", getCustomers);
-router.get("/getById/:id", getCustomerById);
+router.get("/get-all-for-dropDown", getCustomersForDropDown);
 
 // Update
 router.put("/update/:id", updateCustomer);
