@@ -43,7 +43,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
     defaultValues: {
       sharedWithUserId: "",
       message: "",
-      propertyId: "68ca3d5fcbd70920265c39c2",
+      propertyId: property?._id || "",
       sharedByUserId: user?._id || "",
       agencyId: user?._id || "",
     },
@@ -82,7 +82,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
   const formatPrice = (price: number) => {
     if (price >= 10000000) return `₹${(price / 10000000).toFixed(1)}Cr`;
     if (price >= 100000) return `₹${(price / 100000).toFixed(1)}L`;
-    return `₹${price.toLocaleString()}`;
+    return `₹${price?.toLocaleString()}`;
   };
 
   const filteredOptions =
