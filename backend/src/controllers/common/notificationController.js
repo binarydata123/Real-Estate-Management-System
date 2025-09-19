@@ -88,8 +88,8 @@ export const markAsRead = async (req, res) => {
     const { id } = req.params;
     const userId = req.user._id;
 
-    const notification = await Notification.findByIdAndUpdate(
-      { id, userId },
+    const notification = await Notification.findOneAndUpdate(
+      { _id: id, userId },
       { read: true },
       { new: true }
     );

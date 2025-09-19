@@ -2,6 +2,7 @@ import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
 import { User } from "../../models/Common/UserModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
+import generateToken from "../../utils/generateToken.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
 // Create a new meeting
@@ -9,8 +10,12 @@ export const createMeeting = async (req, res) => {
   try {
     const meeting = new Meetings(req.body);
     const savedMeeting = await meeting.save();
+    console.log(savedMeeting);
     const user = req.user._id;
     const customer = await Customer.findOne({ _id: req.body.customerId });
+    const agentToken = generateToken(req.user._id, req.user.role);
+    console.log(agentToken);
+    // const customerToken = generateToken(customer._id, customer.role);
     await createNotification({
       agencyId: req.body.agencyId,
       userId: user._id,
@@ -26,6 +31,8 @@ export const createMeeting = async (req, res) => {
     // ✅ Push notification to meeting creator
     await sendPushNotification({
       userId: user._id,
+      meetingId: savedMeeting._id,
+      token: agentToken,
       title: "Meeting Scheduled",
       message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
       urlPath: "meetings",
@@ -34,6 +41,7 @@ export const createMeeting = async (req, res) => {
     // ✅ Push notification to another participant
     await sendPushNotification({
       userId: customer._id,
+      meetingId: savedMeeting._id,
       title: "New Meeting Invitation",
       message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
       urlPath: "meetings",
@@ -177,6 +185,7 @@ export const updateMeeting = async (req, res) => {
 };
 export const updateMeetingStatus = async (req, res) => {
   try {
+    console.log(req.body, req.params);
     const { status } = req.body; // only accept status
     if (!status) {
       return res
@@ -189,8 +198,10 @@ export const updateMeetingStatus = async (req, res) => {
       { status }, // only update status
       { new: true, runValidators: true }
     );
+    console.log(updatedMeeting);
 
     if (!updatedMeeting) {
+      console.log("meeting not found");
       return res
         .status(404)
         .json({ success: false, message: "Meeting not found" });

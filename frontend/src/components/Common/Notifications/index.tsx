@@ -80,6 +80,8 @@ const NotificationsPage: React.FC = () => {
     { key: "all", label: "All" },
     { key: "unread", label: "Unread" },
     { key: "meeting_scheduled", label: "Meetings" },
+    { key: "property_added", label: "Property" },
+    { key: "new_lead", label: "Customer" },
   ];
 
   const fetchNotifications = async () => {

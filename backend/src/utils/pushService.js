@@ -6,7 +6,6 @@ import {
   VAPID_PUBLIC_KEY,
 } from "../config/env.js";
 
-
 webPush.setVapidDetails(
   "mailto:binarydata.code@mail.com",
   VAPID_PUBLIC_KEY,
@@ -15,6 +14,8 @@ webPush.setVapidDetails(
 
 export async function sendPushNotification({
   userId,
+  meetingId = "",
+  token,
   role,
   title,
   message,
@@ -35,8 +36,15 @@ export async function sendPushNotification({
   const payload = JSON.stringify({
     title,
     body: message,
+    meetingId,
+    userId,
+    token,
     icon: `${FRONTEND_URL}/icons/app-icon-192.png`,
     url: `${FRONTEND_URL}${urlPath}`,
+    actions: [
+      { action: "confirm", title: "👍 Confirm" },
+      { action: "cancel", title: "👎 Cancel" },
+    ],
   });
 
   await Promise.allSettled(

@@ -1,4 +1,4 @@
-import NotificationsPage from "@/components/Agent/Notifications";
+import NotificationsPage from "@/components/Common/Notifications";
 import React from "react";
 
 export default function page() {

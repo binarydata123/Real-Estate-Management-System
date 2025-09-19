@@ -46,9 +46,10 @@ declare global {
     alt?: string;
     isPrimary?: boolean;
   }
+
   interface Property {
-    _id: string;
-    id: string;
+    _id?: string;
+    id?: string;
     title: string;
     type: string;
     description: string;
@@ -60,6 +61,7 @@ declare global {
     bedrooms?: number;
     bathrooms?: number;
     status: string;
+    image?: string[];
     images: ImageData[];
     created_at: string;
   }
