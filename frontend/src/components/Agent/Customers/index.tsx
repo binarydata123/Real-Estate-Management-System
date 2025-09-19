@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useState } from "react";
 import { PlusIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
@@ -56,28 +56,29 @@ export const Customers: React.FC = () => {
     }
   };
 
-  const getAllCustomers = async (page = 1, search: string = "") => {
-    if (!user?._id) return;
-    try {
-      setLoading(true);
-      const res = await getCustomers(user._id, page, limit, search);
-      if (res.success) {
-        setCustomers(res.data);
-        const current = res.pagination?.page ?? 1;
-        const total = res.pagination?.totalPages ?? 1;
-        setCurrentPage(current);
-        setTotalPages(total);
+  const getAllCustomers = useCallback(
+    async (page = 1, search = "") => {
+      if (!user?._id) return;
+      try {
+        setLoading(true);
+        const res = await getCustomers(user._id, page, limit, search);
+        if (res.success) {
+          setCustomers(res.data);
+          setCurrentPage(res.pagination?.page ?? 1);
+          setTotalPages(res.pagination?.totalPages ?? 1);
+        }
+      } catch (error) {
+        console.error("Failed to fetch customers:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch customers:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [user?._id]
+  );
 
   useEffect(() => {
     getAllCustomers(currentPage, debouncedSearchTerm);
-  }, [user?._id, currentPage, debouncedSearchTerm]);
+  }, [getAllCustomers, currentPage, debouncedSearchTerm]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
