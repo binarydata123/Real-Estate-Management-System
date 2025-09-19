@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 const propertyShareSchema = new mongoose.Schema({
   agencyId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -11,7 +12,7 @@ const propertyShareSchema = new mongoose.Schema({
   },
   sharedWithUserId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Customer",
     required: true,
   },
   sharedByUserId: {
@@ -21,6 +22,12 @@ const propertyShareSchema = new mongoose.Schema({
   },
   message: String,
   createdAt: { type: Date, default: Date.now },
+  status: {
+    type: String,
+    enum: ["pending", "viewed"],
+    default: "pending",
+    index: true,
+  },
 });
 
 export const PropertyShare = mongoose.model(

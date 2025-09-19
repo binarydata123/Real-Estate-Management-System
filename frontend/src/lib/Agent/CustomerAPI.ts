@@ -44,3 +44,10 @@ export const updateCustomer = async (
 export const deleteCustomerById = async (id: string) => {
   return await api.delete(`/agent/customers/delete/${id}`);
 };
+
+export const getCustomersForDropDown = async (userId: string) => {
+  const response = await api.get<CustomerResponse>(
+    `/agent/customers/get-all-for-dropDown?userId=${userId}`
+  );
+  return response.data;
+};
