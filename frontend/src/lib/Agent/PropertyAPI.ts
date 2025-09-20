@@ -14,7 +14,7 @@ export const createProperty = async (propertyData: FormData) => {
   }
 };
 
-export const getProperties = async (filters?: Record<string, any>) => {
+export const getProperties = async (filters?: Record<string, FormData>) => {
   try {
     const response = await api.get(`${API_URL}/getProperties`, {
       params: filters || {},

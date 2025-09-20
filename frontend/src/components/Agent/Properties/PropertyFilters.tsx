@@ -106,7 +106,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           <select
             value={filters.type}
             onChange={(e) => handleFilterChange("type", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">All Types</option>
             <option value="residential">Residential</option>
@@ -119,7 +119,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           <select
             value={filters.category}
             onChange={(e) => handleFilterChange("category", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">All Categories</option>
             <option value="plot">Plot</option>
@@ -136,7 +136,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           <select
             value={filters.status}
             onChange={(e) => handleFilterChange("status", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           >
             {" "}
             <option value="">All Status</option>

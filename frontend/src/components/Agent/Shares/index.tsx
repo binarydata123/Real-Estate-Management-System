@@ -62,11 +62,10 @@ export const Shares: React.FC = () => {
       {/* Shares List */}
       <div className="space-y-2 md:space-y-4">
         {sharedData.map((share) => {
-          console.log("Property Images:", share);
           return (
             <div
               key={share._id}
-              className="bg-white rounded-lg md:rounded-xl  shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
+              className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
             >
               <div className="flex md:flex-row flex-col space-y-2 md:space-y-0 items-start justify-between">
                 <div className="flex-1 w-full md:w-auto">
@@ -86,8 +85,8 @@ export const Shares: React.FC = () => {
                             : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
                         }
                         alt={share.propertyId.title}
-                        width={60} // h-10 = 40px
-                        height={60} // w-10 = 40px
+                        width={60}
+                        height={60}
                         className="rounded-lg object-cover"
                       />
                     </div>
@@ -129,19 +128,6 @@ export const Shares: React.FC = () => {
                         </span>
                       </div>
                     </div>
-
-                    {/* <div>
-                      <p className="text-gray-600 mb-1">Share Type</p>
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getShareTypeColor(
-                          share.status
-                        )}`}
-                      >
-                        {share.status === "Agent to Customer"
-                          ? "Agent to Customer"
-                          : "Agent to Agent"}
-                      </span>
-                    </div> */}
                   </div>
                 </div>
 
@@ -221,6 +207,9 @@ export const Shares: React.FC = () => {
       {showShareModal && propertyToShare && (
         <SharePropertyModal
           property={propertyToShare}
+          sharedCustomers={sharedData
+            .filter((s) => s.propertyId._id === propertyToShare._id)
+            .map((s) => s.sharedWithUserId)}
           onClose={() => {
             setShowShareModal(false);
             setPropertyToShare(null);

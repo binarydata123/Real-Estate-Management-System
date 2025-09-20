@@ -85,26 +85,59 @@ export const createProperty = async (req, res) => {
 
 export const getProperties = async (req, res) => {
   try {
-    const { title, status, minPrice, maxPrice } = req.query;
+    const {
+      title,
+      status,
+      minPrice,
+      maxPrice,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageSize = parseInt(limit, 10) || 10;
+    const skip = (pageNumber - 1) * pageSize;
+
+    // 🔹 Build filter
     const filter = {};
+
+    // 🔹 Flexible search (title, description, location, etc.)
     if (title && title.trim() !== "") {
-      filter.title = { $regex: title.trim(), $options: "i" };
+      filter.$or = [
+        { title: { $regex: title.trim(), $options: "i" } },
+        { description: { $regex: title.trim(), $options: "i" } },
+        { location: { $regex: title.trim(), $options: "i" } },
+      ];
     }
 
-    if (status) filter.status = status;
+    // 🔹 Status filter
+    if (status && status.trim() !== "") {
+      filter.status = status;
+    }
 
+    // 🔹 Price range
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = Number(minPrice);
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
 
-    const properties = await Property.find(filter).sort({ createdAt: -1 });
+    // 🔹 Fetch data
+    const [properties, total] = await Promise.all([
+      Property.find(filter).sort({ createdAt: -1 }).skip(skip).limit(pageSize),
+      Property.countDocuments(filter),
+    ]);
 
     res.status(200).json({
       success: true,
       message: "Properties fetched successfully",
       data: properties,
+      pagination: {
+        total,
+        page: pageNumber,
+        pages: Math.ceil(total / pageSize),
+        limit: pageSize,
+      },
     });
   } catch (error) {
     console.error("Error fetching properties:", error);

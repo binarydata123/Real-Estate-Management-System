@@ -22,12 +22,16 @@ interface SharePropertyModalProps {
   property: Property;
   onClose: () => void;
   onSuccess?: () => void;
+  /** ✅ Add this line */
+  sharedCustomers?: { _id: string; fullName: string }[];
 }
 
 const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
   property,
   onClose,
   onSuccess,
+  /** ✅ Add default value so it never breaks */
+  sharedCustomers = [],
 }) => {
   const { user } = useAuth();
   const [options, setOptions] = useState<CustomerFormData[]>([]);
@@ -72,7 +76,6 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
         onClose();
       }
     } catch (err) {
-      console.log(err, "000");
       console.error(err);
     } finally {
       setLoading(false);
@@ -133,6 +136,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                 render={({ field }) => {
                   const selectedUser =
                     options.find((opt) => opt._id === field.value) || null;
+
                   return (
                     <Combobox
                       value={selectedUser}
@@ -155,28 +159,41 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
 
                         {filteredOptions.length > 0 && (
                           <Combobox.Options className="absolute mt-1 w-full max-h-56 overflow-auto rounded-lg border bg-white shadow-lg z-50">
-                            {filteredOptions.map((option) => (
-                              <Combobox.Option
-                                key={option._id}
-                                value={option}
-                                className={({ active }) =>
-                                  `flex justify-between px-4 py-2 cursor-pointer ${
-                                    active
-                                      ? "bg-blue-600 text-white"
-                                      : "text-gray-700"
-                                  }`
-                                }
-                              >
-                                {({ selected }) => (
-                                  <>
-                                    <span>{option.fullName}</span>
-                                    {selected && (
-                                      <CheckIcon className="h-4 w-4" />
-                                    )}
-                                  </>
-                                )}
-                              </Combobox.Option>
-                            ))}
+                            {filteredOptions.map((option) => {
+                              /** ✅ Disable if already shared */
+                              const isAlreadyShared = sharedCustomers.some(
+                                (shared) => shared._id === option._id
+                              );
+
+                              return (
+                                <Combobox.Option
+                                  key={option._id}
+                                  value={option}
+                                  disabled={isAlreadyShared}
+                                  className={({ active, disabled }) =>
+                                    `flex justify-between px-4 py-2 cursor-pointer ${
+                                      disabled
+                                        ? "text-gray-400 cursor-not-allowed"
+                                        : active
+                                        ? "bg-blue-600 text-white"
+                                        : "text-gray-700"
+                                    }`
+                                  }
+                                >
+                                  {({ selected }) => (
+                                    <>
+                                      <span>
+                                        {option.fullName}{" "}
+                                        {isAlreadyShared && "(Already Shared)"}
+                                      </span>
+                                      {selected && !isAlreadyShared && (
+                                        <CheckIcon className="h-4 w-4" />
+                                      )}
+                                    </>
+                                  )}
+                                </Combobox.Option>
+                              );
+                            })}
                           </Combobox.Options>
                         )}
                       </div>

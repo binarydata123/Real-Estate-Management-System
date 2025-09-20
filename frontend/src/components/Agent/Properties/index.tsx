@@ -10,6 +10,7 @@ import SharePropertyModal from "../Common/SharePropertyModal";
 import { PropertyCard } from "./PropertyCard";
 import { getProperties } from "@/lib/Agent/PropertyAPI";
 import { useDebounce } from "@/components/Common/UseDebounce";
+import { Pagination } from "@/components/Common/Pagination";
 
 export const Properties: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -81,18 +82,42 @@ export const Properties: React.FC = () => {
   //     },
   //   ];
   const debouncedFilters = useDebounce(filters, 700);
-  const getAllProperties = useCallback(async () => {
-    try {
-      const response = await getProperties(debouncedFilters);
-      setProperties(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [debouncedFilters]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
+
+  const getAllProperties = useCallback(
+    async (page = 1) => {
+      try {
+        const response = await getProperties({
+          ...debouncedFilters,
+          page,
+          limit,
+        });
+
+        if (response.success) {
+          setProperties(response.data);
+          setCurrentPage(response.pagination?.page ?? 1);
+          setTotalPages(response.pagination?.pages ?? 1);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [debouncedFilters]
+  );
 
   useEffect(() => {
-    getAllProperties();
-  }, [getAllProperties]);
+    setCurrentPage(1); // reset to first page when filters change
+    getAllProperties(1);
+  }, [debouncedFilters, getAllProperties]);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      getAllProperties(page);
+    }
+  };
 
   const handleViewProperty = (property: Property) => {
     setSelectedProperty(property);
@@ -137,6 +162,20 @@ export const Properties: React.FC = () => {
           />
         ))}
       </div>
+
+      {/* Pagination outside the grid */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            siblingCount={1}
+            showFirstLast={true}
+            showPrevNext={true}
+          />
+        </div>
+      )}
 
       {properties.length === 0 && (
         <div className="text-center py-12">
