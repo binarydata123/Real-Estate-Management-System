@@ -21,43 +21,37 @@ export const shareProperty = async (req, res) => {
     });
 
     const savedShare = await newShare.save();
+
+    await createNotification({
+      agencyId,
+      userId: agencyId,
+      message: `Property has been shared successfully.`,
+      type: "property_share",
+    });
+
+    await createNotification({
+      userId: sharedWithUserId,
+      message: `A property has been shared with you.`,
+      type: "property_share",
+    });
+
+    await sendPushNotification({
+      userId: sharedWithUserId,
+      title: "New Property Shared",
+      message: "A property has been shared with you. Check it out!",
+      urlPath: "/agent/shares",
+    });
+
+    await sendPushNotification({
+      userId: agencyId,
+      title: "Property Shared Successfully",
+      message: "You have shared a property successfully.",
+      urlPath: "/agent/shares",
+    });
     res.status(201).json({
       share: savedShare,
       message: "Share property successfully",
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-};
-
-export const updateShareProperty = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { agencyId, propertyId, sharedWithUserId, sharedByUserId, message } =
-      req.body;
-
-    if (!id) {
-      return res.status(400).json({ error: "Share ID is required" });
-    }
-
-    if (!agencyId || !propertyId || !sharedWithUserId || !sharedByUserId) {
-      return res
-        .status(400)
-        .json({ error: "All required fields must be provided" });
-    }
-
-    const updatedShare = await PropertyShare.findByIdAndUpdate(
-      id,
-      { agencyId, propertyId, sharedWithUserId, sharedByUserId, message },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedShare) {
-      return res.status(404).json({ error: "Share record not found" });
-    }
-
-    res.status(200).json(updatedShare);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
@@ -73,6 +67,7 @@ export const getAllSharedProperties = async (req, res) => {
     }
 
     const shares = await PropertyShare.find({ agencyId })
+      .sort({ _id: -1 })
       .populate("sharedWithUserId", "fullName email phone")
       .populate("sharedByUserId", "name email phone createdAt")
       .populate("propertyId", "title images price");

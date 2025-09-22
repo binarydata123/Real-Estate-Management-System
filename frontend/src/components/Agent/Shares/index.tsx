@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ShareIcon,
   CalendarIcon,
@@ -11,6 +11,7 @@ import { getSharedProperties } from "@/lib/Agent/SharePropertyAPI";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import SharePropertyModal from "../Common/SharePropertyModal";
+import SearchInput from "@/components/Common/SearchInput";
 
 export const Shares: React.FC = () => {
   const { user } = useAuth();
@@ -18,23 +19,23 @@ export const Shares: React.FC = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [propertyToShare, setPropertyToShare] = useState<Property | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    const fetchSharedProperties = async () => {
-      try {
-        const agencyId = user?._id;
-        if (!agencyId) return;
-        const response = await getSharedProperties(agencyId);
-        if (response.success) {
-          setSharedData(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching shared properties:", error);
-      }
-    };
-
     fetchSharedProperties();
   }, [user?._id]);
+  const fetchSharedProperties = async () => {
+    try {
+      const agencyId = user?._id;
+      if (!agencyId) return;
+      const response = await getSharedProperties(agencyId);
+      if (response.success) {
+        setSharedData(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching shared properties:", error);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -49,6 +50,21 @@ export const Shares: React.FC = () => {
     }
   };
 
+  const filteredShares = useMemo(() => {
+    if (!searchTerm) return sharedData;
+    return sharedData.filter((share) => {
+      const propertyTitle = share.propertyId.title.toLowerCase();
+      const sharedByName = share.sharedByUserId.name.toLowerCase();
+      const sharedWithName = share.sharedWithUserId.fullName.toLowerCase();
+      const term = searchTerm.toLowerCase();
+      return (
+        propertyTitle.includes(term) ||
+        sharedByName.includes(term) ||
+        sharedWithName.includes(term)
+      );
+    });
+  }, [searchTerm, sharedData]);
+
   return (
     <div className="space-y-2">
       {/* Header */}
@@ -57,11 +73,16 @@ export const Shares: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">Property Shares</h1>
           <p className="text-gray-600 md:mt-1">Manage property sharing </p>
         </div>
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Search by property or user..."
+        />
       </div>
 
       {/* Shares List */}
       <div className="space-y-2 md:space-y-4">
-        {sharedData.map((share) => {
+        {filteredShares.map((share) => {
           return (
             <div
               key={share._id}
@@ -213,6 +234,7 @@ export const Shares: React.FC = () => {
           onClose={() => {
             setShowShareModal(false);
             setPropertyToShare(null);
+            fetchSharedProperties();
           }}
         />
       )}

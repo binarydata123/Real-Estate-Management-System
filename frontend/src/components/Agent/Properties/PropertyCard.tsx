@@ -42,10 +42,14 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   const primaryImage =
-    property?.images && property.images.length > 0
-      ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${property?.images[0]?.url}`
+    property?.images?.length > 0
+      ? (() => {
+          const primary = property.images.find((img) => img.isPrimary);
+          return primary
+            ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${primary.url}`
+            : `https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg`;
+        })()
       : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
-
 
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group">

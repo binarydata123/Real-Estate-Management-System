@@ -31,7 +31,6 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const { showToast, showPromiseToast } = useToast();
 
-  // console.log(initialData, "initialData");
   const {
     register,
     handleSubmit,

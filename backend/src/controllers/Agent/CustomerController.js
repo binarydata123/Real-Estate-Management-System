@@ -23,7 +23,7 @@ export const createCustomer = async (req, res) => {
       status: "active",
     });
 
-    await user.save();
+    const savedUser = await user.save();
     res.status(201).json({
       success: true,
       data: savedCustomer,
