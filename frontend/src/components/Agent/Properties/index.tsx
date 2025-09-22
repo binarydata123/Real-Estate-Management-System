@@ -23,64 +23,6 @@ export const Properties: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [filters, setFilters] = useState<any>({});
 
-  // Mock properties data
-  //   const properties: Property[] = [
-  //     {
-  //       id: "1",
-  //       title: "Luxury 3BHK Apartment",
-  //       type: "residential",
-  //       category: "flat",
-  //       location: "Bandra West, Mumbai",
-  //       price: 7500000,
-  //       size: 1200,
-  //       size_unit: "sq ft",
-  //       bedrooms: 3,
-  //       bathrooms: 2,
-  //       status: "available",
-  //       images: [
-  //         "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
-  //       ],
-  //       created_at: "2025-01-09T10:00:00Z",
-  //       description:
-  //         "Beautiful 3BHK apartment with modern amenities, spacious rooms, and excellent connectivity. Features include modular kitchen, marble flooring, and 24/7 security.",
-  //     },
-  //     {
-  //       id: "2",
-  //       title: "Premium Commercial Office",
-  //       type: "commercial",
-  //       category: "office",
-  //       location: "Andheri East, Mumbai",
-  //       price: 12000000,
-  //       size: 800,
-  //       size_unit: "sq ft",
-  //       status: "available",
-  //       images: [
-  //         "https://images.pexels.com/photos/373912/pexels-photo-373912.jpeg",
-  //       ],
-  //       created_at: "2025-01-08T14:30:00Z",
-  //       description:
-  //         "Premium commercial office space in prime location with modern infrastructure, high-speed elevators, and ample parking.",
-  //     },
-  //     {
-  //       id: "3",
-  //       title: "Spacious 4BHK Villa",
-  //       type: "residential",
-  //       category: "villa",
-  //       location: "Juhu, Mumbai",
-  //       price: 15000000,
-  //       size: 2500,
-  //       size_unit: "sq ft",
-  //       bedrooms: 4,
-  //       bathrooms: 3,
-  //       status: "sold",
-  //       images: [
-  //         "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg",
-  //       ],
-  //       created_at: "2025-01-07T09:15:00Z",
-  //       description:
-  //         "Luxurious 4BHK villa with private garden, swimming pool, and premium finishes. Perfect for families looking for spacious living.",
-  //     },
-  //   ];
   const debouncedFilters = useDebounce(filters, 700);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
