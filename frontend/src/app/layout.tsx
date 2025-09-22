@@ -34,12 +34,9 @@ export default function RootLayout({
       >
         {/* <h1>Root Layout</h1> */}
         <ToastProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
         </ToastProvider>
         <SpeakMessage />
-        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

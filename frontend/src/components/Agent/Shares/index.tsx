@@ -10,11 +10,14 @@ import { format } from "date-fns";
 import { getSharedProperties } from "@/lib/Agent/SharePropertyAPI";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+import SharePropertyModal from "../Common/SharePropertyModal";
 
 export const Shares: React.FC = () => {
   const { user } = useAuth();
   const [sharedData, setSharedData] = useState<SharePropertyFormData[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [propertyToShare, setPropertyToShare] = useState<Property | null>(null);
 
   useEffect(() => {
     const fetchSharedProperties = async () => {
@@ -46,11 +49,6 @@ export const Shares: React.FC = () => {
     }
   };
 
-  console.log(
-    process.env.NEXT_PUBLIC_IMAGE_URL,
-    "process.env.NEXT_PUBLIC_IMAGES_URL"
-  );
-
   return (
     <div className="space-y-2">
       {/* Header */}
@@ -64,11 +62,10 @@ export const Shares: React.FC = () => {
       {/* Shares List */}
       <div className="space-y-2 md:space-y-4">
         {sharedData.map((share) => {
-          console.log("Property Images:", share.propertyId.images);
           return (
             <div
               key={share._id}
-              className="bg-white rounded-lg md:rounded-xl  shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
+              className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
             >
               <div className="flex md:flex-row flex-col space-y-2 md:space-y-0 items-start justify-between">
                 <div className="flex-1 w-full md:w-auto">
@@ -77,15 +74,19 @@ export const Shares: React.FC = () => {
                       className="p-2 rounded-lg"
                       onClick={() =>
                         setPreviewImage(
-                          `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share.propertyId.images[0].url}`
+                          `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share?.propertyId?.images[0]?.url}`
                         )
                       }
                     >
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share.propertyId.images[0].url}`}
+                        src={
+                          share?.propertyId?.images?.length
+                            ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share.propertyId.images[0].url}`
+                            : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
+                        }
                         alt={share.propertyId.title}
-                        width={60} // h-10 = 40px
-                        height={60} // w-10 = 40px
+                        width={60}
+                        height={60}
                         className="rounded-lg object-cover"
                       />
                     </div>
@@ -127,19 +128,6 @@ export const Shares: React.FC = () => {
                         </span>
                       </div>
                     </div>
-
-                    {/* <div>
-                      <p className="text-gray-600 mb-1">Share Type</p>
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getShareTypeColor(
-                          share.status
-                        )}`}
-                      >
-                        {share.status === "Agent to Customer"
-                          ? "Agent to Customer"
-                          : "Agent to Agent"}
-                      </span>
-                    </div> */}
                   </div>
                 </div>
 
@@ -156,7 +144,13 @@ export const Shares: React.FC = () => {
                     <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                       View Link
                     </button>
-                    <button className="text-orange-600 hover:text-orange-700 text-sm font-medium">
+                    <button
+                      className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                      onClick={() => {
+                        setPropertyToShare(share?.propertyId);
+                        setShowShareModal(true);
+                      }}
+                    >
                       Re-share
                     </button>
                     {share.status === "active" && (
@@ -208,6 +202,19 @@ export const Shares: React.FC = () => {
             />
           </div>
         </div>
+      )}
+
+      {showShareModal && propertyToShare && (
+        <SharePropertyModal
+          property={propertyToShare}
+          sharedCustomers={sharedData
+            .filter((s) => s.propertyId._id === propertyToShare._id)
+            .map((s) => s.sharedWithUserId)}
+          onClose={() => {
+            setShowShareModal(false);
+            setPropertyToShare(null);
+          }}
+        />
       )}
     </div>
   );

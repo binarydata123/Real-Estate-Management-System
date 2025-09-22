@@ -293,6 +293,7 @@ export const Customers: React.FC = () => {
           onClose={() => {
             setShowAddForm(false);
             setEditingCustomer(null);
+            getAllCustomers();
           }}
           onSuccess={() => {
             setShowAddForm(false);

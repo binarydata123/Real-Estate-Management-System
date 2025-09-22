@@ -42,17 +42,18 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   const primaryImage =
-    String(property.images?.[0]) ||
-    "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
+    property?.images && property.images.length > 0
+      ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${property?.images[0]?.url}`
+      : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
 
   return (
-    <div className="bg-white rounded-lg md:rounded-xl  shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group">
+    <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group">
       {/* Image */}
-      <div className="relative md:aspect-[4/3] aspect-[17/9] overflow-hidden">
+      <div className="relative aspect-[4/3] md:aspect-[16/9] overflow-hidden">
         <Image
           width={400}
           height={300}
-          src={primaryImage as string}
+          src={primaryImage}
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
@@ -68,27 +69,27 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-2 md:p-6">
+      <div className="p-3 md:p-6">
         {/* Title & Price */}
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="font-semibold text-gray-900 text-lg mb-1">
+            <h3 className="font-semibold text-gray-900 text-base md:text-lg mb-1">
               {property.title}
             </h3>
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-xs md:text-sm text-gray-600">
               <MapPinIcon className="h-4 w-4 mr-1" />
               {property.location}
             </div>
           </div>
           <div className="text-right">
-            <p className="text-xl md:text-2xl font-bold text-gray-900">
+            <p className="text-lg md:text-2xl font-bold text-gray-900">
               {formatPrice(property.price)}
             </p>
           </div>
         </div>
 
         {/* Property Info Badges */}
-        <div className="grid grid-cols-3 gap-2 text-gray-700 text-sm mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-gray-700 text-xs md:text-sm mb-4">
           {property.size && (
             <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-md">
               <RulerIcon className="h-4 w-4 text-blue-500" />
@@ -112,17 +113,17 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="flex space-x-3">
+        <div className="flex flex-col md:flex-row md:space-x-3 space-y-2 md:space-y-0">
           <button
             onClick={() => onView?.(property)}
-            className="flex-1 flex items-center justify-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex-1 flex items-center justify-center px-2 py-2 md:px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <EyeIcon className="h-4 w-4 mr-2" />
             View Details
           </button>
           <button
             onClick={() => onShare?.(property)}
-            className="flex items-center justify-center md:px-4 px-2 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center justify-center px-2 py-2 md:px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <ShareIcon className="h-4 w-4" />
           </button>
