@@ -31,9 +31,12 @@ export const Properties: React.FC = () => {
       bedrooms: 3,
       bathrooms: 2,
       status: "available",
-      images: [],
-      image: [
-        "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
+      images: [
+        {
+          url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
+          alt: "Luxury 3BHK Apartment",
+          isPrimary: true,
+        },
       ],
       created_at: "2025-01-09T10:00:00Z",
       description:
@@ -49,9 +52,12 @@ export const Properties: React.FC = () => {
       size: 800,
       size_unit: "sq ft",
       status: "available",
-      images: [],
-      image: [
-        "https://images.pexels.com/photos/373912/pexels-photo-373912.jpeg",
+      images: [
+        {
+          url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
+          alt: "Luxury 3BHK Apartment",
+          isPrimary: false,
+        },
       ],
       created_at: "2025-01-08T14:30:00Z",
       description:
@@ -69,9 +75,12 @@ export const Properties: React.FC = () => {
       bedrooms: 4,
       bathrooms: 3,
       status: "sold",
-      images: [],
-      image: [
-        "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg",
+      images: [
+        {
+          url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
+          alt: "Luxury 3BHK Apartment",
+          isPrimary: false,
+        },
       ],
       created_at: "2025-01-07T09:15:00Z",
       description:

@@ -46,10 +46,17 @@ export const Shares: React.FC = () => {
     }
   };
 
-  console.log(
-    process.env.NEXT_PUBLIC_IMAGE_URL,
-    "process.env.NEXT_PUBLIC_IMAGES_URL"
-  );
+  const getImageUrl = (url?: string) => {
+    const fallbackImage =
+      "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
+    if (!url) {
+      return fallbackImage;
+    }
+    if (url.startsWith("http")) {
+      return url; // already a full external URL
+    }
+    return `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${url}`;
+  };
 
   return (
     <div className="space-y-2">
@@ -64,7 +71,7 @@ export const Shares: React.FC = () => {
       {/* Shares List */}
       <div className="space-y-2 md:space-y-4">
         {sharedData.map((share) => {
-          console.log("Property Images:", share.propertyId.images);
+          const imageUrl = getImageUrl(share.propertyId.images?.[0]?.url);
           return (
             <div
               key={share._id}
@@ -73,16 +80,9 @@ export const Shares: React.FC = () => {
               <div className="flex md:flex-row flex-col space-y-2 md:space-y-0 items-start justify-between">
                 <div className="flex-1 w-full md:w-auto">
                   <div className="flex items-center space-x-3 md:mb-3 mb-2">
-                    <div
-                      className="p-2 rounded-lg"
-                      onClick={() =>
-                        setPreviewImage(
-                          `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share.propertyId.images[0].url}`
-                        )
-                      }
-                    >
+                    <div className="p-2 rounded-lg" onClick={() => setPreviewImage(imageUrl)}>
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share.propertyId.images[0].url}`}
+                        src={imageUrl}
                         alt={share.propertyId.title}
                         width={60} // h-10 = 40px
                         height={60} // w-10 = 40px

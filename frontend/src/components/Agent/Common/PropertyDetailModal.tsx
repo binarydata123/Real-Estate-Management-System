@@ -38,6 +38,14 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
     }
   };
 
+  const getImageUrl = (url: string) => {
+    if (url.startsWith("http")) {
+      return url; // already a full external URL
+    }
+    return `${process.env.NEXT_PUBLIC_IMAGE_URL
+      }/Properties/original/${url}`;
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50  flex items-center justify-center p-1 md:p-4 z-50">
       <div className="bg-white rounded-lg md:rounded-xl  shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -78,7 +86,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                     <Image
                       width={500}
                       height={500}
-                      src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${image.url}`}
+                      src={getImageUrl(image.url)}
                       alt={`${property.title} - Image ${index + 1}`}
                       className="w-full h-full object-cover"
                     />

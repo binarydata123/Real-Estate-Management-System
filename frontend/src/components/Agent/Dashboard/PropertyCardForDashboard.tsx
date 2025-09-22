@@ -51,9 +51,15 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
   };
 
   const primaryImage =
-    property.images?.[0].url ||
+    property.images?.[0]?.url ||
     "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
 
+  const getImageUrl = (url: string) => {
+    if (url.startsWith("http")) {
+      return url; // already a full external URL
+    }
+    return `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${url}`;
+  };
   return (
     <div
       onClick={() => onView?.(property)}
@@ -64,7 +70,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
         <Image
           width={400}
           height={300}
-          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${primaryImage}`}
+          src={getImageUrl(primaryImage)}
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
