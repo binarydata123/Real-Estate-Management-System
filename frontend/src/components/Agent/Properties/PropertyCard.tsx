@@ -8,7 +8,7 @@ interface PropertyCardProps {
   onShare?: (property: Property) => void;
   onView?: (property: Property) => void;
   onToggleFavorite?: (property: Property) => void;
-  isFavorite?: boolean;
+  isfavorite?: boolean;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({
@@ -42,9 +42,21 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   const primaryImage =
+<<<<<<< HEAD
+    property.images?.[0]?.url ||
+    "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
+=======
     property?.images && property.images.length > 0
       ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${property?.images[0]?.url}`
       : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
+>>>>>>> d6dd75f8fc3bf16a671d043f1a0fc2dcff61ac1d
+
+  const getImageUrl = (url: string) => {
+    if (url.startsWith("http")) {
+      return url; // already a full external URL
+    }
+    return `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${url}`;
+  };
 
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group">
@@ -53,7 +65,11 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         <Image
           width={400}
           height={300}
+<<<<<<< HEAD
+          src={getImageUrl(primaryImage)}
+=======
           src={primaryImage}
+>>>>>>> d6dd75f8fc3bf16a671d043f1a0fc2dcff61ac1d
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />

@@ -32,11 +32,18 @@ export default function RootLayout({
         suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* <h1>Root Layout</h1> */}
         <ToastProvider>
+<<<<<<< HEAD
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+          <SpeakMessage />
+        </ToastProvider>
+=======
           <AuthProvider>{children}</AuthProvider>
         </ToastProvider>
         <SpeakMessage />
+>>>>>>> d6dd75f8fc3bf16a671d043f1a0fc2dcff61ac1d
       </body>
     </html>
   );
