@@ -52,7 +52,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       <div className="relative aspect-[4/3] md:aspect-[16/9] overflow-hidden">
         <Image
           width={400}
-          height={300}
+          height={200}
           src={primaryImage}
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -113,17 +113,23 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col md:flex-row md:space-x-3 space-y-2 md:space-y-0">
+        <div className="flex items-center justify-between gap-2 w-full">
           <button
             onClick={() => onView?.(property)}
-            className="flex-1 flex items-center justify-center px-2 py-2 md:px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center px-4 py-2 
+               bg-blue-600 text-white rounded-lg 
+               hover:bg-blue-700 transition-colors 
+               flex-grow"
           >
             <EyeIcon className="h-4 w-4 mr-2" />
             View Details
           </button>
           <button
             onClick={() => onShare?.(property)}
-            className="flex items-center justify-center px-2 py-2 md:px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center justify-center 
+               px-4 py-3 
+               border border-gray-300 text-gray-700 rounded-lg 
+               hover:bg-gray-50 transition-colors"
           >
             <ShareIcon className="h-4 w-4" />
           </button>
