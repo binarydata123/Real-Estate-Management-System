@@ -49,21 +49,6 @@ export const Shares: React.FC = () => {
     }
   };
 
-<<<<<<< HEAD
-  const getImageUrl = (url?: string) => {
-    const fallbackImage =
-      "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
-    if (!url) {
-      return fallbackImage;
-    }
-    if (url.startsWith("http")) {
-      return url; // already a full external URL
-    }
-    return `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${url}`;
-  };
-
-=======
->>>>>>> d6dd75f8fc3bf16a671d043f1a0fc2dcff61ac1d
   return (
     <div className="space-y-2">
       {/* Header */}
@@ -77,10 +62,6 @@ export const Shares: React.FC = () => {
       {/* Shares List */}
       <div className="space-y-2 md:space-y-4">
         {sharedData.map((share) => {
-<<<<<<< HEAD
-          const imageUrl = getImageUrl(share.propertyId.images?.[0]?.url);
-=======
->>>>>>> d6dd75f8fc3bf16a671d043f1a0fc2dcff61ac1d
           return (
             <div
               key={share._id}
@@ -89,11 +70,6 @@ export const Shares: React.FC = () => {
               <div className="flex md:flex-row flex-col space-y-2 md:space-y-0 items-start justify-between">
                 <div className="flex-1 w-full md:w-auto">
                   <div className="flex items-center space-x-3 md:mb-3 mb-2">
-<<<<<<< HEAD
-                    <div className="p-2 rounded-lg" onClick={() => setPreviewImage(imageUrl)}>
-                      <Image
-                        src={imageUrl}
-=======
                     <div
                       className="p-2 rounded-lg"
                       onClick={() =>
@@ -108,7 +84,6 @@ export const Shares: React.FC = () => {
                             ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share.propertyId.images[0].url}`
                             : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
                         }
->>>>>>> d6dd75f8fc3bf16a671d043f1a0fc2dcff61ac1d
                         alt={share.propertyId.title}
                         width={60}
                         height={60}
