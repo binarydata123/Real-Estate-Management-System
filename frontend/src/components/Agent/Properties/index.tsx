@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { BuildingOfficeIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { PropertyFilters } from "./PropertyFilters";
@@ -8,6 +8,9 @@ import { AddPropertyForm } from "./AddPropertyForm";
 import PropertyDetailModal from "../Common/PropertyDetailModal";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import { PropertyCard } from "./PropertyCard";
+import { getProperties } from "@/lib/Agent/PropertyAPI";
+import { useDebounce } from "@/components/Common/UseDebounce";
+import { Pagination } from "@/components/Common/Pagination";
 
 export const Properties: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -16,77 +19,47 @@ export const Properties: React.FC = () => {
   );
   const [showShareModal, setShowShareModal] = useState(false);
   const [propertyToShare, setPropertyToShare] = useState<Property | null>(null);
+  const [properties, setProperties] = useState<Property[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [filters, setFilters] = useState<any>({});
 
-  // Mock properties data
-  const properties: Property[] = [
-    {
-      id: "1",
-      title: "Luxury 3BHK Apartment",
-      type: "residential",
-      category: "flat",
-      location: "Bandra West, Mumbai",
-      price: 7500000,
-      size: 1200,
-      size_unit: "sq ft",
-      bedrooms: 3,
-      bathrooms: 2,
-      status: "available",
-      images: [
-        {
-          url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
-          alt: "Luxury 3BHK Apartment",
-          isPrimary: true,
-        },
-      ],
-      created_at: "2025-01-09T10:00:00Z",
-      description:
-        "Beautiful 3BHK apartment with modern amenities, spacious rooms, and excellent connectivity. Features include modular kitchen, marble flooring, and 24/7 security.",
+  const debouncedFilters = useDebounce(filters, 700);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
+
+  const getAllProperties = useCallback(
+    async (page = 1) => {
+      try {
+        const response = await getProperties({
+          ...debouncedFilters,
+          page,
+          limit,
+        });
+
+        if (response.success) {
+          setProperties(response.data);
+          setCurrentPage(response.pagination?.page ?? 1);
+          setTotalPages(response.pagination?.pages ?? 1);
+        }
+      } catch (error) {
+        console.error(error);
+      }
     },
-    {
-      id: "2",
-      title: "Premium Commercial Office",
-      type: "commercial",
-      category: "office",
-      location: "Andheri East, Mumbai",
-      price: 12000000,
-      size: 800,
-      size_unit: "sq ft",
-      status: "available",
-      images: [
-        {
-          url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
-          alt: "Luxury 3BHK Apartment",
-          isPrimary: false,
-        },
-      ],
-      created_at: "2025-01-08T14:30:00Z",
-      description:
-        "Premium commercial office space in prime location with modern infrastructure, high-speed elevators, and ample parking.",
-    },
-    {
-      id: "3",
-      title: "Spacious 4BHK Villa",
-      type: "residential",
-      category: "villa",
-      location: "Juhu, Mumbai",
-      price: 15000000,
-      size: 2500,
-      size_unit: "sq ft",
-      bedrooms: 4,
-      bathrooms: 3,
-      status: "sold",
-      images: [
-        {
-          url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
-          alt: "Luxury 3BHK Apartment",
-          isPrimary: false,
-        },
-      ],
-      created_at: "2025-01-07T09:15:00Z",
-      description:
-        "Luxurious 4BHK villa with private garden, swimming pool, and premium finishes. Perfect for families looking for spacious living.",
-    },
-  ];
+    [debouncedFilters]
+  );
+
+  useEffect(() => {
+    setCurrentPage(1); // reset to first page when filters change
+    getAllProperties(1);
+  }, [debouncedFilters, getAllProperties]);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      getAllProperties(page);
+    }
+  };
 
   const handleViewProperty = (property: Property) => {
     setSelectedProperty(property);
@@ -116,19 +89,35 @@ export const Properties: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <PropertyFilters onFilterChange={() => { }} />
+      <PropertyFilters
+        onFilterChange={(newFilters) => setFilters(newFilters)}
+      />
 
       {/* Properties Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
         {properties.map((property) => (
           <PropertyCard
-            key={property.id}
+            key={property._id}
             property={property}
             onView={handleViewProperty}
             onShare={handleShareProperty}
           />
         ))}
       </div>
+
+      {/* Pagination outside the grid */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            siblingCount={1}
+            showFirstLast={true}
+            showPrevNext={true}
+          />
+        </div>
+      )}
 
       {properties.length === 0 && (
         <div className="text-center py-12">

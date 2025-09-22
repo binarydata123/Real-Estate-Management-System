@@ -75,7 +75,7 @@ export const getAllSharedProperties = async (req, res) => {
     const shares = await PropertyShare.find({ agencyId })
       .populate("sharedWithUserId", "fullName email phone")
       .populate("sharedByUserId", "name email phone createdAt")
-      .populate("propertyId", "title images");
+      .populate("propertyId", "title images price");
 
     res.status(200).json({
       success: true,

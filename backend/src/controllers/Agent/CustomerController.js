@@ -1,6 +1,8 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { User } from "../../models/Common/UserModel.js";
 import bcrypt from "bcryptjs";
+import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
+import { sendPushNotification } from "../../utils/pushService.js";
 
 // Create a new customer
 export const createCustomer = async (req, res) => {
@@ -26,6 +28,32 @@ export const createCustomer = async (req, res) => {
       success: true,
       data: savedCustomer,
       message: "Customer has been successfully added.",
+    });
+    await createNotification({
+      agencyId: savedCustomer.agencyId,
+      userId: savedCustomer.agencyId,
+      message: `A new customer lead (${savedCustomer.fullName}) has been created successfully.`,
+      type: "new_lead",
+    });
+
+    await createNotification({
+      userId: savedUser._id,
+      message: `Welcome ${savedUser.name}! Your account has been created successfully. You can now log in and get started.`,
+      type: "new_lead",
+    });
+
+    await sendPushNotification({
+      userId: savedCustomer.agencyId,
+      title: "Welcome to Our Platform 🎉",
+      message: `Hi ${savedUser.name}, your account has been created successfully! Use your email to log in with the default password.`,
+      urlPath: "login",
+    });
+
+    await sendPushNotification({
+      userId: savedUser._id,
+      title: "New Customer Lead",
+      message: `A new customer (${savedCustomer.fullName}) has been added to your agency.`,
+      urlPath: "customers",
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -138,7 +166,7 @@ export const updateCustomer = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    await User.findOneAndUpdate(
+    const updatedUser = await User.findOneAndUpdate(
       { email: updatedCustomer.email },
       {
         name: updatedCustomer.fullName,
@@ -148,6 +176,36 @@ export const updateCustomer = async (req, res) => {
       },
       { new: true }
     );
+
+    await createNotification({
+      agencyId: updatedCustomer.agencyId,
+      userId: updatedCustomer.agencyId,
+      message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
+      type: "lead_updated",
+    });
+
+    await sendPushNotification({
+      userId: updatedCustomer.agencyId,
+      title: "Customer Updated",
+      message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
+      urlPath: "customers",
+    });
+
+    if (updatedUser?._id) {
+      await createNotification({
+        userId: updatedUser._id,
+        message: `Hello ${updatedUser.name}, your profile details have been updated successfully.`,
+        type: "lead_updated",
+      });
+
+      await sendPushNotification({
+        userId: updatedUser._id,
+        title: "Profile Updated",
+        message: `Hi ${updatedUser.name}, your profile details have been updated successfully.`,
+        urlPath: "profile",
+      });
+    }
+
     res.json({ success: true, data: updatedCustomer });
   } catch (error) {
     console.error("Error updating customer:", error);
