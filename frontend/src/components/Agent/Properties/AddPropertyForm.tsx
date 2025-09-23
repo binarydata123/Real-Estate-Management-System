@@ -128,6 +128,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         router.push('/agent/properties');
                     }
                 } catch (err) {
+                    console.error('Error fetching property data:', err);
                     showToast('An error occurred while fetching property data.', 'error');
                     // router.push('/agent/properties');
                 } finally {

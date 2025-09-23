@@ -9,7 +9,7 @@ export default function Page() {
 
     return (
         <AddPropertyForm
-            propertyId={slug}
+            propertyId={slug as string}
         />
     )
 }

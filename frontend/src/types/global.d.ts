@@ -48,6 +48,8 @@ declare global {
   }
 
   interface Property {
+    size_unit: string;
+    size: ReactNode;
     _id?: string;
     id?: string;
     title: string;
