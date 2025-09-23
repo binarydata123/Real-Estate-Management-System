@@ -12,6 +12,37 @@ import { getProperties } from "@/lib/Agent/PropertyAPI";
 import { useDebounce } from "@/components/Common/UseDebounce";
 import { Pagination } from "@/components/Common/Pagination";
 
+interface PropertyListFilters {
+  type: string;
+  category: string;
+  unit_area_type: string;
+  facing: string;
+  is_corner_plot: string;
+  plot_dimension_unit: string;
+  rera_status: string;
+  transaction_type: string;
+}
+
+const PropertyCardSkeleton = () => (
+  <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
+    <div className="bg-gray-200 md:aspect-[4/3] aspect-[17/9]"></div>
+    <div className="md:p-4 p-2">
+      <div className="h-5 bg-gray-300 rounded w-3/4 mb-3"></div>
+      <div className="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="h-4 bg-gray-300 rounded"></div>
+        <div className="h-4 bg-gray-300 rounded"></div>
+      </div>
+      <div className="mt-4 pt-3 border-t border-gray-200 flex space-x-2">
+        <div className="h-9 bg-gray-300 rounded-lg flex-1"></div>
+        <div className="h-9 w-10 bg-gray-300 rounded-lg"></div>
+        <div className="h-9 w-10 bg-gray-300 rounded-lg"></div>
+        <div className="h-9 w-10 bg-gray-300 rounded-lg"></div>
+      </div>
+    </div>
+  </div>
+);
+
 export const Properties: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
@@ -20,9 +51,8 @@ export const Properties: React.FC = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [propertyToShare, setPropertyToShare] = useState<Property | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [filters, setFilters] = useState<any>({});
-
+  const [filters, setFilters] = useState<Partial<PropertyListFilters>>({});
+  const [isFetching, setIsFetching] = useState(true);
   const debouncedFilters = useDebounce(filters, 700);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -31,9 +61,14 @@ export const Properties: React.FC = () => {
   const getAllProperties = useCallback(
     async (page = 1) => {
       try {
+        setIsFetching(true);
+        const activeFilters = Object.fromEntries(
+          Object.entries(debouncedFilters).filter(([, value]) => value !== "")
+        );
+
         const response = await getProperties({
-          ...debouncedFilters,
-          page,
+          ...activeFilters,
+          page: String(page),
           limit,
         });
 
@@ -44,9 +79,11 @@ export const Properties: React.FC = () => {
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsFetching(false);
       }
     },
-    [debouncedFilters]
+    [debouncedFilters, limit]
   );
 
   useEffect(() => {
@@ -93,50 +130,52 @@ export const Properties: React.FC = () => {
         onFilterChange={(newFilters) => setFilters(newFilters)}
       />
 
-      {/* Properties Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
-        {properties.map((property) => (
-          <PropertyCard
-            key={property._id}
-            property={property}
-            onView={handleViewProperty}
-            onShare={handleShareProperty}
-          />
-        ))}
-      </div>
-
-      {/* Pagination outside the grid */}
-      {totalPages > 1 && (
-        <div className="mt-6 flex justify-center">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            siblingCount={1}
-            showFirstLast={true}
-            showPrevNext={true}
-          />
+      {isFetching ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
+          {Array.from({ length: limit }).map((_, index) => (
+            <PropertyCardSkeleton key={index} />
+          ))}
         </div>
-      )}
+      ) : properties.length > 0 ? (
+        <>
+          {/* Properties Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
+            {properties.map((property) => (
+              <PropertyCard
+                key={property._id}
+                property={property}
+                onView={handleViewProperty}
+                onShare={handleShareProperty}
+                onRefresh={getAllProperties}
+              />
+            ))}
+          </div>
 
-      {properties.length === 0 && (
+          {/* Pagination outside the grid */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                siblingCount={1}
+                showFirstLast={true}
+                showPrevNext={true}
+              />
+            </div>
+          )}
+        </>
+      ) : (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
             <BuildingOfficeIcon className="h-12 w-12 text-gray-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No properties yet
+            No properties found
           </h3>
           <p className="text-gray-500 mb-6">
-            Get started by adding your first property listing
+            Try adjusting your filters or add a new property.
           </p>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add Your First Property
-          </button>
         </div>
       )}
 

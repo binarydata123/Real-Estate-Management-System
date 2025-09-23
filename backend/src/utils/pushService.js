@@ -14,12 +14,12 @@ webPush.setVapidDetails(
 
 export async function sendPushNotification({
   userId,
-  meetingId = "",
-  token,
   role,
   title,
   message,
   urlPath,
+  data = {},
+  actions = [],
 }) {
   const query = {};
   if (userId) query.userId = userId;
@@ -36,15 +36,13 @@ export async function sendPushNotification({
   const payload = JSON.stringify({
     title,
     body: message,
-    meetingId,
-    userId,
-    token,
     icon: `${FRONTEND_URL}/icons/app-icon-192.png`,
-    url: `${FRONTEND_URL}${urlPath}`,
-    actions: [
-      { action: "confirm", title: "👍 Confirm" },
-      { action: "cancel", title: "👎 Cancel" },
-    ],
+    actions,
+    data: {
+      ...data,
+      url: `${FRONTEND_URL}${urlPath}`,
+      userId,
+    },
   });
 
   await Promise.allSettled(

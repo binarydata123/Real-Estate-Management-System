@@ -10,12 +10,21 @@ export const createMeeting = async (req, res) => {
   try {
     const meeting = new Meetings(req.body);
     const savedMeeting = await meeting.save();
-    console.log(savedMeeting);
-    const user = req.user._id;
-    const customer = await Customer.findOne({ _id: req.body.customerId });
+    const user = req.user;
+    const customer = await Customer.findById(req.body.customerId);
+    if (!customer) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Customer not found" });
+    }
+    const customerUser = await User.findOne({ email: customer.email });
+    if (!customerUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Customer user account not found" });
+    }
     const agentToken = generateToken(req.user._id, req.user.role);
-    console.log(agentToken);
-    // const customerToken = generateToken(customer._id, customer.role);
+    const customerToken = generateToken(customerUser._id, customerUser.role);
     await createNotification({
       agencyId: req.body.agencyId,
       userId: user._id,
@@ -23,7 +32,7 @@ export const createMeeting = async (req, res) => {
       type: "meeting_scheduled",
     });
     await createNotification({
-      userId: customer._id,
+      userId: customerUser._id,
       message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
       type: "meeting_scheduled",
     });
@@ -31,20 +40,27 @@ export const createMeeting = async (req, res) => {
     // ✅ Push notification to meeting creator
     await sendPushNotification({
       userId: user._id,
-      meetingId: savedMeeting._id,
-      token: agentToken,
       title: "Meeting Scheduled",
       message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
-      urlPath: "meetings",
+      urlPath: "/meetings",
+      data: { meetingId: savedMeeting._id, token: agentToken },
+      actions: [
+        { action: "confirm", title: "👍 Confirm" },
+        { action: "cancel", title: "👎 Cancel" },
+      ],
     });
 
     // ✅ Push notification to another participant
     await sendPushNotification({
-      userId: customer._id,
-      meetingId: savedMeeting._id,
+      userId: customerUser._id,
       title: "New Meeting Invitation",
       message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
-      urlPath: "meetings",
+      urlPath: "/meetings",
+      data: { meetingId: savedMeeting._id, token: customerToken },
+      actions: [
+        { action: "confirm", title: "👍 Confirm" },
+        { action: "cancel", title: "👎 Cancel" },
+      ],
     });
 
     res.status(201).json({ success: true, data: savedMeeting });

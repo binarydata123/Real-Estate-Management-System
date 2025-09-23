@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { MagnifyingGlassIcon, FunnelIcon } from "@heroicons/react/24/outline";
+import { FunnelIcon } from "@heroicons/react/24/outline";
 import { LucideChevronDown, LucideChevronUp } from "lucide-react";
 
 interface Filters {
-  title: string;
   type: string;
   category: string;
-  status: string;
-  minPrice: string;
-  maxPrice: string;
+  unit_area_type: string;
+  facing: string;
+  is_corner_plot: string;
+  plot_dimension_unit: string;
+  rera_status: string;
+  transaction_type: string;
 }
 
 interface PropertyFiltersProps {
@@ -19,12 +21,14 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
   onFilterChange,
 }) => {
   const [filters, setFilters] = useState<Filters>({
-    title: "",
     type: "",
     category: "",
-    status: "",
-    minPrice: "",
-    maxPrice: "",
+    unit_area_type: "",
+    facing: "",
+    is_corner_plot: "",
+    plot_dimension_unit: "",
+    rera_status: "",
+    transaction_type: "",
   });
 
   const [showFilter, setShowFilter] = useState(false);
@@ -41,12 +45,14 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
 
   const handleReset = () => {
     const resetFilters: Filters = {
-      title: "",
       type: "",
       category: "",
-      status: "",
-      minPrice: "",
-      maxPrice: "",
+      unit_area_type: "",
+      facing: "",
+      is_corner_plot: "",
+      plot_dimension_unit: "",
+      rera_status: "",
+      transaction_type: "",
     };
     setFilters(resetFilters);
     onFilterChange(resetFilters);
@@ -83,23 +89,9 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
       </div>
 
       <div
-        className={`${
-          showFilter ? "grid" : "hidden"
-        } md:grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-2 md:gap-4 mt-2`}
+        className={`${showFilter ? "grid" : "hidden"
+          } md:grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mt-2`}
       >
-        {/* Search */}
-        <div className="lg:col-span-2">
-          <div className="relative">
-            <MagnifyingGlassIcon className="hidden md:block absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search properties..."
-              value={filters.title}
-              onChange={(e) => handleFilterChange("title", e.target.value)}
-              className="w-full pl-1 md:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-        </div>
 
         {/* Property Type */}
         <div>
@@ -130,40 +122,91 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
             <option value="land">Land</option>
           </select>
         </div>
-
-        {/* Status */}
+        {/* Area Unit */}
         <div>
           <select
-            value={filters.status}
-            onChange={(e) => handleFilterChange("status", e.target.value)}
+            value={filters.unit_area_type}
+            onChange={(e) => handleFilterChange("unit_area_type", e.target.value)}
             className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           >
-            {" "}
-            <option value="">All Status</option>
-            <option value="Available">Available</option>
-            <option value="Sold">Sold</option>
-            <option value="Rented">Rented</option>
-            <option value="Pending">Pending</option>
-            <option value="off_market">Off Market</option>
+            <option value="">All Units</option>
+            <option value="sqft">Square Feet</option>
+            <option value="sqm">Square Meter</option>
+            <option value="sqyd">Square Yard</option>
+            <option value="acre">Acre</option>
+            <option value="gaj">Gaj</option>
+            <option value="hectare">Hectare</option>
+            <option value="bigha">Bigha</option>
+            <option value="kanal">Kanal</option>
+            <option value="marla">Marla</option>
           </select>
         </div>
-
-        {/* Price Range */}
-        <div className="lg:col-span-1 col-span-2 flex space-x-2">
-          <input
-            type="number"
-            placeholder="Min Price"
-            value={filters.minPrice}
-            onChange={(e) => handleFilterChange("minPrice", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-          />
-          <input
-            type="number"
-            placeholder="Max Price"
-            value={filters.maxPrice}
-            onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-          />
+        {/* Facing */}
+        <div>
+          <select
+            value={filters.facing}
+            onChange={(e) => handleFilterChange("facing", e.target.value)}
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Any Facing</option>
+            <option value="North">North</option>
+            <option value="South">South</option>
+            <option value="East">East</option>
+            <option value="West">West</option>
+            <option value="North-East">North-East</option>
+            <option value="North-West">North-West</option>
+            <option value="South-East">South-East</option>
+            <option value="South-West">South-West</option>
+          </select>
+        </div>
+        {/* Corner Plot */}
+        <div>
+          <select
+            value={filters.is_corner_plot}
+            onChange={(e) => handleFilterChange("is_corner_plot", e.target.value)}
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Corner Plot?</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+        {/* Dimension Unit */}
+        <div>
+          <select
+            value={filters.plot_dimension_unit}
+            onChange={(e) => handleFilterChange("plot_dimension_unit", e.target.value)}
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Dimension Unit</option>
+            <option value="ft">Feet</option>
+            <option value="m">Meter</option>
+          </select>
+        </div>
+        {/* RERA Status */}
+        <div>
+          <select
+            value={filters.rera_status}
+            onChange={(e) => handleFilterChange("rera_status", e.target.value)}
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">RERA Status</option>
+            <option value="Approved">Approved</option>
+            <option value="Not Approved">Not Approved</option>
+            <option value="Applied">Applied</option>
+          </select>
+        </div>
+        {/* Transaction Type */}
+        <div>
+          <select
+            value={filters.transaction_type}
+            onChange={(e) => handleFilterChange("transaction_type", e.target.value)}
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Transaction</option>
+            <option value="New">New</option>
+            <option value="Resale">Resale</option>
+          </select>
         </div>
       </div>
     </div>
