@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { BuildingOfficeIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { PropertyFilters } from "./PropertyFilters";
-import { AddPropertyForm } from "./AddPropertyForm";
 import PropertyDetailModal from "../Common/PropertyDetailModal";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import { PropertyCard } from "./PropertyCard";
@@ -44,7 +43,6 @@ const PropertyCardSkeleton = () => (
 );
 
 export const Properties: React.FC = () => {
-  const [showAddForm, setShowAddForm] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null
   );
@@ -179,8 +177,6 @@ export const Properties: React.FC = () => {
         </div>
       )}
 
-      {/* Add Property Modal */}
-      {showAddForm && <AddPropertyForm />}
 
       {/* Property Detail Modal */}
       {selectedProperty && (
