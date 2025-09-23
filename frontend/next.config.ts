@@ -16,7 +16,7 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["localhost"],
+    domains: ["localhost", "images.unsplash.com"],
     remotePatterns: [
       {
         protocol: "https",

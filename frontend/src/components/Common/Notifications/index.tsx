@@ -209,9 +209,9 @@ const NotificationsPage: React.FC = () => {
                     handleReadNotification(notification._id);
                   }
                 }}
-                className={`flex items-start p-4 border rounded-xl shadow-sm ${config.color}`}
+                className={`flex items-start p-4 border rounded-xl shadow-sm ${config?.color}`}
               >
-                <div className="flex-shrink-0 mr-3">{config.icon}</div>
+                <div className="flex-shrink-0 mr-3">{config?.icon}</div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-900">
                     {notification.message}
