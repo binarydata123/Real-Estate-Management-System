@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import Image from "next/image";
 
-interface Image {
+interface Images {
   url: string;
   alt?: string;
   isPrimary?: boolean;
@@ -15,7 +16,7 @@ interface Property {
   price: number;
   status: string;
   description: string;
-  images: Image[];
+  images: Images[];
   built_up_area: number;
   carpet_area: number;
   unit_area_type: string;
@@ -112,7 +113,7 @@ const propertyData: Property = {
 };
 
 const SingleProperty: React.FC = () => {
-  const [selectedImage, setSelectedImage] = useState<Image>(
+  const [selectedImage, setSelectedImage] = useState<Images>(
     propertyData.images[0]
   );
   const [thumbStart, setThumbStart] = useState(0);
@@ -131,14 +132,17 @@ const SingleProperty: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-xl">
       {/* Main Image */}
-      <div className="mb-4 relative">
-        <img
-          src={selectedImage.url}
-          alt={selectedImage.alt || propertyData.title}
-          className="w-full h-96 object-cover rounded-lg border-4 border-blue-500"
+      <div className="mb-4 relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px]">
+        <Image
+          src={selectedImage?.url}
+          alt={selectedImage?.alt || propertyData?.title}
+          fill
+          className="rounded-lg border-4 border-blue-500 object-cover"
         />
+
+        {/* Prev Button */}
         <button
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded"
+          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded"
           onClick={() => {
             const idx = propertyData.images.indexOf(selectedImage);
             setSelectedImage(
@@ -151,8 +155,10 @@ const SingleProperty: React.FC = () => {
         >
           ❮
         </button>
+
+        {/* Next Button */}
         <button
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded"
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded"
           onClick={() => {
             const idx = propertyData.images.indexOf(selectedImage);
             setSelectedImage(
@@ -175,7 +181,9 @@ const SingleProperty: React.FC = () => {
         {propertyData.images
           .slice(thumbStart, thumbStart + thumbsPerPage)
           .map((img, idx) => (
-            <img
+            <Image
+              width={80}
+              height={80}
               key={idx}
               src={img.url}
               alt={img.alt || propertyData.title}
