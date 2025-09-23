@@ -1,20 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import { MapPinIcon, ShareIcon, EyeIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { BathIcon, BedDoubleIcon, RulerIcon } from "lucide-react";
+import {
+  Armchair,
+  BathIcon,
+  BedDoubleIcon,
+  PencilIcon,
+  RulerIcon,
+  TrashIcon,
+} from "lucide-react";
+import Link from "next/link";
+import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
+import { deleteProperty } from "@/lib/Agent/PropertyAPI";
+import { useToast } from "@/context/ToastContext";
 
 interface PropertyCardProps {
   property: Property;
   onShare?: (property: Property) => void;
   onView?: (property: Property) => void;
   onToggleFavorite?: (property: Property) => void;
-  isfavorite?: boolean;
+  onRefresh?: () => void;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({
   property,
   onShare,
   onView,
+  onRefresh,
 }) => {
   const formatPrice = (price: number) => {
     if (price >= 10000000) {
@@ -51,10 +63,31 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         })()
       : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
 
+  const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
+  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+  const { showToast } = useToast();
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await deleteProperty(id);
+      if (response.success) {
+        showToast(response.message, "success");
+        onRefresh?.();
+      }
+    } catch (error) {
+      console.error("Failed to delete property:", error);
+    }
+  };
+
+  const hasKeyDetails =
+    (property.built_up_area ?? 0) > 0 ||
+    (property.bedrooms ?? 0) > 0 ||
+    (property.bathrooms ?? 0) > 0;
+
   return (
-    <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group">
+    <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
       {/* Image */}
-      <div className="relative aspect-[4/3] md:aspect-[16/9] overflow-hidden">
+      <div className="relative md:aspect-[4/3] aspect-[17/9]  overflow-hidden">
         <Image
           width={400}
           height={200}
@@ -74,72 +107,109 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-3 md:p-6">
-        {/* Title & Price */}
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <h3 className="font-semibold text-gray-900 text-base md:text-lg mb-1">
+      <div className="md:p-4 p-2 flex flex-col flex-grow">
+        <div className="">
+          <div className="flex items-start justify-between mb-1">
+            <h3 className="font-semibold text-gray-800 text-base md:text-lg leading-tight group-hover:text-blue-600 transition-colors">
               {property.title}
             </h3>
-            <div className="flex items-center text-xs md:text-sm text-gray-600">
-              <MapPinIcon className="h-4 w-4 mr-1" />
-              {property.location}
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-lg md:text-2xl font-bold text-gray-900">
+            <p className="text-xl md:text-2xl font-bold text-blue-700">
               {formatPrice(property.price)}
             </p>
           </div>
+          <div className="flex items-center text-sm text-gray-500 mt-1">
+            <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+            <span className="truncate">{property.location}</span>
+          </div>
         </div>
 
-        {/* Property Info Badges */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-gray-700 text-xs md:text-sm mb-4">
-          {property.size && (
-            <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-md">
-              <RulerIcon className="h-4 w-4 text-blue-500" />
-              <span>
-                {property.size} {property.size_unit}
-              </span>
+        <div className="flex-grow mb-2 md:mb-4">
+          {hasKeyDetails ? (
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
+              {(property.built_up_area ?? 0) > 0 && (
+                <div className="flex items-center">
+                  <RulerIcon className="h-4 w-4 mr-1 text-gray-500" />
+                  <span>
+                    {property.built_up_area} {property.unit_area_type}
+                  </span>
+                </div>
+              )}
+              {(property.bedrooms ?? 0) > 0 && (
+                <div className="flex items-center">
+                  <BedDoubleIcon className="h-4 w-4 mr-1 text-gray-500" />
+                  <span>{property.bedrooms} BHK</span>
+                </div>
+              )}
+              {(property.bathrooms ?? 0) > 0 && (
+                <div className="flex items-center">
+                  <BathIcon className="h-4 w-4 mr-1 text-gray-500" />
+                  <span>{property.bathrooms} Bath</span>
+                </div>
+              )}
+              {property.furnishing && (
+                <div className="flex items-center">
+                  <Armchair className="h-4 w-4 mr-1 text-gray-500" />
+                  <span className="capitalize">{property.furnishing}</span>
+                </div>
+              )}
             </div>
-          )}
-          {property.bedrooms && (
-            <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-md">
-              <BedDoubleIcon className="h-4 w-4 text-green-500" />
-              <span>{property.bedrooms} BHK</span>
-            </div>
-          )}
-          {property.bathrooms && (
-            <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-md">
-              <BathIcon className="h-4 w-4 text-purple-500" />
-              <span>{property.bathrooms} Bath</span>
-            </div>
+          ) : (
+            <p className="text-sm text-gray-600 line-clamp-2">
+              {property.description ||
+                "No description available for this property."}
+            </p>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-between gap-2 w-full">
-          <button
-            onClick={() => onView?.(property)}
-            className="flex items-center justify-center px-4 py-2 
-               bg-blue-600 text-white rounded-lg 
-               hover:bg-blue-700 transition-colors 
-               flex-grow"
-          >
-            <EyeIcon className="h-4 w-4 mr-2" />
-            View Details
-          </button>
-          <button
-            onClick={() => onShare?.(property)}
-            className="flex items-center justify-center 
-               px-4 py-3 
-               border border-gray-300 text-gray-700 rounded-lg 
-               hover:bg-gray-50 transition-colors"
-          >
-            <ShareIcon className="h-4 w-4" />
-          </button>
+        <div className="mt-auto pt-3 border-t border-gray-100">
+          <div className="flex space-x-2">
+            <button
+              onClick={() => onView?.(property)}
+              className="flex-1 flex items-center justify-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              <EyeIcon className="h-4 w-4 mr-2" />
+              <span className="hidden md:inline">View Details</span>
+              <span className="md:hidden">View</span>
+            </button>
+            <button
+              onClick={() => onShare?.(property)}
+              className="flex items-center justify-center md:px-4 px-2 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <ShareIcon className="h-4 w-4" />
+            </button>
+            <Link href={`/agent/edit-property/${property._id}`}>
+              <button className="flex items-center justify-center md:px-4 px-2 py-2 border border-blue-300 text-blue-400 rounded-lg hover:bg-gray-50 transition-colors">
+                <PencilIcon className="h-4 w-4" />
+              </button>
+            </Link>
+            <button
+              onClick={() => {
+                setSelectedProperty(property._id as string);
+                setShowConfirmDialog(true);
+              }}
+              className="flex items-center justify-center md:px-4 px-2 py-2 border border-red-300 text-red-400 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <TrashIcon className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
+      <ConfirmDialog
+        open={showConfirmDialog}
+        onCancel={() => setShowConfirmDialog(false)}
+        onConfirm={() => {
+          if (selectedProperty) {
+            handleDelete(selectedProperty);
+          }
+          setShowConfirmDialog(false);
+          setSelectedProperty(null);
+        }}
+        heading="Are you sure?"
+        description="This property will be deleted, and this action cannot be undone."
+        confirmText="Delete"
+        cancelText="Back"
+        confirmColor="bg-red-600 hover:bg-red-700"
+      />
     </div>
   );
 };

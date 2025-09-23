@@ -51,20 +51,64 @@ declare global {
     _id?: string;
     id?: string;
     title: string;
-    type: string;
-    description: string;
-    category: string;
-    location: string;
+    description?: string;
+    type: 'residential' | 'commercial';
+    category: 'plot' | 'flat' | 'showroom' | 'office' | 'villa' | 'land' | 'farmHouse';
+    location?: string;
     price: number;
-    size?: number;
-    size_unit: string;
+
+    // Area & Configuration
+    built_up_area?: number;
+    carpet_area?: number;
+    unit_area_type?: "sqft" | "sqm" | "acre" | "marla" | "kanal" | "bigha" | "sqyd" | "hectare" | "gaj";
+
+    // Plot specific
+    plot_front_area?: number;
+    plot_depth_area?: number;
+    plot_dimension_unit?: "ft" | "m";
+    is_corner_plot?: boolean;
+
+    // Residential specific
     bedrooms?: number;
     bathrooms?: number;
-    status: string;
-    image?: string[];
+    balconies?: number;
+
+    // Commercial specific
+    washrooms?: number;
+    cabins?: number;
+    conference_rooms?: number;
+
+    // Common
+    floor_number?: number;
+    total_floors?: number;
+
+    // Facing / Overlooking
+    facing?: "North" | "South" | "East" | "West" | "North-East" | "North-West" | "South-East" | "South-West" | "";
+    overlooking?: string[];
+
+    // Age / Transaction Details
+    property_age?: "New" | "1-5 years" | "5-10 years" | "10+ years" | "";
+    transaction_type?: 'New' | 'Resale';
+    gated_community?: boolean;
+
+    // Utilities
+    water_source?: string[];
+    power_backup?: 'None' | 'Partial' | 'Full';
+
+    // Features & Amenities
+    furnishing?: 'Unfurnished' | 'Semi-Furnished' | 'Furnished';
+    features?: string[];
+    amenities?: string[];
+
+    // Media
     images: ImageData[];
-    created_at: string;
+
+    // Status & Timestamps
+    status: "Available" | "Pending" | "Sold" | "Rented";
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
   }
+
   interface CustomerResponse {
     success: boolean;
     data: CustomerFormData[];
@@ -81,13 +125,13 @@ declare global {
     minimumBudget?: number;
     maximumBudget?: number;
     leadSource:
-      | "website"
-      | "referral"
-      | "social_media"
-      | "advertisement"
-      | "walk_in"
-      | "cold_call"
-      | "other";
+    | "website"
+    | "referral"
+    | "social_media"
+    | "advertisement"
+    | "walk_in"
+    | "cold_call"
+    | "other";
     initialNotes?: string;
     agencyId?: string;
     status: string;

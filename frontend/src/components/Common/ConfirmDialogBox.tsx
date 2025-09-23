@@ -34,15 +34,15 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       className="fixed inset-0 flex items-center justify-center bg-gray-800/50 z-50 p-4 sm:p-0"
       onClick={handleBackdropClick}
     >
-      <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-lg">
+      <div className="relative bg-white rounded-2xl p-3 md:p-6 max-w-sm w-full shadow-lg">
         {/* Close button */}
-        <button
+        <span
           onClick={onCancel}
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 cursor-pointer"
           aria-label="Close"
         >
           ✕
-        </button>
+        </span>
 
         <h2 className="text-lg font-semibold pr-6">{heading}</h2>
         {description && (

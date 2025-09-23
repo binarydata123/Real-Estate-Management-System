@@ -6,19 +6,10 @@ self.addEventListener("push", function (event) {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: "/icons/app-icon-192.png",
-      badge: "/icons/app-icon-192.png",
-      data: {
-        url: data.url,
-        message: data.body,
-        userId: data.userId,
-        meetingId: data.meetingId,
-        token: data.token,
-      },
-      actions: [
-        { action: "confirm", title: "👍 Confirm" },
-        { action: "cancel", title: "👎 Cancel" },
-      ],
+      icon: data.icon || "/icons/app-icon-192.png",
+      badge: data.badge || "/icons/app-icon-192.png",
+      data: data.data,
+      actions: data.actions || [],
     })
   );
 
