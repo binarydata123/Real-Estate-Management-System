@@ -11,6 +11,7 @@ import {
   customerSchema,
 } from "@/schemas/Agent/customerSchema";
 import { createCustomer, updateCustomer } from "@/lib/Agent/CustomerAPI";
+import { useToast } from "@/context/ToastContext";
 
 interface AddCustomerFormProps {
   onClose: () => void;
@@ -28,7 +29,8 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
   const { user, session } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
-  // console.log(initialData, "initialData");
+  const { showToast, showPromiseToast } = useToast();
+
   const {
     register,
     handleSubmit,
@@ -44,35 +46,53 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
   const budgetMin = watch("minimumBudget");
 
   const onSubmit = async (data: CustomerFormDataSchema) => {
-    if (!user || !session) return;
+    if (!user || !session) {
+      showToast("You must be logged in to manage customers.", "error");
+      return;
+    }
+
     const dataWithAgency = {
       ...data,
       agencyId: user._id,
     };
+
     setLoading(true);
-    try {
-      let response;
+
+    const apiCall = async () => {
       if (customerId) {
-        //Update
-        response = await updateCustomer(customerId, dataWithAgency);
+        return updateCustomer(customerId, dataWithAgency);
       } else {
-        // create
-        response = await createCustomer(dataWithAgency);
+        return createCustomer(dataWithAgency);
       }
-      if (response.data.success === true) {
-        console.log(response.data.message);
-        onSuccess();
-        onClose();
-      }
+    };
+
+    try {
+      await showPromiseToast(apiCall(), {
+        loading: customerId ? "Updating customer..." : "Creating customer...",
+        success: (response: { data?: { message?: string } }) =>
+          response.data?.message ||
+          `Customer ${customerId ? "updated" : "created"} successfully!`,
+        error: (err: unknown) => {
+          if (axios.isAxiosError(err) && err.response) {
+            return (
+              err.response.data.message ||
+              `Failed to ${customerId ? "update" : "create"} customer.`
+            );
+          }
+          if (err instanceof Error) {
+            return err.message || "An unexpected error occurred.";
+          }
+          return "An unexpected error occurred.";
+        },
+      });
+
+      onSuccess();
+      onClose();
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        console.error(
-          "Customer API Error:",
-          error.response.data.message || "Failed to create customer."
-        );
-      } else {
-        console.error("An unexpected error occurred:", error);
-      }
+      console.error(
+        `Customer ${customerId ? "update" : "creation"} failed:`,
+        error
+      );
     } finally {
       setLoading(false);
     }
@@ -278,8 +298,8 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   ? "Updating..."
                   : "Creating..."
                 : customerId
-                  ? "Update Customer"
-                  : "Add Customer"}
+                ? "Update Customer"
+                : "Add Customer"}
             </button>
           </div>
         </form>

@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { MapPinIcon, ShareIcon, EyeIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { Armchair, BathIcon, BedDoubleIcon, PencilIcon, RulerIcon, TrashIcon } from "lucide-react";
+import {
+  Armchair,
+  BathIcon,
+  BedDoubleIcon,
+  PencilIcon,
+  RulerIcon,
+  TrashIcon,
+} from "lucide-react";
 import Link from "next/link";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { deleteProperty } from "@/lib/Agent/PropertyAPI";
@@ -47,19 +54,24 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   const primaryImage =
-    property?.images && property.images.length > 0
-      ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${property?.images[0]?.url}`
+    property?.images?.length > 0
+      ? (() => {
+          const primary = property.images.find((img) => img.isPrimary);
+          return primary
+            ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${primary.url}`
+            : `https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg`;
+        })()
       : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
 
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(null)
+  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
   const { showToast } = useToast();
 
   const handleDelete = async (id: string) => {
     try {
       const response = await deleteProperty(id);
       if (response.success) {
-        showToast(response.message, 'success');
+        showToast(response.message, "success");
         onRefresh?.();
       }
     } catch (error) {
@@ -72,14 +84,13 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     (property.bedrooms ?? 0) > 0 ||
     (property.bathrooms ?? 0) > 0;
 
-
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
       {/* Image */}
       <div className="relative md:aspect-[4/3] aspect-[17/9]  overflow-hidden">
         <Image
           width={400}
-          height={300}
+          height={200}
           src={primaryImage}
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -111,7 +122,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             <span className="truncate">{property.location}</span>
           </div>
         </div>
-
 
         <div className="flex-grow mb-2 md:mb-4">
           {hasKeyDetails ? (
@@ -145,7 +155,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             </div>
           ) : (
             <p className="text-sm text-gray-600 line-clamp-2">
-              {property.description || 'No description available for this property.'}
+              {property.description ||
+                "No description available for this property."}
             </p>
           )}
         </div>
@@ -167,9 +178,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               <ShareIcon className="h-4 w-4" />
             </button>
             <Link href={`/agent/edit-property/${property._id}`}>
-              <button
-                className="flex items-center justify-center md:px-4 px-2 py-2 border border-blue-300 text-blue-400 rounded-lg hover:bg-gray-50 transition-colors"
-              >
+              <button className="flex items-center justify-center md:px-4 px-2 py-2 border border-blue-300 text-blue-400 rounded-lg hover:bg-gray-50 transition-colors">
                 <PencilIcon className="h-4 w-4" />
               </button>
             </Link>

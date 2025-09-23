@@ -15,6 +15,8 @@ import { useAuth } from "@/context/AuthContext";
 import { getCustomers } from "@/lib/Agent/CustomerAPI";
 import { shareProperty } from "@/lib/Agent/SharePropertyAPI";
 import { sharePropertySchema } from "@/schemas/Agent/sharePropertySchema";
+import { useToast } from "@/context/ToastContext";
+import axios from "axios";
 
 type SharePropertyFormData = z.infer<typeof sharePropertySchema>;
 
@@ -37,6 +39,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
   const [options, setOptions] = useState<CustomerFormData[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const { showPromiseToast } = useToast();
 
   const {
     handleSubmit,
@@ -68,15 +71,31 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
 
   const onSubmit = async (data: SharePropertyFormData) => {
     setLoading(true);
+
+    const apiCall = async () => {
+      return shareProperty(data);
+    };
+
     try {
-      const response = await shareProperty(data);
-      if (response.status === 201) {
-        alert("Property shared successfully!");
-        onSuccess?.();
-        onClose();
-      }
-    } catch (err) {
-      console.error(err);
+      await showPromiseToast(apiCall(), {
+        loading: "Sharing property...",
+        success: (response: { status?: number; data?: { message?: string } }) =>
+          response.data?.message || "Property shared successfully!",
+        error: (err: unknown) => {
+          if (axios.isAxiosError(err) && err.response) {
+            return err.response.data.message || "Failed to share property.";
+          }
+          if (err instanceof Error) {
+            return err.message || "An unexpected error occurred.";
+          }
+          return "An unexpected error occurred.";
+        },
+      });
+
+      onSuccess?.();
+      onClose?.();
+    } catch (error) {
+      console.error("Share property failed:", error);
     } finally {
       setLoading(false);
     }
