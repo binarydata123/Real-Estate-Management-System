@@ -3,116 +3,22 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { SparklesIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
-import type { SubmitHandler } from 'react-hook-form';
-import { Check, X, MapPin } from 'lucide-react';
+import type { SubmitHandler, FieldErrors } from 'react-hook-form';
+import { MapPin } from 'lucide-react';
 import BackButton from '@/components/Common/BackButton';
 import Image from 'next/image';
-import { amenitiesOptions, featuresOptions, overlookingOptions, PropertyFormData, propertySchema, waterSourceOptions, IconCheckboxOption, powerBackupOptions, furnishingOptions, transactionTypeOptions, propertyTypeOptions, commercialCategoryOptions, residentialCategoryOptions, unitAreaTypeOptions, facingOptions, propertyAgeOptions, reraStatusOptions, plotDimensionUnitOptions } from '@/schemas/Agent/propertySchema';
-import { CheckIcon } from '@heroicons/react/24/solid';
-import { createProperty } from '@/lib/Agent/PropertyAPI';
+import { amenitiesOptions, featuresOptions, overlookingOptions, PropertyFormData, propertySchema, waterSourceOptions, powerBackupOptions, furnishingOptions, transactionTypeOptions, propertyTypeOptions, commercialCategoryOptions, residentialCategoryOptions, unitAreaTypeOptions, facingOptions, propertyAgeOptions, reraStatusOptions, plotDimensionUnitOptions } from '@/schemas/Agent/propertySchema';
+import { createProperty, getSinglePropertyDetail, updateProperty } from '@/lib/Agent/PropertyAPI';
 import { useToast } from '@/context/ToastContext';
 import { useGeolocation } from '@/hooks/useGeolocation';
-
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const IconCheckbox: React.FC<{ option: IconCheckboxOption; name: keyof PropertyFormData; register: any }> = ({ option, name, register }) => (
-    <div>
-        <input type="checkbox" id={`${name}-${option.value}`} value={option.value} {...register(name)} className="hidden peer" />
-        <label htmlFor={`${name}-${option.value}`} className="cursor-pointer shadow flex items-center gap-3 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600">
-            <span className="">{option.icon}</span>
-            {option.label}
-        </label>
-    </div>
-);
-
-// New component for single-choice icon buttons
-interface IconRadioProps {
-    name: keyof PropertyFormData;
-    options: { value: string; label: string; icon: React.ReactNode }[];
-    watch: any;
-    setValue: any;
-}
-
-const IconRadio: React.FC<IconRadioProps> = ({ name, options, watch, setValue }) => {
-    const watchedValue = watch(name);
-
-    return (
-        <div className="flex flex-wrap gap-3">
-            {options.map((option) => {
-                const isChecked = watchedValue === option.value;
-                return (
-                    <div key={option.value}>
-                        <input
-                            type="radio"
-                            id={`${name}-${option.value}`}
-                            value={option.value}
-                            name={name}
-                            checked={isChecked}
-                            onChange={() => setValue(name, option.value, { shouldValidate: true, shouldDirty: true })}
-                            className="hidden peer"
-                        />
-                        <label
-                            htmlFor={`${name}-${option.value}`}
-                            className="cursor-pointer flex items-center gap-1 px-2 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
-                        >
-                            {option.icon}
-                            {option.label}
-                        </label>
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
-
-// New component for boolean choice icon buttons
-interface IconBooleanRadioProps {
-    name: keyof PropertyFormData;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    watch: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setValue: any;
-}
-
-const IconBooleanRadio: React.FC<IconBooleanRadioProps> = ({ name, watch, setValue }) => {
-    const watchedValue = watch(name);
-    const options = [
-        { value: true, label: 'Yes', icon: <Check size={16} /> },
-        { value: false, label: 'No', icon: <X size={16} /> }
-    ];
-
-    return (
-        <div className="flex flex-wrap gap-3">
-            {options.map((option) => {
-                const isChecked = watchedValue === option.value;
-                return (
-                    <div key={String(option.value)}>
-                        <input
-                            type="radio"
-                            id={`${name}-${String(option.value)}`}
-                            value={String(option.value)}
-                            name={name}
-                            checked={isChecked}
-                            onChange={() => setValue(name, option.value, { shouldValidate: true, shouldDirty: true })}
-                            className="hidden peer"
-                        />
-                        <label
-                            htmlFor={`${name}-${String(option.value)}`}
-                            className={`cursor-pointer flex items-center gap-1 px-2 py-1.5 text-sm rounded-full border transition-colors ${isChecked ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
-                        >
-                            {option.icon}
-                            {option.label}
-                        </label>
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
+import IconCheckbox from './IconCheckbox';
+import IconRadio from './IconRadio';
+import IconBooleanRadio from './IconBooleanRadio';
+import StepIndicator from './StepIndicator';
 
 const Field: React.FC<{
     label: string;
@@ -137,80 +43,28 @@ const FormSection: React.FC<{ title: string; children: React.ReactNode; classNam
     </div>
 );
 
-const StepIndicator: React.FC<{ currentStep: number; steps: string[] }> = ({ currentStep, steps }) => (
-    <nav aria-label="Progress" className="py-2 md:py-6">
-        <ol role="list" className="grid grid-cols-3">
-            {steps.map((name, index) => {
-                const stepNumber = index + 1;
-                const isCompleted = currentStep > stepNumber;
-                const isCurrent = currentStep === stepNumber;
+interface Props {
+    propertyId?: string;
+}
 
-                return (
-                    <li key={name} className="relative">
-                        {/* Connector line */}
-                        {index < steps.length - 1 && (
-                            <div
-                                className="absolute left-1/2 top-4 h-0.5 w-full"
-                                aria-hidden="true"
-                            >
-                                <div
-                                    className={`h-full w-full transition-colors duration-500 ${isCompleted ? "bg-blue-600" : "bg-gray-200"}`}
-                                />
-                            </div>
-                        )}
-
-                        <div className="relative flex flex-col items-center text-center">
-                            {/* Step circle */}
-                            <div
-                                className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${isCompleted
-                                    ? "bg-blue-600 shadow-md"
-                                    : isCurrent
-                                        ? "border-2 border-blue-600 bg-white shadow-lg scale-110"
-                                        : "border-2 border-gray-300 bg-white"
-                                    }`}
-                            >
-                                {isCompleted ? (
-                                    <CheckIcon className="h-6 w-6 text-white" aria-hidden="true" />
-                                ) : (
-                                    <span
-                                        className={`text-base font-medium transition-colors duration-300 ${isCurrent ? "text-blue-600 font-bold" : "text-gray-500"
-                                            }`}
-                                    >
-                                        {stepNumber}
-                                    </span>
-                                )}
-                            </div>
-
-                            {/* Step label */}
-                            <p
-                                className={`mt-2 text-sm font-medium transition-colors duration-300 ${isCurrent ? "text-blue-600" : "text-gray-500"
-                                    }`}
-                            >
-                                {name}
-                            </p>
-                        </div>
-                    </li>
-                );
-            })}
-        </ol>
-    </nav>
-);
-
-export const AddPropertyForm: React.FC = () => {
+export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     const { user } = useAuth();
-    const searchParams = useSearchParams();
     const router = useRouter();
-    const mode = searchParams.get('mode');
-    const isEditMode = mode === 'edit';
+    const isEditMode = !!propertyId;
+    const searchParams = useSearchParams();
 
-    const [step, setStep] = useState(1);
+    // Safely get step from query string
+    const stepFromUrl = useMemo(() => {
+        return searchParams.get("step");
+    }, [searchParams]);
+
+    const [step, setStep] = useState(stepFromUrl ? parseInt(stepFromUrl) : 1);
     const [loading, setLoading] = useState(false);
     const [images, setImages] = useState<string[]>([]);
     const { showToast, showPromiseToast } = useToast();
     const [imageFiles, setImageFiles] = useState<File[]>([]);
 
-    const { register, handleSubmit, formState: { errors }, watch, setValue, getValues, trigger, setFocus, clearErrors } = useForm<PropertyFormData>({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { register, handleSubmit, formState: { errors }, watch, setValue, getValues, trigger, setFocus, clearErrors, reset } = useForm<PropertyFormData>({
         resolver: zodResolver(propertySchema) as any,
         defaultValues: {
             unit_area_type: 'sqft',
@@ -236,14 +90,53 @@ export const AddPropertyForm: React.FC = () => {
             gated_community: true, // Changed to true to auto-select related amenities
             status: 'Available',
             rera_status: 'Not Approved',
-            overlooking: ['Main Road'], // Pre-select a common option
+            overlooking: [], // Pre-select a common option
             water_source: ['Municipal Supply'], // Pre-select to auto-check 24x7 supply
-            features: ['Internet/Wi-Fi Connectivity', 'Intercom Facility'], // Pre-select common features
+            features: [], // Pre-select common features
             amenities: ['Rain Water Harvesting'], // Pre-select a common amenity
         } satisfies Partial<PropertyFormData>
     });
 
     const { isFetching: isFetchingLocation, getCurrentLocation } = useGeolocation();
+
+    useEffect(() => {
+        if (isEditMode && propertyId) {
+
+            const fetchPropertyData = async () => {
+                setLoading(true);
+                try {
+                    const res = await getSinglePropertyDetail(propertyId);
+                    if (res.success) {
+                        const propertyData = res.data;
+
+                        // The backend sends images as an array of objects, but the Zod schema
+                        // expects an array of strings. The actual image data (new files and
+                        // existing URLs) is managed by component state (`imageFiles` and `images`),
+                        // not react-hook-form's state. We reset the form's `images` field to an
+                        // empty array to prevent validation errors.
+                        const dataForReset = { ...propertyData, images: [] };
+                        reset(dataForReset);
+
+                        if (propertyData.images && propertyData.images.length > 0) {
+                            const imageUrls = propertyData.images.map(
+                                (img: { url: string }) => `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${img.url}`
+                            );
+                            setImages(imageUrls);
+                        }
+                    } else {
+                        showToast(res.message || 'Failed to fetch property details.', 'error');
+                        router.push('/agent/properties');
+                    }
+                } catch (err) {
+                    showToast('An error occurred while fetching property data.', 'error');
+                    // router.push('/agent/properties');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchPropertyData();
+        }
+    }, [isEditMode, propertyId, reset, showToast, router]);
 
     const [] = watch(['location', 'price', 'built_up_area']);
 
@@ -251,22 +144,74 @@ export const AddPropertyForm: React.FC = () => {
     const nextStep = () => setStep(prev => prev + 1);
     const prevStep = () => setStep(prev => prev - 1);
 
-    const handleNextStep = async () => {
-        let isValid = true;
-        // Only validate the basic fields in step 1
-        const step1Fields: (keyof PropertyFormData)[] = [
-            'title', 'type', 'category', 'location', 'price'
-        ];
+    const handleNextStep = async (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent the click event from propagating
+
+        let fieldsToValidate: (keyof PropertyFormData)[] = [];
+        let isValid = false;
 
         if (step === 1) {
-            isValid = await trigger(step1Fields, { shouldFocus: true });
+            fieldsToValidate = (Object.keys(fieldStepMapping) as (keyof PropertyFormData)[]).filter(
+                key => fieldStepMapping[key] === 1
+            );
+        } else if (step === 2) {
+            // Validate that at least one image has been uploaded or exists.
+            setValue('images', images.length > 0 ? ['dummy_value_for_validation'] : []);
+            fieldsToValidate = ['images'];
         }
 
+        isValid = await trigger(fieldsToValidate, { shouldFocus: true });
+
         if (isValid) {
-            nextStep();
+            if (step === 1 && !isEditMode) {
+                // This is a new property. Create it and redirect.
+                if (!user) {
+                    showToast("You must be logged in to add a property.", 'error');
+                    return;
+                }
+                setLoading(true);
+                const data = getValues();
+                const formData = new FormData();
+                (Object.keys(data) as Array<keyof PropertyFormData>).forEach((key) => {
+                    const value = data[key];
+                    if (value !== null && value !== undefined) {
+                        if (Array.isArray(value)) {
+                            value.forEach((item) => formData.append(`${key}[]`, String(item)));
+                        } else {
+                            formData.append(key, String(value));
+                        }
+                    }
+                });
+
+                if (user.agency?._id) {
+                    formData.append('agencyId', user.agency._id);
+                }
+
+                try {
+                    const response = await createProperty(formData);
+                    if (response.success && response.data?._id) {
+                        showToast('Basic info saved. You can now add images and features.', 'success');
+                        router.push(`/agent/edit-property/${response.data._id}?step=2`);
+                    } else {
+                        showToast(response.message || 'Failed to save property.', 'error');
+                    }
+                } catch (err) {
+                    if (axios.isAxiosError(err) && err.response) {
+                        showToast(err.response.data.message || 'Failed to save property.', 'error');
+                    } else if (err instanceof Error) {
+                        showToast(err.message || 'An unexpected error occurred.', 'error');
+                    } else {
+                        showToast('An unexpected error occurred.', 'error');
+                    }
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                // Already in edit mode, or not step 1. Just move to the next step.
+                nextStep();
+            }
         } else {
-            // Find the first field with an error from the ordered list
-            const firstErrorField = step1Fields.find(field => errors[field]);
+            const firstErrorField = fieldsToValidate.find(field => errors[field]);
 
             if (firstErrorField) {
                 try {
@@ -437,12 +382,6 @@ export const AddPropertyForm: React.FC = () => {
             newAmenities.push('24x7 Water Supply');
         }
 
-        // Sync category -> Private Terrace/Garden
-        const hasTerraceFeature = features.includes('Private Terrace/Garden');
-        if (category && ['villa', 'farmHouse'].includes(category) && !hasTerraceFeature) {
-            newFeatures.push('Private Terrace/Garden');
-        }
-
         // Update form state only if there are changes
         if (JSON.stringify(features.sort()) !== JSON.stringify(newFeatures.sort())) {
             setValue('features', newFeatures, { shouldDirty: true });
@@ -455,50 +394,38 @@ export const AddPropertyForm: React.FC = () => {
 
     // Dynamically filter options based on property type/category
     const filteredFeatures = useMemo(() => {
+        if (!watchedCategory) return [];
         if (isPlotOrLand) {
             return featuresOptions.filter(opt => opt.value === 'Vaastu Compliant');
         }
-
-        if (isResidentialBuilt) {
-            return featuresOptions; // Show all for residential built
-        }
-
-        if (isCommercialBuilt) {
-            const commercialFeatures = ["Vaastu Compliant", "Air Conditioned", "Power Backup", "Balcony"];
-            return featuresOptions.filter(opt => commercialFeatures.includes(opt.value));
-        }
-
-        return [];
-    }, [isPlotOrLand, isResidentialBuilt, isCommercialBuilt]);
+        return featuresOptions.filter(opt =>
+            !opt.categories || opt.categories.includes(watchedCategory)
+        );
+    }, [watchedCategory, isPlotOrLand]);
 
     const filteredAmenities = useMemo(() => {
-        const residentialOnlyAmenities = ["Gym", "Swimming Pool", "Park", "Clubhouse", "Kids Play Area", "Jogging Track"];
-
-        if (isCommercialBuilt) {
-            return amenitiesOptions.filter(opt => !residentialOnlyAmenities.includes(opt.value));
-        }
-
-        // For residential built, show all. For plots/land, this section is hidden anyway.
-        return amenitiesOptions;
-    }, [isCommercialBuilt]);
+        if (!watchedCategory) return [];
+        return amenitiesOptions.filter(opt =>
+            !opt.categories || opt.categories.includes(watchedCategory)
+        );
+    }, [watchedCategory]);
 
     const filteredOverlookingOptions = useMemo(() => {
-        return overlookingOptions.filter(option => {
-            if (option.value === 'Pool View') {
-                return isBuiltStructure;
-            }
-            return true;
-        });
-    }, [isBuiltStructure]);
+        if (!watchedCategory) return [];
+        return overlookingOptions.filter(opt =>
+            !opt.categories || opt.categories.includes(watchedCategory)
+        );
+    }, [watchedCategory]);
 
-    // Automatically generate title in add mode
+    // Automatically generate title and description in add mode
     useEffect(() => {
         if (!isEditMode && watchedType && watchedCategory) {
             const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
             const generatedTitle = `${capitalize(watchedType)} ${capitalize(watchedCategory)}`;
             setValue('title', generatedTitle, { shouldValidate: true });
+            generateDescription();
         }
-    }, [watchedType, watchedCategory, isEditMode, setValue]);
+    }, [watchedType, watchedCategory, isEditMode, setValue, generateDescription]);
 
     // When property category changes, check if the current area unit is still valid
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -538,9 +465,50 @@ export const AddPropertyForm: React.FC = () => {
         }
     };
 
+    const fieldStepMapping: { [key in keyof PropertyFormData]?: number } = {
+        // Step 1
+        title: 1, type: 1, category: 1, location: 1, price: 1,
+        built_up_area: 1, carpet_area: 1, unit_area_type: 1,
+        plot_front_area: 1, plot_depth_area: 1, plot_dimension_unit: 1,
+        is_corner_plot: 1, bedrooms: 1, bathrooms: 1, balconies: 1,
+        washrooms: 1, cabins: 1, conference_rooms: 1,
+        floor_number: 1, total_floors: 1, facing: 1, property_age: 1,
+        transaction_type: 1, furnishing: 1, power_backup: 1,
+        gated_community: 1, rera_status: 1, owner_name: 1, owner_contact: 1,
+        description: 1,
+        // Step 2
+        images: 2,
+        // Step 3
+        overlooking: 3, water_source: 3, features: 3, amenities: 3,
+    };
+
+    const onValidationError = (errors: FieldErrors<PropertyFormData>) => {
+        console.error("Form validation failed:", errors);
+        const errorFields = Object.keys(errors) as (keyof PropertyFormData)[];
+
+        if (errorFields.length > 0) {
+            const firstErrorField = errorFields[0];
+            const stepWithError = fieldStepMapping[firstErrorField];
+            if (stepWithError) {
+                setStep(stepWithError);
+                showToast(`Please fix the errors on Step ${stepWithError} before submitting.`, 'error');
+                setTimeout(() => {
+                    setFocus(firstErrorField, { shouldSelect: true });
+                }, 100);
+            } else {
+                showToast('An unknown validation error occurred. Please check all fields.', 'error');
+            }
+        }
+    };
+
     const onSubmit: SubmitHandler<PropertyFormData> = async (data: PropertyFormData) => {
         if (!user) {
             showToast("You must be logged in to add a property.", 'error');
+            return;
+        }
+        if (!isEditMode || !propertyId) {
+            showToast("Cannot update property without an ID. Please start over.", 'error');
+            router.push('/agent/add-property');
             return;
         }
 
@@ -550,9 +518,8 @@ export const AddPropertyForm: React.FC = () => {
             const formData = new FormData();
             (Object.keys(data) as Array<keyof PropertyFormData>).forEach((key) => {
                 const value = data[key];
-                if (value !== null && value !== undefined) {
+                if (value !== null && value !== undefined && key !== 'images') {
                     if (Array.isArray(value)) {
-                        // For array fields like amenities, features, etc.
                         value.forEach((item) => {
                             formData.append(`${key}[]`, String(item));
                         });
@@ -573,30 +540,24 @@ export const AddPropertyForm: React.FC = () => {
             });
 
             // For edit mode, send back existing image URLs so the backend knows which ones to keep
-            if (isEditMode) {
-                const existingImages = images.filter(url => !url.startsWith('blob:'));
-                existingImages.forEach(url => formData.append('existingImages[]', url));
-            }
-
-            if (isEditMode) {
-                // TODO: Implement update logic using an `updateProperty` API call
-                console.log("Update functionality not implemented yet. Data:", Array.from(formData.entries()));
-                // Simulate API call
-                return new Promise(resolve => setTimeout(() => resolve({ message: 'Property updated successfully! (Demo)' }), 1500));
-            } else {
-                return createProperty(formData);
-            }
+            const existingImages = images.filter(url => !url.startsWith('blob:'));
+            existingImages.forEach(url => {
+                // extract filename from full URL
+                const filename = url.substring(url.lastIndexOf('/') + 1);
+                formData.append('existingImages[]', filename);
+            });
+            return updateProperty(propertyId, formData);
         })();
 
         try {
             await showPromiseToast(
                 apiCall,
                 {
-                    loading: isEditMode ? 'Updating property...' : 'Creating property...',
-                    success: (response: { message?: string }) => response.message || `Property ${isEditMode ? 'updated' : 'created'} successfully!`,
+                    loading: 'Updating property...',
+                    success: (response: { message?: string }) => response.message || 'Property updated successfully!',
                     error: (err: unknown) => {
                         if (axios.isAxiosError(err) && err.response) {
-                            return err.response.data.message || `Failed to ${isEditMode ? 'update' : 'create'} property.`;
+                            return err.response.data.message || 'Failed to update property.';
                         }
                         if (err instanceof Error) {
                             return err.message || `An unexpected error occurred.`;
@@ -608,7 +569,7 @@ export const AddPropertyForm: React.FC = () => {
             router.push('/agent/properties');
         } catch (error) {
             // Error is handled by the promise toast. This catch block prevents unhandled promise rejection warnings.
-            console.error(`Property ${isEditMode ? 'update' : 'creation'} failed:`, error);
+            console.error('Property update failed:', error);
         } finally {
             setLoading(false);
         }
@@ -627,7 +588,7 @@ export const AddPropertyForm: React.FC = () => {
                 <StepIndicator currentStep={step} steps={steps} />
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="md:p-6 md:space-y-6 space-y-2">
+            <form onSubmit={handleSubmit(onSubmit, onValidationError)} className="md:p-6 pt-0 md:space-y-6 space-y-2">
                 {step === 1 && (
                     <div className="space-y-3 md:space-y-6">
                         <FormSection title="Basic Information">
@@ -648,7 +609,7 @@ export const AddPropertyForm: React.FC = () => {
                                         <IconRadio name="type" options={propertyTypeOptions} watch={watch} setValue={setValue} />
                                     </Field>
                                 </div>
-                                <div className="col-span-2">
+                                <div className="col-span-2 lg:col-span-3">
                                     <Field label="Category" required error={errors.category}>
                                         <IconRadio
                                             name="category"
@@ -769,7 +730,7 @@ export const AddPropertyForm: React.FC = () => {
                                 {/* Residential Specific Fields */}
                                 {watchedType === 'residential' && !isPlotOrLand && (
                                     <FormSection title="Residential Details">
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                                        <div className="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-6">
                                             <Field label="Bedrooms" error={errors.bedrooms}>
                                                 <input type="number" {...register('bedrooms', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="3" />
                                             </Field>
@@ -786,7 +747,7 @@ export const AddPropertyForm: React.FC = () => {
                                 {/* Commercial Specific Fields */}
                                 {watchedType === 'commercial' && !isPlotOrLand && (
                                     <FormSection title="Commercial Details">
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
                                             <Field label="Washrooms" error={errors.washrooms}>
                                                 <input type="number" {...register('washrooms', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
                                             </Field>
@@ -803,7 +764,7 @@ export const AddPropertyForm: React.FC = () => {
                                 {/* Floor Information */}
                                 {isBuiltStructure && (
                                     <FormSection title="Floor Information">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                                             <Field label="Floor Number" error={errors.floor_number}>
                                                 <input type="number" {...register('floor_number', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="e.g., 5" />
                                             </Field>
@@ -820,7 +781,7 @@ export const AddPropertyForm: React.FC = () => {
                                             <IconRadio name="facing" options={facingOptions} watch={watch} setValue={setValue} />
                                         </Field>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                             {isBuiltStructure && (
                                                 <Field label="Property Age" error={errors.property_age}>
                                                     <IconRadio name="property_age" options={propertyAgeOptions} watch={watch} setValue={setValue} />
@@ -891,9 +852,9 @@ export const AddPropertyForm: React.FC = () => {
                 {step === 3 && (
                     <div className="md:space-y-6 space-y-3">
                         <FormSection title="Location, Features & Amenities">
-                            <div className="md:space-y-6 space-y-3">
-                                <Field label="Overlooking" error={errors.overlooking}>
-                                    <div className="flex flex-wrap gap-3">
+                            <div className="space-y-4">
+                                <Field label="Overlooking" error={errors.overlooking} >
+                                    <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
                                         {filteredOverlookingOptions.map((option) => (
                                             <IconCheckbox key={option.value} option={option} name="overlooking" register={register} />
                                         ))}
@@ -901,7 +862,7 @@ export const AddPropertyForm: React.FC = () => {
                                 </Field>
 
                                 <Field label="Water Source" error={errors.water_source}>
-                                    <div className="flex flex-wrap gap-3">
+                                    <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
                                         {waterSourceOptions.map((option) => (
                                             <IconCheckbox key={option.value} option={option} name="water_source" register={register} />
                                         ))}
@@ -910,7 +871,7 @@ export const AddPropertyForm: React.FC = () => {
 
                                 {filteredFeatures.length > 0 && (
                                     <Field label="Features" error={errors.features}>
-                                        <div className="flex flex-wrap gap-3">
+                                        <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
                                             {filteredFeatures.map((feature) => (
                                                 <IconCheckbox key={feature.value} option={feature} name="features" register={register} />
                                             ))}
@@ -920,7 +881,7 @@ export const AddPropertyForm: React.FC = () => {
 
                                 {!isPlotOrLand && (
                                     <Field label="Amenities" error={errors.amenities}>
-                                        <div className="flex flex-wrap gap-3">
+                                        <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
                                             {filteredAmenities.map((amenity) => (
                                                 <IconCheckbox key={amenity.value} option={amenity} name="amenities" register={register} />
                                             ))}
@@ -1014,18 +975,18 @@ export const AddPropertyForm: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={handleNextStep}
-                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                disabled={loading}
+                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Next
+                                {loading && step === 1 && !isEditMode ? 'Saving...' : (step === 1 && !isEditMode ? 'Save & Continue' : 'Next')}
                             </button>
                         ) : (
                             <button
-                                type="button"
+                                type="submit"
                                 disabled={loading}
-                                onClick={handleSubmit(onSubmit)}
-                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Property' : 'Create Property')}
+                                {loading ? 'Updating...' : 'Update Property'}
                             </button>
                         )}
                     </div>

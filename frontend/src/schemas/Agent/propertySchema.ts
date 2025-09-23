@@ -151,6 +151,7 @@ export type IconCheckboxOption = {
     value: string;
     label: string;
     icon: React.ReactNode;
+    categories?: ('plot' | 'flat' | 'showroom' | 'office' | 'villa' | 'land' | 'farmHouse')[];
 };
 
 export const propertyTypeOptions: IconCheckboxOption[] = [
@@ -214,36 +215,36 @@ export const facingOptions: IconCheckboxOption[] = [
 export const featuresOptions: IconCheckboxOption[] = [
     { value: "Vaastu Compliant", label: "Vaastu Compliant", icon: React.createElement(Compass, { size: 16 }) },
     { value: "Air Conditioned", label: "Air Conditioned", icon: React.createElement(AirVent, { size: 16 }) },
-    { value: "Modular Kitchen", label: "Modular Kitchen", icon: React.createElement(CookingPot, { size: 16 }) },
-    { value: "Piped Gas", label: "Piped Gas", icon: React.createElement(Flame, { size: 16 }) },
+    { value: "Modular Kitchen", label: "Modular Kitchen", icon: React.createElement(CookingPot, { size: 16 }), categories: ['flat', 'villa', 'farmHouse'] },
+    { value: "Piped Gas", label: "Piped Gas", icon: React.createElement(Flame, { size: 16 }), categories: ['flat', 'villa'] },
     { value: "Power Backup", label: "Power Backup", icon: React.createElement(BatteryCharging, { size: 16 }) },
     { value: "Balcony", label: "Balcony", icon: React.createElement(Building, { size: 16 }) },
     { value: "Internet/Wi-Fi Connectivity", label: "Wi-Fi", icon: React.createElement(Wifi, { size: 16 }) },
-    { value: "Private Terrace/Garden", label: "Terrace/Garden", icon: React.createElement(Shrub, { size: 16 }) },
-    { value: "Intercom Facility", label: "Intercom", icon: React.createElement(Phone, { size: 16 }) },
+    { value: "Private Terrace/Garden", label: "Terrace/Garden", icon: React.createElement(Shrub, { size: 16 }), categories: ['villa', 'farmHouse', 'flat'] },
+    { value: "Intercom Facility", label: "Intercom", icon: React.createElement(Phone, { size: 16 }), categories: ['flat', 'office', 'showroom', 'villa'] },
     { value: "Security/Fire Alarm", label: "Fire Alarm", icon: React.createElement(Siren, { size: 16 }) },
-    { value: "Study Room", label: "Study Room", icon: React.createElement(BookOpen, { size: 16 }) },
-    { value: "Servant Room", label: "Servant Room", icon: React.createElement(User, { size: 16 }) },
+    { value: "Study Room", label: "Study Room", icon: React.createElement(BookOpen, { size: 16 }), categories: ['flat', 'villa', 'farmHouse'] },
+    { value: "Servant Room", label: "Servant Room", icon: React.createElement(User, { size: 16 }), categories: ['flat', 'villa', 'farmHouse'] },
 ];
 
 export const amenitiesOptions: IconCheckboxOption[] = [
-    { value: "Lift", label: "Lift", icon: React.createElement(ArrowUpDown, { size: 16 }) },
+    { value: "Lift", label: "Lift", icon: React.createElement(ArrowUpDown, { size: 16 }), categories: ['flat', 'office', 'showroom'] },
     { value: "Security", label: "Security", icon: React.createElement(Shield, { size: 16 }) },
     { value: "CCTV", label: "CCTV", icon: React.createElement(Video, { size: 16 }) },
-    { value: "Gym", label: "Gym", icon: React.createElement(Dumbbell, { size: 16 }) },
-    { value: "Swimming Pool", label: "Swimming Pool", icon: React.createElement(Waves, { size: 16 }) },
+    { value: "Gym", label: "Gym", icon: React.createElement(Dumbbell, { size: 16 }), categories: ['flat', 'villa'] },
+    { value: "Swimming Pool", label: "Swimming Pool", icon: React.createElement(Waves, { size: 16 }), categories: ['flat', 'villa', 'farmHouse'] },
     { value: "Park", label: "Park", icon: React.createElement(Trees, { size: 16 }) },
-    { value: "Clubhouse", label: "Clubhouse", icon: React.createElement(Home, { size: 16 }) },
-    { value: "Community Hall", label: "Community Hall", icon: React.createElement(Users, { size: 16 }) },
+    { value: "Clubhouse", label: "Clubhouse", icon: React.createElement(Home, { size: 16 }), categories: ['flat', 'villa'] },
+    { value: "Community Hall", label: "Community Hall", icon: React.createElement(Users, { size: 16 }), categories: ['flat', 'villa'] },
     { value: "Visitor Parking", label: "Visitor Parking", icon: React.createElement(Car, { size: 16 }) },
     { value: "Maintenance Staff", label: "Maintenance Staff", icon: React.createElement(Wrench, { size: 16 }) },
-    { value: "Kids Play Area", label: "Kids Play Area", icon: React.createElement(ToyBrick, { size: 16 }) },
-    { value: "Jogging Track", label: "Jogging Track", icon: React.createElement(Footprints, { size: 16 }) },
-    { value: "Badminton Court", label: "Badminton Court", icon: React.createElement(Volleyball, { size: 16 }) },
-    { value: "Tennis Court", label: "Tennis Court", icon: React.createElement(TennisBallIcon, { size: 16 }) },
-    { value: "Indoor Games", label: "Indoor Games", icon: React.createElement(Gamepad2, { size: 16 }) },
-    { value: "Library", label: "Library", icon: React.createElement(LibraryIcon, { size: 16 }) },
-    { value: "Cafeteria/Food Court", label: "Cafeteria", icon: React.createElement(Coffee, { size: 16 }) },
+    { value: "Kids Play Area", label: "Kids Play Area", icon: React.createElement(ToyBrick, { size: 16 }), categories: ['flat', 'villa'] },
+    { value: "Jogging Track", label: "Jogging Track", icon: React.createElement(Footprints, { size: 16 }), categories: ['flat', 'villa'] },
+    { value: "Badminton Court", label: "Badminton Court", icon: React.createElement(Volleyball, { size: 16 }), categories: ['flat', 'villa'] },
+    { value: "Tennis Court", label: "Tennis Court", icon: React.createElement(TennisBallIcon, { size: 16 }), categories: ['flat', 'villa'] },
+    { value: "Indoor Games", label: "Indoor Games", icon: React.createElement(Gamepad2, { size: 16 }), categories: ['flat', 'villa'] },
+    { value: "Library", label: "Library", icon: React.createElement(LibraryIcon, { size: 16 }), categories: ['flat', 'villa'] },
+    { value: "Cafeteria/Food Court", label: "Cafeteria", icon: React.createElement(Coffee, { size: 16 }), categories: ['office'] },
     { value: "Rain Water Harvesting", label: "Rain Water Harvesting", icon: React.createElement(CloudRain, { size: 16 }) },
     { value: "24x7 Water Supply", label: "24x7 Water Supply", icon: React.createElement(Droplet, { size: 16 }) },
 ];
@@ -252,7 +253,7 @@ export const overlookingOptions: IconCheckboxOption[] = [
     { value: "Garden View", label: "Garden View", icon: React.createElement(Trees, { size: 16 }) },
     { value: "Park View", label: "Park View", icon: React.createElement(Trees, { size: 16 }) },
     { value: "Main Road", label: "Main Road", icon: React.createElement(Route, { size: 16 }) },
-    { value: "Pool View", label: "Pool View", icon: React.createElement(Waves, { size: 16 }) },
+    { value: "Pool View", label: "Pool View", icon: React.createElement(Waves, { size: 16 }), categories: ['flat', 'villa', 'farmHouse'] },
 ];
 
 export const propertyAgeOptions: IconCheckboxOption[] = [

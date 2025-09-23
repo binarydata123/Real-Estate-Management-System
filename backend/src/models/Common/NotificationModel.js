@@ -26,6 +26,7 @@ const notificationSchema = new mongoose.Schema(
         "meeting_scheduled",
         "property_updated",
         "property_added",
+        "property_deleted",
       ],
       default: "welcome",
     },
