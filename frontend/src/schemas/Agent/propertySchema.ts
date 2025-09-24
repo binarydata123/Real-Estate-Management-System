@@ -293,3 +293,23 @@ export const ownerTypeOptions: IconCheckboxOption[] = [
     { value: 'Builder', label: 'Builder', icon: React.createElement(HardHat, { size: 16 }) },
     { value: 'Agency', label: 'Agency', icon: React.createElement(Building, { size: 16 }) },
 ];
+
+export const bedroomsOptions = [
+    { value: '1', label: '1 BHK' },
+    { value: '2', label: '2 BHK' },
+    { value: '3', label: '3 BHK' },
+    { value: '4', label: '4 BHK' },
+    { value: '5', label: '5+ BHK' },
+];
+
+export const bathroomsOptions = [
+    { value: '1', label: '1' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+    { value: '4', label: '4+' },
+];
+
+export const userTypeOptions = [
+    { value: 'buyer', label: 'Buyer', icon: React.createElement(User, { size: 16 }) },
+    { value: 'investor', label: 'Investor', icon: React.createElement(Handshake, { size: 16 }) },
+];

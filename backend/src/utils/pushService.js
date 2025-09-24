@@ -29,8 +29,11 @@ export async function sendPushNotification({
   const subscriptions = await PushNotificationSubscription.find(query);
 
   if (!subscriptions.length) {
-    console.log("No subscriptions found for query:", query);
-    return;
+    const message = `No subscriptions found for query: ${JSON.stringify(
+      query
+    )}`;
+    console.log(message);
+    return { success: false, message, sent: 0 };
   }
 
   const payload = JSON.stringify({
@@ -60,4 +63,9 @@ export async function sendPushNotification({
   );
 
   console.log(`✅ Sent push to ${subscriptions.length} subscribers`);
+  return {
+    success: true,
+    message: `Sent push to ${subscriptions.length} subscribers`,
+    sent: subscriptions.length,
+  };
 }

@@ -9,6 +9,7 @@ import CustomerModal from "./CustomerModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { Pagination } from "@/components/Common/Pagination";
 import SearchInput from "@/components/Common/SearchInput";
+import Link from "next/link";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -125,12 +126,12 @@ export const Customers: React.FC = () => {
         </div>
 
         {/* Search + Button */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
+        <div className="flex  flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
           <SearchInput
             placeholder="Search by name, email, or phone"
             value={searchTerm}
             onChange={setSearchTerm}
-            className="flex-1 sm:max-w-md"
+            className="flex-1 sm:max-w-md "
           />
           <button
             onClick={() => setShowAddForm(true)}
@@ -255,7 +256,9 @@ export const Customers: React.FC = () => {
                           View
                         </span>
                         <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                          Contact
+                          <Link href={`/agent/preference?customerId=${customer._id}`}>
+                            Preference
+                          </Link>
                         </span>
                       </div>
                     </div>
