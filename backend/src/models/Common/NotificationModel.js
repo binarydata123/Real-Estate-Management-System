@@ -27,6 +27,7 @@ const notificationSchema = new mongoose.Schema(
         "property_updated",
         "property_added",
         "property_deleted",
+        "preference_request"
       ],
       default: "welcome",
     },
