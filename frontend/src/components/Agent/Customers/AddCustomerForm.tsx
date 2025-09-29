@@ -145,23 +145,21 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                 </p>
               )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 md:gap-6 gap-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  {...register("email")}
-                  className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="john@example.com"
-                />
-                {errors.email && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
+                Email Address *
+              </label>
+              <input
+                type="email"
+                {...register("email")}
+                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="john@example.com"
+              />
+              {errors.email && (
+                <p className="text-red-600 text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -298,8 +296,8 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   ? "Updating..."
                   : "Creating..."
                 : customerId
-                ? "Update Customer"
-                : "Add Customer"}
+                  ? "Update Customer"
+                  : "Add Customer"}
             </button>
           </div>
         </form>

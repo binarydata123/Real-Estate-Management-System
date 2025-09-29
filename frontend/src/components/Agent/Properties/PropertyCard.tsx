@@ -13,6 +13,7 @@ import Link from "next/link";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { deleteProperty } from "@/lib/Agent/PropertyAPI";
 import { useToast } from "@/context/ToastContext";
+import { getPropertyImageUrlWithFallback, handleImageError } from "@/lib/imageUtils";
 
 interface PropertyCardProps {
   property: Property;
@@ -53,15 +54,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     }
   };
 
-  const primaryImage =
-    property?.images?.length > 0
-      ? (() => {
-          const primary = property.images.find((img) => img.isPrimary);
-          return primary
-            ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${primary.url}`
-            : `https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg`;
-        })()
-      : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
+  const primaryImage = property?.images?.length > 0
+    ? (() => {
+      const primary = property.images.find((img) => img.isPrimary);
+      return getPropertyImageUrlWithFallback(primary?.url);
+    })()
+    : getPropertyImageUrlWithFallback();
 
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
@@ -94,6 +92,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           src={primaryImage}
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={handleImageError}
         />
         <div className="absolute top-3 left-3">
           <span

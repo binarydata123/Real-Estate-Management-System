@@ -16,8 +16,19 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["localhost", "images.unsplash.com"],
     remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5001",
+        pathname: "/images/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
       {
         protocol: "https",
         hostname: "images.pexels.com",

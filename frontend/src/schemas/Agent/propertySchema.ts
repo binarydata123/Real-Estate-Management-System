@@ -25,6 +25,15 @@ const optionalNumber = z.preprocess(
     z.number({ message: "Invalid number" }).min(0)
 ).optional();
 
+// For required numeric fields that should reject zero values
+const requiredPositiveNumber = z.preprocess(
+    (val) =>
+        (val === "" || val === null || val === undefined || (typeof val === "number" && isNaN(val)))
+            ? undefined
+            : Number(val),
+    z.number({ message: "Invalid number" }).min(1, "Value must be greater than 0")
+).optional();
+
 export const propertySchema = z.object({
     title: z.string().min(1, 'Title required'),
     description: z.string().trim().optional(),
@@ -36,7 +45,7 @@ export const propertySchema = z.object({
     }).refine((val) => !!val, { message: "Please select a property category." }),
 
     location: z.string().optional(),
-    price: optionalNumber,
+    price: requiredPositiveNumber,
 
     // Area & Configuration
     built_up_area: optionalNumber,

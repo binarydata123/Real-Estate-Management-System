@@ -20,30 +20,41 @@ const storage = (folderName) =>
     });
 
 const processAndSaveImages = async (file, folderName) => {
-    const sizes = [
-        { suffix: 'extraSmall', width: 50, height: 50 },
-        { suffix: 'small', width: 200 },
-        { suffix: 'medium', width: 400 }
-    ];
+    try {
+        const sizes = [
+            { suffix: 'extraSmall', width: 50, height: 50 },
+            { suffix: 'small', width: 200 },
+            { suffix: 'medium', width: 400 }
+        ];
 
-    const imagePath = file.path;
-    const fileName = file.filename;
-    const originalFilePath = `src/storage/${folderName}/original/${fileName}`;
+        const imagePath = file.path;
+        const fileName = file.filename;
+        const originalFilePath = `src/storage/${folderName}/original/${fileName}`;
 
-    // Save the original image
-    const originalImageBuffer = await sharp(imagePath).toBuffer();
-    await fs.writeFile(originalFilePath, originalImageBuffer);
+        console.log('Processing image:', fileName, 'from path:', imagePath);
 
-    // Process and save resized images
-    for (const size of sizes) {
-        const resizedImageBuffer = await sharp(originalFilePath).resize(size.width, size.height).toBuffer();
-        const folderPath = `src/storage/${folderName}/${size.suffix}`;
-        const filePath = `${folderPath}/${fileName}`;
-        await fs.mkdir(folderPath, { recursive: true });
-        await fs.writeFile(filePath, resizedImageBuffer);
+        // Ensure the original directory exists
+        await fs.mkdir(`src/storage/${folderName}/original`, { recursive: true });
+
+        // Save the original image
+        const originalImageBuffer = await sharp(imagePath).toBuffer();
+        await fs.writeFile(originalFilePath, originalImageBuffer);
+
+        // Process and save resized images
+        for (const size of sizes) {
+            const resizedImageBuffer = await sharp(originalFilePath).resize(size.width, size.height).toBuffer();
+            const folderPath = `src/storage/${folderName}/${size.suffix}`;
+            const filePath = `${folderPath}/${fileName}`;
+            await fs.mkdir(folderPath, { recursive: true });
+            await fs.writeFile(filePath, resizedImageBuffer);
+        }
+
+        console.log('Successfully processed image:', fileName);
+        return fileName;
+    } catch (error) {
+        console.error('Error processing image:', file.filename, error);
+        throw error;
     }
-
-    return fileName;
 };
 
 const processAndSavePDF = async (file, folderName) => {
@@ -121,18 +132,23 @@ export const createUpload = (folderName) => {
 
         multiple: (fieldName, maxCount) => async (req, res, next) => {
             upload.array(fieldName, maxCount)(req, res, async (err) => {
-                if (err) return res.status(500).json({ message: 'Error uploading files', status: false });
+                if (err) {
+                    console.error('Multer upload error:', err);
+                    return res.status(500).json({ message: 'Error uploading files', status: false });
+                }
                 try {
+                    console.log('Files received:', req.files ? req.files.length : 0);
                     if (req.files && req.files.length > 0) {
                         req.uploadedFilenames = [];
                         for (const file of req.files) {
+                            console.log('Processing file:', file.originalname, 'Type:', file.mimetype);
                             const filename = await processAndSaveImages(file, folderName);
                             req.uploadedFilenames.push(filename);
                         }
                     }
                     next();
                 } catch (error) {
-                    console.error(error);
+                    console.error('File processing error:', error);
                     return res.status(500).json({ message: 'Error processing files', status: false });
                 }
             });

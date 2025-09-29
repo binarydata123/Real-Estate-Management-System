@@ -54,7 +54,13 @@ const SignupForm = () => {
         setError(null);
 
         try {
-            const response = await registerAgency(data);
+            // Add userId field that the backend expects
+            const registrationData = {
+                ...data,
+                userId: data.email, // Use email as userId for now
+            };
+
+            const response = await registerAgency(registrationData);
             alert(response.data.message || 'Agency created successfully! Please check your email to verify your account.');
             // router.push('/auth/login');
         } catch (error: unknown) {  // ✅ use unknown instead of any

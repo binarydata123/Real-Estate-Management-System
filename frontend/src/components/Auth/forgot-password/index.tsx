@@ -34,10 +34,9 @@ export default function ForgotPassword() {
 
         try {
             console.log("Forgot password submitted:", data);
-            // TODO: Call API to send reset link
-            // Simulate API call for demo
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            setSuccess("If an account with that email exists, a password reset link has been sent.");
+            // Call the actual API endpoint
+            const response = await axios.post('http://localhost:5001/api/auth/forgot-password', data);
+            setSuccess(response.data.message || "If an account with that email exists, a password reset link has been sent.");
         } catch (error: unknown) {  // ✅ use unknown instead of any
             if (axios.isAxiosError(error) && error.response) {
                 // Error from the backend
