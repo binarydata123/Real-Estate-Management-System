@@ -179,6 +179,34 @@ declare global {
     message?: string;
     pagination?: Pagination;
   }
+
+  interface AgencyResponse {
+    success: boolean;
+    data: AgencyFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface AgencyFormData {
+    _id: string;
+    name: string;
+    slug: string;
+    owner: string;
+    email: string | "";
+    phone?: string;
+    status: string;
+    teamMembers?: [],
+    createdAt: Date;
+    updatedAt: Date;
+    properties?: [],
+  }
+
+  interface PropertyResponse {
+    success: boolean;
+    data: AgencyFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
 }
 
 export {
@@ -193,4 +221,6 @@ export {
   BeforeInstallPromptEvent,
   Pagination,
   SharePropertyFormData,
+  AgencyResponse,
+  AgencyFormData
 };
