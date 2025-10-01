@@ -53,7 +53,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
 
     const dataWithAgency = {
       ...data,
-      agencyId: user._id,
+      agencyId: user?._id,
     };
 
     setLoading(true);

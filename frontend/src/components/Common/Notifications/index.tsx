@@ -92,7 +92,7 @@ const NotificationsPage: React.FC = () => {
       const typeParam: NotificationFilter | undefined =
         activeTab === "all" ? undefined : activeTab;
 
-      const res = await getNotifications(user._id, {
+      const res = await getNotifications(user?._id, {
         type: typeParam,
         page: currentPage,
         limit: 10,
@@ -181,11 +181,10 @@ const NotificationsPage: React.FC = () => {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 rounded-t-lg ${
-              activeTab === tab.key
+            className={`px-4 py-2 rounded-t-lg ${activeTab === tab.key
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             {tab.label}
           </button>
