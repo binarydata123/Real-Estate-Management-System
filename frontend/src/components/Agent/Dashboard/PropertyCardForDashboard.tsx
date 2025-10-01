@@ -9,6 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import Image from "next/image";
+import { getPropertyImageUrlWithFallback, handleImageError } from "@/lib/imageUtils";
 
 interface PropertyCardProps {
   property: Property;
@@ -55,10 +56,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
     "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
 
   const getImageUrl = (url: string) => {
-    if (url.startsWith("http")) {
-      return url; // already a full external URL
-    }
-    return `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${url}`;
+    return getPropertyImageUrlWithFallback(url);
   };
   return (
     <div
@@ -73,6 +71,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
           src={getImageUrl(primaryImage)}
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={handleImageError}
         />
         <div className="absolute md:top-3 md:left-3 top-2 left-2">
           <span
@@ -122,7 +121,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
           </div>
 
           {/* Property Details */}
-          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs md:text-sm text-gray-600 md:mt-1 md:mt-3">
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs md:text-sm text-gray-600 md:mt-1">
             <span className="bg-gray-100 px-2 py-0.5 rounded capitalize">
               {property.category}
             </span>

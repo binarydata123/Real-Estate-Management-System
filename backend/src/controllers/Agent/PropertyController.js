@@ -4,8 +4,7 @@ import { sendPushNotification } from "../../utils/pushService.js";
 
 export const createProperty = async (req, res) => {
   try {
-    const { body, files } = req;
-    console.log(body);
+
     const imageEntries = files.map((file, index) => ({
       url: file.filename,
       alt: file.originalname,
@@ -50,7 +49,12 @@ export const createProperty = async (req, res) => {
       propertyData.agencyId = propertyData.agencyId[0];
     }
 
-    // The 'agency' field is expected to be in the body from the frontend
+    // Get agencyId from the authenticated user if not provided in the request
+    if (!propertyData.agencyId && req.user && req.user.agencyId) {
+      propertyData.agencyId = req.user.agencyId;
+    }
+
+    // The 'agency' field is expected to be in the body from the frontend or from authenticated user
     if (!propertyData.agencyId) {
       return res
         .status(400)
@@ -101,7 +105,8 @@ export const createProperty = async (req, res) => {
 
 export const updateProperty = async (req, res) => {
   try {
-    const { body, files } = req;
+    const { body } = req;
+    const files = req.files || [];
     const { id: propertyId } = req.params;
 
     // 1. Find the existing property

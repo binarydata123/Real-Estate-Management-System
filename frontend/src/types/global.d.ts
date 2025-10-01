@@ -22,6 +22,7 @@ declare global {
     password: string;
     agencyName: string;
     agencySlug: string;
+    userId?: string; // Optional field for backend compatibility
   }
 
   interface LoginData {

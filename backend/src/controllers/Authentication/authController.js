@@ -65,7 +65,7 @@ const registrationController = {
 
       // 5. Create a welcome notification
       const notification = new Notification({
-        user: createdUser._id,
+        userId: createdUser._id,
         agencyId: createdAgency._id,
         message: `Welcome to ${agencyName}! Your agency is set up and ready to go.`,
         type: "welcome",
@@ -138,13 +138,13 @@ const registrationController = {
           role: user.role,
           agency: user.agencyId
             ? {
-                _id: user.agencyId._id,
-                name: user.agencyId.name,
-                slug: user.agencyId.slug,
-                email: user.agencyId.email,
-                phone: user.agencyId.phone,
-                logoUrl: user.agencyId.logoUrl,
-              }
+              _id: user.agencyId._id,
+              name: user.agencyId.name,
+              slug: user.agencyId.slug,
+              email: user.agencyId.email,
+              phone: user.agencyId.phone,
+              logoUrl: user.agencyId.logoUrl,
+            }
             : null,
         },
       });
@@ -189,13 +189,13 @@ const registrationController = {
           role: user.role,
           agency: user.agencyId
             ? {
-                _id: user.agencyId._id,
-                name: user.agencyId.name,
-                slug: user.agencyId.slug,
-                email: user.agencyId.email,
-                phone: user.agencyId.phone,
-                logoUrl: user.agencyId.logoUrl,
-              }
+              _id: user.agencyId._id,
+              name: user.agencyId.name,
+              slug: user.agencyId.slug,
+              email: user.agencyId.email,
+              phone: user.agencyId.phone,
+              logoUrl: user.agencyId.logoUrl,
+            }
             : null,
         },
       });

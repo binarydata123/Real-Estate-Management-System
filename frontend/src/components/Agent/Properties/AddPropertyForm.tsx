@@ -595,7 +595,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         <FormSection title="Basic Information">
                             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                                 {isEditMode && (
-                                    <div className="col-span-4">
+                                    <div className="col-span-2">
                                         <Field label="Property Title" required error={errors.title}>
                                             <input
                                                 {...register('title')}

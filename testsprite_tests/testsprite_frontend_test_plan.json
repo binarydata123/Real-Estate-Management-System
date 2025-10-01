@@ -1,0 +1,590 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Signup with Valid Data",
+    "description": "Verify that a new user (agent or client) can successfully sign up with valid registration details passing all Zod validations.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the signup page"
+      },
+      {
+        "type": "action",
+        "description": "Input valid user information adhering to all form fields and validation rules"
+      },
+      {
+        "type": "action",
+        "description": "Submit the signup form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user account is created and redirected to the appropriate landing page"
+      },
+      {
+        "type": "assertion",
+        "description": "Check confirmation email or welcome message is present"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Signup with Invalid Data",
+    "description": "Verify the signup form prevents submission and shows validation errors when provided with invalid or incomplete data.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the signup page"
+      },
+      {
+        "type": "action",
+        "description": "Input invalid/partial user data (e.g., missing required fields, invalid email format)"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit the signup form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the form is not submitted and appropriate validation messages are displayed inline"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "User Login with Correct Credentials",
+    "description": "Verify that users can login successfully using valid credentials.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the login page"
+      },
+      {
+        "type": "action",
+        "description": "Enter registered email and correct password"
+      },
+      {
+        "type": "action",
+        "description": "Click the login button"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm successful login status and redirection to user dashboard"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "User Login with Incorrect Credentials",
+    "description": "Ensure the application handles incorrect login attempts and displays appropriate error messages.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page"
+      },
+      {
+        "type": "action",
+        "description": "Enter registered email and incorrect password"
+      },
+      {
+        "type": "action",
+        "description": "Click login button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login failure with displayed error message indicating invalid credentials"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Password Recovery Flow",
+    "description": "Verify that users can initiate a password reset request and receive password recovery instructions.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the forgot password page"
+      },
+      {
+        "type": "action",
+        "description": "Input registered email address"
+      },
+      {
+        "type": "action",
+        "description": "Submit the password recovery form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the system displays a confirmation that password reset instructions were sent"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "CRUD Operations for Property Management",
+    "description": "Test the creation, retrieval, update, and deletion of property listings by agents, including form validations and UI updates.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an agent and navigate to the Properties section"
+      },
+      {
+        "type": "action",
+        "description": "Create a new property with valid details"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the property appears in the list with correct details"
+      },
+      {
+        "type": "action",
+        "description": "Edit the property details and save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated details are reflected correctly"
+      },
+      {
+        "type": "action",
+        "description": "Delete the property"
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure property is removed from the list and database"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Property Filtering and Search Functionality",
+    "description": "Validate that property filtering and search return accurate, relevant, and responsive results based on multiple criteria.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to properties listing page"
+      },
+      {
+        "type": "action",
+        "description": "Apply various filters like price range, location, property type, and status"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the listed properties match filter criteria correctly"
+      },
+      {
+        "type": "action",
+        "description": "Input search keywords and submit"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm results accurately match search terms"
+      },
+      {
+        "type": "action",
+        "description": "Clear filters and search"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify entire property list is displayed again"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Client Favorite Properties Management",
+    "description": "Check that clients can add and remove properties from their favorites and that favorites persist across sessions.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a client and browse available properties"
+      },
+      {
+        "type": "action",
+        "description": "Add a property to favorites"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the property is marked as favorite and listed in favorites section"
+      },
+      {
+        "type": "action",
+        "description": "Remove the property from favorites"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the property is no longer in the favorites list"
+      },
+      {
+        "type": "action",
+        "description": "Logout and login again"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that favorites reflect previous state accurately"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Client-Agent Communication via Contact Interface",
+    "description": "Verify that clients can send messages to agents through the interface and messages are received and displayed correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a client and navigate to a property's agent contact form"
+      },
+      {
+        "type": "action",
+        "description": "Compose and send a message to the agent"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify message is sent successfully and confirmed in UI"
+      },
+      {
+        "type": "action",
+        "description": "Login as the corresponding agent"
+      },
+      {
+        "type": "assertion",
+        "description": "Check the message is received and viewable in client communications"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Agent Profile and Dashboard Analytics Display",
+    "description": "Ensure agent profiles load correctly and dashboard displays accurate statistics, reminders, and charts with Chart.js and Recharts.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an agent"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the profile and dashboard pages"
+      },
+      {
+        "type": "assertion",
+        "description": "Validate the profile displays correct personal and agency information"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard statistics and graphical data accurately reflect backend data"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Admin Panel - User and Agency Management",
+    "description": "Verify that administrators can view, add, edit, and disable users and agencies and that changes persist and update immediately.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an admin user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to user management panel"
+      },
+      {
+        "type": "action",
+        "description": "Add a new user with valid details"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm user is added and appears in the list immediately"
+      },
+      {
+        "type": "action",
+        "description": "Edit an existing user's details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated details persist and display correctly"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate a user and confirm status change"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to agency management and perform add/edit operations similarly"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify agency changes are persisted and accurately reflected in UI"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Team Management - Agent Invitation Flow",
+    "description": "Validate that agents can invite others securely, that invitations are delivered, and invitees can accept to join teams.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an agent and open team management module"
+      },
+      {
+        "type": "action",
+        "description": "Send an invitation to another agent's email with a secure invite link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that invitation email is sent and recorded"
+      },
+      {
+        "type": "action",
+        "description": "As the invited agent, accept the invitation from the received link"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that team membership updates for both the inviter and invitee"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Settings & Preferences Update",
+    "description": "Test that users can update notification, security, and general settings and that changes apply appropriately.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as any user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the settings and preferences page"
+      },
+      {
+        "type": "action",
+        "description": "Modify notification preferences and security settings"
+      },
+      {
+        "type": "action",
+        "description": "Save the settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify settings are saved and apply immediately according to user preferences"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Notification System - Push and In-App Notifications",
+    "description": "Verify that push and in-app notifications are delivered timely, respect user preferences, and can be managed/subscribed/unsubscribed correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and ensure notifications are enabled in user preferences"
+      },
+      {
+        "type": "action",
+        "description": "Trigger typical notification events (e.g., new message, meeting reminder)"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm notifications appear in-app and as push notifications if subscribed"
+      },
+      {
+        "type": "action",
+        "description": "Change notification subscription settings to disable push notifications"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify push notifications are no longer received but in-app continue as normal"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Meeting Scheduling and Editing with Calendar Integration",
+    "description": "Validate agents can schedule, edit, and delete meetings using forms and ensure synchronization with calendar components.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an agent and navigate to meeting management"
+      },
+      {
+        "type": "action",
+        "description": "Schedule a new meeting filling valid form data"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm meeting is added and shown on calendar interface"
+      },
+      {
+        "type": "action",
+        "description": "Edit the meeting details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updates reflect on the calendar"
+      },
+      {
+        "type": "action",
+        "description": "Delete the meeting"
+      },
+      {
+        "type": "assertion",
+        "description": "Check the meeting is removed from calendar and meeting list"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Property Sharing Workflow",
+    "description": "Test that agents can share property details via modal dialogs and API integration, and recipients receive correct shared information.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an agent and select a property to share"
+      },
+      {
+        "type": "action",
+        "description": "Open the share property modal and enter recipient details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the share form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify confirmation of successful share"
+      },
+      {
+        "type": "assertion",
+        "description": "Check recipient receives property information as expected"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Form Validation Using Zod Schemas Across Modules",
+    "description": "Ensure that all user input forms for properties, customers, meetings, sharing, and preferences strictly enforce validation rules via Zod schemas.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to submit forms across the system with invalid, missing, or malformed data for each module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation errors are shown preventing submission"
+      },
+      {
+        "type": "action",
+        "description": "Submit forms with valid data"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm successful form submission and expected data processing"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "API Integration Error Handling and Response Validation",
+    "description": "Test the centralized API layer's behavior when receiving various errors such as network failure, unauthorized access, and invalid data responses.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate failed API calls including network timeout, 401 Unauthorized, and 400 Bad Request responses"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify frontend handles errors gracefully with user-friendly messages and no crashes"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm retry mechanisms or redirects function correctly where applicable"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Cross-Browser Compatibility and Responsive UI",
+    "description": "Verify the application renders and functions correctly across major browsers (Chrome, Firefox, Safari, Edge) and on various screen sizes (desktop, tablet, mobile).",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open application in each supported browser on desktop"
+      },
+      {
+        "type": "assertion",
+        "description": "Check all UI components render correctly without layout issues"
+      },
+      {
+        "type": "action",
+        "description": "Use responsive mode or actual devices for tablet and mobile screen sizes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI adapts appropriately to screen size with navigation and components accessible"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Reusability and Functionality of Common UI Components",
+    "description": "Test common UI components such as forms, modals, pagination, and search inputs to ensure consistent behavior and reusability across the application.",
+    "category": "functional",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access different modules using common components (e.g., open modals in property and customer modules)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify common components behave consistently and integrate smoothly"
+      },
+      {
+        "type": "action",
+        "description": "Test pagination and search input behavior on large data sets"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm expected results and performance"
+      }
+    ]
+  }
+]

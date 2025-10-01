@@ -7,7 +7,30 @@ import { sendPushNotification } from "../../utils/pushService.js";
 // Create a new customer
 export const createCustomer = async (req, res) => {
   try {
-    const customer = new Customer(req.body);
+    // Validate required fields
+    const { fullName, email, phoneNumber, agencyId } = req.body;
+
+    if (!fullName) {
+      return res.status(400).json({
+        success: false,
+        message: "Full name is required"
+      });
+    }
+
+    // Add agencyId from the authenticated user if not provided
+    const customerData = {
+      ...req.body,
+      agencyId: agencyId || req.user.agencyId
+    };
+
+    if (!customerData.agencyId) {
+      return res.status(400).json({
+        success: false,
+        message: "Agency ID is required"
+      });
+    }
+
+    const customer = new Customer(customerData);
     const savedCustomer = await customer.save();
     const defaultPassword = "Pa$$w0rd!";
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
@@ -31,7 +54,7 @@ export const createCustomer = async (req, res) => {
     });
     await createNotification({
       agencyId: savedCustomer.agencyId,
-      userId: savedCustomer.agencyId,
+      userId: req.user._id,
       message: `A new customer lead (${savedCustomer.fullName}) has been created successfully.`,
       type: "new_lead",
     });
@@ -43,7 +66,7 @@ export const createCustomer = async (req, res) => {
     });
 
     await sendPushNotification({
-      userId: savedCustomer.agencyId,
+      userId: savedUser._id,
       title: "Welcome to Our Platform 🎉",
       message: `Hi ${savedUser.name}, your account has been created successfully! Use your email to log in with the default password.`,
       urlPath: "login",
@@ -75,14 +98,14 @@ export const getCustomers = async (req, res) => {
     const limitNumber = parseInt(limit);
     const searchQuery = search
       ? {
-          agencyId: userId,
-          $or: [
-            { fullName: { $regex: search, $options: "i" } },
-            { email: { $regex: search, $options: "i" } },
-            { whatsAppNumber: { $regex: search, $options: "i" } },
-            { phoneNumber: { $regex: search, $options: "i" } },
-          ],
-        }
+        agencyId: userId,
+        $or: [
+          { fullName: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { whatsAppNumber: { $regex: search, $options: "i" } },
+          { phoneNumber: { $regex: search, $options: "i" } },
+        ],
+      }
       : { agencyId: userId };
 
     const totalCustomers = await Customer.countDocuments(searchQuery);

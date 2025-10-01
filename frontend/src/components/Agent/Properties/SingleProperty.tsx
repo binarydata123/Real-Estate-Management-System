@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
+import { MicrophoneIcon, StopCircleIcon, SpeakerWaveIcon, PauseIcon, PlayIcon } from "@heroicons/react/24/solid";
+import axios from "axios";
 
 interface Images {
   url: string;
@@ -116,18 +119,176 @@ const SingleProperty: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<Images>(
     propertyData.images[0]
   );
-  const [thumbStart, setThumbStart] = useState(0);
-  const thumbsPerPage = 5;
 
-  const handlePrevThumbs = () => {
-    setThumbStart((prev) => Math.max(prev - thumbsPerPage, 0));
+  // --- AI Voice Assistant State & Logic ---
+  const [isListening, setIsListening] = useState(false);
+  const [assistantStatus, setAssistantStatus] = useState("idle"); // idle, listening, thinking, speaking
+  const [assistantResponse, setAssistantResponse] = useState("");
+  const [isSummaryPaused, setIsSummaryPaused] = useState(false);
+  const [error, setError] = useState("");
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const recognitionRef = useRef<any>(null);
+
+  // --- Voice Loading Effect ---
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      if (availableVoices.length > 0) {
+      }
+    };
+
+    // The voices are loaded asynchronously.
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices(); // Also call it directly in case they are already loaded.
+
+    // Initialize AudioContext on user interaction (best practice)
+    const initAudioContext = () => {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      document.removeEventListener('click', initAudioContext);
+    };
+    document.addEventListener('click', initAudioContext);
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+      document.removeEventListener('click', initAudioContext);
+    };
+  }, []);
+
+  const formatIndianPrice = (price: number): string => {
+    if (price >= 10000000) {
+      return `${(price / 10000000).toFixed(2)} crore`;
+    } else if (price >= 100000) {
+      return `${(price / 100000).toFixed(2)} lakh`;
+    }
+    return price.toLocaleString("en-IN");
   };
 
-  const handleNextThumbs = () => {
-    setThumbStart((prev) =>
-      Math.min(prev + thumbsPerPage, propertyData.images.length - thumbsPerPage)
-    );
+
+  const speak = async (text: string, onEndCallback?: () => void) => {
+    if (!audioContextRef.current) {
+      setError("Audio context not ready. Please click anywhere on the page first.");
+      return;
+    }
+    setAssistantStatus("speaking");
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/assistant/speak`, { text }, { responseType: 'arraybuffer' });
+      const audioBuffer = await audioContextRef.current.decodeAudioData(response.data);
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContextRef.current.destination);
+      source.onended = onEndCallback || (() => setAssistantStatus("idle"));
+      source.start(0);
+      audioSourceRef.current = source;
+    } catch (err) {
+      console.error("Error fetching or playing speech:", err);
+      setError("Sorry, I couldn't generate the audio for that.");
+      setAssistantStatus("idle");
+    }
   };
+
+  const handleQuestion = async (question: string) => {
+    setAssistantStatus("thinking");
+    setError("");
+    setAssistantResponse("");
+
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/assistant/ask`, {
+        question,
+        propertyData,
+      });
+
+      if (response.data && response.data.answer) {
+        setAssistantResponse(response.data.answer);
+        speak(response.data.answer, () => setAssistantStatus("idle"));
+      } else {
+        throw new Error("No answer received from the assistant.");
+      }
+    } catch (err) {
+      const errorMessage = "Sorry, I couldn't process that. Please try again.";
+      setError(errorMessage);
+      setAssistantStatus("idle");
+      console.error("Error with AI Assistant:", err);
+    }
+  };
+
+  const generateSummaryText = useCallback((property: Property): string => {
+    return `Discover your dream home! The "${property.title}" is a stunning ${property.category} located in ${property.location}.
+  Priced at just ${formatIndianPrice(property.price)}, this property offers ${property.bedrooms} spacious bedrooms,
+  modern amenities like ${property.amenities.join(", ")}, and features such as ${property.features.join(", ")}.
+  With a beautiful ${property.facing} facing and overlooking ${property.overlooking.join(", ")},
+  it's perfect for families seeking comfort and luxury. Don't miss this opportunity—schedule a visit today!`;
+  }, []);
+
+  const handleSpeakSummary = useCallback(() => {
+    if (!audioContextRef.current) {
+      setError("Audio context not ready. Please click anywhere on the page first.");
+      return;
+    }
+    if (assistantStatus === 'speaking') {
+      stopAll();
+      return;
+    }
+
+    // If idle, start speaking the summary
+    const speechText = generateSummaryText(propertyData);
+    speak(speechText, () => { setAssistantStatus("idle"); setIsSummaryPaused(false); });
+  }, [assistantStatus, generateSummaryText, speak]);
+
+  const toggleListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition; // For browser compatibility
+    if (!SpeechRecognition) {
+      setError("Voice recognition is not supported in this browser.");
+      return;
+    }
+
+    const recognition = recognitionRef.current || new SpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setAssistantStatus("listening");
+    };
+    recognition.onresult = (event: any) => {
+      const question = event.results[0][0].transcript;
+      setIsListening(false); // Stop listening visually once a result is received
+      handleQuestion(question);
+    };
+    recognition.onend = () => {
+      setIsListening(false);
+      setAssistantStatus((currentStatus) => (currentStatus === 'listening' ? 'idle' : currentStatus));
+    };
+    recognition.onerror = (event: any) => {
+      if (event.error !== 'no-speech') {
+        setError(`Error during recognition: ${event.error}`);
+      }
+      setAssistantStatus("idle");
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const stopAll = () => {
+    if (audioSourceRef.current) {
+      audioSourceRef.current.stop();
+    }
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    setIsListening(false);
+    setIsSummaryPaused(false);
+    setAssistantStatus("idle");
+  };
+
+  useEffect(() => {
+    // Cleanup function to stop speech and recognition when the component unmounts
+    return () => stopAll(); // Cleanup on unmount
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-xl">
@@ -147,8 +308,8 @@ const SingleProperty: React.FC = () => {
             const idx = propertyData.images.indexOf(selectedImage);
             setSelectedImage(
               propertyData.images[
-                (idx - 1 + propertyData.images.length) %
-                  propertyData.images.length
+              (idx - 1 + propertyData.images.length) %
+              propertyData.images.length
               ]
             );
           }}
@@ -171,7 +332,7 @@ const SingleProperty: React.FC = () => {
       </div>
 
       {/* Thumbnail Images */}
-      <div className="flex items-center gap-2 mb-6">
+      {/* <div className="flex items-center gap-2 mb-6">
         <button
           onClick={handlePrevThumbs}
           className="px-2 py-1 bg-gray-200 rounded"
@@ -187,11 +348,10 @@ const SingleProperty: React.FC = () => {
               key={idx}
               src={img.url}
               alt={img.alt || propertyData.title}
-              className={`w-20 h-20 object-cover rounded-lg cursor-pointer border ${
-                selectedImage.url === img.url
-                  ? "border-blue-500"
-                  : "border-gray-200"
-              }`}
+              className={`w-20 h-20 object-cover rounded-lg cursor-pointer border ${selectedImage.url === img.url
+                ? "border-blue-500"
+                : "border-gray-200"
+                }`}
               onClick={() => setSelectedImage(img)}
             />
           ))}
@@ -201,13 +361,68 @@ const SingleProperty: React.FC = () => {
         >
           Next
         </button>
-      </div>
+      </div> */}
 
       {/* Basic Info */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2 text-gray-800">
           {propertyData.title}
         </h1>
+        {/* AI Assistant Section */}
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleListening}
+                disabled={isListening || assistantStatus !== 'idle'}
+                className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                title="Ask a question"
+              >
+                <MicrophoneIcon className="h-6 w-6" />
+              </button>
+              <button
+                onClick={handleSpeakSummary}
+                disabled={isListening || assistantStatus === 'thinking' || (assistantStatus === 'speaking' && !isSummaryPaused && assistantResponse)}
+                className="flex items-center justify-center w-12 h-12 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                title="Read Full Summary"
+              >
+                {assistantStatus === 'speaking' && !isSummaryPaused && !assistantResponse ? <PauseIcon className="h-6 w-6" /> :
+                  assistantStatus === 'speaking' && isSummaryPaused && !assistantResponse ? <PlayIcon className="h-6 w-6" /> :
+                    <SpeakerWaveIcon className="h-6 w-6" />}
+              </button>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-gray-700">AI Assistant</p>
+              <div className="text-sm text-gray-500">
+                {assistantStatus === 'listening' && <p>Listening for your question...</p>}
+                {assistantStatus === 'thinking' && <p>Thinking...</p>}
+                {assistantStatus === 'speaking' && assistantResponse && <p>Answering your question...</p>}
+                {assistantStatus === 'speaking' && !assistantResponse && (
+                  <p>
+                    Reading property summary...
+                    {isSummaryPaused && <span className="font-semibold text-orange-600"> (Paused)</span>}
+                  </p>
+                )}
+                {assistantStatus === 'idle' && (
+                  <p>
+                    Click the <span className="text-blue-600 font-semibold">blue mic</span> to ask a question, or the{' '}
+                    <span className="text-green-600 font-semibold">green speaker</span> to hear a full summary.
+                  </p>
+                )}
+              </div>
+            </div>
+            {(assistantStatus === 'speaking' ||
+              assistantStatus === 'thinking' ||
+              isListening) && (
+                <button onClick={stopAll} className="text-gray-500 hover:text-red-600" title="Stop">
+                  <StopCircleIcon className="h-8 w-8" />
+                </button>
+              )}
+          </div>
+          {assistantResponse && <p className="mt-3 text-gray-800 bg-blue-50 p-3 rounded-md">{assistantResponse}</p>}
+          {error && <p className="mt-3 text-red-600 text-sm">{error}</p>}
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-600">
           <p>
             Type:{" "}

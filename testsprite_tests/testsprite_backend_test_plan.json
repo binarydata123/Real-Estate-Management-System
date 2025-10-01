@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "test_register_new_agency",
+    "description": "Verify that a new agency can be registered successfully with valid input data and returns HTTP status 201."
+  },
+  {
+    "id": "TC002",
+    "title": "test_user_login",
+    "description": "Verify that a user can login successfully with valid credentials and receives a JWT token with HTTP status 200."
+  },
+  {
+    "id": "TC003",
+    "title": "test_check_user_session",
+    "description": "Verify that the user session check endpoint returns HTTP status 200 for a valid JWT token and 401 for invalid or missing token."
+  },
+  {
+    "id": "TC004",
+    "title": "test_create_property_with_images",
+    "description": "Verify that a property can be created with valid data including image uploads and returns HTTP status 201."
+  },
+  {
+    "id": "TC005",
+    "title": "test_get_all_properties",
+    "description": "Verify that all properties can be retrieved successfully with valid authentication and returns HTTP status 200."
+  },
+  {
+    "id": "TC006",
+    "title": "test_update_property_details",
+    "description": "Verify that an existing property can be updated with valid data and returns HTTP status 200."
+  },
+  {
+    "id": "TC007",
+    "title": "test_delete_property",
+    "description": "Verify that a property can be deleted successfully by its ID and returns HTTP status 200."
+  },
+  {
+    "id": "TC008",
+    "title": "test_create_customer",
+    "description": "Verify that a new customer can be created with valid data and returns HTTP status 201."
+  },
+  {
+    "id": "TC009",
+    "title": "test_schedule_meeting",
+    "description": "Verify that a meeting can be scheduled with valid customer, property, date, and notes and returns HTTP status 201."
+  },
+  {
+    "id": "TC010",
+    "title": "test_share_property_with_customer",
+    "description": "Verify that an agent can share a property with a customer including a message and returns HTTP status 201."
+  }
+]
