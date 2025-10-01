@@ -62,7 +62,7 @@ export const Customers: React.FC = () => {
       if (!user?._id) return;
       try {
         setLoading(true);
-        const res = await getCustomers(user._id, page, limit, search);
+        const res = await getCustomers(user?._id, page, limit, search);
         if (res.success) {
           setCustomers(res.data);
           setCurrentPage(res.pagination?.page ?? 1);
@@ -303,7 +303,11 @@ export const Customers: React.FC = () => {
             setEditingCustomer(null);
             getAllCustomers();
           }}
-          initialData={editingCustomer ?? undefined}
+          initialData={
+            editingCustomer
+              ? { ...editingCustomer, name: editingCustomer.fullName }
+              : undefined
+          }
           customerId={editingCustomer?._id}
         />
       )}

@@ -382,7 +382,7 @@ const SingleProperty: React.FC = () => {
               </button>
               <button
                 onClick={handleSpeakSummary}
-                disabled={isListening || assistantStatus === 'thinking' || (assistantStatus === 'speaking' && !isSummaryPaused && assistantResponse)}
+                // disabled={isListening || assistantStatus === 'thinking' || (assistantStatus === 'speaking' && !isSummaryPaused && assistantResponse)}
                 className="flex items-center justify-center w-12 h-12 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 title="Read Full Summary"
               >
