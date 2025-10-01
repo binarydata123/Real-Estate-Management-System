@@ -117,10 +117,10 @@ select:focus-visible {
     /* 0.5rem */
   }
 
-  .flex input {
-    height: 36px !important;
-    /* 2.25rem */
+  .flex input:not([type="checkbox"]) {
+    height: 34px !important;
   }
+
 
   svg:not(.logo-svg, .header-icon) {
     width: 15px !important;

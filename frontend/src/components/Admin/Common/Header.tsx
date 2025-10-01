@@ -2,13 +2,11 @@ import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import {
   BellIcon,
-  ChevronDownIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon // Import Bars3Icon for mobile menu
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
-import { useAgency } from '@/context/AgencyContext';
 import { NotificationCenter } from './Notification';
 
 interface HeaderProps {
@@ -17,7 +15,6 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
   const { user, signOut } = useAuth();
-  const { agencies, currentAgency, switchAgency } = useAgency();
   const [showNotifications, setShowNotifications] = React.useState(false);
 
   return (
@@ -44,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
             {/* Right Side */}
             <div className="flex items-center space-x-1 md:space-x-4">
               {/* Agency Switcher */}
-              {agencies.length > 1 && (
+              {/* {agencies.length > 1 && (
                 <Menu as="div" className="relative">
                   <Menu.Button className="flex items-center text-sm text-gray-700 hover:text-gray-900 focus:outline-none">
                     <span className="mr-2">{currentAgency?.name}</span>
@@ -78,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                     </Menu.Items>
                   </Transition>
                 </Menu>
-              )}
+              )} */}
 
               {/* Notifications */}
               <button

@@ -3,7 +3,6 @@ import React from 'react';
 import { Edit, Eye, Trash2, Mail, Briefcase, BarChart2 } from 'lucide-react';
 import Image from 'next/image';
 
-// A more comprehensive user type based on Supabase auth and your DB schema
 export interface UserProfile {
     id: string;
     fullName: string;

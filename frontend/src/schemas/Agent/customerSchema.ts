@@ -1,14 +1,26 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const customerSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    whatsapp: z.string().optional(),
-    email: z.string().email('Invalid email').optional().or(z.literal('')),
-    phone: z.string().optional(),
-    budget_min: z.number().min(0, 'Budget must be positive').optional(),
-    budget_max: z.number().min(0, 'Budget must be positive').optional(),
-    source: z.enum(['website', 'referral', 'social_media', 'advertisement', 'walk_in', 'cold_call', 'other']),
-    notes: z.string().optional(),
+  fullName: z.string().min(1, "fullName is required"),
+  name: z.string().min(1, "Name is required"),
+  whatsAppNumber: z.string().optional(),
+  email: z.string().min(1, "Email is required").email("Invalid email"),
+  phoneNumber: z.string().optional(),
+  minimumBudget: z.number().min(0, "Budget must be positive").optional(),
+  maximumBudget: z.number().min(0, "Budget must be positive").optional(),
+  leadSource: z.enum([
+    "website",
+    "referral",
+    "social_media",
+    "advertisement",
+    "walk_in",
+    "cold_call",
+    "other",
+  ]),
+  initialNotes: z.string().optional(),
+  agencyId: z.string().optional(),
+  role: z.enum(["agent", "agency_admin"]).optional(),
+  phone: z.string().optional(),
 });
 
-export type CustomerFormData = z.infer<typeof customerSchema>;
+export type CustomerFormDataSchema = z.infer<typeof customerSchema>;

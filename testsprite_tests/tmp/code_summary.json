@@ -1,0 +1,779 @@
+{
+    "tech_stack": [
+        "JavaScript",
+        "Node.js",
+        "Express.js",
+        "MongoDB",
+        "Mongoose",
+        "JWT",
+        "bcryptjs",
+        "multer",
+        "cors",
+        "morgan",
+        "node-cron"
+    ],
+    "features": [
+        {
+            "name": "Authentication API",
+            "description": "Handles user registration, login, and session management for agencies and agents",
+            "files": [
+                "src/routes/Authentication/index.js",
+                "src/controllers/Authentication/authController.js",
+                "src/middleware/authMiddleware.js",
+                "src/utils/generateToken.js"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Authentication API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/auth/register-agency": {
+                        "post": {
+                            "summary": "Register a new agency",
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "fullName": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "password": {
+                                                    "type": "string"
+                                                },
+                                                "agencyName": {
+                                                    "type": "string"
+                                                },
+                                                "agencySlug": {
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "201": {
+                                    "description": "Agency registered successfully"
+                                },
+                                "400": {
+                                    "description": "Bad request"
+                                }
+                            }
+                        }
+                    },
+                    "/api/auth/login": {
+                        "post": {
+                            "summary": "Login user",
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "password": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "200": {
+                                    "description": "Login successful"
+                                },
+                                "401": {
+                                    "description": "Invalid credentials"
+                                }
+                            }
+                        }
+                    },
+                    "/api/auth/check-session": {
+                        "get": {
+                            "summary": "Check user session",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Session valid"
+                                },
+                                "401": {
+                                    "description": "Unauthorized"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Property Management API",
+            "description": "CRUD operations for real estate properties with image upload support",
+            "files": [
+                "src/routes/Agent/Property/index.js",
+                "src/controllers/Agent/PropertyController.js",
+                "src/models/Agent/PropertyModel.js",
+                "src/utils/multerConfig.js"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Property Management API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/properties": {
+                        "get": {
+                            "summary": "Get all properties",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Properties retrieved successfully"
+                                }
+                            }
+                        },
+                        "post": {
+                            "summary": "Create a new property",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "multipart/form-data": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "price": {
+                                                    "type": "number"
+                                                },
+                                                "property_type": {
+                                                    "type": "string"
+                                                },
+                                                "location": {
+                                                    "type": "string"
+                                                },
+                                                "images": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "format": "binary"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "201": {
+                                    "description": "Property created successfully"
+                                },
+                                "400": {
+                                    "description": "Bad request"
+                                }
+                            }
+                        }
+                    },
+                    "/api/properties/{id}": {
+                        "get": {
+                            "summary": "Get single property",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Property retrieved successfully"
+                                }
+                            }
+                        },
+                        "put": {
+                            "summary": "Update property",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "multipart/form-data": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "price": {
+                                                    "type": "number"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "200": {
+                                    "description": "Property updated successfully"
+                                }
+                            }
+                        },
+                        "delete": {
+                            "summary": "Delete property",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Property deleted successfully"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Customer Management API",
+            "description": "CRUD operations for managing real estate customers",
+            "files": [
+                "src/routes/Agent/Customer/index.js",
+                "src/controllers/Agent/CustomerController.js",
+                "src/models/Agent/CustomerModel.js"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Customer Management API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/agent/customers/create": {
+                        "post": {
+                            "summary": "Create a new customer",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "type": "string"
+                                                },
+                                                "address": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "201": {
+                                    "description": "Customer created successfully"
+                                }
+                            }
+                        }
+                    },
+                    "/api/agent/customers/get-all": {
+                        "get": {
+                            "summary": "Get all customers",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Customers retrieved successfully"
+                                }
+                            }
+                        }
+                    },
+                    "/api/agent/customers/update/{id}": {
+                        "put": {
+                            "summary": "Update customer",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Customer updated successfully"
+                                }
+                            }
+                        }
+                    },
+                    "/api/agent/customers/delete/{id}": {
+                        "delete": {
+                            "summary": "Delete customer",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Customer deleted successfully"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Meeting Management API",
+            "description": "CRUD operations for managing property meetings and appointments",
+            "files": [
+                "src/routes/Agent/Meetings/index.js",
+                "src/controllers/Agent/MeetingsController.js",
+                "src/models/Agent/MeetingModel.js"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Meeting Management API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/agent/meetings/create": {
+                        "post": {
+                            "summary": "Create a new meeting",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "customerId": {
+                                                    "type": "string"
+                                                },
+                                                "propertyId": {
+                                                    "type": "string"
+                                                },
+                                                "meetingDate": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "notes": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "201": {
+                                    "description": "Meeting created successfully"
+                                }
+                            }
+                        }
+                    },
+                    "/api/agent/meetings/get-all": {
+                        "get": {
+                            "summary": "Get all meetings",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Meetings retrieved successfully"
+                                }
+                            }
+                        }
+                    },
+                    "/api/agent/meetings/update/{id}": {
+                        "put": {
+                            "summary": "Update meeting",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Meeting updated successfully"
+                                }
+                            }
+                        }
+                    },
+                    "/api/agent/meetings/update-status/{id}": {
+                        "put": {
+                            "summary": "Update meeting status",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Meeting status updated successfully"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Property Sharing API",
+            "description": "API for sharing properties with customers and managing shared property access",
+            "files": [
+                "src/routes/Agent/ShareProperty/index.js",
+                "src/controllers/Agent/SharePropertyController.js",
+                "src/models/Agent/PropertyShareModel.js"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Property Sharing API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/agent/shareProperties": {
+                        "post": {
+                            "summary": "Share property with customer",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "propertyId": {
+                                                    "type": "string"
+                                                },
+                                                "customerId": {
+                                                    "type": "string"
+                                                },
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "201": {
+                                    "description": "Property shared successfully"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Notification System API",
+            "description": "Push notifications and in-app notifications management",
+            "files": [
+                "src/routes/Common/Notifications/index.js",
+                "src/controllers/common/notificationController.js",
+                "src/models/Common/NotificationModel.js",
+                "src/utils/pushService.js"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Notification System API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/common/notification": {
+                        "get": {
+                            "summary": "Get notifications",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Notifications retrieved successfully"
+                                }
+                            }
+                        },
+                        "post": {
+                            "summary": "Create notification",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "responses": {
+                                "201": {
+                                    "description": "Notification created successfully"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Push Notification API",
+            "description": "Web push notification subscription and management",
+            "files": [
+                "src/routes/Common/PushNotifications/index.js",
+                "src/controllers/common/pushNotificationController.js",
+                "src/models/Common/PushNotificationSubscription.js"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Push Notification API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/common/push-notification/subscribe": {
+                        "post": {
+                            "summary": "Subscribe to push notifications",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "endpoint": {
+                                                    "type": "string"
+                                                },
+                                                "keys": {
+                                                    "type": "object"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "201": {
+                                    "description": "Subscription created successfully"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "User Management API",
+            "description": "User profile and preferences management",
+            "files": [
+                "src/routes/Common/User/index.js",
+                "src/models/Common/UserModel.js"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "User Management API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/users": {
+                        "get": {
+                            "summary": "Get user profile",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "User profile retrieved successfully"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Preferences API",
+            "description": "User preferences and settings management",
+            "files": [
+                "src/routes/Common/Preference/index.js",
+                "src/controllers/common/preferencesController.js",
+                "src/models/Common/PreferenceModel.js"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Preferences API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/common/preferences": {
+                        "get": {
+                            "summary": "Get user preferences",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Preferences retrieved successfully"
+                                }
+                            }
+                        },
+                        "post": {
+                            "summary": "Update user preferences",
+                            "security": [
+                                {
+                                    "bearerAuth": []
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Preferences updated successfully"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

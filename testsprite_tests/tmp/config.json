@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5001",
+  "backendAuthType": "Bearer token",
+  "backendCredential": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGM1NWQ3YjJkZjc0MDYyYzgzNDFiZjUiLCJyb2xlIjoiQWdlbmN5QWRtaW4iLCJpYXQiOjE3NTg1MTgxOTQsImV4cCI6MTc2MTExMDE5NH0.l73aUH9lTBe-EazWe8Eydlzxd9SYZmbvBRs35tled-w",
+  "executionArgs": {
+    "projectName": "Real-Estate-Management-System",
+    "projectPath": "/opt/lampp/htdocs/Real-Estate-Management-System",
+    "testIds": [],
+    "additionalInstruction": "Final test run after all bug fixes to verify that the Real Estate Management System backend is now fully functional",
+    "envs": {
+      "API_KEY": "sk-user-NT4m4mbcnxXHlNPf6gu3WOGP0fUcbRdBU5jNWX9CcyXFLOJmI8KPls9UrgncOA86Ug3wCciZgPZrCVZeHBo388lkrehkIb3tGPGEHrDWjnYjfBGwgknHLIBuW6s2LCTpLhU"
+    }
+  },
+  "proxy": "http://7519a514-e2e6-43a0-8120-b8c852dd23bc:UkIfYIOQl8QWV25U7rxKAIYpSiVQjdKD@tun.testsprite.com:8080"
+}
