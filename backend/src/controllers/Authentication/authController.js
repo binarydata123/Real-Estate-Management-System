@@ -44,7 +44,7 @@ const registrationController = {
         email,
         password: hashedPassword,
         phone,
-        role: "agency",
+        role: "agent",
       });
       const createdUser = await user.save({ session });
 
