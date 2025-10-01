@@ -80,7 +80,7 @@ const SignupForm = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-2 md:p-4">
-            <div className="max-w-md w-full bg-white rounded-lg md:rounded-2xl shadow-xl md:p-8 p-2">
+            <div className="max-w-md w-full bg-white rounded-lg md:rounded-2xl shadow-xl md:p-6 p-3">
                 {/* Logo */}
                 <div className="text-center md:mb-8 mb-3">
                     <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
