@@ -30,17 +30,17 @@ export const LoginForm = () => {
         resolver: zodResolver(loginSchema),
     });
 
-    const handleLogin = async (data: LoginFormData) => {
+    const handleLogin = async (loginData: LoginFormData) => {
         setLoading(true);
         setError(null);
 
-        const { error } = await signIn(data);
+        const { error, data } = await signIn(loginData);
 
         if (error) {
             setError(error.message || "Invalid credentials");
             setLoading(false);
         } else {
-            router.push("/agent/dashboard")
+            router.push(`/${data?.user?.role}/dashboard`)
         }
     };
 
