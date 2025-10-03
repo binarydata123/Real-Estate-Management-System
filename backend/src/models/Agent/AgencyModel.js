@@ -78,7 +78,7 @@ agencySchema.virtual("members").get(function () {
 agencySchema.virtual('properties', {
   ref: 'Property',       // The model to use
   localField: '_id',     // Field in Agency
-  foreignField: 'agency',// Field in Property
+  foreignField: 'agencyId',// Field in Property
 });
 
 export const Agency = mongoose.model("Agency", agencySchema);

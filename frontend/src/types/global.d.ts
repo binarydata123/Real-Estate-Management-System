@@ -110,6 +110,16 @@ declare global {
     status: "Available" | "Pending" | "Sold" | "Rented";
     createdAt?: string | Date;
     updatedAt?: string | Date;
+    agencyId?: {
+      email: string;
+      id: string;
+      members: number;
+      name: string;
+      phone: string; 
+      status: string;
+      _id: string;
+    };
+    owner_name?: string;
   }
 
   interface CustomerResponse {
@@ -136,10 +146,19 @@ declare global {
     | "cold_call"
     | "other";
     initialNotes?: string;
-    agencyId?: string;
+    //agencyId?: string;
     status: string;
     assigned_agent: string;
     minimumBudget: number;
+    agencyId?: {
+      email: string;
+      id: string;
+      members: number;
+      name: string;
+      phone: string; 
+      status: string;
+      _id: string;
+    };
   }
 
   interface Pagination {
@@ -203,9 +222,40 @@ declare global {
 
   interface PropertyResponse {
     success: boolean;
-    data: AgencyFormData[];
+    data: Property[];
     message?: string;
     pagination?: Pagination;
+  }
+
+  interface AgentResponse {
+    success: boolean;
+    data: AgentFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface AgentFormData {
+    _id: string;
+    name: string;
+    email: string | "";
+    phone?: string;
+    password?: string;
+    role?: string;
+    status: string;
+    profilePictureUrl?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    agencyId?: {
+      email: string;
+      id: string;
+      members: number;
+      name: string;
+      phone: string; 
+      status: string;
+      _id: string;
+    };
+    customersCount?: number;
+    propertiesCount?: number;
   }
 }
 
