@@ -30,8 +30,8 @@ const PushNotificationSubscriptionSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["admin", "agency", "agent", "customer"],
-      default: "agency",
+      enum: ["admin", "agent", "customer"],
+      default: "agent",
     },
 
     subscription: { type: SubscriptionSchema, required: true },

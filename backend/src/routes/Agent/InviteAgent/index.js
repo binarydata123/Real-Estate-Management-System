@@ -9,13 +9,13 @@ const router = express.Router();
 
 router.post(
   "/create",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   inviteAgent
 );
 
 router.get(
   "/",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   getAgents
 );
 

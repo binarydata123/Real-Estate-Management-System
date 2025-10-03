@@ -305,7 +305,11 @@ export const Customers: React.FC = () => {
           }}
           initialData={
             editingCustomer
-              ? { ...editingCustomer, name: editingCustomer.fullName }
+              ? {
+                ...editingCustomer,
+                name: editingCustomer.fullName,
+                phoneNumber: editingCustomer.phoneNumber ?? "",
+              }
               : undefined
           }
           customerId={editingCustomer?._id}

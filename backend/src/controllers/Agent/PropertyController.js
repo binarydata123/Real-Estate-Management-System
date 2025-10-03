@@ -50,8 +50,8 @@ export const createProperty = async (req, res) => {
     }
 
     // Get agencyId from the authenticated user if not provided in the request
-    if (!propertyData.agencyId && req.user && req.user.agencyId) {
-      propertyData.agencyId = req.user.agencyId;
+    if (!propertyData.agencyId && req.user && req.user.agencyId._id) {
+      propertyData.agencyId = req.user.agencyId._id;
     }
 
     // The 'agency' field is expected to be in the body from the frontend or from authenticated user

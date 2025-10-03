@@ -28,8 +28,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "agency", "agent", "customer"],
-      default: "agency",
+      enum: ["admin", "agent", "customer"],
+      default: "agent",
     },
     agencyId: {
       type: mongoose.Schema.Types.ObjectId,

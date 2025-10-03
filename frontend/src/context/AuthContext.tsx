@@ -1,10 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Loader } from 'lucide-react';
+import Cookies from 'js-cookie';
 import { loginUser, checkSession as checkSessionApi } from '@/lib/Authentication/AuthenticationAPI';
 import { AxiosError } from 'axios';
+import { LoginData } from '@/components/Auth/LoginForm';
 
 export const AUTH_SESSION_KEY = 'auth-session';
 
@@ -28,13 +30,13 @@ export interface User {
 
 export interface Session {
     access_token: string;
-    user: User;
 }
 
 export type AuthResponse = {
     data: { user: User | null; session: Session | null };
     error: { message: string } | null;
 };
+
 // --- End Custom Auth Types ---
 
 interface AuthContextType {
@@ -42,7 +44,9 @@ interface AuthContextType {
     session: Session | null;
     loading: boolean;
     signIn: (credentials: LoginData) => Promise<AuthResponse>;
+    completeSignIn: (user: User, token: string) => void;
     signOut: () => Promise<void>;
+    router: ReturnType<typeof useRouter>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,13 +74,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const clearSession = useCallback(() => {
         setUser(null);
         setSession(null);
-        localStorage.removeItem(AUTH_SESSION_KEY);
+        Cookies.remove(AUTH_SESSION_KEY);
     }, []);
 
     useEffect(() => {
         const checkSession = async () => {
             try {
-                const sessionStr = localStorage.getItem(AUTH_SESSION_KEY);
+                const sessionStr = Cookies.get(AUTH_SESSION_KEY);
                 if (sessionStr) {
                     const savedSession: Session = JSON.parse(sessionStr);
 
@@ -86,12 +90,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     // Update user data from backend response
                     const newSession: Session = {
                         ...savedSession,
-                        user: freshUser
                     };
 
                     setSession(newSession);
                     setUser(freshUser);
-                    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(newSession));
+                    Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
+                        expires: 365, // Keep user logged in for 1 year
+                        secure: process.env.NODE_ENV === 'production'
+                    });
                 } else {
                     // If no session is in storage, ensure state is cleared.
                     clearSession();
@@ -124,12 +130,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             const newSession: Session = {
                 access_token: token,
-                user: user, // The user object from the API now matches the User interface
             };
 
             setSession(newSession);
             setUser(user);
-            localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(newSession));
+            Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
+                expires: 365, // Keep user logged in for 1 year
+                secure: process.env.NODE_ENV === 'production'
+            });
 
             return { data: { user, session: newSession }, error: null };
         } catch (error) {
@@ -139,18 +147,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
     };
 
+    const completeSignIn = (user: User, token: string) => {
+        const newSession: Session = {
+            access_token: token,
+        };
+
+        setSession(newSession);
+        setUser(user);
+        Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
+            expires: 365,
+            secure: process.env.NODE_ENV === 'production'
+        });
+
+        router.push(`/${user.role}/dashboard`);
+    };
+
     const signOut = async () => {
         clearSession();
         router.push('/auth/login');
     };
 
-    const value = {
+    const value = useMemo(() => ({
         user,
         session,
         loading,
         signIn,
+        completeSignIn,
         signOut,
-    };
+        router,
+    }), [user, session, loading, router, signIn, completeSignIn]);
 
     if (loading) {
         return (

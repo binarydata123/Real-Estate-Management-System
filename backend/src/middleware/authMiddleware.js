@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/Common/UserModel.js";
+import { Customer } from "../models/Agent/CustomerModel.js";
 
 /**
  * Middleware to protect routes by verifying a JWT and role.
@@ -18,8 +19,17 @@ const protect =
           // 1. Get token from header
           token = req.headers.authorization.split(" ")[1]; // 2. Verify the token
           const decoded = jwt.verify(token, process.env.JWT_SECRET);
-          // 3. Get user from the token's ID and attach to the request // We exclude the password from the user object for security
-          req.user = await User.findById(decoded.userId).select("-password").populate('agencyId', 'name');
+
+          // 3. Get user based on role from the token
+          if (decoded.role === 'customer') {
+            req.user = await Customer.findById(decoded.userId).populate('agencyId', 'name slug email phone logoUrl');
+          } else {
+            // For 'agent', 'admin', etc.
+            req.user = await User.findById(decoded.userId)
+              .select("-password")
+              .populate('agencyId', 'name slug email phone logoUrl');
+          }
+
           if (!req.user) {
             return res
               .status(401)

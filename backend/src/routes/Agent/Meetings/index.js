@@ -14,31 +14,31 @@ const router = express.Router();
 // Create
 router.post(
   "/create",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   createMeeting
 );
 
 // Read
 router.get(
   "/get-all",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   getMeetingsByAgency
 );
 router.get(
   "/getById/:id",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   getMeetingById
 );
 
 // Update
 router.put(
   "/update/:id",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   updateMeeting
 );
 router.put(
   "/update-status/:id",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   updateMeetingStatus
 );
 
