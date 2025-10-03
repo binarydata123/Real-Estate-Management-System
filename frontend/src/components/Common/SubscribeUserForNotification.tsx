@@ -1,14 +1,14 @@
 "use client";
-
+import Cookies from 'js-cookie';
 import { useCallback } from "react";
 import { detectDevice } from "./DetectDevice";
 import { savePushSubscription } from "@/lib/Common/SubscribeUserNotification";
 
 function getOrCreateDeviceId(): string {
-  let id = localStorage.getItem("deviceId");
+  let id = Cookies.get("deviceId");
   if (!id) {
-    id = crypto.randomUUID(); // unique but persistent across sessions
-    localStorage.setItem("deviceId", id);
+    id = crypto.randomUUID();
+    Cookies.set("deviceId", id);
   }
   return id;
 }

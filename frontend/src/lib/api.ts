@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { AUTH_SESSION_KEY, type Session } from '@/context/AuthContext';
 
 const api = axios.create({
@@ -10,15 +11,14 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        // This check ensures localStorage is accessed only on the client side.
-
         // For file uploads, let the browser set the Content-Type header.
         if (config.data instanceof FormData) {
             config.headers['Content-Type'] = 'multipart/form-data';
         }
         if (typeof window !== 'undefined') {
             try {
-                const sessionStr = localStorage.getItem(AUTH_SESSION_KEY);
+                // get from cocky
+                const sessionStr = Cookies.get(AUTH_SESSION_KEY);
                 if (sessionStr) {
                     const session: Session = JSON.parse(sessionStr);
                     if (session.access_token) {

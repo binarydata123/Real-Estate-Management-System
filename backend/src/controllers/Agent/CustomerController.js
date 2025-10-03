@@ -8,45 +8,42 @@ import { sendPushNotification } from "../../utils/pushService.js";
 export const createCustomer = async (req, res) => {
   try {
     // Validate required fields
-    const { fullName, email, phoneNumber, agencyId } = req.body;
+    const { fullName, phoneNumber, agencyId } = req.body;
 
-    if (!fullName) {
-      return res.status(400).json({
-        success: false,
-        message: "Full name is required"
-      });
+    if (!fullName || !phoneNumber) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Full name and phone number are required." });
     }
 
     // Add agencyId from the authenticated user if not provided
     const customerData = {
       ...req.body,
-      agencyId: agencyId || req.user.agencyId
+      agencyId: agencyId || req.user.agencyId._id
     };
 
     if (!customerData.agencyId) {
       return res.status(400).json({
+        success: false, message: "Agency ID is required"
+      });
+    }
+
+    // Check if customer with this phone number already exists for this agency
+    const existingCustomer = await Customer.findOne({
+      phoneNumber: customerData.phoneNumber,
+      agencyId: customerData.agencyId,
+    });
+
+    if (existingCustomer) {
+      return res.status(409).json({ // 409 Conflict is a suitable status code
         success: false,
-        message: "Agency ID is required"
+        message: "This customer already exists in your agency.",
       });
     }
 
     const customer = new Customer(customerData);
     const savedCustomer = await customer.save();
-    const defaultPassword = "Pa$$w0rd!";
-    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    // 3. Create corresponding User entry
-    const user = new User({
-      name: savedCustomer.fullName,
-      email: savedCustomer.email,
-      phone: savedCustomer.phoneNumber,
-      password: hashedPassword,
-      role: "customer",
-      agencyId: savedCustomer.agencyId,
-      status: "active",
-    });
-
-    const savedUser = await user.save();
     res.status(201).json({
       success: true,
       data: savedCustomer,
@@ -59,24 +56,28 @@ export const createCustomer = async (req, res) => {
       type: "new_lead",
     });
 
-    await createNotification({
-      userId: savedUser._id,
-      message: `Welcome ${savedUser.name}! Your account has been created successfully. You can now log in and get started.`,
-      type: "new_lead",
-    });
+    // Send notifications to the newly created user if they exist
+    if (savedCustomer) {
+      await createNotification({
+        userId: savedCustomer._id,
+        message: `Welcome ${savedCustomer.name}! Your account has been created. You can now log in and get started.`,
+        type: "welcome",
+      });
 
-    await sendPushNotification({
-      userId: savedUser._id,
-      title: "Welcome to Our Platform 🎉",
-      message: `Hi ${savedUser.name}, your account has been created successfully! Use your email to log in with the default password.`,
-      urlPath: "login",
-    });
+      await sendPushNotification({
+        userId: savedCustomer._id,
+        title: "Welcome to Our Platform 🎉",
+        message: `Hi ${savedCustomer.name}, your account has been created!`,
+        urlPath: "/login",
+      });
+    }
 
+    // Send notification to the agent/agency who created the customer
     await sendPushNotification({
-      userId: savedUser._id,
+      userId: req.user._id,
       title: "New Customer Lead",
-      message: `A new customer (${savedCustomer.fullName}) has been added to your agency.`,
-      urlPath: "customers",
+      message: `A new customer "${savedCustomer.fullName}" has been added to your agency.`,
+      urlPath: "/agent/customers",
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -86,19 +87,20 @@ export const createCustomer = async (req, res) => {
 // Get all customers
 export const getCustomers = async (req, res) => {
   try {
-    const { userId, page = 1, limit = 10, search } = req.query;
+    const { page = 1, limit = 10, search } = req.query;
+    const agencyId = req.user.agencyId._id;
 
-    if (!userId) {
+    if (!agencyId) {
       return res
         .status(400)
-        .json({ success: false, message: "userId is required" });
+        .json({ success: false, message: "User is not associated with an agency." });
     }
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
     const searchQuery = search
       ? {
-        agencyId: userId,
+        agencyId: agencyId,
         $or: [
           { fullName: { $regex: search, $options: "i" } },
           { email: { $regex: search, $options: "i" } },
@@ -106,7 +108,7 @@ export const getCustomers = async (req, res) => {
           { phoneNumber: { $regex: search, $options: "i" } },
         ],
       }
-      : { agencyId: userId };
+      : { agencyId: agencyId };
 
     const totalCustomers = await Customer.countDocuments(searchQuery);
 
@@ -146,15 +148,15 @@ export const getCustomers = async (req, res) => {
 
 export const getCustomersForDropDown = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const agencyId = req.user.agencyId._id;
 
-    if (!userId) {
+    if (!agencyId) {
       return res
         .status(400)
-        .json({ success: false, message: "userId is required" });
+        .json({ success: false, message: "User is not associated with an agency." });
     }
 
-    const customers = await Customer.find({ agencyId: userId });
+    const customers = await Customer.find({ agencyId: agencyId });
 
     if (!customers || customers.length === 0) {
       return res.status(200).json({

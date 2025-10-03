@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '../api';
+import { LoginData } from '@/components/Auth/LoginForm';
 
 /**
  * Registers a new agency and its first user.
@@ -14,6 +15,10 @@ export const registerAgency = async (data: RegistrationData): Promise<AxiosRespo
 
 export const loginUser = async (data: LoginData): Promise<AxiosResponse> => {
     return api.post('/auth/login', data);
+};
+
+export const selectCustomerAgency = async (customerId: string): Promise<AxiosResponse> => {
+    return api.post('/auth/select-customer-agency', { customerId });
 };
 
 export const checkSession = async (token: string): Promise<AxiosResponse> => {

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import { Agency } from "../../models/Agent/AgencyModel.js";
 import { User } from "../../models/Common/UserModel.js";
+import { Customer } from "../../models/Agent/CustomerModel.js";
 import generateToken from "../../utils/generateToken.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
 
@@ -46,6 +47,7 @@ const registrationController = {
         phone,
         role: "agent",
       });
+
       const createdUser = await user.save({ session });
 
       // 3. Create the agency
@@ -78,8 +80,9 @@ const registrationController = {
 
       // 7. Respond with success and token
       res.status(201).json({
-        message: "Agency registration successful! You can now log in.",
-        token: generateToken(createdUser._id),
+        success: true,
+        message: "Agency registered successfully!",
+        token: generateToken(createdUser._id, createdUser.role),
         user: {
           _id: createdUser._id,
           name: createdUser.name,
@@ -102,38 +105,87 @@ const registrationController = {
   },
 
   loginUser: async (req, res) => {
-    const { email, password } = req.body;
-
-    // Basic validation
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Please provide email and password." });
-    }
+    const { email, password, phone, loginAs, customerId } = req.body;
 
     try {
-      // Find user by email and include password field
-      const user = await User.findOne({ email })
-        .select("+password")
-        .populate("agencyId", "name slug email phone logoUrl");
-      if (!user) {
-        return res.status(401).json({ message: "Invalid email or password." });
+      let user;
+
+      if (loginAs === "agency") {
+        if (!email || !password) {
+          return res
+            .status(400)
+            .json({ message: "Please provide email and password for agency login." });
+        }
+
+        user = await User.findOne({ email })
+          .select("+password")
+          .populate("agencyId", "name slug email phone logoUrl");
+
+        if (!user) {
+          return res.status(401).json({ message: "Invalid email or password." });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(401).json({ message: "Invalid email or password." });
+        }
+
+        if (user.role !== 'agency' && user.role !== 'agent' && user.role !== 'admin') {
+          return res.status(403).json({ message: "Access denied. Not an agency account." });
+        }
+
+      } else if (loginAs === "customer") {
+        if (!phone) {
+          return res.status(400).json({ message: "Please provide a phone number for customer login." });
+        }
+
+        // Find all customer profiles with the given phone number
+        const customers = await Customer.find({ phoneNumber: phone }).populate("agencyId", "name slug email phone logoUrl");
+
+        if (!customers || customers.length === 0) {
+          return res.status(401).json({ message: "No customer found with this phone number." });
+        }
+        console.log(customers)
+        // If there's only one profile, log them in directly
+        if (customers.length === 1) {
+          user = customers[0];
+        } else {
+          // If multiple profiles exist, ask the user to select one
+          const agencies = customers
+            .filter(c => c.agencyId) // Safely filter out customers with no populated agency
+            .map(c => ({
+              customerId: c._id,
+              agencyId: c.agencyId._id,
+              name: c.agencyId.name,
+              logoUrl: c.agencyId.logoUrl,
+            }));
+
+          return res.json({
+            success: true,
+            requiresSelection: true,
+            message: "Multiple agency profiles found. Please select one to continue.",
+            agencies: agencies,
+            phone: phone,
+          });
+        }
+
+        if (user.role !== 'customer') {
+          return res.status(403).json({ message: "Access denied. Not a customer account." });
+        }
+
+        // The rest of the logic will handle the single user case
+
+      } else {
+        return res.status(400).json({ message: "Invalid login type specified." });
       }
 
-      // Compare provided password with hashed password
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: "Invalid email or password." });
-      }
-
-      // Successful login
       res.json({
+        success: true,
         message: "Login successful!",
-        token: generateToken(user._id, user.role), // Keep token at top level
+        token: generateToken(user._id, user.role),
         user: {
-          // Nest all user-related data under a 'user' object for consistency
           _id: user._id,
-          name: user.name,
+          name: user.name || user.fullName, // Use `name` for agent, `fullName` for customer
           email: user.email,
           role: user.role,
           agency: user.agencyId
@@ -149,7 +201,51 @@ const registrationController = {
         },
       });
     } catch (error) {
+      console.error("Login error:", error); // Good to have for debugging
       res.status(500).json({ message: "Server error during login." });
+    }
+  },
+
+  selectCustomerAgency: async (req, res) => {
+    const { customerId } = req.body;
+
+    if (!customerId) {
+      return res.status(400).json({ message: "Customer ID is required for selection." });
+    }
+
+    try {
+      const user = await Customer.findById(customerId).populate("agencyId", "name slug email phone logoUrl");
+
+      if (!user) {
+        return res.status(404).json({ message: "Selected customer profile not found." });
+      }
+
+      if (user.role !== 'customer') {
+        return res.status(403).json({ message: "Access denied. Not a customer account." });
+      }
+
+      // Successfully selected, now generate token and send full user object
+      res.json({
+        success: true,
+        message: "Login successful!",
+        token: generateToken(user._id, user.role),
+        user: {
+          _id: user._id,
+          name: user.fullName, // Customer model has fullName
+          email: user.email,
+          role: user.role,
+          agency: {
+            _id: user.agencyId._id,
+            name: user.agencyId.name,
+            slug: user.agencyId.slug,
+            email: user.agencyId.email,
+            phone: user.agencyId.phone,
+            logoUrl: user.agencyId.logoUrl,
+          },
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Server error during agency selection." });
     }
   },
 
@@ -168,10 +264,20 @@ const registrationController = {
 
   checkSession: async (req, res) => {
     try {
-      const user = await User.findById(req.user._id).populate(
-        "agencyId",
-        "name slug email phone logoUrl"
-      );
+      let user;
+      const { role, _id } = req.user;
+
+      if (role === 'customer') {
+        user = await Customer.findById(_id).populate(
+          "agencyId",
+          "name slug email phone logoUrl"
+        );
+      } else {
+        user = await User.findById(_id).populate(
+          "agencyId",
+          "name slug email phone logoUrl"
+        );
+      }
 
       if (!user) {
         // This should not happen if the token is valid, but as a safeguard:
@@ -184,7 +290,7 @@ const registrationController = {
         message: "Session active.",
         user: {
           _id: user._id,
-          name: user.name,
+          name: user.name || user.fullName,
           email: user.email,
           role: user.role,
           agency: user.agencyId

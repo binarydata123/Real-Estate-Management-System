@@ -79,10 +79,10 @@ const customerSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    default: "Customer",
+    default: "customer",
     enum: {
-      values: ["Customer"],
-      message: "Role must be Customer",
+      values: ["customer"],
+      message: "Role must be customer",
     },
   },
   agencyId: {
