@@ -1,6 +1,4 @@
 import { Agency } from "../../models/Agent/AgencyModel.js";
-import { User } from "../../models/Common/UserModel.js";
-import bcrypt from "bcryptjs";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
@@ -12,15 +10,19 @@ export const getAgencies = async (req, res) => {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    // Build the search query
-    const searchQuery = search
-      ? {
-          $or: [
-            { name: { $regex: search, $options: "i" } },
-            { status: { $regex: status, $options: "i" } },
-          ],
-        }
-      : {};
+    let searchQuery = {};
+
+    if (search || status) {
+      searchQuery.$or = [];
+
+      if (search && typeof search === "string") {
+        searchQuery.$or.push({ name: { $regex: search, $options: "i" } });
+      }
+
+      if (status && typeof status === "string") {
+        searchQuery.$or.push({ status: { $regex: status, $options: "i" } });
+      }
+    }
 
     const totalAgencies = await Agency.countDocuments(searchQuery);
 
@@ -29,6 +31,8 @@ export const getAgencies = async (req, res) => {
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber)
       .populate('properties');
+
+    
 
     if (!agency || agency.length === 0) {
       return res.status(200).json({
@@ -52,8 +56,7 @@ export const getAgencies = async (req, res) => {
         page: pageNumber,
         limit: limitNumber,
         totalPages: Math.ceil(totalAgencies / limitNumber),
-      },
-      status: status
+      }
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

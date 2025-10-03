@@ -1,32 +1,32 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Building2, CheckCircle, Clock, XCircle, PlusIcon } from 'lucide-react';
-import AddAgencyModal from './AddAgencyModal';
-import { getAgencies, deleteAgencyById } from "@/lib/Admin/AgencyAPI";
+import { Building2, CheckCircle, Clock, PlusIcon, DollarSign, Key } from 'lucide-react';
+import { getProperty, deletePropertyById } from "@/lib/Admin/PropertyAPI";
 import { Pagination } from "@/components/Common/Pagination";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
 
 const statusStyles: { [key: string]: string } = {
-    approved: 'bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400',
-    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400',
-    rejected: 'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400',
+    Available: 'bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400',
+    Pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400',
+    Sold: 'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400',
+    Rented: 'bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400',
 };
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
 }
 
-export default function Agencies() {
+export default function Properties() {
     // State to control the Add Agency modal
-    const [isAddAgencyModalOpen, setAddAgencyModalOpen] = useState(false);
-     const { user } = useAuth();
-    const [agencies, setAgencies] = useState<AgencyFormData[]>([]);
+    //const [isAddAgencyModalOpen, setAddAgencyModalOpen] = useState(false);
+    const { user } = useAuth();
+    const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(false);
     //const [editingAgency, setEditingAgency] = useState<AgencyFormData | null>(null);
     const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-    const [selectedAgency, setSelectedAgency] = useState<AgencyFormData | null>(null);
+    const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     //const [totalRecords, setTotalRecords] = useState(0);
@@ -38,17 +38,19 @@ export default function Agencies() {
     //const [showAddForm, setShowAddForm] = useState(false);
 
     // Calculate stats from mock data
-    const totalAgencies = agencies.length;
-    const approvedAgencies = agencies.filter(a => a.status === 'approved').length;
-    const pendingAgencies = agencies.filter(a => a.status === 'pending').length;
-    const rejectedAgencies = agencies.filter(a => a.status === 'rejected').length;
+    const totalProperties = properties.length;
+    const availableProperties = properties.filter(a => a.status === 'Available').length;
+    const pendingProperties = properties.filter(a => a.status === 'Pending').length;
+    const soldProperties = properties.filter(a => a.status === 'Sold').length;
+    const rentedProperties = properties.filter(a => a.status === 'Rented').length;
 
-    const agencyStats = [
-        //{ name: 'Total Agencies', value: totalRecords, icon: Building2, color: 'bg-blue-500' },
-        { name: 'Total Agencies', value: totalAgencies, icon: Building2, color: 'bg-blue-500' },
-        { name: 'Approved', value: approvedAgencies, icon: CheckCircle, color: 'bg-green-500' },
-        { name: 'Pending', value: pendingAgencies, icon: Clock, color: 'bg-yellow-500' },
-        { name: 'Rejected', value: rejectedAgencies, icon: XCircle, color: 'bg-red-500' },
+    const propertyStats = [
+        //{ name: 'Total Properties', value: totalRecords, icon: Building2, color: 'bg-blue-500' },
+        { name: 'Total Properties', value: totalProperties, icon: Building2, color: 'bg-blue-500' },
+        { name: 'Available', value: availableProperties, icon: CheckCircle, color: 'bg-green-500' },
+        { name: 'Pending', value: pendingProperties, icon: Clock, color: 'bg-yellow-500' },
+        { name: 'Sold', value: soldProperties, icon: DollarSign, color: 'bg-red-500' },
+        { name: 'Rented', value: rentedProperties, icon: Key, color: 'bg-blue-500' },
     ];
 
     useEffect(() => {
@@ -60,30 +62,29 @@ export default function Agencies() {
         return () => clearTimeout(handler);
     }, [searchTerm, searchStatus]);
     
-    const handleDeleteClick = (agency: AgencyFormData) => {
-        setSelectedAgency(agency);
+    const handleDeleteClick = (property: Property) => {
+        setSelectedProperty(property);
         setShowConfirmDialog(true);
     };
     
     const handleDelete = async (id: string) => {
         try {
-            const response = await deleteAgencyById(id);
+            const response = await deletePropertyById(id);
             if (response.data.success) {
-                console.log(response.data.message);
-                setAgencies((prev) => prev.filter((c) => c._id !== id));
+                setProperties((prev) => prev.filter((c) => c._id !== id));
             }
         } catch (error) {
           console.error("Failed to delete customer:", error);
         }
     };
     
-    const getAllAgencies = useCallback(
+    const getAllProperty = useCallback(
         async (page = 1, search = "", status = "") => {
             try {
             setLoading(true);
-            const res = await getAgencies(page, limit, search, status);
+            const res = await getProperty(page, limit, search, status);
             if (res.success) {
-                setAgencies(res.data);
+                setProperties(res.data);
                 setCurrentPage(res.pagination?.page ?? 1);
                 setTotalPages(res.pagination?.totalPages ?? 1);
                 //setTotalRecords(res.pagination?.total ?? 0);
@@ -98,8 +99,8 @@ export default function Agencies() {
     );
     
     useEffect(() => {
-        getAllAgencies(currentPage, debouncedSearchTerm, debouncedSearchStatus);
-    }, [getAllAgencies, currentPage, debouncedSearchTerm, debouncedSearchStatus]);
+        getAllProperty(currentPage, debouncedSearchTerm, debouncedSearchStatus);
+    }, [getAllProperty, currentPage, debouncedSearchTerm, debouncedSearchStatus]);
     
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
@@ -111,9 +112,9 @@ export default function Agencies() {
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
             <div className="sm:flex sm:items-center sm:justify-between sm:gap-4">
                 <div className="sm:flex-auto">
-                    <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Agencies</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Properties</h1>
                     <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                        A list of all the agencies in the system including their name, members, and status.
+                        A list of all the properties in the system including their name, members, and status.
                     </p>
                 </div>
                 <div className="mt-4 sm:mt-0 sm:flex-none">
@@ -131,7 +132,7 @@ export default function Agencies() {
             {/* Stats Cards */}
             <div className="mt-8">
                 <dl className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    {agencyStats.map((item) => (
+                    {propertyStats.map((item) => (
                         <div
                             key={item.name}
                             className="relative overflow-hidden rounded-lg bg-white shadow p-2"
@@ -173,9 +174,10 @@ export default function Agencies() {
                     <label htmlFor="status" className="sr-only">Status</label>
                     <select id="status" name="status" onChange={(e) => setSearchStatus(e.target.value)} className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500" defaultValue="All Statuses">
                         <option value={''}>All Statuses</option>
-                        <option value={'approved'}>Approved</option>
-                        <option value={'pending'}>Pending</option>
-                        <option value={'rejected'}>Rejected</option>
+                        <option value={'Available'}>Available</option>
+                        <option value={'Pending'}>Pending</option>
+                        <option value={'Sold'}>Sold</option>
+                        <option value={'Rented'}>Rented</option>
                     </select>
                 </div>
             </div>
@@ -187,42 +189,52 @@ export default function Agencies() {
                             {loading ? (
                                 <div className="text-center py-12">
                                     <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
-                                    <p className="text-gray-600">Loading Agency...</p>
+                                    <p className="text-gray-600">Loading Property...</p>
                                 </div>
                             ) : (
                                 <>
                                     <table className="min-w-full divide-y divide-gray-300 ">
-                                        {agencies.length > 0 ? (
+                                        {properties.length > 0 ? (
                                             <>
                                                 <thead className="bg-gray-50  dark:bg-gray-800">
                                                     <tr>
-                                                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300">Agency</th>
-                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Members</th>
-                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Properties</th>
+                                                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300">Property</th>
+                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Type</th>
+                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Category</th>
+                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Price</th>
+                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Owner</th>
+                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Agency</th>
                                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Status</th>
-                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Joined</th>
                                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900 dark:divide-gray-700">
-                                                    {agencies.map((agency) => (
-                                                        <tr key={agency._id}>
+                                                    {properties.map((property) => (
+                                                        <tr key={property._id}>
                                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                                                 <div className="flex items-center">
                                                                     {/* <div className="h-10 w-10 flex-shrink-0">
                                                                         <Image width={100} height={100} className="h-10 w-10 rounded-full" src={agency.logo_url} alt={`${agency.name} logo`} />
                                                                     </div> */}
-                                                                    <div className="ml-4"><div className="font-medium text-gray-900 dark:text-white">{agency.name}</div></div>
+                                                                    <div className="ml-4"><div className="font-medium text-gray-900 dark:text-white">{property.title || 'N/A'}</div></div>
                                                                 </div>
                                                             </td>
-                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agency.teamMembers?.length}</td>
-                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agency.properties?.length}</td>
+                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{property.type || 'N/A'}</td>
+                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{property.category || 'N/A'}</td>
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                                                <span className={classNames(statusStyles[agency.status], 'inline-flex capitalize items-center rounded-full px-2.5 py-0.5 text-xs font-medium')}>
-                                                                    {agency.status.charAt(0).toUpperCase() + agency.status.slice(1)}
+                                                                {property.price?.toLocaleString("en-US", {
+                                                                    style: "currency",
+                                                                    currency: "USD",
+                                                                    maximumFractionDigits: 0,
+                                                                }) || '--'}
+                                                            </td>
+                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{property.owner_name || 'N/A'}</td>
+                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{property?.agencyId?.name || 'N/A'}</td>
+                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                                                <span className={classNames(statusStyles[property.status], 'inline-flex capitalize items-center rounded-full px-2.5 py-0.5 text-xs font-medium')}>
+                                                                    {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
                                                                 </span>
                                                             </td>
-                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{new Date(agency.createdAt).toLocaleDateString()}</td>
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                                                 {/* <button className="text-gray-400 hover:text-blue-600 dark:text-gray-500 dark:hover:text-blue-400"><span className="sr-only">Actions for {agency.name}</span><MoreVertical className="h-5 w-5" /></button> */}
                                                                 {/* <span
@@ -232,7 +244,7 @@ export default function Agencies() {
                                                                     Edit
                                                                 </span> */}
                                                                 <span
-                                                                    onClick={() => handleDeleteClick(agency)}
+                                                                    onClick={() => handleDeleteClick(property)}
                                                                     className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
                                                                 >
                                                                     Delete
@@ -260,10 +272,10 @@ export default function Agencies() {
                                             <div className="text-center py-12">
                                                 {/* <UserIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" /> */}
                                                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                                    No agencies yet
+                                                    No properties yet
                                                 </h3>
                                                 <p className="text-gray-500 mb-6">
-                                                    Start building your agency base
+                                                    Start building your property base
                                                 </p>
                                                 {!debouncedSearchTerm && (
                                                     <div className="flex justify-center mt-4">
@@ -272,7 +284,7 @@ export default function Agencies() {
                                                         className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                                     >
                                                         <PlusIcon className="h-5 w-5 mr-2" />
-                                                        Add Agency
+                                                        Add Property
                                                     </button>
                                                     </div>
                                                 )}
@@ -294,41 +306,20 @@ export default function Agencies() {
                 </div>
             </div>
 
-            {/* Add Agency Modal */}
-            <AddAgencyModal isOpen={isAddAgencyModalOpen} onClose={() => setAddAgencyModalOpen(false)} />
-            {/* {(showAddForm || editingAgency) && (
-                <AddAgencyModal
-                    onClose={() => {
-                        setAddAgencyModalOpen(false)
-                        setShowAddForm(false);
-                        setEditingAgency(null);
-                        getAllAgencies();
-                    }}
-                    onSuccess={() => {
-                        setShowAddForm(false);
-                        setEditingAgency(null);
-                        getAllAgencies();
-                    }}
-                    initialData={
-                    editingAgency
-                        ? { ...editingAgency, name: editingAgency.name }
-                        : undefined
-                    }
-                    agencyId={editingAgency?._id}
-                />
-            )} */}
+            {/* Add Property Modal */}
+            {/* <AddAgencyModal isOpen={isAddAgencyModalOpen} onClose={() => setAddAgencyModalOpen(false)} /> */}
             <ConfirmDialog
                 open={showConfirmDialog}
                 onCancel={() => setShowConfirmDialog(false)}
                 onConfirm={() => {
-                    if (selectedAgency?._id) {
-                        handleDelete(selectedAgency._id);
+                    if (selectedProperty?._id) {
+                        handleDelete(selectedProperty._id);
                     }
                     setShowConfirmDialog(false);
-                    setSelectedAgency(null);
+                    setSelectedProperty(null);
                 }}
                 heading="Are you sure?"
-                description="This agency will be deleted, and this action cannot be undone."
+                description="This property will be deleted, and this action cannot be undone."
                 confirmText="Delete"
                 cancelText="Back"
                 confirmColor="bg-red-600 hover:bg-red-700"
