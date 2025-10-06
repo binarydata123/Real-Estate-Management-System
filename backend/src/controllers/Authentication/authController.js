@@ -110,7 +110,7 @@ const registrationController = {
     try {
       let user;
 
-      if (loginAs === "agency") {
+      if (loginAs === "agency" || loginAs === "admin") {
         if (!email || !password) {
           return res
             .status(400)
@@ -130,8 +130,12 @@ const registrationController = {
           return res.status(401).json({ message: "Invalid email or password." });
         }
 
-        if (user.role !== 'agency' && user.role !== 'agent' && user.role !== 'admin') {
-          return res.status(403).json({ message: "Access denied. Not an agency account." });
+        if (loginAs === 'admin' && user.role !== 'admin') {
+          return res.status(403).json({ message: "Access denied. Not an admin account." });
+        }
+
+        if (loginAs === 'agency' && user.role !== 'agency' && user.role !== 'agent') {
+          return res.status(403).json({ message: "Access denied. Not an agency or agent account." });
         }
 
       } else if (loginAs === "customer") {
@@ -178,14 +182,13 @@ const registrationController = {
       } else {
         return res.status(400).json({ message: "Invalid login type specified." });
       }
-
       res.json({
         success: true,
         message: "Login successful!",
         token: generateToken(user._id, user.role),
         user: {
           _id: user._id,
-          name: user.name || user.fullName, // Use `name` for agent, `fullName` for customer
+          name: user.name || user.fullName,
           email: user.email,
           role: user.role,
           agency: user.agencyId
