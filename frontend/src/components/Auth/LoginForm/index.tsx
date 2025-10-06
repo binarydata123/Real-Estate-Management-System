@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { BuildingOffice2Icon, EyeIcon, EyeSlashIcon, ArrowLeftIcon, UserIcon, AtSymbolIcon, ExclamationCircleIcon, ChevronRightIcon, LockClosedIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { BuildingOffice2Icon, EyeIcon, EyeSlashIcon, ArrowLeftIcon, UserIcon, AtSymbolIcon, ExclamationCircleIcon, ChevronRightIcon, LockClosedIcon, PhoneIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,7 +13,7 @@ import { loginUser, selectCustomerAgency } from '@/lib/Authentication/Authentica
 const agencyLoginSchema = z.object({
     email: z.string().min(1, 'Email is required').email('Invalid email address'),
     password: z.string().min(1, 'Password is required'),
-    loginAs: z.literal('agency'),
+    loginAs: z.enum(['agency', 'admin']),
     phone: z.undefined().optional(),
 });
 
@@ -32,7 +32,7 @@ export type LoginData = z.infer<typeof agencyLoginSchema | typeof customerLoginS
 
 export const LoginForm = () => {
     const [showPassword, setShowPassword] = useState(false);
-    const [loginAs, setLoginAs] = useState<'agency' | 'customer' | null>(null);
+    const [loginAs, setLoginAs] = useState<'agency' | 'customer' | 'admin' | null>(null);
     const [agenciesToSelect, setAgenciesToSelect] = useState<AgencySelectionInfo[] | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export const LoginForm = () => {
         formState: { errors },
         reset,
     } = useForm<LoginData>({
-        resolver: zodResolver(loginAs === 'agency' ? agencyLoginSchema : customerLoginSchema),
+        resolver: zodResolver(loginAs === 'customer' ? customerLoginSchema : agencyLoginSchema),
         // Re-validate when loginAs changes
         context: { loginAs },
     });
@@ -53,26 +53,32 @@ export const LoginForm = () => {
     const handleLogin = async (loginData: LoginData) => {
         setLoading(true);
         setError(null);
+        try {
+            // The backend now returns a different shape for multi-agency customers
+            const response = await loginUser(loginData);
 
-        // The backend now returns a different shape for multi-agency customers
-        const response = await loginUser(loginData);
-
-        if (response.data.success) {
-            if (response.data.requiresSelection) {
-                setAgenciesToSelect(response.data.agencies);
-                setLoading(false);
-            } else {
-                // Standard login for agency or single-agency customer
-                const { error: signInError, data: signInData } = await signIn(loginData);
-                if (signInError) {
-                    setError(signInError.message || "Invalid credentials");
-                    setLoading(false);
+            if (response.data.success) {
+                if (response.data.requiresSelection) {
+                    setAgenciesToSelect(response.data.agencies);
                 } else {
-                    router.push(`/${signInData?.user?.role}/dashboard`);
+                    // Standard login for agency or single-agency customer
+                    const { error: signInError, data: signInData } = await signIn(loginData);
+                    if (signInError) {
+                        setError(signInError.message || "Invalid credentials");
+                    } else {
+                        router.push(`/${signInData?.user?.role}/dashboard`);
+                    }
                 }
+            } else {
+                // This case might not be hit if backend always throws errors, but it's good for safety
+                setError(response.data.message || "An unknown error occurred.");
             }
-        } else {
-            setError(response.data.message || "An unknown error occurred.");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+            // Catches errors from axios (like 401, 403, 500 status codes)
+            const errorMessage = err.response?.data?.message || err.message || "An unknown error occurred.";
+            setError(errorMessage);
+        } finally {
             setLoading(false);
         }
     };
@@ -96,11 +102,13 @@ export const LoginForm = () => {
         }
     };
 
-    const handleRoleSelect = (role: 'agency' | 'customer') => {
+    const handleRoleSelect = (role: 'agency' | 'customer' | 'admin') => {
         setLoginAs(role);
         setError(null);
         if (role === 'agency') {
             reset({ loginAs: 'agency', email: '', password: '' });
+        } else if (role === 'admin') {
+            reset({ loginAs: 'admin', email: '', password: '' });
         } else {
             reset({ loginAs: 'customer', phone: '' });
         }
@@ -178,6 +186,19 @@ export const LoginForm = () => {
                                 </div>
                                 <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-purple-600 transition-transform duration-300 transform group-hover:translate-x-1" />
                             </button>
+                            <button
+                                onClick={() => handleRoleSelect('admin')}
+                                className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-red-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1"
+                            >
+                                <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-red-100 rounded-lg">
+                                    <ShieldCheckIcon className="h-6 w-6 text-red-600" />
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <p className="font-semibold text-gray-800 text-left">Admin</p>
+                                    <p className="text-sm text-gray-600 text-left">Manage the system.</p>
+                                </div>
+                                <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-red-600 transition-transform duration-300 transform group-hover:translate-x-1" />
+                            </button>
                         </div>
                         <div className="text-center pt-2">
                             <p className="text-sm text-gray-600">
@@ -203,7 +224,7 @@ export const LoginForm = () => {
                                 <ArrowLeftIcon className="h-5 w-5" />
                             </button>
                             <h2 className="text-sm md:text-xl font-semibold text-gray-800 inheritClass">
-                                Sign in as {loginAs === 'agency' ? 'an Agency' : 'a Customer'}
+                                Sign in as {loginAs === 'agency' ? 'an Agency' : loginAs === 'admin' ? 'an Admin' : 'a Customer'}
                             </h2>
                         </div>
 
@@ -215,7 +236,7 @@ export const LoginForm = () => {
                                 </div>
                             )}
 
-                            {loginAs === 'agency' ? (
+                            {loginAs === 'agency' || loginAs === 'admin' ? (
                                 <>
                                     <div className="animate-slide-in-up" style={{ animationDelay: '100ms' }}>
                                         <label
@@ -263,7 +284,7 @@ export const LoginForm = () => {
                                 </div>
                             )}
 
-                            {loginAs === 'agency' && (
+                            {(loginAs === 'agency' || loginAs === 'admin') && (
                                 <div className="animate-slide-in-up" style={{ animationDelay: '200ms' }}>
                                     <label
                                         htmlFor="password"
@@ -316,7 +337,7 @@ export const LoginForm = () => {
 
                         {/* Footer with registration and forgot password */}
                         <div className="md:mt-6 mt-4 text-center space-y-2 md:space-y-4">
-                            {loginAs === 'agency' && (
+                            {(loginAs === 'agency' || loginAs === 'admin') && (
                                 <div>
                                     <Link
                                         href="/auth/forgot-password"
