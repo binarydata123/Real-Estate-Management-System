@@ -12,6 +12,7 @@ import { amenitiesOptions, bathroomsOptions, bedroomsOptions, commercialCategory
 import { createPreference, getPreferenceDetail, sendRequestToCustomer } from '@/lib/Common/Preference';
 import { useToast } from '@/context/ToastContext';
 import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 const formatPrice = (price: number): string => {
     if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
@@ -53,7 +54,8 @@ const IconRadio: React.FC<{
     options: Readonly<Array<{ value: string; label: string; icon?: React.ReactNode }>>;
     watch: UseFormWatch<UserPreferenceFormData>;
     setValue: UseFormSetValue<UserPreferenceFormData>;
-}> = ({ name, options, watch, setValue }) => {
+    readOnly?: boolean;
+}> = ({ name, options, watch, setValue, readOnly = false }) => {
     const watchedValue = watch(name);
 
     return (
@@ -68,6 +70,7 @@ const IconRadio: React.FC<{
                             value={option.value}
                             name={name as string}
                             checked={isChecked}
+                            disabled={readOnly}
                             onChange={() =>
                                 setValue(name, option.value as any, { shouldValidate: true, shouldDirty: true })
                             }
@@ -92,13 +95,15 @@ const IconCheckbox: React.FC<{
     name: keyof UserPreferenceFormData;
     option: { value: string; label: string; icon?: React.ReactNode };
     register: UseFormRegister<UserPreferenceFormData>;
-}> = ({ name, option, register }) => (
+    readOnly?: boolean;
+}> = ({ name, option, register, readOnly = false }) => (
     <div>
         <input
             type="checkbox"
             id={`${name as string}-${option.value}`}
             value={option.value}
             {...register(name)}
+            disabled={readOnly}
             className="hidden peer"
         />
         <label
@@ -122,7 +127,8 @@ const RangeSlider: React.FC<{
     setValue: UseFormSetValue<UserPreferenceFormData>;
     label: string;
     formatDisplay: (value: number) => string;
-}> = ({ min, max, step, minName, maxName, watch, setValue, label, formatDisplay }) => {
+    readOnly?: boolean;
+}> = ({ min, max, step, minName, maxName, watch, setValue, label, formatDisplay, readOnly = false }) => {
     const minVal = (watch(minName) as number | undefined) ?? min;
     const maxVal = (watch(maxName) as number | undefined) ?? max;
 
@@ -139,7 +145,7 @@ const RangeSlider: React.FC<{
         e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
         thumb: 'min' | 'max'
     ) => {
-        if (!trackRef.current) return;
+        if (!trackRef.current || readOnly) return;
         e.preventDefault();
 
         const trackRect = trackRef.current.getBoundingClientRect();
@@ -192,7 +198,8 @@ const RangeSlider: React.FC<{
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
                             </div>
                         </div>
-                        <div onMouseDown={(e) => handleInteraction(e, 'min')} onTouchStart={(e) => handleInteraction(e, 'min')} className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2" tabIndex={0} />
+                        {!readOnly && <div onMouseDown={(e) => handleInteraction(e, 'min')} onTouchStart={(e) => handleInteraction(e, 'min')} className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2" tabIndex={0} />}
+                        {readOnly && <div className="w-5 h-5 bg-gray-300 border-2 border-gray-400 rounded-full shadow-md -translate-x-1/2 opacity-50" />}
                     </div>
 
                     {/* Max Thumb with Indicator */}
@@ -203,7 +210,8 @@ const RangeSlider: React.FC<{
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
                             </div>
                         </div>
-                        <div onMouseDown={(e) => handleInteraction(e, 'max')} onTouchStart={(e) => handleInteraction(e, 'max')} className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2" tabIndex={0} />
+                        {!readOnly && <div onMouseDown={(e) => handleInteraction(e, 'max')} onTouchStart={(e) => handleInteraction(e, 'max')} className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2" tabIndex={0} />}
+                        {readOnly && <div className="w-5 h-5 bg-gray-300 border-2 border-gray-400 rounded-full shadow-md -translate-x-1/2 opacity-50" />}
                     </div>
                 </div>
             </div>
@@ -218,6 +226,8 @@ export default function PreferenceForm() {
     }, [searchParams]);
 
     const { showToast } = useToast();
+    const { user } = useAuth();
+    const isReadOnly = user?.role === 'admin';
     const [loading, setLoading] = React.useState(false);
     const [requestSent, setRequestSent] = useState(false);
 
@@ -294,6 +304,7 @@ export default function PreferenceForm() {
     }, [customerId, reset, showToast]);
 
     const onSubmit = async (data: UserPreferenceFormData) => {
+        if (isReadOnly) return; 
         setLoading(true);
         try {
             const res = await createPreference(data);
@@ -347,18 +358,18 @@ export default function PreferenceForm() {
             <form id="preference-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3 md:space-y-6">
                 <FormSection title="About You" className='space-y-3'>
                     <Field label="I am a..." error={errors.userType} required>
-                        <IconRadio name="userType" options={userTypeOptions} watch={watch} setValue={setValue} />
+                        <IconRadio name="userType" options={userTypeOptions} watch={watch} setValue={setValue} readOnly={isReadOnly}/>
                     </Field>
                     <hr className='border-gray-200' />
                     <Field label="Looking for..." error={errors.lookingFor} required>
-                        <IconRadio name="lookingFor" options={lookingForOptions} watch={watch} setValue={setValue} />
+                        <IconRadio name="lookingFor" options={lookingForOptions} watch={watch} setValue={setValue} readOnly={isReadOnly}/>
                     </Field>
                 </FormSection>
 
                 <FormSection title="Property Type">
                     <div className="space-y-3 md:space-y-4  ">
                         <Field label="Property Type" error={errors.type} required>
-                            <IconRadio name="type" options={propertyTypeOptions} watch={watch} setValue={setValue} />
+                            <IconRadio name="type" options={propertyTypeOptions} watch={watch} setValue={setValue} readOnly={isReadOnly}/>
                         </Field>
                         {watchedType && (
                             <>
@@ -366,7 +377,7 @@ export default function PreferenceForm() {
                                 <Field label="Category" error={errors.category}>
                                     <div className="flex flex-wrap gap-3 pt-2">
                                         {(watchedType === 'commercial' ? commercialCategoryOptions : residentialCategoryOptions).map(opt => (
-                                            <IconCheckbox key={opt.value} name="category" option={opt} register={register} />
+                                            <IconCheckbox key={opt.value} name="category" option={opt} register={register} readOnly={isReadOnly}/>
                                         ))}
                                     </div>
                                 </Field>
@@ -387,6 +398,7 @@ export default function PreferenceForm() {
                             watch={watch}
                             setValue={setValue}
                             formatDisplay={formatPrice}
+                            readOnly={isReadOnly}
                         />
                     </div>
                 </FormSection>
@@ -397,14 +409,14 @@ export default function PreferenceForm() {
                             <Field label="Bedrooms" error={errors.bedrooms}>
                                 <div className="flex flex-wrap gap-3">
                                     {bedroomsOptions.map(opt => (
-                                        <IconCheckbox key={opt.value} name="bedrooms" option={opt} register={register} />
+                                        <IconCheckbox key={opt.value} name="bedrooms" option={opt} register={register} readOnly={isReadOnly}/>
                                     ))}
                                 </div>
                             </Field>
                             <Field label="Bathrooms" error={errors.bathrooms}>
                                 <div className="flex flex-wrap gap-3">
                                     {bathroomsOptions.map(opt => (
-                                        <IconCheckbox key={opt.value} name="bathrooms" option={opt} register={register} />
+                                        <IconCheckbox key={opt.value} name="bathrooms" option={opt} register={register} readOnly={isReadOnly}/>
                                     ))}
                                 </div>
                             </Field>
@@ -418,7 +430,7 @@ export default function PreferenceForm() {
                             <Field label="Furnishing Status" error={errors.furnishing}>
                                 <div className="flex flex-wrap gap-3">
                                     {furnishingOptions.map(opt => (
-                                        <IconCheckbox key={opt.value} name="furnishing" option={opt} register={register} />
+                                        <IconCheckbox key={opt.value} name="furnishing" option={opt} register={register} readOnly={isReadOnly}/>
                                     ))}
                                 </div>
                             </Field>
@@ -426,14 +438,14 @@ export default function PreferenceForm() {
                         <Field label="Facing" error={errors.facing}>
                             <div className="flex flex-wrap gap-2">
                                 {facingOptions.map(opt => (
-                                    <IconCheckbox key={opt.value} name="facing" option={opt} register={register} />
+                                    <IconCheckbox key={opt.value} name="facing" option={opt} register={register} readOnly={isReadOnly}/>
                                 ))}
                             </div>
                         </Field>
                         <Field label="RERA Status" error={errors.reraStatus}>
                             <div className="flex flex-wrap gap-2">
                                 {reraStatusOptions.map(opt => (
-                                    <IconCheckbox key={opt.value} name="reraStatus" option={opt} register={register} />
+                                    <IconCheckbox key={opt.value} name="reraStatus" option={opt} register={register} readOnly={isReadOnly}/>
                                 ))}
                             </div>
                         </Field>
@@ -441,7 +453,7 @@ export default function PreferenceForm() {
                             <Field label="Features" error={errors.features}>
                                 <div className="flex flex-wrap gap-3">
                                     {filteredFeatures.map(opt => (
-                                        <IconCheckbox key={opt.value} name="features" option={opt} register={register} />
+                                        <IconCheckbox key={opt.value} name="features" option={opt} register={register} readOnly={isReadOnly}/>
                                     ))}
                                 </div>
                             </Field>
@@ -450,7 +462,7 @@ export default function PreferenceForm() {
                             <Field label="Amenities" error={errors.amenities}>
                                 <div className="flex flex-wrap gap-3">
                                     {filteredAmenities.map(opt => (
-                                        <IconCheckbox key={opt.value} name="amenities" option={opt} register={register} />
+                                        <IconCheckbox key={opt.value} name="amenities" option={opt} register={register} readOnly={isReadOnly}/>
                                     ))}
                                 </div>
                             </Field>
@@ -461,7 +473,7 @@ export default function PreferenceForm() {
                 <div className="flex justify-end pb-1">
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || isReadOnly}
                         className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? 'Saving...' : 'Save Preferences'}
