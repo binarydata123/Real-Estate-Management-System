@@ -6,12 +6,16 @@ import { sendPushNotification } from "../../utils/pushService.js";
 // Get all properties
 export const getProperties = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, status } = req.query;
+    const { page = 1, limit = 10, search, status, agencyId } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
     let searchQuery = {};
+
+    if (agencyId) {
+      searchQuery.agencyId = agencyId;
+    }
 
     if (search || status) {
       searchQuery.$or = [];

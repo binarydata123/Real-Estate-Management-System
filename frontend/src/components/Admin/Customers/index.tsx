@@ -1,11 +1,14 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Building2, CheckCircle, Clock, PlusIcon, UserPlus, Heart, Handshake, XCircle } from 'lucide-react';
+//import { Building2, CheckCircle, Clock, PlusIcon, UserPlus, Heart, Handshake, XCircle } from 'lucide-react';
+import { Building2, PlusIcon, UserPlus } from 'lucide-react';
 import { getCustomers, deleteCustomerById } from "@/lib/Admin/CustomerAPI";
 import { Pagination } from "@/components/Common/Pagination";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
+import { useSearchParams } from 'next/navigation';
+import Link from "next/link";
 
 const statusStyles: { [key: string]: string } = {
     new: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400',
@@ -38,24 +41,26 @@ export default function Customers() {
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
     //const [showAddForm, setShowAddForm] = useState(false);
+    const searchParams = useSearchParams(); // ✅ to access query string params
+    const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
 
     // Calculate stats from mock data
     const totalCustomers = customers.length;
     const newCustomers = customers.filter(a => a.status === 'new').length;
-    const interestedCustomers = customers.filter(a => a.status === 'interested').length;
-    const negotiatingCustomers = customers.filter(a => a.status === 'negotiating').length;
-    const convertedCustomers = customers.filter(a => a.status === 'converted').length;
-    const notInterestedCustomers = customers.filter(a => a.status === 'not_interested').length;
-    const followUpCustomers = customers.filter(a => a.status === 'follow_up').length;
+    // const interestedCustomers = customers.filter(a => a.status === 'interested').length;
+    // const negotiatingCustomers = customers.filter(a => a.status === 'negotiating').length;
+    // const convertedCustomers = customers.filter(a => a.status === 'converted').length;
+    // const notInterestedCustomers = customers.filter(a => a.status === 'not_interested').length;
+    // const followUpCustomers = customers.filter(a => a.status === 'follow_up').length;
 
     const customerStats = [
-    { name: 'Total Customers', value: totalCustomers, icon: Building2, color: 'bg-blue-500' },
-    { name: 'New', value: newCustomers, icon: UserPlus, color: 'bg-indigo-500' },
-    { name: 'Interested', value: interestedCustomers, icon: Heart, color: 'bg-pink-500' },
-    { name: 'Negotiating', value: negotiatingCustomers, icon: Handshake, color: 'bg-yellow-500' },
-    { name: 'Converted', value: convertedCustomers, icon: CheckCircle, color: 'bg-green-500' },
-    { name: 'Not Interested', value: notInterestedCustomers, icon: XCircle, color: 'bg-red-500' },
-    { name: 'Follow Up', value: followUpCustomers, icon: Clock, color: 'bg-orange-500' },
+        { name: 'Total Customers', value: totalCustomers, icon: Building2, color: 'bg-blue-500' },
+        { name: 'New', value: newCustomers, icon: UserPlus, color: 'bg-indigo-500' },
+        // { name: 'Interested', value: interestedCustomers, icon: Heart, color: 'bg-pink-500' },
+        // { name: 'Negotiating', value: negotiatingCustomers, icon: Handshake, color: 'bg-yellow-500' },
+        // { name: 'Converted', value: convertedCustomers, icon: CheckCircle, color: 'bg-green-500' },
+        // { name: 'Not Interested', value: notInterestedCustomers, icon: XCircle, color: 'bg-red-500' },
+        // { name: 'Follow Up', value: followUpCustomers, icon: Clock, color: 'bg-orange-500' },
     ];
 
     useEffect(() => {
@@ -84,10 +89,10 @@ export default function Customers() {
     };
     
     const getAllCustomers = useCallback(
-        async (page = 1, search = "", status = "") => {
+        async (page = 1, search = "", status = "", agencyIdParam = "") => {
             try {
                 setLoading(true);
-                const res = await getCustomers(page, limit, search, status);
+                const res = await getCustomers(page, limit, search, status, agencyIdParam);
                 if (res.success) {
                     setCustomers(res.data);
                     setCurrentPage(res.pagination?.page ?? 1);
@@ -104,8 +109,8 @@ export default function Customers() {
     );
     
     useEffect(() => {
-        getAllCustomers(currentPage, debouncedSearchTerm, debouncedSearchStatus);
-    }, [getAllCustomers, currentPage, debouncedSearchTerm, debouncedSearchStatus]);
+        getAllCustomers(currentPage, debouncedSearchTerm, debouncedSearchStatus, agencyId || "");
+    }, [getAllCustomers, currentPage, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
     
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
@@ -136,21 +141,21 @@ export default function Customers() {
 
             {/* Stats Cards */}
             <div className="mt-8">
-                <dl className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     {customerStats.map((item) => (
                         <div
                             key={item.name}
                             className="relative overflow-hidden rounded-lg bg-white shadow p-2"
                         >
-                            <div className="p-5">
+                            <div className="p-5 stats-card-padding-sec">
                                 <div className="flex items-center">
                                     <div className="flex-shrink-0">
                                         <div className={classNames(item.color, "rounded-lg p-3")}>
                                             <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
                                         </div>
                                     </div>
-                                    <div className="ml-4 w-0 flex-1">
-                                        <dt className="truncate text-sm font-medium text-gray-500 dark:text-gray-400">{item.name}</dt>
+                                    <div className="ml-2 w-0 flex-1">
+                                        <dt className="truncate text-sm header-tab-sec font-medium text-gray-500 dark:text-gray-400">{item.name}</dt>
                                         <dd>
                                             <div className="flex items-baseline">
                                                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">{item.value}</p>
@@ -192,7 +197,7 @@ export default function Customers() {
             <div className="mt-8 flex flex-col">
                 <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                        <div className="overflow-hidden shadow-sm  md:rounded-lg">
+                        <div id="table-listing-sec" className="overflow-hidden shadow-sm  md:rounded-lg">
                             {loading ? (
                                 <div className="text-center py-12">
                                     <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
@@ -205,8 +210,8 @@ export default function Customers() {
                                             <>
                                                 <thead className="bg-gray-50  dark:bg-gray-800">
                                                     <tr>
-                                                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300">Property</th>
-                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Email</th>
+                                                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300">Customer</th>
+                                                        {/* <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Email</th> */}
                                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Phone</th>
                                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Minimum Budget</th>
                                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Maximum Budget</th>
@@ -226,7 +231,7 @@ export default function Customers() {
                                                                     <div className="ml-4"><div className="font-medium text-gray-900 dark:text-white">{customer.fullName || 'N/A'}</div></div>
                                                                 </div>
                                                             </td>
-                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{customer.email || 'N/A'}</td>
+                                                            {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{customer.email || 'N/A'}</td> */}
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{customer.phoneNumber || 'N/A'}</td>
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                                                 {customer.minimumBudget?.toLocaleString("en-US", {
@@ -270,12 +275,12 @@ export default function Customers() {
                                                                 className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
                                                                 >
                                                                 View
-                                                                </span>
+                                                                </span>*/}
                                                                 <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                                                                <Link href={`/agent/preference?customerId=${customer._id}`}>
-                                                                    Preference
-                                                                </Link>
-                                                                </span> */}
+                                                                    <Link href={`/admin/preference?customerId=${customer._id}`}>
+                                                                        Preference
+                                                                    </Link>
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                     ))}

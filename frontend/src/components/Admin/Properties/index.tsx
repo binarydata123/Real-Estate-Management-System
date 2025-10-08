@@ -6,6 +6,7 @@ import { Pagination } from "@/components/Common/Pagination";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
+import { useSearchParams } from 'next/navigation';
 
 const statusStyles: { [key: string]: string } = {
     Available: 'bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400',
@@ -36,6 +37,8 @@ export default function Properties() {
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
     //const [showAddForm, setShowAddForm] = useState(false);
+    const searchParams = useSearchParams(); // ✅ to access query string params
+    const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
 
     // Calculate stats from mock data
     const totalProperties = properties.length;
@@ -79,28 +82,33 @@ export default function Properties() {
     };
     
     const getAllProperty = useCallback(
-        async (page = 1, search = "", status = "") => {
+        async (page = 1, search = "", status = "", agencyIdParam = "") => {
+            console.log(agencyIdParam);
             try {
-            setLoading(true);
-            const res = await getProperty(page, limit, search, status);
-            if (res.success) {
-                setProperties(res.data);
-                setCurrentPage(res.pagination?.page ?? 1);
-                setTotalPages(res.pagination?.totalPages ?? 1);
-                //setTotalRecords(res.pagination?.total ?? 0);
-            }
+                setLoading(true);
+                const res = await getProperty(page, limit, search, status, agencyIdParam);
+                if (res.success) {
+                    setProperties(res.data);
+                    setCurrentPage(res.pagination?.page ?? 1);
+                    setTotalPages(res.pagination?.totalPages ?? 1);
+                    //setTotalRecords(res.pagination?.total ?? 0);
+                }
             } catch (error) {
-            console.error("Failed to fetch customers:", error);
+                console.error("Failed to fetch customers:", error);
             } finally {
-            setLoading(false);
+                setLoading(false);
             }
         },
         [user?._id]
     );
     
     useEffect(() => {
-        getAllProperty(currentPage, debouncedSearchTerm, debouncedSearchStatus);
-    }, [getAllProperty, currentPage, debouncedSearchTerm, debouncedSearchStatus]);
+        let finalAgencyId = '';
+        if(agencyId){
+            finalAgencyId = agencyId;
+        }
+        getAllProperty(currentPage, debouncedSearchTerm, debouncedSearchStatus, finalAgencyId || "");
+    }, [getAllProperty, currentPage, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
     
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
@@ -131,21 +139,21 @@ export default function Properties() {
 
             {/* Stats Cards */}
             <div className="mt-8">
-                <dl className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     {propertyStats.map((item) => (
                         <div
                             key={item.name}
                             className="relative overflow-hidden rounded-lg bg-white shadow p-2"
                         >
-                            <div className="p-5">
+                            <div className="p-5 stats-card-padding-sec">
                                 <div className="flex items-center">
                                     <div className="flex-shrink-0">
                                         <div className={classNames(item.color, "rounded-lg p-3")}>
                                             <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
                                         </div>
                                     </div>
-                                    <div className="ml-4 w-0 flex-1">
-                                        <dt className="truncate text-sm font-medium text-gray-500 dark:text-gray-400">{item.name}</dt>
+                                    <div className="ml-2 w-0 flex-1">
+                                        <dt className="truncate text-sm header-tab-sec font-medium text-gray-500 dark:text-gray-400">{item.name}</dt>
                                         <dd>
                                             <div className="flex items-baseline">
                                                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">{item.value}</p>

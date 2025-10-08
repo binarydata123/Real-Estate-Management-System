@@ -6,12 +6,16 @@ import { sendPushNotification } from "../../utils/pushService.js";
 // Get all properties
 export const getCustomers = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, status } = req.query;
+    const { page = 1, limit = 10, search, status, agencyId } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
     let searchQuery = {};
+
+    if (agencyId) {
+      searchQuery.agencyId = agencyId;
+    }
 
     if (search || status) {
       searchQuery.$or = [];
@@ -26,7 +30,7 @@ export const getCustomers = async (req, res) => {
         const agencyIds = agencies.map(a => a._id);
         searchQuery.$or.push(
             { fullName: { $regex: search, $options: "i" }}, 
-            { email: {$regex: search, $options: "i"}}, 
+            //{ email: {$regex: search, $options: "i"}}, 
             { phoneNumber: {$regex: search, $options: "i"}},
             { owner_name: {$regex: search, $options: "i"}},
             { agencyId: { $in: agencyIds } }

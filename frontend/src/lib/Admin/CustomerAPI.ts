@@ -5,7 +5,8 @@ export const getCustomers = async (
   page?: number,
   limit?: string,
   search = "",
-  status = ""
+  status = "",
+  agencyId = ""
 ) => {
   const params: Record<string, string> = {};
   if (page !== undefined) {
@@ -19,6 +20,9 @@ export const getCustomers = async (
   }
   if(status) {
     params.status = status;
+  }
+  if (agencyId) { 
+    params.agencyId = agencyId;
   }
   const query = new URLSearchParams(params);
   const response = await api.get<CustomerResponse>(

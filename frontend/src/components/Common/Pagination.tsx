@@ -64,7 +64,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   const pages = paginationRange();
 
   return (
-    <div className="flex flex-wrap justify-center items-center space-x-1 sm:space-x-2 mt-4">
+    <div className="flex flex-wrap justify-center items-center space-x-1 sm:space-x-2 mt-4 mb-4 pagination-button-sec">
       {showFirstLast && (
         <button
           onClick={() => onPageChange(1)}

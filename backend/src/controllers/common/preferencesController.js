@@ -54,12 +54,16 @@ export const sendRequestToCustomer = async (req, res) => {
             return res.status(400).json({ success: false, message: "Customer ID is required." });
         }
 
-        const customer = await Customer.findById(customerId);
-
-
+        const customer = await Customer.findById(customerId).populate('agencyId');
+        let agencyData;
+        if(agent.agencyId){
+            agencyData = agent.agencyId;
+        } else {
+            agencyData = customer.agencyId;
+        }
         // Create a record of the request being sent
         await PreferenceRequest.create({
-            agencyId: agent.agencyId._id,
+            agencyId: agencyData._id,
             sentByUserId: agent._id,
             sentToUserId: customerId,
         });
@@ -67,7 +71,7 @@ export const sendRequestToCustomer = async (req, res) => {
         // Create an in-app notification for the customer
         await createNotification({
             userId: customerId,
-            message: `${agent.agencyId.name} has requested you to fill out your property preferences.`,
+            message: `${agencyData.name} has requested you to fill out your property preferences.`,
             type: "preference_request",
             link: "/preferences", // A link to the preferences page on the frontend
         });
@@ -84,7 +88,7 @@ export const sendRequestToCustomer = async (req, res) => {
         const result = await sendPushNotification({
             userId: customerId,
             title: "Update Your Preferences",
-            message: `${agent.agencyId.name} has requested you to fill out your property preferences to find the best matches for you.`,
+            message: `${agencyData.name} has requested you to fill out your property preferences to find the best matches for you.`,
             urlPath: "/preferences",
         });
 

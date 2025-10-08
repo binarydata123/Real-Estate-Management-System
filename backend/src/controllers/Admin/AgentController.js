@@ -28,7 +28,7 @@ export const getAgents = async (req, res) => {
         const agencyIds = agencies.map(a => a._id);
         searchQuery.$or.push(
             { name: { $regex: search, $options: "i" }}, 
-            { email: {$regex: search, $options: "i"}}, 
+            //{ email: {$regex: search, $options: "i"}}, 
             { phone: {$regex: search, $options: "i"}},
             { agencyId: { $in: agencyIds } }
         );
@@ -50,10 +50,15 @@ export const getAgents = async (req, res) => {
     // Attach properties and customers count for each agent
     const agentsWithCounts = await Promise.all(
       agents.map(async (agent) => {
-        const [propertiesCount, customersCount] = await Promise.all([
-          Property.countDocuments({ agencyId: agent.agencyId }),
-          Customer.countDocuments({ agencyId: agent.agencyId }),
-        ]);
+        let propertiesCount = 0;
+        let customersCount = 0;
+
+        if (agent.agencyId) {
+          [propertiesCount, customersCount] = await Promise.all([
+            Property.countDocuments({ agencyId: agent.agencyId._id }),
+            Customer.countDocuments({ agencyId: agent.agencyId._id }),
+          ]);
+        }
 
         return {
           ...agent.toObject(),

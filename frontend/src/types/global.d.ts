@@ -257,6 +257,117 @@ declare global {
     customersCount?: number;
     propertiesCount?: number;
   }
+
+  interface DashboardResponse {
+    success: boolean;
+    data: {
+      stats: Stats[],
+      userGrowthData: UserGrowthData[],
+      propertyGrowthData: PropertyGrowthData[],
+      recentUsers: RecentUserData[],
+      recentAgencies: AgencyData[]
+    };
+    message?: string;
+  }
+
+  interface Stats {
+    name: string;
+    stat: number;
+  }
+
+  interface UserGrowthData {
+    name: string;
+    users: number;
+  }
+
+  interface PropertyGrowthData {
+    name: string;
+    properties: number;
+  }
+
+  interface RecentUserData {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+    createdAt: string;
+  };
+
+  interface AgencyData {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
+
+  interface ProfileResponse{
+    success: boolean;
+    data: UserData;
+    message: string;
+  }
+
+  interface UserData {
+    _id?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    role?: string;
+    password?: string;
+    profilePictureUrl?: string;
+    status?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  }
+
+  interface AnalyticsResponse {
+    success: boolean;
+    data: {
+      stats: AnalyticsStats;
+      monthlyUsers: AnalyticsMonthlyUsers[];
+      monthlyRevenue: AnalyticsMonthlyRevenue[];
+      recentActivities: AnalyticsRecentActivities[];
+      topAgents: AnalyticsTopAgents[];
+    };
+    message?: string;
+  }
+  interface AnalyticsStats {
+    totalUsers: number;
+    totalAgencies: number;
+    totalCustomers: number;
+    totalProperties: number;
+    totalMeetings: number;
+    totalRevenue: number;
+  }
+
+  interface AnalyticsMonthlyRevenue {
+    _id: number;
+    total: number;
+  }
+  interface FormattedMonthlyRevenue {
+    name: string;
+    revenue: number;
+  }
+  interface AnalyticsMonthlyUsers {
+    _id: number;
+    count: number;
+  }
+  interface FormattedMonthlyUsers {
+    name: string;
+    signups: number;
+  }
+  interface AnalyticsRecentActivities {
+    id: string;
+    user: string;
+    action: string;
+    time: string;
+    icon: string;
+  }
+  interface AnalyticsTopAgents {
+    id: string;
+    deals: number; 
+    name: string;
+    profilePictureUrl: string;
+  }
 }
 
 export {

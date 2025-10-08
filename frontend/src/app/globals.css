@@ -152,4 +152,27 @@ select:focus-visible {
   textarea {
     font-size: 16px;
   }
+  .stats-card-padding-sec{
+    padding: 0px;
+  }
+  .header-tab-sec{
+    font-size: .675rem;
+  }
+  .text-sec-margin{
+    margin-left: calc(var(--spacing) * 11);
+  }
+  .dashboard-tab-sec-padding{
+    padding-top: 9px;
+    padding-bottom: 15px;
+  }
+  .analytics-stats-tab-sec {
+    padding: calc(var(--spacing) * 2);
+  }
+  .monthly-signup-chart-sec svg:not(.logo-svg, .header-icon), .monthly-revenue-chart-sec svg:not(.logo-svg, .header-icon) {
+    width: auto !important;
+    height: auto !important;
+  }
+  .pagination-button-sec button{
+    padding: 5px 10px 5px 10px !important;
+  }
 }

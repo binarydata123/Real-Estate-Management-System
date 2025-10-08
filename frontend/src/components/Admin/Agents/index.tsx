@@ -128,21 +128,21 @@ export default function Agents() {
 
             {/* Stats Cards */}
             <div className="mt-8">
-                <dl className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     {agentsStats.map((item) => (
                         <div
                             key={item.name}
                             className="relative overflow-hidden rounded-lg bg-white shadow p-2"
                         >
-                            <div className="p-5">
+                            <div className="p-5 stats-card-padding-sec">
                                 <div className="flex items-center">
                                     <div className="flex-shrink-0">
                                         <div className={classNames(item.color, "rounded-lg p-3")}>
                                             <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
                                         </div>
                                     </div>
-                                    <div className="ml-4 w-0 flex-1">
-                                        <dt className="truncate text-sm font-medium text-gray-500 dark:text-gray-400">{item.name}</dt>
+                                    <div className="ml-2 w-0 flex-1">
+                                        <dt className="truncate text-sm header-tab-sec font-medium text-gray-500 dark:text-gray-400">{item.name}</dt>
                                         <dd>
                                             <div className="flex items-baseline">
                                                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">{item.value}</p>
@@ -195,7 +195,7 @@ export default function Agents() {
                                                 <thead className="bg-gray-50  dark:bg-gray-800">
                                                     <tr>
                                                         <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300">Agent</th>
-                                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Email</th>
+                                                        {/* <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Email</th> */}
                                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Phone</th>
                                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Customers</th>
                                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Properties</th>
@@ -215,10 +215,26 @@ export default function Agents() {
                                                                     <div className="ml-4"><div className="font-medium text-gray-900 dark:text-white">{agent.name || 'N/A'}</div></div>
                                                                 </div>
                                                             </td>
-                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agent.email || 'N/A'}</td>
+                                                            {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agent.email || 'N/A'}</td> */}
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agent.phone || 'N/A'}</td>
-                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400"><a className='text-blue-800' href={`/admin/customer?agencyId=${agent.agencyId?._id}`}>{agent.customersCount || '0'}</a></td>
-                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400"><a className='text-blue-800' href={`/admin/properties?agencyId=${agent.agencyId?._id}`}>{agent.propertiesCount || '0'}</a></td>
+                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                                                { (agent.customersCount ?? 0) > 0 && agent.agencyId?._id ? (
+                                                                    <a className="text-blue-800" href={`/admin/customers?agencyId=${agent.agencyId._id}`}>
+                                                                    {agent.customersCount ?? 0}
+                                                                    </a>
+                                                                ) : (
+                                                                    agent.customersCount ?? 0
+                                                                )}
+                                                            </td>
+                                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                                                { (agent.propertiesCount ?? 0) > 0 && agent.agencyId?._id ? (
+                                                                    <a className="text-blue-800" href={`/admin/properties?agencyId=${agent.agencyId._id}`}>
+                                                                    {agent.propertiesCount ?? 0}
+                                                                    </a>
+                                                                ) : (
+                                                                    agent.propertiesCount ?? 0
+                                                                )}
+                                                            </td>
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agent?.agencyId?.name || 'N/A'}</td>
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                                                 <span className={classNames(statusStyles[agent.status], 'inline-flex capitalize items-center rounded-full px-2.5 py-0.5 text-xs font-medium')}>
