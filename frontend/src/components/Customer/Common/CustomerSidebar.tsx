@@ -16,6 +16,7 @@ import { Bell, MessageCircleIcon } from "lucide-react";
 const navigation = [
     { name: "Dashboard", href: "/customer/dashboard", icon: HomeIcon },
     { name: "Properties", href: "/customer/properties", icon: BuildingOfficeIcon },
+    { name: "Preferences", href: "/customer/preferences", icon: BuildingOfficeIcon },
     { name: "Meetings", href: "/customer/meetings", icon: CalendarIcon },
     { name: "Messages", href: "/customer/messages", icon: MessageCircleIcon },
     { name: "Notifications", href: "/customer/notifications", icon: Bell },
@@ -45,14 +46,14 @@ export const CustomerSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => 
                     {user ? (
                         <div className="flex items-center space-x-3">
                             {/* {user?.agency?.logoUrl ? (
-                <Image
-                  src={user?.agency?.logoUrl || ""}
-                  alt={user.agency.name}
-                  className="h-10 w-10 rounded-lg object-cover"
-                  width={40}
-                  height={40}
-                />
-              ) : ( */}
+                                <Image
+                                src={user?.agency?.logoUrl || ""}
+                                alt={user.agency.name}
+                                className="h-10 w-10 rounded-lg object-cover"
+                                width={40}
+                                height={40}
+                                />
+                            ) : ( */}
                             <div
                                 className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
                                 style={{ backgroundColor: "#2563eb" }}

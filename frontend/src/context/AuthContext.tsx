@@ -25,6 +25,7 @@ export interface User {
     name: string;
     email: string;
     role: string;
+    showAllProperty: boolean;
     agency?: Agency;
 }
 

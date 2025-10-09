@@ -44,7 +44,7 @@ export const customerSchema = z
       .optional(),
 
     initialNotes: z.string().optional(),
-
+    showAllProperty: z.boolean().optional(),
     agencyId: z.string().optional(),
   })
   .refine(

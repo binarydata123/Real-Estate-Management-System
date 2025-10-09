@@ -296,6 +296,7 @@ const registrationController = {
           name: user.name || user.fullName,
           email: user.email,
           role: user.role,
+          showAllProperty: user.showAllProperty,
           agency: user.agencyId
             ? {
               _id: user.agencyId._id,
