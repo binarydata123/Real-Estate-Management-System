@@ -61,6 +61,7 @@ const customerSchema = new mongoose.Schema({
     },
   },
   initialNotes: { type: String },
+  showAllProperty: {type: Boolean, default: false},
   status: {
     type: String,
     enum: {

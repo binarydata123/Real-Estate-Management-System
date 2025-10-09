@@ -368,6 +368,30 @@ declare global {
     name: string;
     profilePictureUrl: string;
   }
+  interface PreferencesResponse {
+    success: boolean;
+    data: PreferencesFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface PreferencesFormData {
+    _id?: string;
+    userId?: string; 
+    userType: "buyer" | "investor";
+    lookingFor: 'buy' | 'rent';
+    type: 'residential' | 'commercial';
+    category: string[];
+    minPrice: number;
+    maxPrice: number;
+    bedrooms: string[];
+    bathrooms: string[];
+    furnishing: string[];
+    amenities: string[];
+    features: string[];
+    facing: string[];
+    reraStatus: string[]
+  }
 }
 
 export {

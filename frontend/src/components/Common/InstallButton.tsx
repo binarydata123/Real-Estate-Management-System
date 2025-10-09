@@ -43,7 +43,7 @@ export default function InstallButton() {
         setIsInstallable(false);
     };
 
-    console.log(isInstallable)
+    //console.log(isInstallable)
 
     if (!isInstallable) return null;
 
