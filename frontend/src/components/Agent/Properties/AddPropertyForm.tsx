@@ -8,7 +8,7 @@ import { SparklesIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import type { SubmitHandler, FieldErrors } from 'react-hook-form';
-import { MapPin } from 'lucide-react';
+import { MapPin, Mic, MicOff } from 'lucide-react';
 import BackButton from '@/components/Common/BackButton';
 import Image from 'next/image';
 import { amenitiesOptions, featuresOptions, overlookingOptions, PropertyFormData, propertySchema, waterSourceOptions, powerBackupOptions, furnishingOptions, transactionTypeOptions, propertyTypeOptions, commercialCategoryOptions, residentialCategoryOptions, unitAreaTypeOptions, facingOptions, propertyAgeOptions, reraStatusOptions, plotDimensionUnitOptions } from '@/schemas/Agent/propertySchema';
@@ -19,6 +19,7 @@ import IconCheckbox from './IconCheckbox';
 import IconRadio from './IconRadio';
 import IconBooleanRadio from './IconBooleanRadio';
 import StepIndicator from './StepIndicator';
+import { useVoiceForm } from '@/hooks/useVoiceForm';
 
 const Field: React.FC<{
     label: string;
@@ -47,6 +48,47 @@ interface Props {
     propertyId?: string;
 }
 
+interface FormValues {
+  title: string;
+  type: string;
+  category: string;
+  location: string;
+  price: number;
+  built_up_area?: number;
+  carpet_area?: number;
+  plot_front_area?: number;
+  plot_depth_area?: number;
+  plot_dimension_unit?: string;
+  is_corner_plot?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  balconies?: number;
+  washrooms?: number;
+  cabins?: number;
+  conference_rooms?: number;
+  floor_number?: number;
+  total_floors?: number;
+  facing?: string;
+  property_age?: string;
+  transaction_type?: string;
+  furnishing?: string;
+  power_backup?: string;
+  gated_community?: string;
+  rera_status?: string;
+  owner_name?: string;
+  owner_contact?: string;
+  description?: string;
+  unit_area_type?: string;
+  images: File[];
+  overlooking: string;
+  water_source: string;
+  features: string;
+  amenities: string;
+}
+
+
+//const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY!;
+
 export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     const { user } = useAuth();
     const router = useRouter();
@@ -63,17 +105,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     const [images, setImages] = useState<string[]>([]);
     const { showToast, showPromiseToast } = useToast();
     const [imageFiles, setImageFiles] = useState<File[]>([]);
+    //const [voiceReady, setVoiceReady] = useState(false);
+    const [micOn, setMicOn] = useState(false);
+
 
     const { register, handleSubmit, formState: { errors }, watch, setValue, getValues, trigger, setFocus, clearErrors, reset } = useForm<PropertyFormData>({
         resolver: zodResolver(propertySchema) as any,
         defaultValues: {
-            unit_area_type: 'sqft',
+            unit_area_type: 'square feet',
             built_up_area: 0,
             carpet_area: 0,
             plot_front_area: 0,
             plot_depth_area: 0,
-            plot_dimension_unit: 'ft',
-            is_corner_plot: false,
+            plot_dimension_unit: 'feet',
+            is_corner_plot: 'no',
             bedrooms: 0,
             bathrooms: 0,
             balconies: 0,
@@ -83,17 +128,17 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             conference_rooms: 0,
             floor_number: 0,
             total_floors: 0,
-            property_age: 'New',
-            transaction_type: 'New',
-            furnishing: 'Semi-Furnished', // Changed to auto-select Modular Kitchen
-            power_backup: 'Partial', // Changed to auto-select Power Backup feature
-            gated_community: true, // Changed to true to auto-select related amenities
+            property_age: 'new',
+            transaction_type: 'new',
+            furnishing: 'semi furnished', // Changed to auto-select Modular Kitchen
+            power_backup: 'partial', // Changed to auto-select Power Backup feature
+            gated_community: 'no', // Changed to true to auto-select related amenities
             status: 'Available',
-            rera_status: 'Not Approved',
+            rera_status: 'not approved',
             overlooking: [], // Pre-select a common option
-            water_source: ['Municipal Supply'], // Pre-select to auto-check 24x7 supply
+            water_source: ['municipal supply'], // Pre-select to auto-check 24x7 supply
             features: [], // Pre-select common features
-            amenities: ['Rain Water Harvesting'], // Pre-select a common amenity
+            amenities: ['rain water harvesting'], // Pre-select a common amenity
         } satisfies Partial<PropertyFormData>
     });
 
@@ -147,7 +192,6 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
 
     const handleNextStep = async (e: React.MouseEvent) => {
         e.preventDefault(); // Prevent the click event from propagating
-
         let fieldsToValidate: (keyof PropertyFormData)[] = [];
         let isValid = false;
 
@@ -240,7 +284,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     const watchedCategory = watch('category');
 
     const isPlotOrLand = ['plot', 'land'].includes(watchedCategory);
-    const isResidentialBuilt = watchedType === 'residential' && ['flat', 'villa', 'farmHouse'].includes(watchedCategory);
+    const isResidentialBuilt = watchedType === 'residential' && ['flat', 'villa', 'farmhouse'].includes(watchedCategory);
     const isCommercialBuilt = watchedType === 'commercial' && ['showroom', 'office'].includes(watchedCategory);
     const isBuiltStructure = isResidentialBuilt || isCommercialBuilt;
 
@@ -288,7 +332,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             desc += ` Offered at a price of ₹${data.price.toLocaleString()}.`;
         }
 
-        if (data.power_backup && data.power_backup !== 'None') {
+        if (data.power_backup && data.power_backup !== 'none') {
             desc += ` It has ${data.power_backup.toLowerCase()} power backup.`;
         }
 
@@ -324,39 +368,39 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
         const newAmenities = [...amenities];
 
         // Sync Power Backup
-        const hasPowerBackupFeature = features.includes('Power Backup');
-        if (power_backup && power_backup !== 'None') {
-            if (!hasPowerBackupFeature) newFeatures.push('Power Backup');
+        const hasPowerBackupFeature = features.includes('power backup');
+        if (power_backup && power_backup !== 'none') {
+            if (!hasPowerBackupFeature) newFeatures.push('power backup');
         } else {
-            if (hasPowerBackupFeature) newFeatures = newFeatures.filter(f => f !== 'Power Backup');
+            if (hasPowerBackupFeature) newFeatures = newFeatures.filter(f => f !== 'power backup');
         }
 
         // Sync Balcony
-        const hasBalconyFeature = features.includes('Balcony');
+        const hasBalconyFeature = features.includes('balcony');
         if (balconies && balconies > 0) {
-            if (!hasBalconyFeature) newFeatures.push('Balcony');
+            if (!hasBalconyFeature) newFeatures.push('balcony');
         } else {
             // Only uncheck if it's explicitly set to 0
-            if (balconies === 0 && hasBalconyFeature) newFeatures = newFeatures.filter(f => f !== 'Balcony');
+            if (balconies === 0 && hasBalconyFeature) newFeatures = newFeatures.filter(f => f !== 'balcony');
         }
 
         // --- One-way convenience checks from here ---
 
         // Sync Furnished -> Air Conditioned (one-way)
-        const hasACFeature = features.includes('Air Conditioned');
-        if (furnishing === 'Furnished' && !hasACFeature) {
-            newFeatures.push('Air Conditioned');
+        const hasACFeature = features.includes('air conditioned');
+        if (furnishing === 'furnished' && !hasACFeature) {
+            newFeatures.push('air conditioned');
         }
 
         // Sync Furnished -> Modular Kitchen
-        const hasModularKitchenFeature = features.includes('Modular Kitchen');
-        if ((furnishing === 'Furnished' || furnishing === 'Semi-Furnished') && !hasModularKitchenFeature) {
-            newFeatures.push('Modular Kitchen');
+        const hasModularKitchenFeature = features.includes('modular kitchen');
+        if ((furnishing === 'furnished' || furnishing === 'semi furnished') && !hasModularKitchenFeature) {
+            newFeatures.push('modular kitchen');
         }
 
         // Sync Gated Community -> Security, CCTV, Park, Visitor Parking, Maintenance Staff
         if (gated_community) {
-            const gatedAmenities = ['Security', 'CCTV', 'Park', 'Visitor Parking', 'Maintenance Staff'];
+            const gatedAmenities = ['security', 'cctv', 'park', 'visitor parking', 'maintenance staff'];
             gatedAmenities.forEach(amenity => {
                 if (!amenities.includes(amenity)) {
                     newAmenities.push(amenity);
@@ -365,22 +409,22 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
         }
 
         // Sync Facing -> Vaastu Compliant (one-way)
-        const hasVaastuFeature = features.includes('Vaastu Compliant');
-        const isVaastuFacing = facing && ['North', 'East', 'North-East'].includes(facing);
+        const hasVaastuFeature = features.includes('vaastu compliant');
+        const isVaastuFacing = facing && ['north', 'east', 'north east'].includes(facing);
         if (isVaastuFacing && !hasVaastuFeature) {
-            newFeatures.push('Vaastu Compliant');
+            newFeatures.push('vaastu compliant');
         }
 
         // Sync total_floors -> Lift
-        const hasLiftAmenity = amenities.includes('Lift');
+        const hasLiftAmenity = amenities.includes('lift');
         if (total_floors && total_floors > 3 && !hasLiftAmenity) {
-            newAmenities.push('Lift');
+            newAmenities.push('lift');
         }
 
         // Sync water_source -> 24x7 Water Supply
-        const hasWaterSupplyAmenity = amenities.includes('24x7 Water Supply');
+        const hasWaterSupplyAmenity = amenities.includes('24x7 water supply');
         if (water_source && water_source.length > 0 && !hasWaterSupplyAmenity) {
-            newAmenities.push('24x7 Water Supply');
+            newAmenities.push('24x7 water supply');
         }
 
         // Update form state only if there are changes
@@ -397,7 +441,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     const filteredFeatures = useMemo(() => {
         if (!watchedCategory) return [];
         if (isPlotOrLand) {
-            return featuresOptions.filter(opt => opt.value === 'Vaastu Compliant');
+            return featuresOptions.filter(opt => opt.value === 'vaastu compliant');
         }
         return featuresOptions.filter(opt =>
             !opt.categories || opt.categories.includes(watchedCategory)
@@ -429,15 +473,56 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     }, [watchedType, watchedCategory, isEditMode, setValue, generateDescription]);
 
     // When property category changes, check if the current area unit is still valid
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const files = Array.from(e.target.files);
-            setImageFiles(prev => [...prev, ...files]);
+    // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     if (e.target.files) {
+    //         const files = Array.from(e.target.files);
+    //         setImageFiles(prev => [...prev, ...files]);
 
-            const newImagePreviews = files.map(file => URL.createObjectURL(file));
-            setImages(prev => [...prev, ...newImagePreviews]);
-        }
+    //         const newImagePreviews = files.map(file => URL.createObjectURL(file));
+    //         setImages(prev => [...prev, ...newImagePreviews]);
+    //     }
+    // };
+
+    const speakWithOpenAI = async (text: string) => {
+        const response = await fetch("https://api.openai.com/v1/audio/speech", {
+            method: "POST",
+            headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+            model: "gpt-4o-mini-tts",
+            voice: "alloy",
+            input: text,
+            }),
+        });
+
+        const audio = new Audio(URL.createObjectURL(await response.blob()));
+        await audio.play();
     };
+
+
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+
+        const files = Array.from(e.target.files);
+
+        setImageFiles((prev) => [...prev, ...files]);
+        const newImagePreviews = files.map((file) => URL.createObjectURL(file));
+        setImages((prev) => [...prev, ...newImagePreviews]);
+
+        // ✅ Update React Hook Form value (choose one of the two lines below based on your form type)
+        setValue("images", [...(getValues("images") || []), ...newImagePreviews] as string[]); // if using File[]
+        // setValue("images", [...(getValues("images") || []), ...newImagePreviews] as string[]); // if using string URLs
+
+        await trigger("images");
+
+        // ✅ AI Voice confirmation
+        await speakWithOpenAI(
+            `Image uploaded successfully. All Step ${step} fields are completed. You can continue to the next step.`
+        );
+    };
+
 
     const removeImage = (index: number) => {
         const imageUrl = images[index];
@@ -486,6 +571,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     const onValidationError = (errors: FieldErrors<PropertyFormData>) => {
         console.error("Form validation failed:", errors);
         const errorFields = Object.keys(errors) as (keyof PropertyFormData)[];
+
+        console.log(errorFields);
 
         if (errorFields.length > 0) {
             const firstErrorField = errorFields[0];
@@ -576,6 +663,99 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
         }
     };
 
+    const StepOneConditionFields: {name: keyof FormValues, label: string, desc: string, fieldType: string, step: number, required: boolean}[] = [
+        { name: "built_up_area", label: isPlotOrLand ? 'Plot Area' : 'Built-up Area', desc: "Enter the Area", fieldType: "input", step: 1, required: false },
+        ...(isBuiltStructure
+        ? [
+            { name: "carpet_area" as keyof FormValues, label: "Carpet Area", desc: "Enter the Carpet Area", fieldType: "input", step: 1, required: false},
+        ]
+        : []),
+        { name: "unit_area_type", label: "Area Unit", desc: "Choose Area Unit", fieldType: "radio", step: 1, required: false },
+        { name: "plot_front_area", label: "Plot Frontage", desc: "Enter Plot Frontage", fieldType: "input", step: 1, required: false },
+        { name: "plot_depth_area", label: "Plot Depth", desc: "Enter the Plot Depth", fieldType: "input", step: 1, required: false },
+        { name: "plot_dimension_unit", label: "Dimension Unit", desc: "Choose Dimension Unit", fieldType: "radio", step: 1, required: false },
+        { name: "is_corner_plot", label: "Corner Plot?", desc: "Choose Corner Plot", fieldType: "radio", step: 1, required: false },
+
+        ...(watchedType === 'residential' && !isPlotOrLand ? [
+            { name: "bedrooms" as keyof FormValues, label: "Bedrooms", desc: "Enter Bedrooms", fieldType: "input", step: 1, required: false },
+            { name: "bathrooms" as keyof FormValues, label: "Bathrooms", desc: "Enter Bathrooms", fieldType: "input", step: 1, required: false },
+            { name: "balconies" as keyof FormValues, label: "Balconies", desc: "Enter Balconies", fieldType: "input", step: 1, required: false },
+        ]: []),
+
+        ...(watchedType === 'commercial' && !isPlotOrLand ? [
+            { name: "washrooms" as keyof FormValues, label: "Washrooms", desc: "Enter Washrooms", fieldType: "input", step: 1, required: false },
+            { name: "cabins" as keyof FormValues, label: "Cabins", desc: "Enter Cabins", fieldType: "input", step: 1, required: false },
+            { name: "conference_rooms" as keyof FormValues, label: "Conference Rooms", desc: "Enter Conference Rooms", fieldType: "input", step: 1, required: false },
+        ] : []),
+
+        ...(isBuiltStructure
+        ? [
+            { name: "total_floors" as keyof FormValues, label: "Total Floors", desc: "Enter Total Floors", fieldType: "input", step: 1, required: false},
+            { name: "floor_number" as keyof FormValues, label: "Floor Number", desc: "Enter Floor Number", fieldType: "input", step: 1, required: false},
+        ]
+        : []),
+        { name: "facing", label: "Facing", desc: "Choose Facing", fieldType: "radio", step: 1, required: false},
+        ...(isBuiltStructure
+        ? [
+            { name: "property_age" as keyof FormValues, label: "Property Age", desc: "Choose Property Age", fieldType: "radio", step: 1, required: false},
+            { name: "furnishing" as keyof FormValues, label: "Furnishing", desc: "Choose Furnishing", fieldType: "radio", step: 1, required: false},
+            { name: "power_backup" as keyof FormValues, label: "Power_Backup", desc: "Choose Power Backup", fieldType: "radio", step: 1, required: false},
+            { name: "gated_community" as keyof FormValues, label: "Gated Community", desc: "Choose Gated Community", fieldType: "radio", step: 1, required: false}
+        ]
+        : []),
+        { name: "transaction_type", label: "Transaction Type", desc: "Choose Transaction Type", fieldType: "radio", step: 1, required: false},
+        { name: "rera_status", label: "RERA Status", desc: "Choose RERA Status", fieldType: "radio", step: 1, required: false},
+        { name: "owner_name", label: "Owner Name", desc: "Enter Owner Name", fieldType: "input", step: 1, required: false},
+        { name: "owner_contact", label: "Owner Contact", desc: "Enter Owner Contact", fieldType: "input", step: 1, required: false},
+        ...(isEditMode
+        ? [
+            { name: "description" as keyof FormValues, label: "", desc: "Enter description", fieldType: "textarea", step: 1, required: false}
+        ]
+        : []),
+    ]
+
+    const StepOneFields: { name: keyof FormValues, label: string, desc: string, fieldType: string, step: number, required: boolean }[] = [
+        ...(isEditMode
+        ? [
+            { name: "title" as keyof FormValues, label: "Property Title", desc: "Enter the name or title of your property.", fieldType: "input", step: 1, required: false}
+        ]
+        : []),
+        { name: "type", label: "Property Type", desc: "Choose Property Type", fieldType: "radio", step: 1, required: true },
+        { name: "category", label: "Category", desc: "Choose Category", fieldType: "radio", step: 1, required: true },
+        { name: "location", label: "Location", desc: "Specify where the property is located.", fieldType: "input", step: 1, required: false },
+        { name: "price", label: "Price", desc: "Enter the total cost in Indian Rupees.", fieldType: "input", step: 1, required: false },
+        ...(watchedType && watchedCategory
+        ?
+            StepOneConditionFields
+        : [])
+        
+    ];
+
+    const StepTwoFields: { name: keyof FormValues, label: string, desc: string, fieldType: string, step: number, required: boolean }[] = [
+        { name: "images" as keyof FormValues, label: "Upload Images", desc: "Choose Images", fieldType: "file", step: 2, required: false },
+    ];
+
+    const StepThreeFields: { name: keyof FormValues, label: string, desc: string, fieldType: string, step: number, required: boolean }[] = [
+        { name: "overlooking" as keyof FormValues, label: "Overlooking", desc: "Select Overlooking", fieldType: "checkbox", step: 3, required: false },
+        { name: "water_source" as keyof FormValues, label: "Water Source", desc: "Select Overlooking", fieldType: "checkbox", step: 3, required: false},
+        ...(filteredFeatures.length > 0 
+        ? [
+            { name: "features" as keyof FormValues, label: "Features", desc: "Select Features", fieldType: "checkbox", step: 3, required: false},
+        ]: []),
+        ...(!isPlotOrLand
+        ? [
+            { name: "amenities" as keyof FormValues, label: "Amenities", desc: "Select Amenities", fieldType: "checkbox", step: 3, required: false}
+        ]: [])
+    ];
+
+    const { toggleVoiceListening } = useVoiceForm([...StepOneFields, ...StepTwoFields, ...StepThreeFields], setValue, trigger, getValues, step);
+    //useVoiceForm(StepOneFields, setValue, trigger, getValues, () => handleSubmit(onSubmit)());
+
+    const handleMicClick = () => {
+        const newMicState = !micOn;
+        setMicOn(newMicState);
+        toggleVoiceListening(newMicState); // Start or stop listening based on mic state
+    };
     return (
         <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center md:mb-2">
@@ -588,75 +768,90 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             <div className="md:p-4 mb-2">
                 <StepIndicator currentStep={step} steps={steps} />
             </div>
-
             <form onSubmit={handleSubmit(onSubmit, onValidationError)} className="md:p-6 pt-0 md:space-y-6 space-y-2">
+                <div className='voice-btn-section' style={{textAlign: "right"}}>
+                    <button type='button' className='text-blue-600' id='voice-btn' onClick={handleMicClick}>{micOn ? <Mic /> : <MicOff />}</button>
+                </div>
                 {step === 1 && (
                     <div className="space-y-3 md:space-y-6">
                         <FormSection title="Basic Information">
                             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                                {isEditMode && (
-                                    <div className="col-span-2">
-                                        <Field label="Property Title" required error={errors.title}>
-                                            <input
-                                                {...register('title')}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="e.g., Beautiful 3BHK Apartment"
-                                            />
-                                        </Field>
-                                    </div>
-                                )}
-                                <div className="col-span-2">
-                                    <Field label="Property Type" required error={errors.type}>
-                                        <IconRadio name="type" options={propertyTypeOptions} watch={watch} setValue={setValue} />
-                                    </Field>
-                                </div>
-                                <div className="col-span-2 lg:col-span-3">
-                                    <Field label="Category" required error={errors.category}>
-                                        <IconRadio
-                                            name="category"
-                                            options={watchedType === 'commercial' ? commercialCategoryOptions : residentialCategoryOptions}
-                                            watch={watch}
-                                            setValue={setValue}
-                                        />
-                                    </Field>
-                                </div>
-                                <div className="">
-                                    <Field label="Location" error={errors.location}>
-                                        <div className="relative">
-                                            <input
-                                                {...register('location')}
-                                                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="e.g., Bandra West, Mumbai"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={handleGetCurrentLocation}
-                                                disabled={isFetchingLocation}
-                                                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
-                                                aria-label="Get current location"
-                                            >
-                                                {isFetchingLocation ? (
-                                                    <svg className="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                    </svg>
-                                                ) : (
-                                                    <MapPin className="h-5 w-5" />
-                                                )}
-                                            </button>
-                                        </div>
-                                    </Field>
-                                </div>
-                                <div className="md:col-span-2">
-                                    <Field label="Price (₹)" error={errors.price}>
-                                        <input
-                                            type="number"
-                                            {...register('price', { valueAsNumber: true })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="e.g., 5000000"
-                                        />
-                                    </Field>
-                                </div>
+                                {StepOneFields.map((f) => (
+                                    <>
+                                        {isEditMode && f.name == 'title' && (
+                                            <div className="col-span-2">
+                                                <Field label={f.label} required error={errors.title}>
+                                                    <input
+                                                        {...register(f.name)}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                                        placeholder="e.g., Beautiful 3BHK Apartment"
+                                                    />
+                                                </Field>
+                                            </div>
+                                        )}
+                                        {f.name == 'type' && (
+                                            <div className="col-span-2">
+                                                <Field label={f.label} required error={errors.type}>
+                                                    <IconRadio name="type" options={propertyTypeOptions} watch={watch} setValue={setValue} />
+                                                </Field>
+                                            </div>
+                                        )}
+                                        {f.name == 'category' && (
+                                            <div className="col-span-2 lg:col-span-3">
+                                                <Field label={f.label} required error={errors.category}>
+                                                    <IconRadio
+                                                        name="category"
+                                                        options={watchedType === 'commercial' ? commercialCategoryOptions : residentialCategoryOptions}
+                                                        watch={watch}
+                                                        setValue={setValue}
+                                                    />
+                                                </Field>
+                                            </div>
+                                        )}
+                                        {f.name == 'location' && (
+                                            <div className="">
+                                                <Field label={f.label} error={errors.location}>
+                                                    <div className="relative">
+                                                        <input
+                                                            {...register(f.name)}
+                                                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                                            placeholder="e.g., Bandra West, Mumbai"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleGetCurrentLocation}
+                                                            disabled={isFetchingLocation}
+                                                            className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+                                                            aria-label="Get current location"
+                                                        >
+                                                            {isFetchingLocation ? (
+                                                                <svg className="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                </svg>
+                                                            ) : (
+                                                                <MapPin className="h-5 w-5" />
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                </Field>
+                                            </div>
+                                        )}
+                                        {f.name == 'price' && (
+                                            <div className="md:col-span-2">
+                                                <Field label={`${f.label} (₹)`} error={errors.price}>
+                                                    <input
+                                                        type="number"
+                                                        {...register(f.name, { valueAsNumber: true })}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                                        placeholder="e.g., 5000000"
+                                                        maxLength={15}
+                                                    />
+                                                </Field>
+                                            </div>
+                                        )}
+                                    </>
+                                ))}
                             </div>
                         </FormSection>
 
@@ -664,66 +859,90 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                             <div className="md:space-y-6 space-y-3">
                                 <FormSection title="Area & Configuration">
                                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                                        <div className="md:col-span-2">
-                                            <Field label={isPlotOrLand ? 'Plot Area' : 'Built-up Area'} error={errors.built_up_area}>
-                                                <input
-                                                    type="number"
-                                                    {...register('built_up_area', { valueAsNumber: true })}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                                    placeholder="e.g., 1500"
-                                                />
-                                            </Field>
-                                        </div>
-                                        {isBuiltStructure && (
-                                            <div className="md:col-span-2">
-                                                <Field label="Carpet Area" error={errors.carpet_area}>
-                                                    <input
-                                                        type="number"
-                                                        {...register('carpet_area', { valueAsNumber: true })}
-                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                                        placeholder="e.g., 1200"
-                                                    />
-                                                </Field>
-                                            </div>
-                                        )}
+                                        {StepOneFields.map((f) => (
+                                            <>
+                                                {f.name == 'built_up_area' && (
+                                                    <div className="md:col-span-2">
+                                                        <Field label={f.label} error={errors.built_up_area}>
+                                                            <input
+                                                                type="number"
+                                                                {...register(f.name, { valueAsNumber: true })}
+                                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                                placeholder="e.g., 1500"
+                                                            />
+                                                        </Field>
+                                                    </div>
+                                                )}
+                                                {isBuiltStructure && f.name == 'carpet_area' && (
+                                                    <div className="md:col-span-2">
+                                                        <Field label={f.label} error={errors.carpet_area}>
+                                                            <input
+                                                                type="number"
+                                                                {...register(f.name, { valueAsNumber: true })}
+                                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                                placeholder="e.g., 1200"
+                                                            />
+                                                        </Field>
+                                                    </div>
+                                                )}
+                                            </>
+                                        ))}
                                     </div>
-                                    <div className="pt-4">
-                                        <Field label="Area Unit" error={errors.unit_area_type}>
-                                            <IconRadio name="unit_area_type" options={unitAreaTypeOptions} watch={watch} setValue={setValue} />
-                                        </Field>
-                                    </div>
+                                    {StepOneFields.map((f) => (
+                                        <>
+                                            {f.name == 'unit_area_type' && (
+                                                <div className="pt-4">
+                                                    <Field label={f.label} error={errors.unit_area_type}>
+                                                        <IconRadio name={f.name} options={unitAreaTypeOptions} watch={watch} setValue={setValue} />
+                                                    </Field>
+                                                </div>
+                                            )}
+                                        </>
+                                    ))}
                                     <div className="border-t border-gray-200 pt-4 mt-4">
                                         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                                            <div className="md:col-span-1">
-                                                <Field label="Plot Frontage" error={errors.plot_front_area}>
-                                                    <input
-                                                        type="number"
-                                                        {...register('plot_front_area', { valueAsNumber: true })}
-                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                                        placeholder="e.g., 40"
-                                                    />
-                                                </Field>
-                                            </div>
-                                            <div className="md:col-span-1">
-                                                <Field label="Plot Depth" error={errors.plot_depth_area}>
-                                                    <input
-                                                        type="number"
-                                                        {...register('plot_depth_area', { valueAsNumber: true })}
-                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                                        placeholder="e.g., 60"
-                                                    />
-                                                </Field>
-                                            </div>
-                                            <div className="md:col-span-2">
-                                                <Field label="Dimension Unit" error={errors.plot_dimension_unit}>
-                                                    <IconRadio name="plot_dimension_unit" options={plotDimensionUnitOptions} watch={watch} setValue={setValue} />
-                                                </Field>
-                                            </div>
-                                            <div className="md:col-span-2">
-                                                <Field label="Corner Plot?" error={errors.is_corner_plot}>
-                                                    <IconBooleanRadio name="is_corner_plot" watch={watch} setValue={setValue} />
-                                                </Field>
-                                            </div>
+                                            {StepOneFields.map((f) => (
+                                                <>
+                                                    {f.name == 'plot_front_area' && (
+                                                        <div className="md:col-span-1">
+                                                            <Field label={f.label} error={errors.plot_front_area}>
+                                                                <input
+                                                                    type="number"
+                                                                    {...register(f.name, { valueAsNumber: true })}
+                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                                    placeholder="e.g., 40"
+                                                                />
+                                                            </Field>
+                                                        </div>
+                                                    )}
+                                                    {f.name == 'plot_depth_area' && (
+                                                        <div className="md:col-span-1">
+                                                            <Field label={f.label} error={errors.plot_depth_area}>
+                                                                <input
+                                                                    type="number"
+                                                                    {...register(f.name, { valueAsNumber: true })}
+                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                                    placeholder="e.g., 60"
+                                                                />
+                                                            </Field>
+                                                        </div>
+                                                    )}
+                                                    {f.name == 'plot_dimension_unit' && (
+                                                        <div className="md:col-span-2">
+                                                            <Field label={f.label} error={errors.plot_dimension_unit}>
+                                                                <IconRadio name={f.name} options={plotDimensionUnitOptions} watch={watch} setValue={setValue} />
+                                                            </Field>
+                                                        </div>
+                                                    )}
+                                                    {f.name == 'is_corner_plot' && (
+                                                        <div className="md:col-span-2">
+                                                            <Field label={f.label} error={errors.is_corner_plot}>
+                                                                <IconBooleanRadio name={f.name} watch={watch} setValue={setValue} />
+                                                            </Field>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            ))}
                                         </div>
                                     </div>
                                 </FormSection>
@@ -732,15 +951,25 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                 {watchedType === 'residential' && !isPlotOrLand && (
                                     <FormSection title="Residential Details">
                                         <div className="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-6">
-                                            <Field label="Bedrooms" error={errors.bedrooms}>
-                                                <input type="number" {...register('bedrooms', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="3" />
-                                            </Field>
-                                            <Field label="Bathrooms" error={errors.bathrooms}>
-                                                <input type="number" {...register('bathrooms', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="2" />
-                                            </Field>
-                                            <Field label="Balconies" error={errors.balconies}>
-                                                <input type="number" {...register('balconies', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="1" />
-                                            </Field>
+                                            {StepOneFields.map((f) => (
+                                                <>
+                                                    {f.name == 'bedrooms' && (
+                                                        <Field label={f.label} error={errors.bedrooms}>
+                                                            <input type="number" {...register(f.name, { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="3" />
+                                                        </Field>
+                                                    )}
+                                                    {f.name == 'bathrooms' && (
+                                                        <Field label={f.label} error={errors.bathrooms}>
+                                                            <input type="number" {...register(f.name, { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="2" />
+                                                        </Field>
+                                                    )}
+                                                    {f.name == 'balconies' && (
+                                                        <Field label={f.label} error={errors.balconies}>
+                                                            <input type="number" {...register(f.name, { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="1" />
+                                                        </Field>
+                                                    )}
+                                                </>
+                                            ))}
                                         </div>
                                     </FormSection>
                                 )}
@@ -749,15 +978,25 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                 {watchedType === 'commercial' && !isPlotOrLand && (
                                     <FormSection title="Commercial Details">
                                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-                                            <Field label="Washrooms" error={errors.washrooms}>
-                                                <input type="number" {...register('washrooms', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
-                                            </Field>
-                                            <Field label="Cabins" error={errors.cabins}>
-                                                <input type="number" {...register('cabins', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
-                                            </Field>
-                                            <Field label="Conference Rooms" error={errors.conference_rooms}>
-                                                <input type="number" {...register('conference_rooms', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
-                                            </Field>
+                                            {StepOneFields.map((f) => (
+                                                <>
+                                                    {f.name == 'washrooms' && (
+                                                        <Field label={f.label} error={errors.washrooms}>
+                                                            <input type="number" {...register(f.name, { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                                                        </Field>
+                                                    )}
+                                                    {f.name == 'cabins' && (
+                                                        <Field label={f.label} error={errors.cabins}>
+                                                            <input type="number" {...register(f.name, { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                                                        </Field>
+                                                    )}
+                                                    {f.name == 'conference_rooms' && (
+                                                        <Field label={f.label} error={errors.conference_rooms}>
+                                                            <input type="number" {...register(f.name, { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                                                        </Field>
+                                                    )}
+                                                </>
+                                            ))}
                                         </div>
                                     </FormSection>
                                 )}
@@ -766,62 +1005,101 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                 {isBuiltStructure && (
                                     <FormSection title="Floor Information">
                                         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                                            <Field label="Floor Number" error={errors.floor_number}>
-                                                <input type="number" {...register('floor_number', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="e.g., 5" />
-                                            </Field>
-                                            <Field label="Total Floors" error={errors.total_floors}>
-                                                <input type="number" {...register('total_floors', { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="e.g., 12" />
-                                            </Field>
+                                            {StepOneFields.map((f) => (
+                                                <>
+                                                    {f.name == 'floor_number' && (
+                                                        <Field label={f.label} error={errors.floor_number}>
+                                                            <input type="number" {...register(f.name, { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="e.g., 5" />
+                                                        </Field>
+                                                    )}
+                                                    {f.name == 'total_floors' && (
+                                                        <Field label={f.label} error={errors.total_floors}>
+                                                            <input type="number" {...register(f.name, { valueAsNumber: true })} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="e.g., 12" />
+                                                        </Field>
+                                                    )}
+                                                </>
+                                            ))}
                                         </div>
                                     </FormSection>
                                 )}
 
                                 <FormSection title="Property Details">
                                     <div className="md:space-y-6 space-y-3">
-                                        <Field label="Facing" error={errors.facing}>
-                                            <IconRadio name="facing" options={facingOptions} watch={watch} setValue={setValue} />
-                                        </Field>
-
+                                        {StepOneFields.map((f) => (
+                                            <>
+                                                {f.name == "facing" && (
+                                                    <Field label={f.label} error={errors.facing}>
+                                                        <IconRadio name="facing" options={facingOptions} watch={watch} setValue={setValue} />
+                                                    </Field>
+                                                )}
+                                            </>
+                                        ))}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                            {isBuiltStructure && (
-                                                <Field label="Property Age" error={errors.property_age}>
-                                                    <IconRadio name="property_age" options={propertyAgeOptions} watch={watch} setValue={setValue} />
-                                                </Field>
-                                            )}
-                                            <Field label="Transaction Type" error={errors.transaction_type}>
-                                                <IconRadio name="transaction_type" options={transactionTypeOptions} watch={watch} setValue={setValue} />
-                                            </Field>
-                                            {isBuiltStructure && (
+                                            {StepOneFields.map((f) => (
                                                 <>
-                                                    <Field label="Furnishing" error={errors.furnishing}>
-                                                        <IconRadio name="furnishing" options={furnishingOptions} watch={watch} setValue={setValue} />
-                                                    </Field>
-                                                    <Field label="Power Backup" error={errors.power_backup}>
-                                                        <IconRadio name="power_backup" options={powerBackupOptions} watch={watch} setValue={setValue} />
-                                                    </Field>
-                                                    <Field label="Gated Community" error={errors.gated_community}>
-                                                        <IconBooleanRadio name="gated_community" watch={watch} setValue={setValue} />
-                                                    </Field>
+                                                    {isBuiltStructure && f.name == "property_age" && (
+                                                        <Field label={f.label} error={errors.property_age}>
+                                                            <IconRadio name={f.name} options={propertyAgeOptions} watch={watch} setValue={setValue} />
+                                                        </Field>
+                                                    )}
+                                                    {f.name == "transaction_type" && (
+                                                        <Field label="Transaction Type" error={errors.transaction_type}>
+                                                            <IconRadio name="transaction_type" options={transactionTypeOptions} watch={watch} setValue={setValue} />
+                                                        </Field>
+                                                    )}
+                                                    {isBuiltStructure && (
+                                                        <>
+                                                            {f.name == 'furnishing' && (
+                                                                <Field label="Furnishing" error={errors.furnishing}>
+                                                                    <IconRadio name="furnishing" options={furnishingOptions} watch={watch} setValue={setValue} />
+                                                                </Field>
+                                                            )}
+                                                            {f.name == 'power_backup' && (
+                                                                <Field label="Power Backup" error={errors.power_backup}>
+                                                                    <IconRadio name="power_backup" options={powerBackupOptions} watch={watch} setValue={setValue} />
+                                                                </Field>
+                                                            )}
+                                                            {f.name == 'gated_community' && (
+                                                                <Field label="Gated Community" error={errors.gated_community}>
+                                                                    <IconBooleanRadio name="gated_community" watch={watch} setValue={setValue} />
+                                                                </Field>
+                                                            )}
+                                                        </>
+                                                    )}
                                                 </>
-                                            )}
+                                            ))}
                                         </div>
                                     </div>
                                 </FormSection>
 
                                 <FormSection title="RERA & Status">
-                                    <Field label="RERA Status" error={errors.rera_status}>
-                                        <IconRadio name="rera_status" options={reraStatusOptions} watch={watch} setValue={setValue} />
-                                    </Field>
+                                    {StepOneFields.map((f) => (
+                                        <>
+                                            {f.name == 'rera_status' && (
+                                                <Field label={f.label} error={errors.rera_status}>
+                                                    <IconRadio name={f.name} options={reraStatusOptions} watch={watch} setValue={setValue} />
+                                                </Field>
+                                            )}
+                                        </>
+                                    ))}
                                 </FormSection>
 
                                 <FormSection title="Owner Details (Private)">
                                     <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-6">
-                                        <Field label="Owner Name" error={errors.owner_name}>
-                                            <input {...register('owner_name')} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Property owner name" />
-                                        </Field>
-                                        <Field label="Owner Contact" error={errors.owner_contact}>
-                                            <input {...register('owner_contact')} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Phone number" />
-                                        </Field>
+                                        {StepOneFields.map((f) => (
+                                            <>
+                                                {f.name == 'owner_name' && (
+                                                    <Field label={f.label} error={errors.owner_name}>
+                                                        <input {...register(f.name)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Property owner name" />
+                                                    </Field>
+                                                )}
+                                                {f.name == 'owner_contact' && (
+                                                    <Field label={f.label} error={errors.owner_contact}>
+                                                        <input {...register(f.name)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Phone number" maxLength={20}/>
+                                                    </Field>
+                                                )}
+                                            </>
+                                        ))}
                                     </div>
                                 </FormSection>
 
@@ -833,16 +1111,22 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                                 Auto-Generate Description
                                             </span>
                                         </div>
-                                        <Field label="" error={errors.description}>
-                                            <textarea
-                                                {...register('description')}
-                                                id="description"
-                                                rows={4}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                                placeholder="A detailed description of the property..."
-                                                onChange={(e) => setValue('description', e.target.value)}
-                                            />
-                                        </Field>
+                                        {StepOneFields.map((f) => (
+                                            <>
+                                                {f.name == 'description' && (
+                                                    <Field label="" error={errors.description}>
+                                                        <textarea
+                                                            {...register(f.name)}
+                                                            id={f.name}
+                                                            rows={4}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                            placeholder="A detailed description of the property..."
+                                                            onChange={(e) => setValue(f.name, e.target.value)}
+                                                        />
+                                                    </Field>
+                                                )}
+                                            </>
+                                        ))}
                                     </FormSection>
                                 )}
                             </div>
@@ -854,74 +1138,87 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <div className="md:space-y-6 space-y-3">
                         <FormSection title="Location, Features & Amenities">
                             <div className="space-y-4">
-                                <Field label="Overlooking" error={errors.overlooking} >
-                                    <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
-                                        {filteredOverlookingOptions.map((option) => (
-                                            <IconCheckbox key={option.value} option={option} name="overlooking" register={register} />
-                                        ))}
-                                    </div>
-                                </Field>
+                                {StepThreeFields.map((f) => (
+                                    <>
+                                        {f.name == 'overlooking' && (
+                                            <Field label={f.label} error={errors.overlooking} >
+                                                <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
+                                                    {filteredOverlookingOptions.map((option) => (
+                                                        <IconCheckbox key={option.value} option={option} name={f.name} register={register} />
+                                                    ))}
+                                                </div>
+                                            </Field>
+                                        )}
+                                        {f.name == 'water_source' && (
+                                            <Field label={f.label} error={errors.water_source}>
+                                                <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
+                                                    {waterSourceOptions.map((option) => (
+                                                        <IconCheckbox key={option.value} option={option} name={f.name} register={register} />
+                                                    ))}
+                                                </div>
+                                            </Field>
+                                        )}
 
-                                <Field label="Water Source" error={errors.water_source}>
-                                    <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
-                                        {waterSourceOptions.map((option) => (
-                                            <IconCheckbox key={option.value} option={option} name="water_source" register={register} />
-                                        ))}
-                                    </div>
-                                </Field>
+                                        {filteredFeatures.length > 0 && f.name == 'features' && (
+                                            <Field label={f.label} error={errors.features}>
+                                                <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
+                                                    {filteredFeatures.map((feature) => (
+                                                        <IconCheckbox key={feature.value} option={feature} name={f.name} register={register} />
+                                                    ))}
+                                                </div>
+                                            </Field>
+                                        )}
 
-                                {filteredFeatures.length > 0 && (
-                                    <Field label="Features" error={errors.features}>
-                                        <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
-                                            {filteredFeatures.map((feature) => (
-                                                <IconCheckbox key={feature.value} option={feature} name="features" register={register} />
-                                            ))}
-                                        </div>
-                                    </Field>
-                                )}
-
-                                {!isPlotOrLand && (
-                                    <Field label="Amenities" error={errors.amenities}>
-                                        <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
-                                            {filteredAmenities.map((amenity) => (
-                                                <IconCheckbox key={amenity.value} option={amenity} name="amenities" register={register} />
-                                            ))}
-                                        </div>
-                                    </Field>
-                                )}
+                                        {!isPlotOrLand && f.name == 'amenities' && (
+                                            <Field label={f.label} error={errors.amenities}>
+                                                <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
+                                                    {filteredAmenities.map((amenity) => (
+                                                        <IconCheckbox key={amenity.value} option={amenity} name={f.name} register={register} />
+                                                    ))}
+                                                </div>
+                                            </Field>
+                                        )}
+                                    </>
+                                ))}
                             </div>
                         </FormSection>
                     </div>
                 )}
                 {step === 2 && (
                     <FormSection title="Property Images">
-                        <Field label="Upload Images" error={errors.images}>
-                            <div className="flex items-center justify-center w-full">
-                                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full  border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 ">
-                                    <div className="flex flex-col items-center justify-center pt-2 md:pt-5 pb-2 md:pb-6">
-                                        <svg
-                                            className="w-8 h-8  text-gray-500 dark:text-gray-400"
-                                            aria-hidden="true"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 20 16"
-                                        >
-                                            <path
-                                                stroke="currentColor"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                                            />
-                                        </svg>
+                        {StepTwoFields.map((f) => (
+                            <>
+                                {f.name == "images" && (
+                                    <Field label={f.label} error={errors.images}>
+                                        <div className="flex items-center justify-center w-full">
+                                            <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full  border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 ">
+                                                <div className="flex flex-col items-center justify-center pt-2 md:pt-5 pb-2 md:pb-6">
+                                                    <svg
+                                                        className="w-8 h-8  text-gray-500 dark:text-gray-400"
+                                                        aria-hidden="true"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 20 16"
+                                                    >
+                                                        <path
+                                                            stroke="currentColor"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth="2"
+                                                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                                                        />
+                                                    </svg>
 
-                                        <p className="mb-1 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Images (JPG, PNG) or Videos (MP4, WEBM)</p>
-                                    </div>
-                                    <input id="dropzone-file" type="file" className="hidden" multiple onChange={handleImageChange} accept="image/png, image/jpeg, image/jpg, video/mp4, video/webm" />
-                                </label>
-                            </div>
-                        </Field>
+                                                    <p className="mb-1 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Images (JPG, PNG) or Videos (MP4, WEBM)</p>
+                                                </div>
+                                                <input id="dropzone-file" type="file" className="hidden" multiple onChange={handleImageChange} accept="image/png, image/jpeg, image/jpg, video/mp4, video/webm" />
+                                            </label>
+                                        </div>
+                                    </Field>
+                                )}
+                            </>
+                        ))}
 
                         {images.length > 0 && (
                             <div className="mt-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">

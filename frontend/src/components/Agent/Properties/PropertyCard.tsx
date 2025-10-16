@@ -57,9 +57,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   const primaryImage = property?.images?.length > 0
     ? (() => {
       const primary = property.images.find((img) => img.isPrimary);
+      console.log(primary?.url);
       return getPropertyImageUrlWithFallback(primary?.url);
     })()
     : getPropertyImageUrlWithFallback();
+
+  console.log(primaryImage);
 
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);

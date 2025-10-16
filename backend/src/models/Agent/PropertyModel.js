@@ -14,7 +14,7 @@ const propertySchema = new mongoose.Schema(
         "office",
         "villa",
         "land",
-        "farmHouse",
+        "farmhouse",
       ],
       required: true,
     },
@@ -28,24 +28,24 @@ const propertySchema = new mongoose.Schema(
     unit_area_type: {
       type: String,
       enum: [
-        "sqft",
-        "sqm",
+        "square feet",
+        "square meter",
         "acre",
         "marla",
         "kanal",
         "bigha",
-        "sqyd",
+        "square yard",
         "hectare",
         "gaj",
       ],
-      default: "sqft",
+      default: "square feet",
     },
 
     // Plot specific
     plot_front_area: { type: Number, min: 0 },
     plot_depth_area: { type: Number, min: 0 },
-    plot_dimension_unit: { type: String, enum: ["ft", "m"] },
-    is_corner_plot: { type: Boolean, default: false },
+    plot_dimension_unit: { type: String, enum: ["feet", "meter"] },
+    is_corner_plot: { type: String, default: 'no' },
 
     bedrooms: { type: Number, min: 0 },
     bathrooms: { type: Number, min: 0 },
@@ -63,14 +63,14 @@ const propertySchema = new mongoose.Schema(
       type: String,
       enum: [
         "",
-        "North",
-        "South",
-        "East",
-        "West",
-        "North-East",
-        "North-West",
-        "South-East",
-        "South-West",
+        "north",
+        "south",
+        "east",
+        "west",
+        "north east",
+        "north west",
+        "south east",
+        "south west",
       ],
     },
     overlooking: [{ type: String }],
@@ -78,35 +78,35 @@ const propertySchema = new mongoose.Schema(
     // Age / Transaction Details
     property_age: {
       type: String,
-      enum: ["", "New", "1-5 years", "5-10 years", "10+ years"],
+      enum: ["", "new", "1-5 years", "5-10 years", "10+ years"],
     },
-    transaction_type: { type: String, enum: ["New", "Resale"], default: "New" },
-    gated_community: { type: Boolean, default: false },
+    transaction_type: { type: String, enum: ["new", "resale"], default: "new" },
+    gated_community: { type: String, default: 'no' },
 
     // Parking & Utilities
     water_source: [{ type: String }],
     power_backup: {
       type: String,
-      enum: ["None", "Partial", "Full"],
-      default: "None",
+      enum: ["none", "partial", "full"],
+      default: "none",
     },
 
     // Features & Amenities
     furnishing: {
       type: String,
-      enum: ["Unfurnished", "Semi-Furnished", "Furnished"],
-      default: "Unfurnished",
+      enum: ["unfurnished", "semi furnished", "furnished"],
+      default: "unfurnished",
     },
     flooring_type: {
       type: String,
       enum: [
-        "Marble",
-        "Vitrified",
-        "Wooden",
-        "Ceramic",
-        "Mosaic",
-        "Granite",
-        "Other",
+        "marble",
+        "vitrified",
+        "wooden",
+        "ceramic",
+        "mosaic",
+        "granite",
+        "other",
       ],
     },
     amenities: [{ type: String }],
@@ -125,15 +125,15 @@ const propertySchema = new mongoose.Schema(
     property_code: { type: String, unique: true },
     rera_status: {
       type: String,
-      enum: ["Approved", "Not Approved", "Applied"],
-      default: "Not Approved",
+      enum: ["approved", "not approved", "applied"],
+      default: "not approved",
     },
 
     // Owner Details
     owner_name: { type: String, trim: true },
     owner_contact: {
       type: String,
-      match: [/^\+?[0-9]{7,15}$/, "Invalid phone number format"],
+      //match: [/^\+?[0-9]{7,15}$/, "Invalid phone number format"],
     },
 
     // Relational
