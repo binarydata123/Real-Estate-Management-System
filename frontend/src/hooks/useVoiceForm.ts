@@ -26,12 +26,16 @@ interface VoiceField {
   step?: number;
   required?: boolean;
 }
+
 export function useVoiceForm(
   fields: VoiceField[],
   setValue: any,
   trigger: UseFormTrigger<any>,
   getValues: UseFormGetValues<any>,
-  currentStep: number
+  currentStep: number,
+  filteredOverlookingOptions: any,
+  filteredFeatures: any,
+  filteredAmenities: any
 ) {
   const [currentFieldIndex, setCurrentFieldIndex] = useState(0);
   const [voiceReady, setVoiceReady] = useState(false);
@@ -185,15 +189,83 @@ export function useVoiceForm(
         return; // Exit early
       }
 
-      // Check if field type is checkbox (Step 3)
+      // ✅ Improved checkbox handling with option matching
       if (field.fieldType === 'checkbox') {
-          const currentValues: string[] = getValues(field.name) || [];
-          const newValues = [...currentValues, speechResult]; // append value
-          setValue(field.name, newValues);
+        const currentValues: string[] = getValues(field.name) || [];
+        const spokenValue = speechResult.toLowerCase().trim();
+
+        // ✅ If user says "next" or "done", move to next field
+        if (["next", "done", "go next", "continue"].includes(spokenValue)) {
+          console.log(`➡️ Moving to next field after selecting: ${currentValues}`);
+          await speakWithOpenAI(`Okay, moving to next field.`);
+          if (currentFieldIndex < filteredFields.length - 1) {
+            setCurrentFieldIndex((prev) => prev + 1);
+          } else {
+            await speakWithOpenAI(`All Step ${currentStep} fields are completed. You can continue to the next step.`);
+            recognitionRef.current.stop();
+          }
+          setIsProcessing(false);
+          return;
+        }
+
+        let optionsList: { label: string; value: string }[] = [];
+
+        switch (field.name) {
+          case "overlooking":
+            optionsList = overlookingOptions;
+            break;
+          case "water_source":
+            optionsList = waterSourceOptions;
+            break;
+          case "features":
+            optionsList = featuresOptions;
+            break;
+          case "amenities":
+            optionsList = amenitiesOptions;
+            break;
+          default:
+            optionsList = [];
+        }
+
+        // ✅ Try to match spoken value with an option
+        const matchedOption = optionsList.find(
+          (opt) => opt.value.toLowerCase() === spokenValue
+        );
+
+        if (matchedOption) {
+          if (!currentValues.includes(matchedOption.value)) {
+            const newValues = [...currentValues, matchedOption.value];
+            setValue(field.name, newValues, {
+              shouldDirty: true,
+              shouldValidate: true,
+            });
+            console.log(`✅ Added value: ${matchedOption.value}`);
+            await speakWithOpenAI(`${matchedOption.value} added for ${field.label}. You can say another option or say "next" to continue.`);
+          } else {
+            console.log(`⚠️ Already selected: ${matchedOption.value}`);
+            await speakWithOpenAI(`${matchedOption.value} is already selected. You can say another option or say "next" to continue.`);
+          }
+        } else {
+          console.log(`❌ No match found for "${spokenValue}"`);
+          await speakWithOpenAI(`I could not find a matching option for ${spokenValue}. Please try again.`);
+        }
+
+        // 👂 Keep listening for more values in the same field
+        setIsProcessing(false);
+        startListening(filteredFields);
+        return;
       } else {
-          // normal field
-          setValue(field.name, speechResult);
+        setValue(field.name, speechResult);
       }
+      // Check if field type is checkbox (Step 3)
+      // if (field.fieldType === 'checkbox') {
+      //     const currentValues: string[] = getValues(field.name) || [];
+      //     const newValues = [...currentValues, speechResult]; // append value
+      //     setValue(field.name, newValues);
+      // } else {
+      //     // normal field
+      //     setValue(field.name, speechResult);
+      // }
 
       const isValid = await trigger(field.name);
 
@@ -277,13 +349,13 @@ export function useVoiceForm(
       } else if(field.name == 'rera_status') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${reraStatusOptions.map((data) => data.value)}`);
       } else if(field.name == 'overlooking') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${overlookingOptions.map((data) => data.value)}`);
+        await speakWithOpenAI(`Please Choose the ${field.label} ${filteredOverlookingOptions.map((data:any) => data.value)}`);
       } else if(field.name == 'water_source') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${waterSourceOptions.map((data) => data.value)}`);
       } else if(field.name == 'features') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${featuresOptions.map((data) => data.value)}`);
+        await speakWithOpenAI(`Please Choose the ${field.label} ${filteredFeatures.map((data:any) => data.value)}`);
       } else if(field.name == 'amenities') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${amenitiesOptions.map((data) => data.value)}`);
+        await speakWithOpenAI(`Please Choose the ${field.label} ${filteredAmenities.map((data:any) => data.value)}`);
       } else {
         await speakWithOpenAI(`Please Enter ${field.label}`);
       }

@@ -748,7 +748,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
         ]: [])
     ];
 
-    const { toggleVoiceListening } = useVoiceForm([...StepOneFields, ...StepTwoFields, ...StepThreeFields], setValue, trigger, getValues, step);
+    const { toggleVoiceListening } = useVoiceForm([...StepOneFields, ...StepTwoFields, ...StepThreeFields], setValue, trigger, getValues, step, filteredOverlookingOptions, filteredFeatures, filteredAmenities);
     //useVoiceForm(StepOneFields, setValue, trigger, getValues, () => handleSubmit(onSubmit)());
 
     const handleMicClick = () => {
