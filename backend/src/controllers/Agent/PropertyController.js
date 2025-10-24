@@ -4,12 +4,16 @@ import { sendPushNotification } from "../../utils/pushService.js";
 
 export const createProperty = async (req, res) => {
   try {
-
-    const imageEntries = files.map((file, index) => ({
-      url: file.filename,
-      alt: file.originalname,
-      isPrimary: index === 0, // Set the first image as primary by default
-    }));
+    const { body } = req;
+    const files = req.files || [];
+    let imageEntries;
+    if(files){
+      imageEntries = files.map((file, index) => ({
+        url: file.filename,
+        alt: file.originalname,
+        isPrimary: index === 0, // Set the first image as primary by default
+      }));
+    }
 
     // Prepare property data, converting types where necessary from multipart/form-data
     const propertyData = {
@@ -31,7 +35,8 @@ export const createProperty = async (req, res) => {
       total_floors: body.total_floors ? Number(body.total_floors) : undefined,
 
       // Convert string boolean to actual boolean
-      gated_community: body.gated_community === "true",
+      //gated_community: body.gated_community === "true",
+      gated_community: body.gated_community,
 
       // Add processed image info
       images: imageEntries,
@@ -146,12 +151,12 @@ export const updateProperty = async (req, res) => {
       }
     });
 
-    const booleanFields = ["gated_community"]; // Add other boolean fields if any
-    booleanFields.forEach((field) => {
-      if (body[field] != null) {
-        updateData[field] = body[field] === "true";
-      }
-    });
+    // const booleanFields = ["gated_community"]; // Add other boolean fields if any
+    // booleanFields.forEach((field) => {
+    //   if (body[field] != null) {
+    //     updateData[field] = body[field] === "true";
+    //   }
+    // });
 
     // New images from the upload
     const newImageEntries = files.map((file) => ({
@@ -331,7 +336,8 @@ export const getProperties = async (req, res) => {
 
     // Handle boolean filter
     if (is_corner_plot !== undefined) {
-      filter.is_corner_plot = is_corner_plot === "true";
+      //filter.is_corner_plot = is_corner_plot === "true";
+      filter.is_corner_plot = is_corner_plot;
     }
 
     // 🔹 Fetch data
