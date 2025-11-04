@@ -290,24 +290,27 @@ const registrationController = {
       }
 
       res.status(200).json({
-        message: "Session active.",
-        user: {
-          _id: user._id,
-          name: user.name || user.fullName,
-          email: user.email,
-          role: user.role,
-          showAllProperty: user.showAllProperty,
-          agency: user.agencyId
-            ? {
-              _id: user.agencyId._id,
-              name: user.agencyId.name,
-              slug: user.agencyId.slug,
-              email: user.agencyId.email,
-              phone: user.agencyId.phone,
-              logoUrl: user.agencyId.logoUrl,
-            }
-            : null,
-        },
+        success: true,
+        message: "Session is active.",
+        data: {
+          user: {
+            _id: user._id,
+            name: user.name || user.fullName,
+            email: user.email,
+            role: user.role,
+            showAllProperty: user.showAllProperty,
+            agency: user.agencyId
+              ? {
+                _id: user.agencyId._id,
+                name: user.agencyId.name,
+                slug: user.agencyId.slug,
+                email: user.agencyId.email,
+                phone: user.agencyId.phone,
+                logoUrl: user.agencyId.logoUrl,
+              }
+              : null,
+          },
+        }
       });
     } catch (error) {
       // This catch block is for unexpected errors within this controller.

@@ -1,5 +1,6 @@
 import OpenAI from "openai";
-
+import { Property } from "../../models/Agent/PropertyModel.js";
+import { Preference } from "../../models/Common/PreferenceModel.js";
 // Make sure to set your OPENAI_API_KEY in your .env file
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -74,3 +75,40 @@ export const generateSpeech = async (req, res) => {
         res.status(500).json({ message: "Failed to generate speech from the AI assistant." });
     }
 };
+
+export const propertyPrompt = async (req, res) => {
+    try {
+        const { propertyId, userId } = req.params;
+
+        const property = await Property.findById(propertyId);
+        const preference = await Preference.findOne({ userId: userId });
+
+        if (!property || !preference) {
+            return res.status(404).json({ message: "Property or Preference not found" });
+        }
+
+        // Build prompt dynamically
+        const prompt = `You are an expert real estate sales assistant named Prop-E. Your goal is to deliver a compelling, friendly, and persuasive summary of the property below to a potential buyer named ${preference.name}.
+
+**Your Task:**
+1.  Start immediately by greeting the user and presenting the property highlights. Do not ask any questions.
+2.  Focus on the most attractive features that align with a buyer looking for a ${preference.type} property in the price range of ₹${preference.minPrice} to ₹${preference.maxPrice}.
+3.  Keep the summary concise, under 45 seconds.
+4.  End by encouraging the user to explore more details on the page. For example: "You can find more details and pictures right here on this page. Happy exploring!"
+
+**Property Details:**
+Title: ${property.title}
+Location: ${property.location}
+Price: ₹${property.price}
+Category: ${property.category}
+Bedrooms: ${property.bedrooms}
+Amenities: ${property.amenities?.join(", ") || "None"}
+Features: ${property.features?.join(", ") || "None"}
+Description: ${property.description}`;
+
+        res.json({ prompt });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+}

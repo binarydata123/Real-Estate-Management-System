@@ -7,10 +7,6 @@ const router = express.Router();
 router.post("/register-agency", registrationController.registerAgency);
 router.post("/login", registrationController.loginUser);
 router.post("/select-customer-agency", registrationController.selectCustomerAgency);
-router.get(
-  "/check-session",
-  protect(["agent", "admin", "customer"]),
-  registrationController.checkSession
-);
+router.get("/check-session", protect(["agent", "admin", "customer"]), registrationController.checkSession);
 
 export default router;
