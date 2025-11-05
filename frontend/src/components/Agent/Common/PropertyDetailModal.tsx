@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { XMarkIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
+import PropertyVoiceAgent from "@/components/Common/PropertyVoiceAgent";
+import { useAuth } from "@/context/AuthContext";
 
 interface PropertyDetailModalProps {
   property: Property;
@@ -17,19 +19,20 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
 }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactForm, setContactForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
+  const { user } = useAuth();
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Here you would typically send the contact form data to the backend
-    console.log('Contact form submitted:', contactForm);
-    alert('Your message has been sent to the property owner!');
+    console.log("Contact form submitted:", contactForm);
+    alert("Your message has been sent to the property owner!");
     setShowContactModal(false);
-    setContactForm({ name: '', email: '', phone: '', message: '' });
+    setContactForm({ name: "", email: "", phone: "", message: "" });
   };
   const formatPrice = (price: number) => {
     if (price >= 10000000) {
@@ -58,8 +61,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
     if (url.startsWith("http")) {
       return url; // already a full external URL
     }
-    return `${process.env.NEXT_PUBLIC_IMAGE_URL
-      }/Properties/original/${url}`;
+    return `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${url}`;
   };
 
   return (
@@ -78,6 +80,10 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
               </div>
             </div>
             <div className="flex items-center space-x-1 md:space-x-3">
+              <PropertyVoiceAgent
+                propertyId={property._id as string}
+                userId={user?._id as string}
+              />
               <span
                 onClick={onClose}
                 className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -255,7 +261,9 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                 <input
                   type="text"
                   value={contactForm.name}
-                  onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                  onChange={(e) =>
+                    setContactForm({ ...contactForm, name: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
@@ -268,7 +276,9 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                 <input
                   type="email"
                   value={contactForm.email}
-                  onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                  onChange={(e) =>
+                    setContactForm({ ...contactForm, email: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
@@ -281,7 +291,9 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                 <input
                   type="tel"
                   value={contactForm.phone}
-                  onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                  onChange={(e) =>
+                    setContactForm({ ...contactForm, phone: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
@@ -293,7 +305,9 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                 </label>
                 <textarea
                   value={contactForm.message}
-                  onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                  onChange={(e) =>
+                    setContactForm({ ...contactForm, message: e.target.value })
+                  }
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="I'm interested in this property..."
