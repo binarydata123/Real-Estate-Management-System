@@ -29,7 +29,7 @@ export const getNotifications = async (
       | "meeting_scheduled"
       | "property_updated"
       | "property_added"
-      | "unread";
+      | "unread"
     page?: number;
     limit?: number;
   }

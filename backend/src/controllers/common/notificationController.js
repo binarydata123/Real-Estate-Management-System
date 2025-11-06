@@ -28,7 +28,7 @@ export const getUserNotifications = async (req, res) => {
     const query = { userId };
 
     // ✅ if type is provided, filter by type
-    if (type && type !== "unread") {
+    if (type && type !== "unread" ) {
       query.type = type; // e.g. "unread", "meeting_scheduled", etc.
     }
     if (type == "unread") {

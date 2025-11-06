@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
+import { useAuth } from '@/context/AuthContext';
+import { getNotifications, markAsRead, markAllAsRead } from "@/lib/Common/Notifications";
 
 interface Notification {
-    id: string;
-    title: string;
+    _id: string;
+    userId: string;
+    agencyId: string;
     message: string;
     type: 'meeting_reminder' | 'property_shared' | 'customer_activity' | 'system_update' | string;
-    read_at: string | null;
-    created_at: string;
+    read: boolean;
+    link: string;
+    createdAt: string;
 }
 
 interface NotificationCenterProps {
@@ -17,54 +21,40 @@ interface NotificationCenterProps {
 }
 
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose }) => {
-    const [notifications, setNotifications] = useState<Notification[]>([
-        {
-            id: '1',
-            title: 'Meeting Reminder',
-            message: 'You have a meeting with Sarah Johnson in 30 minutes',
-            type: 'meeting_reminder',
-            read_at: null,
-            created_at: '2025-01-09T09:30:00Z',
-        },
-        {
-            id: '2',
-            title: 'Property Shared',
-            message: 'Mike Johnson shared "Luxury Villa" with you',
-            type: 'property_shared',
-            read_at: null,
-            created_at: '2025-01-09T08:15:00Z',
-        },
-        {
-            id: '3',
-            title: 'New Customer Inquiry',
-            message: 'David Wilson is interested in commercial properties',
-            type: 'customer_activity',
-            read_at: '2025-01-09T07:45:00Z',
-            created_at: '2025-01-09T07:30:00Z',
-        },
-        {
-            id: '4',
-            title: 'System Update',
-            message: 'New features have been added to the platform',
-            type: 'system_update',
-            read_at: '2025-01-08T18:00:00Z',
-            created_at: '2025-01-08T18:00:00Z',
-        },
-    ]);
+    const { user } = useAuth();
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const fetchNotifications = async () => {
+        if (!user?._id) return;
 
-    const markAsRead = (notificationId: string) => {
-        setNotifications(prev =>
-            prev.map(notif =>
-                notif.id === notificationId
-                    ? { ...notif, read_at: new Date().toISOString() }
-                    : notif
-            )
-        );
+        try {
+            const response = await getNotifications(user._id);
+            if (response.data.success == true) {
+                setNotifications(response.data.data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch notifications', err);
+        }
     };
 
-    const markAllAsRead = () => {
+    useEffect(() => {
+        fetchNotifications();
+    }, [user]);
+    const markAsReadNotification = async (notificationId: string) => {
+        try {
+            await markAsRead(notificationId);
+            setNotifications(prev =>
+                prev.map(n => n._id === notificationId ? { ...n, read: true } : n)
+            );
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const markAllAsReadNotifications = async () => {
+        await markAllAsRead();
         setNotifications(prev =>
-            prev.map(notif => ({ ...notif, read_at: new Date().toISOString() }))
+            //prev.map(notif => ({ ...notif, read: new Date().toISOString() }))
+            prev.map(n => ({ ...n, read: true }))
         );
     };
 
@@ -83,7 +73,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
         }
     };
 
-    const unreadCount = notifications.filter(n => !n.read_at).length;
+    const unreadCount = notifications.filter(n => !n.read).length;
 
     if (!isOpen) return null;
 
@@ -105,15 +95,15 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                         <div className="flex items-center space-x-2">
                             {unreadCount > 0 && (
                                 <button
-                                    onClick={markAllAsRead}
-                                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                                    onClick={() => markAllAsReadNotifications()}
+                                    className="text-blue-600 cursor-pointer hover:text-blue-700 text-sm font-medium"
                                 >
                                     Mark all read
                                 </button>
                             )}
                             <button
                                 onClick={onClose}
-                                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                                className="p-1 cursor-pointer hover:bg-gray-100 rounded-lg transition-colors"
                             >
                                 <XMarkIcon className="h-5 w-5 text-gray-500" />
                             </button>
@@ -126,28 +116,57 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                         <div className="divide-y divide-gray-200">
                             {notifications.map(notification => (
                                 <div
-                                    key={notification.id}
-                                    className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!notification.read_at ? 'bg-blue-50' : ''
+                                    key={notification._id}
+                                    className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!notification.read ? 'bg-blue-50' : ''
                                         }`}
-                                    onClick={() => markAsRead(notification.id)}
+                                    onClick={() => markAsReadNotification(notification._id)}
                                 >
-                                    <div className="flex items-start space-x-3">
-                                        <span className="text-lg">{getNotificationIcon(notification.type)}</span>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between">
-                                                <p className={`text-sm font-medium ${!notification.read_at ? 'text-gray-900' : 'text-gray-700'}`}>
-                                                    {notification.title}
-                                                </p>
-                                                {!notification.read_at && (
-                                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                )}
-                                            </div>
-                                            <p className="text-sm text-gray-600 md:mt-1">{notification.message}</p>
-                                            <p className="text-xs text-gray-500 mt-2">
-                                                {format(new Date(notification.created_at), 'MMM dd, hh:mm a')}
-                                            </p>
-                                        </div>
-                                    </div>
+                                    {notification.link
+                                        ?
+                                            <a href={`/admin${notification.link}`}>
+                                                <div className="flex items-start space-x-3">
+                                                    <span className="text-lg">{getNotificationIcon(notification.type)}</span>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center justify-between">
+                                                            <p className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
+                                                                {notification.type
+                                                                    .split('_')
+                                                                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                                                    .join(' ')}
+                                                            </p>
+                                                            {!notification.read && (
+                                                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-sm text-gray-600 md:mt-1">{notification.message}</p>
+                                                        <p className="text-xs text-gray-500 mt-2">
+                                                            {format(new Date(notification.createdAt), 'MMM dd, hh:mm a')}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        :
+                                            <div className="flex items-start space-x-3">
+                                                <span className="text-lg">{getNotificationIcon(notification.type)}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between">
+                                                        <p className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
+                                                            {notification.type
+                                                                .split('_')
+                                                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                                                .join(' ')}
+                                                        </p>
+                                                        {!notification.read && (
+                                                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-sm text-gray-600 md:mt-1">{notification.message}</p>
+                                                    <p className="text-xs text-gray-500 mt-2">
+                                                        {format(new Date(notification.createdAt), 'MMM dd, hh:mm a')}
+                                                    </p>
+                                                </div>
+                                            </div> 
+                                    }               
                                 </div>
                             ))}
                         </div>

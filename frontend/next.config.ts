@@ -36,6 +36,7 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+    domains: ['localhost'], // ✅ Add the external domain here
   },
 };
 

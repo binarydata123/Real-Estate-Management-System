@@ -84,6 +84,11 @@ const NotificationsPage: React.FC = () => {
     { key: "new_lead", label: "Customer" },
   ];
 
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+  }, [activeTab]);
+
   const fetchNotifications = async () => {
     try {
       if (!user?._id) return;
@@ -92,7 +97,7 @@ const NotificationsPage: React.FC = () => {
       const typeParam: NotificationFilter | undefined =
         activeTab === "all" ? undefined : activeTab;
 
-      const res = await getNotifications(user._id, {
+      const res = await getNotifications(user?._id, {
         type: typeParam,
         page: currentPage,
         limit: 10,
@@ -107,11 +112,6 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    fetchNotifications();
-  };
-
   const fetchUnreadCount = async () => {
     try {
       if (!user?._id) return;
@@ -122,12 +122,12 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
     fetchNotifications();
-    fetchUnreadCount();
-  }, [activeTab]); // 👈 refetch when tab changes
+  };
 
-  const handleReadNotification = async (id: string) => {
+ const handleReadNotification = async (id: string) => {
     const result = await markAsRead(id);
     if (result.data.success) {
       fetchNotifications();

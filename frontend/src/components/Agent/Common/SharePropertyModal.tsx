@@ -60,7 +60,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
     if (!user?._id) return;
     const fetchAll = async () => {
       try {
-        const res = await getCustomers(user._id);
+        const res = await getCustomers(user?._id);
         setOptions(res.data || []);
       } catch (err) {
         console.error(err);

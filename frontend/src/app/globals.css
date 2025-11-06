@@ -43,6 +43,23 @@ body {
   animation: bounce 1s infinite;
 }
 
+/* Slide-in Animation */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.4s ease-out forwards;
+}
+
 /* Global thin scrollbar */
 * {
   scrollbar-width: thin;
@@ -78,32 +95,35 @@ select:focus-visible {
 }
 
 @media (max-width: 767px) {
-  h1 {
+  h1:not(.inheritClass) {
     font-size: 14px !important;
-    /* 0.875rem */
     line-height: 20px !important;
-    /* 1.25rem */
   }
 
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  a,
-  p,
-  ul,
-  li,
-  label,
-  button,
-  select,
-  div,
-  span {
-    font-size: 12px !important;
-    /* 0.75rem */
+  h2:not(.inheritClass),
+  h3:not(.inheritClass),
+  h4:not(.inheritClass),
+  h5:not(.inheritClass),
+  h6:not(.inheritClass),
+  a:not(.inheritClass),
+  p:not(.inheritClass),
+  ul:not(.inheritClass),
+  li:not(.inheritClass),
+  label:not(.inheritClass),
+  button:not(.inheritClass),
+  select:not(.inheritClass),
+  div:not(.inheritClass),
+  span:not(.inheritClass) {
+    font-size: 10px !important;
     line-height: 16px !important;
-    /* 1rem */
   }
+
+  /* .inheritClass {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+  } */
 
   button {
     padding: 8px !important;
@@ -127,9 +147,32 @@ select:focus-visible {
     height: 15px !important;
   }
 
-  /* input,
+  input,
   select,
   textarea {
     font-size: 16px;
-  } */
+  }
+  .stats-card-padding-sec{
+    padding: 0px;
+  }
+  .header-tab-sec{
+    font-size: .675rem;
+  }
+  .text-sec-margin{
+    margin-left: calc(var(--spacing) * 11);
+  }
+  .dashboard-tab-sec-padding{
+    padding-top: 9px;
+    padding-bottom: 15px;
+  }
+  .analytics-stats-tab-sec {
+    padding: calc(var(--spacing) * 2);
+  }
+  .monthly-signup-chart-sec svg:not(.logo-svg, .header-icon), .monthly-revenue-chart-sec svg:not(.logo-svg, .header-icon) {
+    width: auto !important;
+    height: auto !important;
+  }
+  .pagination-button-sec button{
+    padding: 5px 10px 5px 10px !important;
+  }
 }

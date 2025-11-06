@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import {
   BellIcon,
@@ -8,15 +8,44 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
 import { NotificationCenter } from './Notification';
+import { getNotifications } from "@/lib/Common/Notifications";
 
 interface HeaderProps {
   onMenuButtonClick: () => void;
 }
+interface Notification {
+  _id: string;
+  userId: string;
+  agencyId: string;
+  message: string;
+  type: string;
+  read: boolean;
+  link: string;
+  createdAt: string;
+}
 
 export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
   const { user, signOut } = useAuth();
-  const [showNotifications, setShowNotifications] = React.useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  // Fetch notifications for the current user
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!user?._id) return;
+      try {
+        const res = await await getNotifications(user._id);
+        if (res.data.success == true) {
+          setNotifications(res.data.data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchNotifications();
+  }, [user]);
 
+  // Count unread notifications
+  const unreadCount = notifications.filter(n => !n.read).length;
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200">
@@ -80,10 +109,18 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
               {/* Notifications */}
               <button
                 onClick={() => setShowNotifications(true)}
-                className="relative p-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                className="relative p-2 text-gray-400 hover:text-gray-600 cursor-pointer focus:outline-none"
               >
                 <BellIcon className="md:h-6 md:w-6 w-6 h-6 header-icon" />
-                <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+                {/* <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full"></span> */}
+                {unreadCount > 0 && (
+                  <>
+                    {/* <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                      
+                    </span> */}
+                    <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 text-white rounded-full text-sm">{unreadCount}</span>
+                  </>
+                )}
               </button>
 
               {/* User Menu */}
@@ -100,7 +137,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                  <Menu.Items className="absolute right-3 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                     <div className="py-1">
                       <div className="px-4 py-2 border-b border-gray-100">
                         <p className="text-sm font-medium text-gray-900">{user?.email}</p>
@@ -108,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                       <Menu.Item>
                         {({ active }) => (
                           <a
-                            href="/profile"
+                            href="/admin/profile"
                             className={`${active ? 'bg-gray-100' : ''
                               } flex items-center md:px-4 px-2 py-2 text-sm text-gray-700`}
                           >

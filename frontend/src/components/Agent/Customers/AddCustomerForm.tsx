@@ -30,6 +30,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const { showToast, showPromiseToast } = useToast();
+  const [showAllProperty, setShowAllProperty] = useState(false);
 
   const {
     register,
@@ -38,8 +39,11 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
     watch,
   } = useForm<CustomerFormDataSchema>({
     resolver: zodResolver(customerSchema),
-    defaultValues: initialData || {
+    defaultValues: {
       leadSource: "website",
+      minimumBudget: 0,
+      maximumBudget: 0,
+      ...initialData,
     },
   });
 
@@ -53,7 +57,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
 
     const dataWithAgency = {
       ...data,
-      agencyId: user._id,
+      agencyId: user?.agency?._id,
     };
 
     setLoading(true);
@@ -132,7 +136,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 md:gap-6 gap-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-                Full Name *
+                Full Name <span className="text-red-600">*</span>
               </label>
               <input
                 {...register("fullName")}
@@ -147,17 +151,17 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-                Email Address *
+                Phone Number <span className="text-red-600">*</span>
               </label>
               <input
-                type="email"
-                {...register("email")}
+                type="tel"
+                {...register("phoneNumber")}
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="john@example.com"
+                placeholder="+91 98765 43210"
               />
-              {errors.email && (
+              {errors.phoneNumber && (
                 <p className="text-red-600 text-sm mt-1">
-                  {errors.email.message}
+                  {errors.phoneNumber.message}
                 </p>
               )}
             </div>
@@ -167,6 +171,22 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
             <div className="space-y-2 md:space-y-6">
               {/* Contact Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 md:gap-6 gap-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    {...register("email")}
+                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="john@example.com"
+                  />
+                  {errors.email && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
                     WhatsApp Number
@@ -180,18 +200,6 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   <p className="text-xs text-gray-500 mt-1">
                     Used for deduplication and communication
                   </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    {...register("phoneNumber")}
-                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="+91 98765 43210"
-                  />
                 </div>
               </div>
 
@@ -274,6 +282,21 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   placeholder="Any initial notes about the customer..."
                 />
               </div>
+              {/* 🔘 Toggle Switch */}
+              <label className="flex items-center cursor-pointer">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    {...register("showAllProperty")}
+                    checked={showAllProperty}
+                    onClick={() => setShowAllProperty((prev) => !prev)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors"></div>
+                  <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
+                </div>
+                <span className="ml-2 text-sm text-gray-700">Show More Info</span>
+              </label>
             </div>
           )}
 

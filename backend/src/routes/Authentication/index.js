@@ -6,9 +6,10 @@ const router = express.Router();
 
 router.post("/register-agency", registrationController.registerAgency);
 router.post("/login", registrationController.loginUser);
+router.post("/select-customer-agency", registrationController.selectCustomerAgency);
 router.get(
   "/check-session",
-  protect(["AgencyAdmin"]),
+  protect(["agent", "admin", "customer"]),
   registrationController.checkSession
 );
 

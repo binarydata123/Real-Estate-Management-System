@@ -61,6 +61,7 @@ const customerSchema = new mongoose.Schema({
     },
   },
   initialNotes: { type: String },
+  showAllProperty: {type: Boolean, default: false},
   status: {
     type: String,
     enum: {
@@ -79,10 +80,10 @@ const customerSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    default: "Customer",
+    default: "customer",
     enum: {
-      values: ["Customer"],
-      message: "Role must be Customer",
+      values: ["customer"],
+      message: "Role must be customer",
     },
   },
   agencyId: {

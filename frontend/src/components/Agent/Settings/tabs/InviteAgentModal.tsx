@@ -51,9 +51,10 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
     setLoading(true);
     const dataWithAgency = {
       ...data,
-      agencyId: user._id,
+      agencyId: user?.agency?._id,
     };
-    const apiCall = () => inviteAgent(dataWithAgency as CustomerFormDataSchema);
+    const apiCall = () =>
+      inviteAgent(dataWithAgency as unknown as CustomerFormDataSchema);
 
     try {
       await showPromiseToast(apiCall(), {

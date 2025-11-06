@@ -3,13 +3,17 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BarChart4, Settings, X, Building2, Users } from "lucide-react";
+import { Home, BarChart4, Settings, X, Building2, Users, UserCircle, House, UserCog } from "lucide-react";
 
 const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: Home },
+    { name: "Profile", href: "/admin/profile", icon: UserCog },
     { name: "Agencies", href: "/admin/agencies", icon: Building2 },
-    { name: "Users", href: "/admin/users", icon: Users },
+    { name: "Agents", href: "/admin/agents", icon: UserCircle },
+    { name: "Customers", href: "/admin/customers", icon: Users },
+    { name: "Properties", href: "/admin/properties", icon: House },
     { name: "Analytics", href: "/admin/analytics", icon: BarChart4 },
+    // { name: "Users", href: "/admin/users", icon: Users },
     { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 

@@ -110,6 +110,16 @@ declare global {
     status: "Available" | "Pending" | "Sold" | "Rented";
     createdAt?: string | Date;
     updatedAt?: string | Date;
+    agencyId?: {
+      email: string;
+      id: string;
+      members: number;
+      name: string;
+      phone: string; 
+      status: string;
+      _id: string;
+    };
+    owner_name?: string;
   }
 
   interface CustomerResponse {
@@ -136,10 +146,19 @@ declare global {
     | "cold_call"
     | "other";
     initialNotes?: string;
-    agencyId?: string;
+    //agencyId?: string;
     status: string;
     assigned_agent: string;
     minimumBudget: number;
+    agencyId?: {
+      email: string;
+      id: string;
+      members: number;
+      name: string;
+      phone: string; 
+      status: string;
+      _id: string;
+    };
   }
 
   interface Pagination {
@@ -179,6 +198,200 @@ declare global {
     message?: string;
     pagination?: Pagination;
   }
+
+  interface AgencyResponse {
+    success: boolean;
+    data: AgencyFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface AgencyFormData {
+    _id: string;
+    name: string;
+    slug: string;
+    owner: string;
+    email: string | "";
+    phone?: string;
+    status: string;
+    teamMembers?: [],
+    createdAt: Date;
+    updatedAt: Date;
+    properties?: [],
+  }
+
+  interface PropertyResponse {
+    success: boolean;
+    data: Property[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface AgentResponse {
+    success: boolean;
+    data: AgentFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface AgentFormData {
+    _id: string;
+    name: string;
+    email: string | "";
+    phone?: string;
+    password?: string;
+    role?: string;
+    status: string;
+    profilePictureUrl?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    agencyId?: {
+      email: string;
+      id: string;
+      members: number;
+      name: string;
+      phone: string; 
+      status: string;
+      _id: string;
+    };
+    customersCount?: number;
+    propertiesCount?: number;
+  }
+
+  interface DashboardResponse {
+    success: boolean;
+    data: {
+      stats: Stats[],
+      userGrowthData: UserGrowthData[],
+      propertyGrowthData: PropertyGrowthData[],
+      recentUsers: RecentUserData[],
+      recentAgencies: AgencyData[]
+    };
+    message?: string;
+  }
+
+  interface Stats {
+    name: string;
+    stat: number;
+  }
+
+  interface UserGrowthData {
+    name: string;
+    users: number;
+  }
+
+  interface PropertyGrowthData {
+    name: string;
+    properties: number;
+  }
+
+  interface RecentUserData {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+    createdAt: string;
+  };
+
+  interface AgencyData {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
+
+  interface ProfileResponse{
+    success: boolean;
+    data: UserData;
+    message: string;
+  }
+
+  interface UserData {
+    _id?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    role?: string;
+    password?: string;
+    profilePictureUrl?: string;
+    status?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  }
+
+  interface AnalyticsResponse {
+    success: boolean;
+    data: {
+      stats: AnalyticsStats;
+      monthlyUsers: AnalyticsMonthlyUsers[];
+      monthlyRevenue: AnalyticsMonthlyRevenue[];
+      recentActivities: AnalyticsRecentActivities[];
+      topAgents: AnalyticsTopAgents[];
+    };
+    message?: string;
+  }
+  interface AnalyticsStats {
+    totalUsers: number;
+    totalAgencies: number;
+    totalCustomers: number;
+    totalProperties: number;
+    totalMeetings: number;
+    totalRevenue: number;
+  }
+
+  interface AnalyticsMonthlyRevenue {
+    _id: number;
+    total: number;
+  }
+  interface FormattedMonthlyRevenue {
+    name: string;
+    revenue: number;
+  }
+  interface AnalyticsMonthlyUsers {
+    _id: number;
+    count: number;
+  }
+  interface FormattedMonthlyUsers {
+    name: string;
+    signups: number;
+  }
+  interface AnalyticsRecentActivities {
+    id: string;
+    user: string;
+    action: string;
+    time: string;
+    icon: string;
+  }
+  interface AnalyticsTopAgents {
+    id: string;
+    deals: number; 
+    name: string;
+    profilePictureUrl: string;
+  }
+  interface PreferencesResponse {
+    success: boolean;
+    data: PreferencesFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface PreferencesFormData {
+    _id?: string;
+    userId?: string; 
+    userType: "buyer" | "investor";
+    lookingFor: 'buy' | 'rent';
+    type: 'residential' | 'commercial';
+    category: string[];
+    minPrice: number;
+    maxPrice: number;
+    bedrooms: string[];
+    bathrooms: string[];
+    furnishing: string[];
+    amenities: string[];
+    features: string[];
+    facing: string[];
+    reraStatus: string[]
+  }
 }
 
 export {
@@ -193,4 +406,6 @@ export {
   BeforeInstallPromptEvent,
   Pagination,
   SharePropertyFormData,
+  AgencyResponse,
+  AgencyFormData
 };

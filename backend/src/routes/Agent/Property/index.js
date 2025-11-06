@@ -18,12 +18,12 @@ const upload = createUpload("Properties");
 // This assumes the router is mounted at a path like `/api/agent/properties`.
 
 router.route("/")
-  .get(protect(["admin", "agency", "agent", "AgencyAdmin"]), getProperties)
-  .post(protect(["admin", "agency", "agent", "AgencyAdmin"]), upload.multiple("images", 10), createProperty);
+  .get(protect(["admin", "agent"]), getProperties)
+  .post(protect(["admin", "agent"]), upload.multiple("images", 10), createProperty);
 
 router.route("/:id")
-  .get(protect(["admin", "agency", "agent", "AgencyAdmin"]), getSingleProperty)
-  .put(protect(["admin", "agency", "agent", "AgencyAdmin"]), upload.multiple("images", 10), updateProperty)
-  .delete(protect(["admin", "agency", "agent", "AgencyAdmin"]), deleteProperty);
+  .get(protect(["admin", "agent"]), getSingleProperty)
+  .put(protect(["admin", "agent"]), upload.multiple("images", 10), updateProperty)
+  .delete(protect(["admin", "agent"]), deleteProperty);
 
 export default router;

@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.post(
   "/create",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   createCustomer
 );
 getCustomersForDropDown;
@@ -22,26 +22,26 @@ getCustomersForDropDown;
 // Read
 router.get(
   "/get-all",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   getCustomers
 );
 router.get(
   "/get-all-for-dropDown",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   getCustomersForDropDown
 );
 
 // Update
 router.put(
   "/update/:id",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   updateCustomer
 );
 
 // Delete
 router.delete(
   "/delete/:id",
-  protect(["admin", "agency", "agent", "AgencyAdmin"]),
+  protect(["admin", "agent"]),
   deleteCustomer
 );
 
