@@ -84,6 +84,11 @@ const NotificationsPage: React.FC = () => {
     { key: "new_lead", label: "Customer" },
   ];
 
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+  }, [activeTab]);
+
   const fetchNotifications = async () => {
     try {
       if (!user?._id) return;
@@ -107,11 +112,6 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    fetchNotifications();
-  };
-
   const fetchUnreadCount = async () => {
     try {
       if (!user?._id) return;
@@ -122,12 +122,12 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
     fetchNotifications();
-    fetchUnreadCount();
-  }, [activeTab]); // 👈 refetch when tab changes
+  };
 
-  const handleReadNotification = async (id: string) => {
+ const handleReadNotification = async (id: string) => {
     const result = await markAsRead(id);
     if (result.data.success) {
       fetchNotifications();
@@ -181,10 +181,11 @@ const NotificationsPage: React.FC = () => {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 rounded-t-lg ${activeTab === tab.key
+            className={`px-4 py-2 rounded-t-lg ${
+              activeTab === tab.key
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+            }`}
           >
             {tab.label}
           </button>

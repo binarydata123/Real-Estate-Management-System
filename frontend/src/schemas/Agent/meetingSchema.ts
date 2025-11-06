@@ -11,7 +11,6 @@ export const meetingSchema = z.object({
     .regex(/^[0-9a-fA-F]{24}$/, "Property must be a valid ObjectId")
     .optional()
     .or(z.literal("")) // ✅ allows empty string
-
     .nullable(),
 
   agencyId: z

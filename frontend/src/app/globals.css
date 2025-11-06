@@ -114,7 +114,7 @@ select:focus-visible {
   select:not(.inheritClass),
   div:not(.inheritClass),
   span:not(.inheritClass) {
-    font-size: 12px !important;
+    font-size: 10px !important;
     line-height: 16px !important;
   }
 

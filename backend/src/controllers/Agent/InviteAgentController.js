@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 export const inviteAgent = async (req, res) => {
   try {
     const { name, phone, email, code, agencyId } = req.body;
-
+    console.log(agencyId, "dfs");
     if (!name || !phone) {
       return res.status(400).json({ message: "Name and phone are required" });
     }
@@ -38,7 +38,7 @@ export const inviteAgent = async (req, res) => {
       { $push: { teamMembers: newUser._id } },
       { new: true }
     );
-
+    console.log(agency);
     if (!agency) {
       return res.status(404).json({ message: "Agency not found" });
     }
