@@ -95,12 +95,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (sessionStr) {
           const savedSession: Session = JSON.parse(sessionStr);
 
-          // Verify session with the backend to ensure it's still valid
-          const {
-            data: { user: freshUser },
-          } = await checkSessionApi(savedSession.access_token);
+          // Verify session with the backend. The user object is nested in response.data.data.user
+          const response = await checkSessionApi(savedSession.access_token);
+          const freshUser = response.data.data.user;
 
-          // Update user data from backend response
+          // Update user data from the fresh backend response
           const newSession: Session = {
             ...savedSession,
           };

@@ -2,7 +2,6 @@ import { AgencyBranding } from "../tabs/AgencyBranding";
 import { AgencySettings } from "../tabs/AgencySettings";
 import { NotificationSettings } from "../tabs/NotificationSettings";
 import { SecuritySettings } from "../tabs/SecuritySettings";
-import { TeamManagement } from "../tabs/TeamManagement";
 
 export const renderTabContent = (
   activeTab: string,
@@ -21,8 +20,6 @@ export const renderTabContent = (
           updateAgencySetting={updateAgencySetting}
         />
       );
-    case "team":
-      return <TeamManagement />;
     case "notifications":
       return (
         <NotificationSettings

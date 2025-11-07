@@ -6,7 +6,7 @@ import {
   TrashIcon,
   PencilIcon,
 } from "@heroicons/react/24/outline";
-import { InviteAgentModal } from "./InviteAgentModal";
+import { InviteAgentModal } from "../Settings/tabs/InviteAgentModal";
 
 interface TeamMember {
   id: string;
