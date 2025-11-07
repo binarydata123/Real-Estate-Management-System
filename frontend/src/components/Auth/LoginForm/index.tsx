@@ -253,6 +253,7 @@ export const LoginForm = () => {
                                                 id="email"
                                                 type="email"
                                                 {...register('email')}
+                                                autoFocus
                                                 className={`w-full pl-8 md:px-4 px-2 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
                                                 placeholder="you@example.com"
                                             />
@@ -276,12 +277,16 @@ export const LoginForm = () => {
                                             id="phone"
                                             type="tel"
                                             {...register('phone')}
-                                            className={`w-full pl-8 md:px-4 px-2 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
+                                            autoFocus
+                                            className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
                                             placeholder="Enter your phone number"
                                         />
                                     </div>
-                                    {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
+                                    {errors.phone && (
+                                        <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>
+                                    )}
                                 </div>
+
                             )}
 
                             {(loginAs === 'agency' || loginAs === 'admin') && (

@@ -1,13 +1,13 @@
-interface AgencySettingsType {
+interface CustomerSettingsType {
   _id: string;
-  agencySettings?: {
-    agencyName?: string;
+  customerSettings?: {
+    customerName?: string;
     workspaceUrl?: string;
   };
   branding: {
     primaryColor: string;
     secondaryColor: string;
-    agencyLogoUrl: string;
+    customerLogoUrl: string;
   };
   notifications: {
     emailNotifications: boolean;
