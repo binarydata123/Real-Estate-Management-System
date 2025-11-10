@@ -89,10 +89,10 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
       </div>
 
       <div
-        className={`${showFilter ? "grid" : "hidden"
-          } md:grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mt-2`}
+        className={`${
+          showFilter ? "grid" : "hidden"
+        } md:grid grid-cols-2 md:grid-cols-8 gap-2 md:gap-4 mt-2 text-black`}
       >
-
         {/* Property Type */}
         <div>
           <select
@@ -126,7 +126,9 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
         <div>
           <select
             value={filters.unit_area_type}
-            onChange={(e) => handleFilterChange("unit_area_type", e.target.value)}
+            onChange={(e) =>
+              handleFilterChange("unit_area_type", e.target.value)
+            }
             className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">All Units</option>
@@ -163,7 +165,9 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
         <div>
           <select
             value={filters.is_corner_plot}
-            onChange={(e) => handleFilterChange("is_corner_plot", e.target.value)}
+            onChange={(e) =>
+              handleFilterChange("is_corner_plot", e.target.value)
+            }
             className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Corner Plot?</option>
@@ -175,7 +179,9 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
         <div>
           <select
             value={filters.plot_dimension_unit}
-            onChange={(e) => handleFilterChange("plot_dimension_unit", e.target.value)}
+            onChange={(e) =>
+              handleFilterChange("plot_dimension_unit", e.target.value)
+            }
             className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Dimension Unit</option>
@@ -200,7 +206,9 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
         <div>
           <select
             value={filters.transaction_type}
-            onChange={(e) => handleFilterChange("transaction_type", e.target.value)}
+            onChange={(e) =>
+              handleFilterChange("transaction_type", e.target.value)
+            }
             className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Transaction</option>
