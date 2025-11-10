@@ -78,7 +78,7 @@ const IconRadio: React.FC<{
                         />
                         <label
                             htmlFor={`${name as string}-${option.value}`}
-                            className="cursor-pointer flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
+                            className="cursor-pointer flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
                         >
                             {option.icon}
                             {option.label}
@@ -108,7 +108,7 @@ const IconCheckbox: React.FC<{
         />
         <label
             htmlFor={`${name as string}-${option.value}`}
-            className="cursor-pointer shadow flex items-center gap-2 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
+            className="cursor-pointer shadow flex items-center gap-2 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
         >
             {option.icon && <span>{option.icon}</span>}
             {option.label}
