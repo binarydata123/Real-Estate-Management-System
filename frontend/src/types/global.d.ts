@@ -184,6 +184,7 @@ declare global {
       status: string;
       _id: string;
     };
+    role?:string;
   }
 
   interface Pagination {

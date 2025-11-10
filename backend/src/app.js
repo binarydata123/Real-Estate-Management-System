@@ -21,6 +21,22 @@ app.get("/", (req, res) => {
 // mount all routes under /api
 app.use("/api", routes);
 app.use("/images", express.static(path.join(__dirname, "storage")));
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".m3u8")) {
+        res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+      }
+      if (filePath.endsWith(".ts")) {
+        res.setHeader("Content-Type", "video/mp2t");
+      }
+      // Allow CORS so frontend (5173) can load HLS segments
+      res.setHeader("Access-Control-Allow-Origin", "*");
+    },
+  })
+);
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 // error handlers
 app.use(notFound);
 app.use(errorHandler);
