@@ -6,6 +6,7 @@ import { Pagination } from "@/components/Common/Pagination";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
+import { showErrorToast } from '@/utils/toastHandler';
 
 const statusStyles: { [key: string]: string } = {
     active: 'bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400',
@@ -52,18 +53,18 @@ export default function Agents() {
 
     useEffect(() => {
         const handler = setTimeout(() => {
-          setDebouncedSearchTerm(searchTerm);
-          setDebouncedSearchStatus(searchStatus);
-          setCurrentPage(1);
+            setDebouncedSearchTerm(searchTerm);
+            setDebouncedSearchStatus(searchStatus);
+            setCurrentPage(1);
         }, 400);
         return () => clearTimeout(handler);
     }, [searchTerm, searchStatus]);
-    
+
     const handleDeleteClick = (agent: AgentFormData) => {
         setSelectedAgent(agent);
         setShowConfirmDialog(true);
     };
-    
+
     const handleDelete = async (id: string) => {
         try {
             const response = await deleteAgentById(id);
@@ -71,10 +72,10 @@ export default function Agents() {
                 setAgents((prev) => prev.filter((c) => c._id !== id));
             }
         } catch (error) {
-          console.error("Failed to delete agent:", error);
+            showErrorToast("Failed to delete agent:", error);
         }
     };
-    
+
     const getAllAgents = useCallback(
         async (page = 1, search = "", status = "") => {
             try {
@@ -87,18 +88,18 @@ export default function Agents() {
                     //setTotalRecords(res.pagination?.total ?? 0);
                 }
             } catch (error) {
-                console.error("Failed to fetch agents:", error);
+                showErrorToast("Failed to fetch agents:", error);
             } finally {
                 setLoading(false);
             }
         },
         [user?._id]
     );
-    
+
     useEffect(() => {
         getAllAgents(currentPage, debouncedSearchTerm, debouncedSearchStatus);
     }, [getAllAgents, currentPage, debouncedSearchTerm, debouncedSearchStatus]);
-    
+
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
@@ -218,18 +219,18 @@ export default function Agents() {
                                                             {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agent.email || 'N/A'}</td> */}
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agent.phone || 'N/A'}</td>
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                                                { (agent.customersCount ?? 0) > 0 && agent.agencyId?._id ? (
+                                                                {(agent.customersCount ?? 0) > 0 && agent.agencyId?._id ? (
                                                                     <a className="text-blue-800" href={`/admin/customers?agencyId=${agent.agencyId._id}`}>
-                                                                    {agent.customersCount ?? 0}
+                                                                        {agent.customersCount ?? 0}
                                                                     </a>
                                                                 ) : (
                                                                     agent.customersCount ?? 0
                                                                 )}
                                                             </td>
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                                                { (agent.propertiesCount ?? 0) > 0 && agent.agencyId?._id ? (
+                                                                {(agent.propertiesCount ?? 0) > 0 && agent.agencyId?._id ? (
                                                                     <a className="text-blue-800" href={`/admin/properties?agencyId=${agent.agencyId._id}`}>
-                                                                    {agent.propertiesCount ?? 0}
+                                                                        {agent.propertiesCount ?? 0}
                                                                     </a>
                                                                 ) : (
                                                                     agent.propertiesCount ?? 0
@@ -285,13 +286,13 @@ export default function Agents() {
                                                 </p>
                                                 {!debouncedSearchTerm && (
                                                     <div className="flex justify-center mt-4">
-                                                    <button
-                                                        // onClick={() => setShowAddForm(true)}
-                                                        className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                                    >
-                                                        <PlusIcon className="h-5 w-5 mr-2" />
-                                                        Add Agent
-                                                    </button>
+                                                        <button
+                                                            // onClick={() => setShowAddForm(true)}
+                                                            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                                        >
+                                                            <PlusIcon className="h-5 w-5 mr-2" />
+                                                            Add Agent
+                                                        </button>
                                                     </div>
                                                 )}
                                             </div>
