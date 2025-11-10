@@ -28,6 +28,76 @@ interface AgencySettingsType {
 }
 
 
+//
+interface Customer {
+  _id?: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  whatsAppNumber?: string;
+}
+
+interface ProfileFormData {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  whatsapp: string;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data?: T;
+}
+
+interface AgentProfile {
+  _id: string;
+  owner: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  whatsAppNumber: string;
+  timezone: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+ interface AgentProfileFormData {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  whatsappNumber?: string;
+}
+
+
+interface ProfileFormValues {
+  fullName: string;
+  email: string;
+  whatsapp: string;
+  timezone: string;
+}
+interface AgentProfile {
+  _id: string;
+  owner: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  whatsAppNumber: string;
+  timezone: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+interface AgentProfileFormData {
+  fullName: string;
+  email: string;
+  whatsapp: string;
+  timezone: string;
+  phoneNumber: string;
+}
+
+
 
 interface Property {
   _id: string;

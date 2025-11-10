@@ -10,6 +10,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { NotificationCenter } from './Notification';
 import InstallButton from '@/components/Common/InstallButton';
+import Link from 'next/link';
 
 interface HeaderProps {
     onMenuButtonClick: () => void;
@@ -115,14 +116,14 @@ export const CustomerHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => 
                                             </div>
                                             <Menu.Item>
                                                 {({ active }) => (
-                                                    <a
-                                                        href="/profile"
+                                                    <Link
+                                                        href="/customer/profile"
                                                         className={`${active ? 'bg-gray-100' : ''
                                                             } flex items-center md:px-4 px-2 py-2 text-sm text-gray-700`}
                                                     >
                                                         <UserCircleIcon className="mr-3 h-4 w-4" />
                                                         Profile
-                                                    </a>
+                                                    </Link>
                                                 )}
                                             </Menu.Item>
                                             <Menu.Item>

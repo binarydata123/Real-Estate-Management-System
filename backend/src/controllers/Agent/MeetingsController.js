@@ -37,7 +37,7 @@ export const createMeeting = async (req, res) => {
       type: "meeting_scheduled",
     });
 
-    // ✅ Push notification to meeting creator
+    //Push notification to meeting creator
     await sendPushNotification({
       userId: user._id,
       title: "Meeting Scheduled",
