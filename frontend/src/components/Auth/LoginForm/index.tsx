@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth, Agency } from '@/context/AuthContext';
 import { loginUser, selectCustomerAgency } from '@/lib/Authentication/AuthenticationAPI';
+import { showSuccessToast } from '@/utils/toastHandler';
 
 const agencyLoginSchema = z.object({
     email: z.string().min(1, 'Email is required').email('Invalid email address'),
@@ -58,6 +59,8 @@ export const LoginForm = () => {
             const response = await loginUser(loginData);
 
             if (response.data.success) {
+                showSuccessToast(response.data.message || 'Login successful!');
+
                 if (response.data.requiresSelection) {
                     setAgenciesToSelect(response.data.agencies);
                 } else {
@@ -254,7 +257,7 @@ export const LoginForm = () => {
                                                 type="email"
                                                 {...register('email')}
                                                 autoFocus
-                                                className={`w-full pl-8 md:px-4 px-2 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                                                className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
                                                 placeholder="you@example.com"
                                             />
                                         </div>
@@ -305,7 +308,7 @@ export const LoginForm = () => {
                                             id="password"
                                             type={showPassword ? "text" : "password"}
                                             {...register('password')}
-                                            className={`w-full pl-8 pr-12 md:px-4 px-2 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
+                                            className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
                                             placeholder="Enter your password"
                                         />
                                         <button
