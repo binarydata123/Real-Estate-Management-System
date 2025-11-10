@@ -7,6 +7,7 @@ import { Pagination } from "@/components/Common/Pagination";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
+import { showErrorToast } from '@/utils/toastHandler';
 
 const statusStyles: { [key: string]: string } = {
     approved: 'bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400',
@@ -69,11 +70,10 @@ export default function Agencies() {
         try {
             const response = await deleteAgencyById(id);
             if (response.data.success) {
-                console.log(response.data.message);
                 setAgencies((prev) => prev.filter((c) => c._id !== id));
             }
         } catch (error) {
-          console.error("Failed to delete customer:", error);
+          showErrorToast("Failed to delete customer:", error);
         }
     };
     
@@ -89,7 +89,7 @@ export default function Agencies() {
                 //setTotalRecords(res.pagination?.total ?? 0);
             }
             } catch (error) {
-            console.error("Failed to fetch customers:", error);
+            showErrorToast("Failed to delete customer:", error);
             } finally {
             setLoading(false);
             }

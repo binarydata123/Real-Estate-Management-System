@@ -14,7 +14,6 @@ export default function AddAgencyModal({ isOpen, onClose }: AddAgencyModalProps)
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // In a real app, you would handle form submission here, e.g., call an API
-        console.log('Creating new agency:', { agencyName, logoUrl });
         // Reset form and close modal
         setAgencyName('');
         setLogoUrl('');
