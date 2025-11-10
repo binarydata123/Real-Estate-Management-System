@@ -1,0 +1,79 @@
+import { Agency } from "../../models/Agent/AgencyModel.js";
+import { User } from "../../models/Common/UserModel.js";
+
+export const getAgentProfile=async (req,res)=>{
+try {
+        const agentId =req.user._id;
+        const agent=await Agency.findOne({owner:agentId}).populate("owner")
+    
+     if (!agent) {
+      return res.status(404).json({
+        success: false,
+        message: "Agent not found.",
+      });}   
+        res.status(200).json({
+      success: true,
+      data:agent,
+      message: "Agent Profile fetched successfully",})
+
+    } catch (error) {
+       console.error("Error fetching Agent Profile ", error);
+      res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });   
+    }
+}
+
+
+export const updateAgentProfile = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized. User not found.",
+      });
+    }
+
+    const { fullName, email, whatsapp, timezone } = req.body;
+
+    if (!fullName || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Full name and email are required.",
+      });
+    }
+
+    // Find agency by owner
+    const agency = await Agency.findOne({ owner: userId }).populate("owner");
+    if (!agency) {
+      return res.status(404).json({
+        success: false,
+        message: "Agent not found.",
+      });
+    }
+
+    await User.findByIdAndUpdate(agency.owner._id, {
+      name: fullName,
+      email,
+    });
+
+    // Update agency-specific fields
+    if (whatsapp) agency.whatsAppNumber = whatsapp;
+    if (timezone) agency.timezone = timezone;
+    await agency.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Agent profile updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error updating Agent Profile:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Server error while updating profile.",
+    });
+  }
+};

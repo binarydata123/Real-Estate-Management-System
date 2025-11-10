@@ -1,17 +1,15 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
-  getAgentProfile,
-  updateAgentProfile,
-
-} from "@/lib/Agent/ProfileAPI";
+  getCustomerProifile,
+  updateCustomerProfile,
+} from "@/lib/Customer/ProfileAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { customerProfileSchema } from "@/schemas/Admin/profileSchema";
 
 export default function Profile() {
-
-  const [user, setUser] = useState<AgentProfile | null>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const {
@@ -19,61 +17,54 @@ export default function Profile() {
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<ProfileFormValues>({
-    resolver:zodResolver(AgentProfile),
+  } = useForm<ProfileFormData>({
+    resolver:zodResolver(customerProfileSchema),
     defaultValues: {
       fullName: "",
       email: "",
       whatsapp: "",
-      timezone: "",
+      phoneNumber: "",
     },
   });
 
-// Fetch profile from API
-  const getProfile = async (): Promise<void> => {
+  const handleGetProfile = async () => {
     try {
-      const res = await getAgentProfile();
+      const res: ApiResponse<Customer> = await getCustomerProifile();
       if (res.success && res.data) {
-     setUser(res.data);
-}
-
+        setCustomer(res.data);
+      }
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("Profile fetch error:", error);
     }
   };
 
-  const onSubmit: SubmitHandler<ProfileFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<ProfileFormData> = async (data) => {
     setLoading(true);
     try {
-      const payload: AgentProfileFormData = {
-        ...data,
-        phoneNumber: "",
-      };
-      const res = await updateAgentProfile(payload);
+      const res: ApiResponse<Customer> = await updateCustomerProfile(data);
       if (res.success) {
-        console.log("Profile updated:", res);
+        setLoading(false)
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Profile update error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  
   useEffect(() => {
-    getProfile();
+    handleGetProfile();
   }, []);
 
-  
   useEffect(() => {
-    if (user) {
-      setValue("email", user.owner?.email);
-      setValue("fullName", user.owner?.name);
-      setValue("timezone", user.timezone);
-      setValue("whatsapp", user.whatsAppNumber);
+    if (customer) {
+      setValue("fullName", customer.fullName);
+      setValue("email", customer.email);
+      setValue("phoneNumber", customer.phoneNumber);
+      setValue("whatsapp", customer.whatsAppNumber || "");
     }
-  }, [user, setValue]);
+  }, [customer, setValue]);
+
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8">
       {/* Header */}
@@ -98,18 +89,12 @@ export default function Profile() {
           </label>
           <input
             type="text"
-            {...register("fullName", {
-              required: "Full name is required",
-              minLength: {
-                value: 3,
-                message: "Full name must be at least 3 characters long",
-              },
-            })}
             placeholder="John Doe"
+            {...register("fullName")}
             className={`w-full px-4 py-2.5 border ${
               errors.fullName ? "border-red-500" : "border-gray-200"
             } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-            text-gray-900 placeholder-gray-400 transition-all duration-150`}
+                       text-gray-900 placeholder-gray-400 transition-all duration-150`}
           />
           {errors.fullName && (
             <span className="text-red-500 text-sm mt-1">
@@ -125,22 +110,37 @@ export default function Profile() {
           </label>
           <input
             type="email"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Invalid email address",
-              },
-            })}
             placeholder="example@gmail.com"
+            {...register("email")}
             className={`w-full px-4 py-2.5 border ${
               errors.email ? "border-red-500" : "border-gray-200"
             } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-            text-gray-900 placeholder-gray-400 transition-all duration-150`}
+                       text-gray-900 placeholder-gray-400 transition-all duration-150`}
           />
           {errors.email && (
             <span className="text-red-500 text-sm mt-1">
               {errors.email.message}
+            </span>
+          )}
+        </div>
+
+        {/* Phone Number */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 mb-1">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            placeholder="+91 98765 43210"
+            {...register("phoneNumber")}
+            className={`w-full px-4 py-2.5 border ${
+              errors.phoneNumber ? "border-red-500" : "border-gray-200"
+            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                       text-gray-900 placeholder-gray-400 transition-all duration-150`}
+          />
+          {errors.phoneNumber && (
+            <span className="text-red-500 text-sm mt-1">
+              {errors.phoneNumber.message}
             </span>
           )}
         </div>
@@ -152,44 +152,16 @@ export default function Profile() {
           </label>
           <input
             type="tel"
-            {...register("whatsapp", {
-              required: "WhatsApp number is required",
-              pattern: {
-                value: /^[0-9+\-\s()]*$/,
-                message: "Invalid phone number",
-              },
-            })}
             placeholder="+91 98765 43210"
+            {...register("whatsapp")}
             className={`w-full px-4 py-2.5 border ${
               errors.whatsapp ? "border-red-500" : "border-gray-200"
             } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-            text-gray-900 placeholder-gray-400 transition-all duration-150`}
+                       text-gray-900 placeholder-gray-400 transition-all duration-150`}
           />
           {errors.whatsapp && (
             <span className="text-red-500 text-sm mt-1">
               {errors.whatsapp.message}
-            </span>
-          )}
-        </div>
-
-        {/* Timezone */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 mb-1">
-            Timezone
-          </label>
-          <select
-            {...register("timezone", { required: "Timezone is required" })}
-            className={`w-full px-4 py-2.5 border ${
-              errors.timezone ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-            text-gray-900 bg-white transition-all duration-150`}
-          >
-            <option value="Asia/Kolkata">India Standard Time (IST)</option>
-            <option value="UTC">Coordinated Universal Time (UTC)</option>
-          </select>
-          {errors.timezone && (
-            <span className="text-red-500 text-sm mt-1">
-              {errors.timezone.message}
             </span>
           )}
         </div>
@@ -200,7 +172,7 @@ export default function Profile() {
             type="submit"
             disabled={loading}
             className="px-5 py-2.5 bg-blue-600 text-white rounded-xl shadow-sm 
-            hover:bg-blue-700 transition-colors duration-150 font-medium disabled:opacity-60"
+                     hover:bg-blue-700 transition-colors duration-150 font-medium disabled:opacity-60"
           >
             {loading ? "Saving..." : "Save Changes"}
           </button>
