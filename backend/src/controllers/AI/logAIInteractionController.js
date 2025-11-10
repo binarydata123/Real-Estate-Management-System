@@ -1,29 +1,45 @@
 import { AIInteraction } from "../../models/AI/AIInteraction.js";
 
-export const logAIInteraction = async (req, res) => {
+// 🧠 Start a new AI session
+export const startAISession = async (req, res) => {
   try {
-    const { userId, propertyId, assistantId, role, message } = req.body;
+    const { propertyId, userId, assistantId } = req.body;
 
-    if (!role || !message) {
+    const session = await AIInteraction.create({
+      propertyId,
+      userId,
+      assistantId,
+      startTime: new Date(),
+    });
+
+    res.json({ success: true, sessionId: session._id });
+  } catch (error) {
+    console.error("❌ Error starting AI session:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// 🧠 Log messages for an existing session
+export const logAISessionMessage = async (req, res) => {
+  try {
+    const { sessionId, role, message } = req.body;
+    if (!sessionId)
       return res
         .status(400)
-        .json({ success: false, message: "Role and message are required." });
-    }
+        .json({ success: false, message: "Missing sessionId" });
 
-    const interaction = await AIInteraction.create({
-      userId,
-      propertyId,
-      assistantId,
-      role,
-      message,
-    });
+    const session = await AIInteraction.findById(sessionId);
+    if (!session)
+      return res
+        .status(404)
+        .json({ success: false, message: "Session not found" });
 
-    res.status(201).json({ success: true, data: interaction });
+    session.logs.push({ role, message });
+    await session.save();
+
+    res.json({ success: true });
   } catch (error) {
-    console.error("❌ Error logging AI interaction:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to log interaction",
-    });
+    console.error("❌ Error logging AI message:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };

@@ -4,8 +4,15 @@ import {
   generateSpeech,
   propertyPrompt,
   createAssistant,
+  createCustomerAssistant,
+  createCustomerRecord,
+  startCustomerSession,
+  handleVapiWebhook,
 } from "../../controllers/AI/assistantController.js";
-import { logAIInteraction } from "../../controllers/AI/logAIInteractionController.js";
+import {
+  logAISessionMessage,
+  startAISession,
+} from "../../controllers/AI/logAIInteractionController.js";
 
 const router = express.Router();
 
@@ -15,6 +22,10 @@ router.post("/ask", askQuestion);
 router.post("/speak", generateSpeech);
 router.get("/property-prompt/:propertyId/:userId", propertyPrompt);
 router.post("/create", createAssistant);
-router.post("/log", logAIInteraction);
-
+router.post("/log", logAISessionMessage);
+router.post("/start-session", startAISession);
+router.post("/create-customer-assistant", createCustomerAssistant);
+router.post("/create-customer-record", createCustomerRecord);
+router.post("/start-customer-session", startCustomerSession);
+router.post("/webhook", handleVapiWebhook);
 export default router;

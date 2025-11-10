@@ -13,18 +13,22 @@ export const createCustomer = async (req, res) => {
     if (!fullName || !phoneNumber) {
       return res
         .status(400)
-        .json({ success: false, message: "Full name and phone number are required." });
+        .json({
+          success: false,
+          message: "Full name and phone number are required.",
+        });
     }
 
     // Add agencyId from the authenticated user if not provided
     const customerData = {
       ...req.body,
-      agencyId: agencyId || req.user.agencyId._id
+      agencyId: agencyId || req.user.agencyId._id,
     };
 
     if (!customerData.agencyId) {
       return res.status(400).json({
-        success: false, message: "Agency ID is required"
+        success: false,
+        message: "Agency ID is required",
       });
     }
 
@@ -35,7 +39,8 @@ export const createCustomer = async (req, res) => {
     });
 
     if (existingCustomer) {
-      return res.status(409).json({ // 409 Conflict is a suitable status code
+      return res.status(409).json({
+        // 409 Conflict is a suitable status code
         success: false,
         message: "This customer already exists in your agency.",
       });
@@ -93,21 +98,24 @@ export const getCustomers = async (req, res) => {
     if (!agencyId) {
       return res
         .status(400)
-        .json({ success: false, message: "User is not associated with an agency." });
+        .json({
+          success: false,
+          message: "User is not associated with an agency.",
+        });
     }
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
     const searchQuery = search
       ? {
-        agencyId: agencyId,
-        $or: [
-          { fullName: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-          { whatsAppNumber: { $regex: search, $options: "i" } },
-          { phoneNumber: { $regex: search, $options: "i" } },
-        ],
-      }
+          agencyId: agencyId,
+          $or: [
+            { fullName: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { whatsAppNumber: { $regex: search, $options: "i" } },
+            { phoneNumber: { $regex: search, $options: "i" } },
+          ],
+        }
       : { agencyId: agencyId };
 
     const totalCustomers = await Customer.countDocuments(searchQuery);
@@ -153,7 +161,10 @@ export const getCustomersForDropDown = async (req, res) => {
     if (!agencyId) {
       return res
         .status(400)
-        .json({ success: false, message: "User is not associated with an agency." });
+        .json({
+          success: false,
+          message: "User is not associated with an agency.",
+        });
     }
 
     const customers = await Customer.find({ agencyId: agencyId });

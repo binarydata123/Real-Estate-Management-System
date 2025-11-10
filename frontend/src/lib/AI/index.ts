@@ -9,18 +9,34 @@ export const createAssistant = async (data: { prompt: string }) => {
   return response.data;
 };
 
-export const logAIInteraction = async (data: {
-  userId: string;
+export const createCustomerAssistant = async () => {
+  const response = await api.post(`/assistant/create-customer-assistant`);
+  return response.data;
+};
+
+// 🧠 Start session before logging messages
+export const startAISession = async (data: {
   propertyId: string;
+  userId: string;
   assistantId: string;
+}) => {
+  return await api.post(`/assistant/start-session`, data);
+};
+
+// 🧠 Log messages to the session
+export const logAISessionMessage = async (data: {
+  sessionId: string;
   role: "user" | "assistant";
   message: string;
 }) => {
   try {
-    const response = await api.post("/assistant/log", data);
-    return response.data;
+    await api.post("/assistant/log", data);
   } catch (error) {
     console.error("⚠️ Error logging AI interaction:", error);
-    throw error;
   }
+};
+
+export const startCustomerSession = async (data: { assistantId: string }) => {
+  const response = await api.post(`/assistant/start-customer-session`, data);
+  return response.data;
 };

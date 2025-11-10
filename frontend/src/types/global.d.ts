@@ -55,15 +55,31 @@ declare global {
     id?: string;
     title: string;
     description?: string;
-    type: 'residential' | 'commercial';
-    category: 'plot' | 'flat' | 'showroom' | 'office' | 'villa' | 'land' | 'farmHouse';
+    type: "residential" | "commercial";
+    category:
+      | "plot"
+      | "flat"
+      | "showroom"
+      | "office"
+      | "villa"
+      | "land"
+      | "farmHouse";
     location?: string;
     price: number;
 
     // Area & Configuration
     built_up_area?: number;
     carpet_area?: number;
-    unit_area_type?: "sqft" | "sqm" | "acre" | "marla" | "kanal" | "bigha" | "sqyd" | "hectare" | "gaj";
+    unit_area_type?:
+      | "sqft"
+      | "sqm"
+      | "acre"
+      | "marla"
+      | "kanal"
+      | "bigha"
+      | "sqyd"
+      | "hectare"
+      | "gaj";
 
     // Plot specific
     plot_front_area?: number;
@@ -86,20 +102,29 @@ declare global {
     total_floors?: number;
 
     // Facing / Overlooking
-    facing?: "North" | "South" | "East" | "West" | "North-East" | "North-West" | "South-East" | "South-West" | "";
+    facing?:
+      | "North"
+      | "South"
+      | "East"
+      | "West"
+      | "North-East"
+      | "North-West"
+      | "South-East"
+      | "South-West"
+      | "";
     overlooking?: string[];
 
     // Age / Transaction Details
     property_age?: "New" | "1-5 years" | "5-10 years" | "10+ years" | "";
-    transaction_type?: 'New' | 'Resale';
+    transaction_type?: "New" | "Resale";
     gated_community?: boolean;
 
     // Utilities
     water_source?: string[];
-    power_backup?: 'None' | 'Partial' | 'Full';
+    power_backup?: "None" | "Partial" | "Full";
 
     // Features & Amenities
-    furnishing?: 'Unfurnished' | 'Semi-Furnished' | 'Furnished';
+    furnishing?: "Unfurnished" | "Semi-Furnished" | "Furnished";
     features?: string[];
     amenities?: string[];
 
@@ -115,7 +140,7 @@ declare global {
       id: string;
       members: number;
       name: string;
-      phone: string; 
+      phone: string;
       status: string;
       _id: string;
     };
@@ -138,13 +163,13 @@ declare global {
     minimumBudget?: number;
     maximumBudget?: number;
     leadSource:
-    | "website"
-    | "referral"
-    | "social_media"
-    | "advertisement"
-    | "walk_in"
-    | "cold_call"
-    | "other";
+      | "website"
+      | "referral"
+      | "social_media"
+      | "advertisement"
+      | "walk_in"
+      | "cold_call"
+      | "other";
     initialNotes?: string;
     //agencyId?: string;
     status: string;
@@ -155,7 +180,7 @@ declare global {
       id: string;
       members: number;
       name: string;
-      phone: string; 
+      phone: string;
       status: string;
       _id: string;
     };
@@ -214,10 +239,10 @@ declare global {
     email: string | "";
     phone?: string;
     status: string;
-    teamMembers?: [],
+    teamMembers?: [];
     createdAt: Date;
     updatedAt: Date;
-    properties?: [],
+    properties?: [];
   }
 
   interface PropertyResponse {
@@ -250,7 +275,7 @@ declare global {
       id: string;
       members: number;
       name: string;
-      phone: string; 
+      phone: string;
       status: string;
       _id: string;
     };
@@ -261,11 +286,11 @@ declare global {
   interface DashboardResponse {
     success: boolean;
     data: {
-      stats: Stats[],
-      userGrowthData: UserGrowthData[],
-      propertyGrowthData: PropertyGrowthData[],
-      recentUsers: RecentUserData[],
-      recentAgencies: AgencyData[]
+      stats: Stats[];
+      userGrowthData: UserGrowthData[];
+      propertyGrowthData: PropertyGrowthData[];
+      recentUsers: RecentUserData[];
+      recentAgencies: AgencyData[];
     };
     message?: string;
   }
@@ -291,16 +316,16 @@ declare global {
     email: string;
     role: string;
     createdAt: string;
-  };
+  }
 
   interface AgencyData {
     _id: string;
     name: string;
     email: string;
     phone: string;
-  };
+  }
 
-  interface ProfileResponse{
+  interface ProfileResponse {
     success: boolean;
     data: UserData;
     message: string;
@@ -364,7 +389,7 @@ declare global {
   }
   interface AnalyticsTopAgents {
     id: string;
-    deals: number; 
+    deals: number;
     name: string;
     profilePictureUrl: string;
   }
@@ -377,10 +402,10 @@ declare global {
 
   interface PreferencesFormData {
     _id?: string;
-    userId?: string; 
+    userId?: string;
     userType: "buyer" | "investor";
-    lookingFor: 'buy' | 'rent';
-    type: 'residential' | 'commercial';
+    lookingFor: "buy" | "rent";
+    type: "residential" | "commercial";
     category: string[];
     minPrice: number;
     maxPrice: number;
@@ -390,7 +415,7 @@ declare global {
     amenities: string[];
     features: string[];
     facing: string[];
-    reraStatus: string[]
+    reraStatus: string[];
   }
 }
 
@@ -407,5 +432,5 @@ export {
   Pagination,
   SharePropertyFormData,
   AgencyResponse,
-  AgencyFormData
+  AgencyFormData,
 };
