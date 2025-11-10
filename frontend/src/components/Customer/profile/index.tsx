@@ -7,6 +7,7 @@ import {
 } from "@/lib/Customer/ProfileAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerProfileSchema } from "@/schemas/Admin/profileSchema";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 
 export default function Profile() {
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -44,10 +45,15 @@ export default function Profile() {
       const res: ApiResponse<Customer> = await updateCustomerProfile(data);
       if (res.success) {
         setLoading(false)
+        showSuccessToast(res.message)
       }
-    } catch (error) {
-      console.error("Profile update error:", error);
-    } finally {
+    } catch (error: unknown) {
+  if (error instanceof Error) {
+    showErrorToast(error.message);
+  } else {
+    showErrorToast("An unexpected error occurred.");
+  }
+}finally {
       setLoading(false);
     }
   };

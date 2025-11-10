@@ -8,7 +8,8 @@ import {
 
 } from "@/lib/Agent/ProfileAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { agentProfileSchema } from "@/schemas/Admin/agentSchema";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 export default function Profile() {
 
   const [user, setUser] = useState<AgentProfile | null>(null);
@@ -20,7 +21,7 @@ export default function Profile() {
     formState: { errors },
     setValue,
   } = useForm<ProfileFormValues>({
-    resolver:zodResolver(AgentProfile),
+    resolver:zodResolver(agentProfileSchema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -50,11 +51,15 @@ export default function Profile() {
         phoneNumber: "",
       };
       const res = await updateAgentProfile(payload);
-      if (res.success) {
-        console.log("Profile updated:", res);
+      if (res.success && res.message) {
+       showSuccessToast(res.message);
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
+     if (error instanceof Error) {
+    showErrorToast(error.message);
+    } else {
+     showErrorToast("Profile update failed.");
+    }
     } finally {
       setLoading(false);
     }
@@ -94,17 +99,11 @@ export default function Profile() {
         {/* Full Name */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 mb-1">
-            Full Name
+            Full Name <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            {...register("fullName", {
-              required: "Full name is required",
-              minLength: {
-                value: 3,
-                message: "Full name must be at least 3 characters long",
-              },
-            })}
+            {...register("fullName")}
             placeholder="John Doe"
             className={`w-full px-4 py-2.5 border ${
               errors.fullName ? "border-red-500" : "border-gray-200"
@@ -121,22 +120,17 @@ export default function Profile() {
         {/* Email Address */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 mb-1">
-            Email Address
+            Email Address <span className="text-red-500">*</span>
           </label>
           <input
+           disabled
             type="email"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Invalid email address",
-              },
-            })}
+            {...register("email")}
             placeholder="example@gmail.com"
             className={`w-full px-4 py-2.5 border ${
               errors.email ? "border-red-500" : "border-gray-200"
             } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-            text-gray-900 placeholder-gray-400 transition-all duration-150`}
+            text-gray-900 placeholder-gray-400 transition-all duration-150 bg-zinc-200 cursor-not-allowed`}
           />
           {errors.email && (
             <span className="text-red-500 text-sm mt-1">
@@ -148,17 +142,11 @@ export default function Profile() {
         {/* WhatsApp Number */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 mb-1">
-            WhatsApp Number
+            WhatsApp Number <span className="text-red-500">*</span>
           </label>
           <input
             type="tel"
-            {...register("whatsapp", {
-              required: "WhatsApp number is required",
-              pattern: {
-                value: /^[0-9+\-\s()]*$/,
-                message: "Invalid phone number",
-              },
-            })}
+            {...register("whatsapp")}
             placeholder="+91 98765 43210"
             className={`w-full px-4 py-2.5 border ${
               errors.whatsapp ? "border-red-500" : "border-gray-200"
@@ -175,10 +163,10 @@ export default function Profile() {
         {/* Timezone */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 mb-1">
-            Timezone
+            Timezone <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("timezone", { required: "Timezone is required" })}
+            {...register("timezone")}
             className={`w-full px-4 py-2.5 border ${
               errors.timezone ? "border-red-500" : "border-gray-200"
             } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
