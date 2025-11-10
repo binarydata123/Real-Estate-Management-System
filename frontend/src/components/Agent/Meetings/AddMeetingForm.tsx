@@ -12,6 +12,7 @@ import { createMeeting } from "@/lib/Agent/MeetingAPI";
 import { SubmitHandler } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
 import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
+import { getProperties } from "@/lib/Agent/PropertyAPI";
 
 interface AddMeetingFormProps {
   onClose: () => void;
@@ -27,12 +28,36 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
     []
   );
+  const [properties, setProperties] = useState<{ id: string; title: string }[]>([]);
 
-  const mockProperties = [
-    { id: "64f0c2b2f1e2a4b123456780", title: "Luxury 3BHK Apartment" },
-    { id: "64f0c2b2f1e2a4b123456781", title: "Premium Commercial Office" },
-    { id: "64f0c2b2f1e2a4b123456782", title: "Spacious 4BHK Villa" },
-  ];
+  useEffect(() => {
+    const init = async () => {
+      if (user?._id) {
+        // Fetch customers
+        const customers = await getCustomersForDropDown(user?._id);
+        const filteredCustomers = customers.data
+          .map((c: CustomerFormData) => ({
+            id: c._id,
+            name: c.fullName,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setCustomers(filteredCustomers);
+
+        // 🔹 Fetch properties
+        const props = await getProperties({ agencyId: user.agency?._id ?? "" });
+        const filteredProps = props.data
+          .map((p: Property) => ({
+            id: p._id,
+            title: p.title,
+          }))
+          .sort((a, b) => a.title.localeCompare(b.title));
+
+        setProperties(filteredProps);
+      }
+    };
+    init();
+  }, [user?._id]);
+
 
   const {
     register,
@@ -149,12 +174,18 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select a property</option>
-                {mockProperties.map((property) => (
+                {properties.map((property) => (
                   <option key={property.id} value={property.id}>
                     {property.title}
                   </option>
                 ))}
               </select>
+              {errors.propertyId && (
+                <p className="text-red-600 text-sm mt-1">
+                  {errors.propertyId.message}
+                </p>
+              )}
+
               {errors.propertyId && (
                 <p className="text-red-600 text-sm mt-1">
                   {errors.propertyId.message}
