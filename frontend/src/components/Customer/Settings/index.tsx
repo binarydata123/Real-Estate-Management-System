@@ -6,11 +6,13 @@ import {
   getCustomerSettings,
   updateCustomerSettings,
 } from "@/lib/Customer/SettingsAPI";
+import { showSuccessToast, showErrorToast } from "@/utils/toastHandler";
 
 export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState("security");
   const [customerSettings, setCustomerSettings] = useState<CustomerSettingsType>();
   const [settings, setSettings] = useState<CustomerSettingsType>();
+  const [loading, setLoading] = useState(false)
   const updateCustomerSetting = (
     section: keyof CustomerSettingsType,
     field: string,
@@ -41,16 +43,28 @@ export const Settings: React.FC = () => {
   useEffect(() => {
     getSettings();
   }, []);
+
   const handleUpdateSettings = async () => {
     const isEqual = JSON.stringify(settings) === JSON.stringify(customerSettings);
     if (isEqual) return;
-    if (customerSettings) {
-      await updateCustomerSettings(customerSettings);
-    } else {
-      await updateCustomerSettings(undefined);
-    }
 
-    getSettings();
+    setLoading(true);
+
+    try {
+      if (customerSettings) {
+        await updateCustomerSettings(customerSettings);
+        // Since the API returns only the data, show success message directly
+        showSuccessToast("Settings updated successfully");
+      } else {
+        await updateCustomerSettings(undefined);
+        showSuccessToast("Settings updated successfully");
+      }
+    } catch {
+      showErrorToast("Failed to update settings");
+    } finally {
+      setLoading(false);
+      getSettings();
+    }
   };
   return (
     <div className="space-y-3 md:space-y-6">
@@ -59,7 +73,7 @@ export const Settings: React.FC = () => {
           Settings
         </h1>
         <p className="text-gray-600 md:mt-1">
-        Manage your profile and preferences
+          Manage your profile and preferences
         </p>
       </div>
       <div className="flex flex-col lg:flex-row gap-2 md:gap-4">
@@ -77,11 +91,10 @@ export const Settings: React.FC = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`
               flex items-center flex-shrink-0 px-2.5 md:px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors
-              ${
-                activeTab === tab.id
-                  ? "bg-blue-50 text-blue-700 border-b-2 lg:border-b-0 lg:border-r-2 border-blue-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }
+              ${activeTab === tab.id
+                      ? "bg-blue-50 text-blue-700 border-b-2 lg:border-b-0 lg:border-r-2 border-blue-700"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    }
             `}
                 >
                   <tab.icon className="mr-1.5 h-4 w-4" />
@@ -100,10 +113,12 @@ export const Settings: React.FC = () => {
 
             <div className="flex justify-end pt-4 border-t border-gray-200 mt-3 md:mt-4">
               <button
-                className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                disabled={loading}
                 onClick={handleUpdateSettings}
+                className={`px-6 py-2 rounded-lg text-white ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+                  }`}
               >
-                Save Changes
+                {loading ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
