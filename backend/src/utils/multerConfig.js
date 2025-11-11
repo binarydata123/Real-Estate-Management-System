@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename */
 import multer from 'multer';
 import fs from 'fs/promises';
 import sharp from 'sharp';
