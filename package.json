@@ -26,7 +26,7 @@
     }
   },
   "lint-staged": {
-    "frontend/**/*.{js,jsx,ts,tsx}": "eslint --fix"
+    "**/*.{js,jsx,ts,tsx}": "eslint --fix"
   }
 
 
