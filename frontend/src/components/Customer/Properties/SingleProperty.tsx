@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { MicrophoneIcon, StopCircleIcon, SpeakerWaveIcon, PauseIcon, PlayIcon } from "@heroicons/react/24/solid";
 import axios from "axios";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface Images {
   url: string;
@@ -117,7 +118,7 @@ const propertyData: Property = {
 
 const SingleProperty: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<Images>(
-    propertyData.images[0]
+    propertyData.images[0],
   );
 
   // --- AI Voice Assistant State & Logic ---
@@ -133,9 +134,9 @@ const SingleProperty: React.FC = () => {
   // --- Voice Loading Effect ---
   useEffect(() => {
     const loadVoices = () => {
-      const availableVoices = window.speechSynthesis.getVoices();
-      if (availableVoices.length > 0) {
-      }
+      // const availableVoices = window.speechSynthesis.getVoices();
+      // if (availableVoices.length > 0) {
+      // }
     };
 
     // The voices are loaded asynchronously.
@@ -183,7 +184,7 @@ const SingleProperty: React.FC = () => {
       source.start(0);
       audioSourceRef.current = source;
     } catch (err) {
-      console.error("Error fetching or playing speech:", err);
+      showErrorToast("Error fetching or playing speech:", err);
       setError("Sorry, I couldn't generate the audio for that.");
       setAssistantStatus("idle");
     }
@@ -210,7 +211,7 @@ const SingleProperty: React.FC = () => {
       const errorMessage = "Sorry, I couldn't process that. Please try again.";
       setError(errorMessage);
       setAssistantStatus("idle");
-      console.error("Error with AI Assistant:", err);
+      showErrorToast("Error with AI Assistant:", err);
     }
   };
 
@@ -310,7 +311,7 @@ const SingleProperty: React.FC = () => {
               propertyData.images[
               (idx - 1 + propertyData.images.length) %
               propertyData.images.length
-              ]
+              ],
             );
           }}
         >
@@ -323,7 +324,7 @@ const SingleProperty: React.FC = () => {
           onClick={() => {
             const idx = propertyData.images.indexOf(selectedImage);
             setSelectedImage(
-              propertyData.images[(idx + 1) % propertyData.images.length]
+              propertyData.images[(idx + 1) % propertyData.images.length],
             );
           }}
         >

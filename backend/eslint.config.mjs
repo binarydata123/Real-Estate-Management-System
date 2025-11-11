@@ -13,26 +13,27 @@ export default [
       },
       rules: {
         // 🔹 General Code Quality Rules
-        "no-unused-vars": "off", // Warns about declared but unused variables
-        "no-undef": "off", // Detects use of undeclared variables
-        "no-console": "off", // Discourages use of console (prefer proper logger)
-        "no-extra-semi": "off", // Prevents unnecessary semicolons
-        "no-unexpected-multiline": "off", // Avoids ambiguity from missing semicolons
+        "no-unused-vars": "error", // Warns about declared but unused variables
+        "no-undef": "error", // Detects use of undeclared variables
+        "no-console": "error", // Discourages use of console (prefer proper logger)
+        "no-extra-semi": "error", // Prevents unnecessary semicolons
+        "no-unexpected-multiline": "error", // Avoids ambiguity from missing semicolons
         "no-var": "off", // Enforces use of let/const instead of var
         "prefer-const": "off", // Suggests const for variables that are never reassigned
-        "eqeqeq": "off", // Enforces strict equality (=== and !==)
+        "eqeqeq": "error", // Enforces strict equality (=== and !==)
         "curly": "off", // Requires braces around loops and conditionals
-        "no-empty": "off", // Disallow empty code blocks
-        "no-multi-spaces": "off", // Disallow multiple spaces in code
-        "no-trailing-spaces": "off", // Disallow trailing whitespace
+        "no-empty": "error", // Disallow empty code blocks
+        "no-multi-spaces": "error", // Disallow multiple spaces in code
+        "no-trailing-spaces": "error", // Disallow trailing whitespace
         "semi": "off", // Enforce consistent semicolon usage
         "quotes": "off", // Enforce consistent quote style
+        "indent": "off", // Enforce consistent indentation
   
         // 🔹 Best Practices for Maintainability
         "consistent-return": "off", // Requires consistent return statements
-        "default-case": "off", // Enforce default clause in switch statements
+        "default-case": "error", // Enforce default clause in switch statements
         "no-fallthrough": "off", // Disallow fallthrough of case statements
-        "no-redeclare": "off", // Disallow variable redeclaration
+        "no-redeclare": "error", // Disallow variable redeclaration
         "no-return-await": "off", // Avoid unnecessary await in return
         "no-shadow": "off", // Prevents variable shadowing
         "no-useless-catch": "off", // Disallow redundant catch blocks
@@ -43,7 +44,7 @@ export default [
         "callback-return": "off", // Ensures callbacks are invoked properly
         "handle-callback-err": "off", // Enforces handling of callback offs
         "no-process-exit": "off", // Disallow process.exit()
-        "no-sync": "off", // Warn on sync methods in async code
+        "no-sync": "error", // Warn on sync methods in async code
         "security/detect-non-literal-fs-filename": "off", // Detects dynamic filenames in fs methods
         "security/detect-object-injection": "off", // Prevents unsafe object property access
         "security/detect-child-process": "off", // Prevents child_process misuse
@@ -59,8 +60,8 @@ export default [
         "prefer-arrow-callback": "off", // Suggests arrow functions for callbacks
         "arrow-spacing": "off", // Enforces spacing around arrow function arrows
         "object-shorthand": "off", // Suggests shorthand property syntax
-        "no-duplicate-imports": "off", // Prevent duplicate module imports
-        "no-const-assign": "off", // Prevents reassignment of const variables
+        "no-duplicate-imports": "error", // Prevent duplicate module imports
+        "no-const-assign": "error", // Prevents reassignment of const variables
         "prefer-template": "off", // Suggests using template literals over +
         "rest-spread-spacing": "off", // Enforces spacing for rest/spread syntax
   

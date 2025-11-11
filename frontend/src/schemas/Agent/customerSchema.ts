@@ -1,4 +1,4 @@
-import { z } from "zod";
+import {  z } from "zod";
 
 const phoneRegex = /^(?:\+91)?[6-9]\d{9}$/;
 

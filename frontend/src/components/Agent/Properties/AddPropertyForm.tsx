@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm ,SubmitHandler, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SparklesIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
-import type { SubmitHandler, FieldErrors } from "react-hook-form";
 import { MapPin, Mic, MicOff } from "lucide-react";
 import BackButton from "@/components/Common/BackButton";
 import Image from "next/image";
@@ -42,6 +41,7 @@ import IconRadio from "./IconRadio";
 import IconBooleanRadio from "./IconBooleanRadio";
 import StepIndicator from "./StepIndicator";
 import { useVoiceForm } from "@/hooks/useVoiceForm";
+import { showErrorToast } from "@/utils/toastHandler";
 
 const Field: React.FC<{
   label: string;
@@ -204,21 +204,19 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             if (propertyData.images && propertyData.images.length > 0) {
               const imageUrls = propertyData.images.map(
                 (img: { url: string }) =>
-                  `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${img.url}`
+                  `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${img.url}`,
               );
               setImages(imageUrls);
             }
           } else {
             showToast(
               res.message || "Failed to fetch property details.",
-              "error"
+              "error",
             );
             router.push("/agent/properties");
           }
         } catch (err) {
-          console.error("Error fetching property data:", err);
-          showToast("An error occurred while fetching property data.", "error");
-          // router.push('/agent/properties');
+          showErrorToast("Error",err);
         } finally {
           setLoading(false);
         }
@@ -245,7 +243,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       // Validate that at least one image has been uploaded or exists.
       setValue(
         "images",
-        images.length > 0 ? ["dummy_value_for_validation"] : []
+        images.length > 0 ? ["dummy_value_for_validation"] : [],
       );
       fieldsToValidate = ["images"];
     }
@@ -267,7 +265,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (value !== null && value !== undefined) {
             if (Array.isArray(value)) {
               value.forEach((item) =>
-                formData.append(`${key}[]`, String(item))
+                formData.append(`${key}[]`, String(item)),
               );
             } else {
               formData.append(key, String(value));
@@ -284,7 +282,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (response.success && response.data?._id) {
             showToast(
               "Basic info saved. You can now add images and features.",
-              "success"
+              "success",
             );
             router.push(`/agent/edit-property/${response.data._id}?step=2`);
           } else {
@@ -294,7 +292,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (axios.isAxiosError(err) && err.response) {
             showToast(
               err.response.data.message || "Failed to save property.",
-              "error"
+              "error",
             );
           } else if (err instanceof Error) {
             showToast(err.message || "An unexpected error occurred.", "error");
@@ -315,8 +313,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
         try {
           // Use react-hook-form's setFocus for registered fields
           setFocus(firstErrorField);
-        } catch (e) {
-          console.error("Error setting focus:", e);
+        } catch (err) {
+           showErrorToast("Error",err),
           // Fallback for non-registered fields (like custom IconRadio)
           const element = document.querySelector<HTMLElement>(
             `[name="${firstErrorField}"]`

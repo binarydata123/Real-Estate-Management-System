@@ -8,7 +8,7 @@ import {
 } from "@/lib/Customer/SettingsAPI";
 import { showSuccessToast, showErrorToast } from "@/utils/toastHandler";
 
-export const Settings: React.FC = () => {  
+export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState("security");
   const [customerSettings, setCustomerSettings] = useState<CustomerSettingsType | null>(null);
   const [settings, setSettings] = useState<CustomerSettingsType | null>(null);
@@ -18,7 +18,7 @@ export const Settings: React.FC = () => {
   const updateCustomerSetting = (
     section: keyof CustomerSettingsType,
     field: string,
-    value: string | boolean
+    value: string | boolean,
   ) => {
     setCustomerSettings((prev) => {
       if (!prev) return prev;
@@ -45,7 +45,7 @@ export const Settings: React.FC = () => {
       setCustomerSettings(res);
       setSettings(res);
     } catch (error) {
-      console.error("Error fetching settings:", error);
+      showErrorToast("Error fetching settings:", error);
       showErrorToast("Failed to load settings");
     } finally {
       setInitialLoading(false);
@@ -144,7 +144,7 @@ export const Settings: React.FC = () => {
             ) : (
               <div className="text-center py-8">
                 <p className="text-gray-500">Unable to load settings</p>
-                <button 
+                <button
                   onClick={getSettings}
                   className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
@@ -158,8 +158,8 @@ export const Settings: React.FC = () => {
                 disabled={loading || !customerSettings}
                 onClick={handleUpdateSettings}
                 className={`px-6 py-2 rounded-lg text-white ${
-                  loading || !customerSettings 
-                    ? "bg-gray-400 cursor-not-allowed" 
+                  loading || !customerSettings
+                    ? "bg-gray-400 cursor-not-allowed"
                     : "bg-blue-600 hover:bg-blue-700"
                 }`}
               >

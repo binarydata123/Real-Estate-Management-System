@@ -30,6 +30,7 @@ const requiredPositiveNumber = z.preprocess(
         (val === "" || val === null || val === undefined || (typeof val === "number" && isNaN(val)))
             ? undefined
             : Number(val),
+    //z.number({ message: "Invalid number" }).min(1, "Value must be greater than 0")
     z.number({ message: "Invalid number" }),
 ).optional();
 

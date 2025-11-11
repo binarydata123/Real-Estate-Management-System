@@ -22,7 +22,8 @@ export type NotificationType = {
 export const getNotifications = async (
   userId: string,
   options?: {
-    type?:
+    type:
+    "all"
       | "welcome"
       | "new_lead"
       | "task_assigned"
@@ -36,7 +37,7 @@ export const getNotifications = async (
 ): Promise<
   AxiosResponse<{
     success: boolean;
-    data: NotificationType[];
+    data: [];
     pagination: {
       total: number;
       page: number;

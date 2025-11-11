@@ -4,11 +4,12 @@ import {
   BellIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon,
-  Bars3Icon // Import Bars3Icon for mobile menu
+  Bars3Icon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
 import { NotificationCenter } from './Notification';
 import { getNotifications } from "@/lib/Common/Notifications";
+import { showErrorToast } from '@/utils/toastHandler';
 
 interface HeaderProps {
   onMenuButtonClick: () => void;
@@ -33,12 +34,16 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     const fetchNotifications = async () => {
       if (!user?._id) return;
       try {
-        const res = await await getNotifications(user._id);
-        if (res.data.success == true) {
+        const res = await getNotifications(user._id, {
+        type: "unread",
+        page: 1,
+        limit: 10,
+      });
+        if (res.data.success) {
           setNotifications(res.data.data);
         }
       } catch (err) {
-        console.error(err);
+        showErrorToast("Error",err);
       }
     };
     fetchNotifications();
@@ -116,7 +121,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                 {unreadCount > 0 && (
                   <>
                     {/* <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
-                      
                     </span> */}
                     <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 text-white rounded-full text-sm">{unreadCount}</span>
                   </>

@@ -9,6 +9,7 @@ import { getProperties } from "@/lib/Customer/PropertyAPI";
 import { useDebounce } from "@/components/Common/UseDebounce";
 import { Pagination } from "@/components/Common/Pagination";
 import { useAuth } from "@/context/AuthContext";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface PropertyListFilters {
   type: string;
@@ -43,7 +44,7 @@ const PropertyCardSkeleton = () => (
 
 export const Properties: React.FC = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null
+    null,
   );
   const [properties, setProperties] = useState<Property[]>([]);
   const [filters, setFilters] = useState<Partial<PropertyListFilters>>({});
@@ -52,7 +53,7 @@ export const Properties: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
-  const {user} = useAuth();
+  const { user } = useAuth();
   let customerId = '';
   let agencyId = '';
   if(user?.showAllProperty === false){
@@ -68,7 +69,7 @@ export const Properties: React.FC = () => {
       try {
         setIsFetching(true);
         const activeFilters = Object.fromEntries(
-          Object.entries(debouncedFilters).filter(([, value]) => value !== "")
+          Object.entries(debouncedFilters).filter(([, value]) => value !== ""),
         );
 
         const response = await getProperties({
@@ -76,7 +77,7 @@ export const Properties: React.FC = () => {
           page: String(page),
           limit,
           customerId: customerId,
-          agencyId: agencyId
+          agencyId: agencyId,
         });
 
         if (response.success) {
@@ -85,12 +86,12 @@ export const Properties: React.FC = () => {
           setTotalPages(response.pagination?.pages ?? 1);
         }
       } catch (error) {
-        console.error(error);
+        showErrorToast("Error:",error);
       } finally {
         setIsFetching(false);
       }
     },
-    [debouncedFilters, limit, customerId, agencyId]
+    [debouncedFilters, limit, customerId, agencyId],
   );
 
   useEffect(() => {

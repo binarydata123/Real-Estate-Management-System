@@ -4,7 +4,7 @@ import {
     UserIcon,
     CalendarIcon,
     BellIcon,
-    ClockIcon
+    ClockIcon,
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
+import { showErrorToast } from "@/utils/toastHandler";
 
 // Define the BeforeInstallPromptEvent for TypeScript
 interface BeforeInstallPromptEvent extends Event {
@@ -17,7 +18,6 @@ export default function InstallButton() {
     useEffect(() => {
         const handler = (e: Event) => {
             e.preventDefault();
-            console.log("beforeinstallprompt fired");
             setDeferredPrompt(e as BeforeInstallPromptEvent);
             setIsInstallable(true);
         };
@@ -29,14 +29,13 @@ export default function InstallButton() {
 
     const handleInstall = async () => {
         if (!deferredPrompt) {
-            console.warn("Install prompt not available yet");
+            showErrorToast("Install prompt not available yet");
             return;
         }
 
         deferredPrompt.prompt();
 
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log("User choice:", outcome);
+        await deferredPrompt.userChoice;
 
         // Clear state to hide button after install attempt
         setDeferredPrompt(null);

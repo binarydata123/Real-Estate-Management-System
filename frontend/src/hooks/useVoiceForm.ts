@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 import { UseFormGetValues, UseFormTrigger } from "react-hook-form";
 import {
-  propertyTypeOptions, 
-  commercialCategoryOptions, 
-  residentialCategoryOptions, 
-  unitAreaTypeOptions, 
-  plotDimensionUnitOptions, 
+  propertyTypeOptions,
+  commercialCategoryOptions,
+  residentialCategoryOptions,
+  unitAreaTypeOptions,
+  plotDimensionUnitOptions,
   facingOptions,
   propertyAgeOptions,
   furnishingOptions,
@@ -15,7 +16,7 @@ import {
   overlookingOptions,
   waterSourceOptions,
   featuresOptions,
-  amenitiesOptions
+  amenitiesOptions,
 } from '@/schemas/Agent/propertySchema';
 
 interface VoiceField {
@@ -35,7 +36,7 @@ export function useVoiceForm(
   currentStep: number,
   filteredOverlookingOptions: any,
   filteredFeatures: any,
-  filteredAmenities: any
+  filteredAmenities: any,
 ) {
   const [currentFieldIndex, setCurrentFieldIndex] = useState(0);
   const [voiceReady, setVoiceReady] = useState(false);
@@ -88,7 +89,6 @@ export function useVoiceForm(
       setIsProcessing(true);
 
       const speechResult = event.results[0][0].transcript.trim().toLowerCase();
-      console.log("🎤 Heard:", speechResult);
 
       const field = filteredFields[currentFieldIndex];
 
@@ -309,7 +309,7 @@ export function useVoiceForm(
       // First-time instruction
       if (!firstTimeMessageSpoken) {
         await speakWithOpenAI(
-          "Welcome! I will read each field. Speak your answer clearly. Say 'skip' to skip a field, or 'skip all fields' to skip remaining fields.I will repeat your answer to confirm. Let’s begin."
+          "Welcome! I will read each field. Speak your answer clearly. Say 'skip' to skip a field, or 'skip all fields' to skip remaining fields.I will repeat your answer to confirm. Let’s begin.",
         );
         setFirstTimeMessageSpoken(true);
       }
@@ -319,42 +319,42 @@ export function useVoiceForm(
 
       const field = filteredFields[currentFieldIndex];
 
-      if(field.name == 'type'){
+      if(field.name === 'type'){
         await speakWithOpenAI(`Please Choose the ${field.label} ${propertyTypeOptions.map((data) => data.value)}`);
-      } else if(field.name == 'category') {
+      } else if(field.name === 'category') {
         const currentValues = getValues(field.name);
-        if(currentValues == 'commercial'){
+        if(currentValues === 'commercial'){
           await speakWithOpenAI(`Please Choose the ${field.label} ${commercialCategoryOptions.map((data) => data.value)}`);
         } else {
           await speakWithOpenAI(`Please Choose the ${field.label} ${residentialCategoryOptions.map((data) => data.value)}`);
         }
-      } else if(field.name == 'unit_area_type') {
+      } else if(field.name === 'unit_area_type') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${unitAreaTypeOptions.map((data) => data.value)}`);
-      } else if(field.name == 'plot_dimension_unit') {
+      } else if(field.name === 'plot_dimension_unit') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${plotDimensionUnitOptions.map((data) => data.value)}`);
-      } else if(field.name == 'is_corner_plot') {
+      } else if(field.name === 'is_corner_plot') {
         await speakWithOpenAI(`Please Choose the ${field.label} yes no`);
-      } else if(field.name == 'facing') {
+      } else if(field.name === 'facing') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${facingOptions.map((data) => data.value)}`);
-      } else if(field.name == 'property_age') {
+      } else if(field.name === 'property_age') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${propertyAgeOptions.map((data) => data.value)}`);
-      } else if(field.name == 'furnishing') {
+      } else if(field.name === 'furnishing') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${furnishingOptions.map((data) => data.value)}`);
-      } else if(field.name == 'power_backup') {
+      } else if(field.name === 'power_backup') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${powerBackupOptions.map((data) => data.value)}`);
-      } else if(field.name == 'gated_community') {
+      } else if(field.name === 'gated_community') {
         await speakWithOpenAI(`Please Choose the ${field.label} yes no`);
-      } else if(field.name == 'transaction_type') {
+      } else if(field.name === 'transaction_type') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${transactionTypeOptions.map((data) => data.value)}`);
-      } else if(field.name == 'rera_status') {
+      } else if(field.name === 'rera_status') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${reraStatusOptions.map((data) => data.value)}`);
-      } else if(field.name == 'overlooking') {
+      } else if(field.name === 'overlooking') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${filteredOverlookingOptions.map((data:any) => data.value)}`);
-      } else if(field.name == 'water_source') {
+      } else if(field.name === 'water_source') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${waterSourceOptions.map((data) => data.value)}`);
-      } else if(field.name == 'features') {
+      } else if(field.name === 'features') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${filteredFeatures.map((data:any) => data.value)}`);
-      } else if(field.name == 'amenities') {
+      } else if(field.name === 'amenities') {
         await speakWithOpenAI(`Please Choose the ${field.label} ${filteredAmenities.map((data:any) => data.value)}`);
       } else {
         await speakWithOpenAI(`Please Enter ${field.label}`);
