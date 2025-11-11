@@ -50,6 +50,9 @@ declare global {
   }
 
   interface Property {
+    owner_contact: any;
+    rera_status: any;
+    flooring_type: string;
     size_unit: string;
     size: ReactNode;
     _id?: string;
