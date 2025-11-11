@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -16,25 +17,25 @@ import { showErrorToast } from "@/utils/toastHandler";
 
 export const AgentDashboard = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null,
+    null
   );
   const [showShareModal, setShowShareModal] = useState(false);
   // const [data,setData]=useState({})
 
-  const getData=async() => {
+  const getData = async () => {
     try {
-         const res =await getDashboardData();
-         if (res.success){
-          // setData(res.data);
-         }
+      const res = await getDashboardData();
+      if (res.success) {
+        // setData(res.data);
+      }
     } catch (error) {
-      showErrorToast("Error",error);
+      showErrorToast("Error", error);
     }
   };
 
   useEffect(() => {
     getData();
-  },[]);
+  }, []);
   const recentProperties: any[] = [
     {
       id: "1",
@@ -155,9 +156,9 @@ export const AgentDashboard = () => {
               property={property}
               onView={handleViewProperty}
               onShare={handleShareProperty}
-              onFavorite={(property) =>
-                console.log("Favorite property:", property)
-              }
+              // onFavorite={(property) =>
+              //   console.log("Favorite property:", property)
+              // }
             />
           ))}
         </div>

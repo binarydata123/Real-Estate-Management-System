@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useForm ,SubmitHandler, FieldErrors } from "react-hook-form";
+import { useForm, SubmitHandler, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SparklesIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -204,19 +204,19 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             if (propertyData.images && propertyData.images.length > 0) {
               const imageUrls = propertyData.images.map(
                 (img: { url: string }) =>
-                  `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${img.url}`,
+                  `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${img.url}`
               );
               setImages(imageUrls);
             }
           } else {
             showToast(
               res.message || "Failed to fetch property details.",
-              "error",
+              "error"
             );
             router.push("/agent/properties");
           }
         } catch (err) {
-          showErrorToast("Error",err);
+          showErrorToast("Error", err);
         } finally {
           setLoading(false);
         }
@@ -243,7 +243,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       // Validate that at least one image has been uploaded or exists.
       setValue(
         "images",
-        images.length > 0 ? ["dummy_value_for_validation"] : [],
+        images.length > 0 ? ["dummy_value_for_validation"] : []
       );
       fieldsToValidate = ["images"];
     }
@@ -265,7 +265,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (value !== null && value !== undefined) {
             if (Array.isArray(value)) {
               value.forEach((item) =>
-                formData.append(`${key}[]`, String(item)),
+                formData.append(`${key}[]`, String(item))
               );
             } else {
               formData.append(key, String(value));
@@ -282,7 +282,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (response.success && response.data?._id) {
             showToast(
               "Basic info saved. You can now add images and features.",
-              "success",
+              "success"
             );
             router.push(`/agent/edit-property/${response.data._id}?step=2`);
           } else {
@@ -292,7 +292,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (axios.isAxiosError(err) && err.response) {
             showToast(
               err.response.data.message || "Failed to save property.",
-              "error",
+              "error"
             );
           } else if (err instanceof Error) {
             showToast(err.message || "An unexpected error occurred.", "error");
@@ -314,7 +314,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           // Use react-hook-form's setFocus for registered fields
           setFocus(firstErrorField);
         } catch (err) {
-           showErrorToast("Error",err),
+          showErrorToast("Error", err);
           // Fallback for non-registered fields (like custom IconRadio)
           const element = document.querySelector<HTMLElement>(
             `[name="${firstErrorField}"]`
@@ -710,11 +710,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     amenities: 3,
   };
 
-  const onValidationError = (errors: FieldErrors<PropertyFormData>) => {
-    console.error("Form validation failed:", errors);
-    const errorFields = Object.keys(errors) as (keyof PropertyFormData)[];
-
-    console.log(errorFields);
+  const onValidationError = (err: FieldErrors<PropertyFormData>) => {
+    const errorFields = Object.keys(err) as (keyof PropertyFormData)[];
 
     if (errorFields.length > 0) {
       const firstErrorField = errorFields[0];
@@ -808,7 +805,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       router.push("/agent/properties");
     } catch (error) {
       // Error is handled by the promise toast. This catch block prevents unhandled promise rejection warnings.
-      console.error("Property update failed:", error);
+      showErrorToast("Property update failed:", error);
     } finally {
       setLoading(false);
     }
@@ -1225,7 +1222,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                 {StepOneFields.map((f) => (
                   <div key={f.name}>
-                    {isEditMode && f.name == "title" && (
+                    {isEditMode && f.name === "title" && (
                       <div className="col-span-2">
                         <Field label={f.label} required error={errors.title}>
                           <input
@@ -1236,7 +1233,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         </Field>
                       </div>
                     )}
-                    {f.name == "type" && (
+                    {f.name === "type" && (
                       <div className="col-span-2">
                         <Field label={f.label} required error={errors.type}>
                           <IconRadio
@@ -1248,7 +1245,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         </Field>
                       </div>
                     )}
-                    {f.name == "category" && (
+                    {f.name === "category" && (
                       <div className="col-span-2 lg:col-span-3">
                         <Field label={f.label} required error={errors.category}>
                           <IconRadio
@@ -1264,7 +1261,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         </Field>
                       </div>
                     )}
-                    {f.name == "location" && (
+                    {f.name === "location" && (
                       <div className="">
                         <Field label={f.label} error={errors.location}>
                           <div className="relative">
@@ -1309,7 +1306,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         </Field>
                       </div>
                     )}
-                    {f.name == "price" && (
+                    {f.name === "price" && (
                       <div className="md:col-span-2">
                         <Field label={`${f.label} (₹)`} error={errors.price}>
                           <input
@@ -1333,7 +1330,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                   <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     {StepOneFields.map((f) => (
                       <div key={f.name}>
-                        {f.name == "built_up_area" && (
+                        {f.name === "built_up_area" && (
                           <div className="md:col-span-2">
                             <Field label={f.label} error={errors.built_up_area}>
                               <input
@@ -1345,7 +1342,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                             </Field>
                           </div>
                         )}
-                        {isBuiltStructure && f.name == "carpet_area" && (
+                        {isBuiltStructure && f.name === "carpet_area" && (
                           <div className="md:col-span-2">
                             <Field label={f.label} error={errors.carpet_area}>
                               <input
@@ -1362,7 +1359,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                   </div>
                   {StepOneFields.map((f) => (
                     <div key={f.name}>
-                      {f.name == "unit_area_type" && (
+                      {f.name === "unit_area_type" && (
                         <div className="pt-4">
                           <Field label={f.label} error={errors.unit_area_type}>
                             <IconRadio
@@ -1380,7 +1377,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                       {StepOneFields.map((f) => (
                         <div key={f.name}>
-                          {f.name == "plot_front_area" && (
+                          {f.name === "plot_front_area" && (
                             <div className="md:col-span-1">
                               <Field
                                 label={f.label}
@@ -1395,7 +1392,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               </Field>
                             </div>
                           )}
-                          {f.name == "plot_depth_area" && (
+                          {f.name === "plot_depth_area" && (
                             <div className="md:col-span-1">
                               <Field
                                 label={f.label}
@@ -1410,7 +1407,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               </Field>
                             </div>
                           )}
-                          {f.name == "plot_dimension_unit" && (
+                          {f.name === "plot_dimension_unit" && (
                             <div className="md:col-span-2">
                               <Field
                                 label={f.label}
@@ -1425,7 +1422,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               </Field>
                             </div>
                           )}
-                          {f.name == "is_corner_plot" && (
+                          {f.name === "is_corner_plot" && (
                             <div className="md:col-span-2">
                               <Field
                                 label={f.label}
@@ -1451,7 +1448,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <div className="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-6">
                       {StepOneFields.map((f) => (
                         <div key={f.name}>
-                          {f.name == "bedrooms" && (
+                          {f.name === "bedrooms" && (
                             <Field label={f.label} error={errors.bedrooms}>
                               <input
                                 type="number"
@@ -1461,7 +1458,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               />
                             </Field>
                           )}
-                          {f.name == "bathrooms" && (
+                          {f.name === "bathrooms" && (
                             <Field label={f.label} error={errors.bathrooms}>
                               <input
                                 type="number"
@@ -1471,7 +1468,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               />
                             </Field>
                           )}
-                          {f.name == "balconies" && (
+                          {f.name === "balconies" && (
                             <Field label={f.label} error={errors.balconies}>
                               <input
                                 type="number"
@@ -1493,7 +1490,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
                       {StepOneFields.map((f) => (
                         <div key={f.name}>
-                          {f.name == "washrooms" && (
+                          {f.name === "washrooms" && (
                             <Field label={f.label} error={errors.washrooms}>
                               <input
                                 type="number"
@@ -1502,7 +1499,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               />
                             </Field>
                           )}
-                          {f.name == "cabins" && (
+                          {f.name === "cabins" && (
                             <Field label={f.label} error={errors.cabins}>
                               <input
                                 type="number"
@@ -1511,7 +1508,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               />
                             </Field>
                           )}
-                          {f.name == "conference_rooms" && (
+                          {f.name === "conference_rooms" && (
                             <Field
                               label={f.label}
                               error={errors.conference_rooms}
@@ -1535,7 +1532,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                       {StepOneFields.map((f) => (
                         <div key={f.name}>
-                          {f.name == "floor_number" && (
+                          {f.name === "floor_number" && (
                             <Field label={f.label} error={errors.floor_number}>
                               <input
                                 type="number"
@@ -1545,7 +1542,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               />
                             </Field>
                           )}
-                          {f.name == "total_floors" && (
+                          {f.name === "total_floors" && (
                             <Field label={f.label} error={errors.total_floors}>
                               <input
                                 type="number"
@@ -1565,7 +1562,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                   <div className="md:space-y-6 space-y-3">
                     {StepOneFields.map((f) => (
                       <div key={f.name}>
-                        {f.name == "facing" && (
+                        {f.name === "facing" && (
                           <Field label={f.label} error={errors.facing}>
                             <IconRadio
                               name="facing"
@@ -1580,7 +1577,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       {StepOneFields.map((f) => (
                         <div key={f.name}>
-                          {isBuiltStructure && f.name == "property_age" && (
+                          {isBuiltStructure && f.name === "property_age" && (
                             <Field label={f.label} error={errors.property_age}>
                               <IconRadio
                                 name={f.name}
@@ -1590,7 +1587,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               />
                             </Field>
                           )}
-                          {f.name == "transaction_type" && (
+                          {f.name === "transaction_type" && (
                             <Field
                               label="Transaction Type"
                               error={errors.transaction_type}
@@ -1605,7 +1602,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           )}
                           {isBuiltStructure && (
                             <div>
-                              {f.name == "furnishing" && (
+                              {f.name === "furnishing" && (
                                 <Field
                                   label="Furnishing"
                                   error={errors.furnishing}
@@ -1618,7 +1615,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                   />
                                 </Field>
                               )}
-                              {f.name == "power_backup" && (
+                              {f.name === "power_backup" && (
                                 <Field
                                   label="Power Backup"
                                   error={errors.power_backup}
@@ -1631,7 +1628,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                   />
                                 </Field>
                               )}
-                              {f.name == "gated_community" && (
+                              {f.name === "gated_community" && (
                                 <Field
                                   label="Gated Community"
                                   error={errors.gated_community}
@@ -1654,7 +1651,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                 <FormSection title="RERA & Status">
                   {StepOneFields.map((f) => (
                     <div key={f.name}>
-                      {f.name == "rera_status" && (
+                      {f.name === "rera_status" && (
                         <Field label={f.label} error={errors.rera_status}>
                           <IconRadio
                             name={f.name}
@@ -1672,7 +1669,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                   <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-6">
                     {StepOneFields.map((f) => (
                       <div key={f.name}>
-                        {f.name == "owner_name" && (
+                        {f.name === "owner_name" && (
                           <Field label={f.label} error={errors.owner_name}>
                             <input
                               {...register(f.name)}
@@ -1681,7 +1678,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                             />
                           </Field>
                         )}
-                        {f.name == "owner_contact" && (
+                        {f.name === "owner_contact" && (
                           <Field label={f.label} error={errors.owner_contact}>
                             <input
                               {...register(f.name)}
@@ -1709,7 +1706,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     </div>
                     {StepOneFields.map((f) => (
                       <div key={f.name}>
-                        {f.name == "description" && (
+                        {f.name === "description" && (
                           <Field label="" error={errors.description}>
                             <textarea
                               {...register(f.name)}
@@ -1736,7 +1733,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
               <div className="space-y-4">
                 {StepThreeFields.map((f) => (
                   <div key={f.name}>
-                    {f.name == "overlooking" && (
+                    {f.name === "overlooking" && (
                       <Field label={f.label} error={errors.overlooking}>
                         <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
                           {filteredOverlookingOptions.map((option) => (
@@ -1750,7 +1747,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         </div>
                       </Field>
                     )}
-                    {f.name == "water_source" && (
+                    {f.name === "water_source" && (
                       <Field label={f.label} error={errors.water_source}>
                         <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
                           {waterSourceOptions.map((option) => (
@@ -1765,7 +1762,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       </Field>
                     )}
 
-                    {filteredFeatures.length > 0 && f.name == "features" && (
+                    {filteredFeatures.length > 0 && f.name === "features" && (
                       <Field label={f.label} error={errors.features}>
                         <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
                           {filteredFeatures.map((feature) => (
@@ -1780,7 +1777,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       </Field>
                     )}
 
-                    {!isPlotOrLand && f.name == "amenities" && (
+                    {!isPlotOrLand && f.name === "amenities" && (
                       <Field label={f.label} error={errors.amenities}>
                         <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-2">
                           {filteredAmenities.map((amenity) => (
@@ -1804,7 +1801,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           <FormSection title="Property Images">
             {StepTwoFields.map((f) => (
               <div key={f.name}>
-                {f.name == "images" && (
+                {f.name === "images" && (
                   <Field label={f.label} error={errors.images}>
                     <div className="flex items-center justify-center w-full">
                       <label

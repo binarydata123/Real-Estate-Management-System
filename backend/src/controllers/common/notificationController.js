@@ -31,7 +31,7 @@ export const getUserNotifications = async (req, res) => {
     if (type && type !== "unread" ) {
       query.type = type; // e.g. "unread", "meeting_scheduled", etc.
     }
-    if (type == "unread") {
+    if (type === "unread") {
       query.read = false;
     }
 

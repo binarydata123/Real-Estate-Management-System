@@ -4,11 +4,6 @@ import { sendPushNotification } from "../../utils/pushService.js";
 
 export async function meetingReminderCronJob(mode = "today") {
   try {
-    const now = new Date();
-    let query = {
-      status: { $in: ["scheduled", "rescheduled"] },
-    };
-
     let meetingsQuery = {
       status: { $in: ["scheduled", "rescheduled"] },
     };

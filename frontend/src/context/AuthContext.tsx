@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const protectedRoutes = ["/admin", "/agent"];
     const isProtectedRoute = protectedRoutes.some((route) =>
-      pathname.startsWith(route),
+      pathname.startsWith(route)
     );
 
     if (!loading && !user && isProtectedRoute) {
@@ -140,20 +140,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       // The backend now returns a consistent user object on login
       const response = await loginUser(credentials);
-      const { token, user } = response.data;
+      const { token } = response.data;
 
       const newSession: Session = {
         access_token: token,
       };
 
       setSession(newSession);
-      setUser(user);
+      setUser(response.data.user);
       Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
         expires: 365, // Keep user logged in for 1 year
         secure: process.env.NODE_ENV === "production",
       });
 
-      return { data: { user, session: newSession }, error: null };
+      return {
+        data: { user: response.data.user, session: newSession },
+        error: null,
+      };
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const errorMessage =
@@ -166,19 +169,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const completeSignIn = (user: User, token: string) => {
+  const completeSignIn = (userData: User, token: string) => {
     const newSession: Session = {
       access_token: token,
     };
 
     setSession(newSession);
-    setUser(user);
+    setUser(userData);
     Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
       expires: 365,
       secure: process.env.NODE_ENV === "production",
     });
 
-    router.push(`/${user.role}/dashboard`);
+    router.push(`/${userData.role}/dashboard`);
   };
 
   const signOut = async () => {
@@ -196,7 +199,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       signOut,
       router,
     }),
-    [user, session, loading, router, signIn, completeSignIn],
+    [user, session, loading, router, signIn, completeSignIn]
   );
 
   if (loading) {

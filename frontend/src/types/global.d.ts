@@ -46,6 +46,7 @@ declare global {
     url: string;
     alt?: string;
     isPrimary?: boolean;
+    _id?: string;
   }
 
   interface Property {
@@ -423,8 +424,6 @@ declare global {
     reraStatus: string[];
   }
 }
-
-
 
 export {
   RegistrationData,

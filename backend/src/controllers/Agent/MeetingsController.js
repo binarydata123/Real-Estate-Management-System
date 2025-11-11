@@ -181,7 +181,6 @@ export const getMeetingById = async (req, res) => {
 // Update a meeting
 export const updateMeeting = async (req, res) => {
   try {
-    const agencyId = req.user.agencyId._id._id;
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,
       req.body,

@@ -60,15 +60,15 @@ const eslintConfig = [
       "no-self-compare": "error", // Disallow comparing a variable to itself
       "no-useless-concat": "off", // Avoid unnecessary string concatenation
       "no-useless-return": "off", // Remove redundant return statements
-      "no-else-return": "error", // Simplify returns by removing unnecessary else
+      "no-else-return": "off", // Simplify returns by removing unnecessary else
       "prefer-template": "off", // Prefer template literals over concatenation
       "no-multi-str": "off", // Avoid multiline string literals (use template strings)
-      "eqeqeq": "error", // Enforce === and !== for type-safe comparisons
+      eqeqeq: "error", // Enforce === and !== for type-safe comparisons
 
       /* 💄 --- Code Style / Consistency --- */
 
-      "semi": ["error", "always"], // Enforce consistent semicolon usage
-      "comma-dangle": ["error", "always-multiline"], // Trailing commas for cleaner diffs
+      semi: ["error", "always"], // Enforce consistent semicolon usage
+      "comma-dangle": ["off", "always-multiline"], // Trailing commas for cleaner diffs
       "object-curly-spacing": ["error", "always"], // Consistent spacing in object literals
       "arrow-spacing": "off", // Ensure spacing around arrow functions
       "keyword-spacing": "off", // Ensure spacing around keywords
@@ -85,7 +85,6 @@ const eslintConfig = [
       "no-eval": "off", // Disallow eval() for security
       "no-implied-eval": "off", // Disallow implied eval-like code
       "no-script-url": "off", // Prevent javascript: URLs (security)
-
     },
   },
 ];

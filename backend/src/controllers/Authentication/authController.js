@@ -105,18 +105,16 @@ const registrationController = {
   },
 
   loginUser: async (req, res) => {
-    const { email, password, phone, loginAs, customerId } = req.body;
+    const { email, password, phone, loginAs } = req.body;
 
     try {
       let user;
 
       if (loginAs === "agency" || loginAs === "admin") {
         if (!email || !password) {
-          return res
-            .status(400)
-            .json({
-              message: "Please provide email and password for agency login.",
-            });
+          return res.status(400).json({
+            message: "Please provide email and password for agency login.",
+          });
         }
 
         user = await User.findOne({ email })
@@ -147,19 +145,15 @@ const registrationController = {
           user.role !== "agency" &&
           user.role !== "agent"
         ) {
-          return res
-            .status(403)
-            .json({
-              message: "Access denied. Not an agency or agent account.",
-            });
+          return res.status(403).json({
+            message: "Access denied. Not an agency or agent account.",
+          });
         }
       } else if (loginAs === "customer") {
         if (!phone) {
-          return res
-            .status(400)
-            .json({
-              message: "Please provide a phone number for customer login.",
-            });
+          return res.status(400).json({
+            message: "Please provide a phone number for customer login.",
+          });
         }
 
         // Find all customer profiles with the given phone number
@@ -285,6 +279,7 @@ const registrationController = {
         },
       });
     } catch (error) {
+      console.log(error);
       res
         .status(500)
         .json({ message: "Server error during agency selection." });
@@ -300,6 +295,7 @@ const registrationController = {
       }
       // if email found then send email
     } catch (error) {
+      console.log(error);
       res.status(500).json({ message: "Server error during password reset." });
     }
   },
