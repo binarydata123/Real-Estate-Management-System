@@ -10,7 +10,7 @@ export const getSharedProperties = async (agencyId: string) => {
     `/customer/properties/getAllSharedProperties`,
     {
       params: { agencyId },
-    }
+    },
   );
   return response.data;
 };
