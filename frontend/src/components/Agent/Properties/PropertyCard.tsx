@@ -17,6 +17,7 @@ import {
   getPropertyImageUrlWithFallback,
   handleImageError,
 } from "@/lib/imageUtils";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface PropertyCardProps {
   property: Property;
@@ -38,7 +39,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     } else if (price >= 100000) {
       // 1 lakh
       return `₹${(price / 100000).toFixed(1)}L`;
-    } else {
+    } else if(price<100000){
       return `₹${price.toLocaleString()}`;
     }
   };
@@ -76,7 +77,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         onRefresh?.();
       }
     } catch (error) {
-      console.error("Failed to delete property:", error);
+      showErrorToast("Failed to delete property:", error);
     }
   };
 
@@ -100,7 +101,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className="absolute top-3 left-3">
           <span
             className={`inline-flex capitalize items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-              property.status
+              property.status,
             )}`}
           >
             {property.status}

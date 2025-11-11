@@ -100,6 +100,9 @@ interface AgentProfileFormData {
 
 
 interface Property {
+  owner_contact: string|number;
+  rera_status: string;
+  flooring_type: string;
   _id: string;
   title: string;
 }

@@ -12,6 +12,7 @@ import {
 } from "@/schemas/Agent/customerSchema";
 import { createCustomer, updateCustomer } from "@/lib/Agent/CustomerAPI";
 import { useToast } from "@/context/ToastContext";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface AddCustomerFormProps {
   onClose: () => void;
@@ -65,7 +66,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
     const apiCall = async () => {
       if (customerId) {
         return updateCustomer(customerId, dataWithAgency);
-      } else {
+      } else if (!customerId){
         return createCustomer(dataWithAgency);
       }
     };
@@ -93,9 +94,9 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error(
+      showErrorToast(
         `Customer ${customerId ? "update" : "creation"} failed:`,
-        error
+        error,
       );
     } finally {
       setLoading(false);

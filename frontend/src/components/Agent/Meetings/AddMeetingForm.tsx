@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm ,SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   XMarkIcon,
@@ -9,10 +9,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
 import { createMeeting } from "@/lib/Agent/MeetingAPI";
-import { SubmitHandler } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
 import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
 import { getProperties } from "@/lib/Agent/PropertyAPI";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface AddMeetingFormProps {
   onClose: () => void;
@@ -26,7 +26,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
-    []
+    [],
   );
   const [properties, setProperties] = useState<{ id: string; title: string }[]>([]);
 
@@ -34,8 +34,8 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
     const init = async () => {
       if (user?._id) {
         // Fetch customers
-        const customers = await getCustomersForDropDown(user?._id);
-        const filteredCustomers = customers.data
+        const result = await getCustomersForDropDown(user?._id);
+        const filteredCustomers = result.data
           .map((c: CustomerFormData) => ({
             id: c._id,
             name: c.fullName,
@@ -88,11 +88,9 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
       onClose();
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error("Failed to update meeting:", error);
-        alert(error.message);
+        showErrorToast("Failed to update meeting:", error);
       } else {
-        console.error("Failed to update meeting:", error);
-        alert("Failed to update meeting");
+        showErrorToast("Failed to update meeting:", error);
       }
     } finally {
       setLoading(false);
@@ -102,10 +100,10 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   useEffect(() => {
     const init = async () => {
       if (user?._id) {
-        const customers = await getCustomersForDropDown(user?._id);
+        const result = await getCustomersForDropDown(user?._id);
 
         // extract only _id and fullName
-        const filtered = customers.data
+        const filtered = result.data
           .map((c: CustomerFormData) => ({
             id: c._id,
             name: c.fullName,

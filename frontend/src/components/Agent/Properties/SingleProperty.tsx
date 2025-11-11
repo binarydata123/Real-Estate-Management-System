@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
@@ -13,6 +14,7 @@ import { ArrowLeftIcon, PencilIcon, ShareIcon, TrashIcon } from "lucide-react";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { useToast } from "@/context/ToastContext";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface Images {
   _id: string;
@@ -85,9 +87,9 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   // --- Voice Loading Effect ---
   useEffect(() => {
     const loadVoices = () => {
-      const availableVoices = window.speechSynthesis.getVoices();
-      if (availableVoices.length > 0) {
-      }
+      // const availableVoices = window.speechSynthesis.getVoices();
+      // if (availableVoices.length > 0) {
+      // }
     };
     getProperty();
 
@@ -140,7 +142,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   const speak = async (text: string, onEndCallback?: () => void) => {
     if (!audioContextRef.current) {
       setError(
-        "Audio context not ready. Please click anywhere on the page first."
+        "Audio context not ready. Please click anywhere on the page first.",
       );
       return;
     }
@@ -149,10 +151,10 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/assistant/speak`,
         { text },
-        { responseType: "arraybuffer" }
+        { responseType: "arraybuffer" },
       );
       const audioBuffer = await audioContextRef.current.decodeAudioData(
-        response.data
+        response.data,
       );
       const source = audioContextRef.current.createBufferSource();
       source.buffer = audioBuffer;
@@ -161,7 +163,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
       source.start(0);
       audioSourceRef.current = source;
     } catch (err) {
-      console.error("Error fetching or playing speech:", err);
+      showErrorToast("Error fetching or playing speech:", err);
       setError("Sorry, I couldn't generate the audio for that.");
       setAssistantStatus("idle");
     }
@@ -187,18 +189,18 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     text += ` Bedrooms: ${property.bedrooms}, Bathrooms: ${property.bathrooms}, Balconies: ${property.balconies}, Floor Number: ${property.floor_number}, Total Floors: ${property.total_floors}.`;
     text += ` Facing: ${
       property.facing
-    }, Overlooking: ${property.overlooking.join(", ")}.`;
+    }, Overlooking: ${property?.overlooking?.join(", ")}.`;
     text += ` Property Age: ${property.property_age}, Transaction Type: ${
       property.transaction_type
     }, Gated Community: ${property.gated_community ? "Yes" : "No"}.`;
-    text += ` Furnishing: ${property.furnishing}, Flooring Type: ${property.flooring_type}.`;
-    text += ` Amenities: ${property.amenities.join(
-      ", "
-    )}, Features: ${property.features.join(
-      ", "
-    )}, Water Source: ${property.water_source.join(", ")}, Power Backup: ${
+    text += ` Furnishing: ${property.furnishing}, Flooring Type: ${property?.flooring_type??"N/A"}.`;
+    text += ` Amenities: ${property?.amenities?.join(
+      ", ",
+    )}, Features: ${property?.features?.join(
+      ", ",
+    )}, Water Source: ${property?.water_source?.join(", ")}, Power Backup: ${
       property.power_backup
-    }, RERA Status: ${property.rera_status}.`;
+    }, RERA Status: ${property?.rera_status}.`;
     text += ` Owner Name: ${property.owner_name}, Contact: ${property.owner_contact}.`;
 
     return text;
@@ -208,7 +210,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   const handleSpeakFullProperty = useCallback(() => {
     if (!audioContextRef.current) {
       setError(
-        "Audio context not ready. Please click anywhere on the page first."
+        "Audio context not ready. Please click anywhere on the page first.",
       );
       return;
     }
@@ -233,7 +235,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         {
           question,
           propertyData,
-        }
+        },
       );
 
       if (response.data && response.data.answer) {
@@ -246,7 +248,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
       const errorMessage = "Sorry, I couldn't process that. Please try again.";
       setError(errorMessage);
       setAssistantStatus("idle");
-      console.error("Error with AI Assistant:", err);
+      showErrorToast("Error with AI Assistant:", err);
     }
   };
 
@@ -257,12 +259,12 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   Priced at just ${formatIndianPrice(property.price)}, this property offers ${
       property.bedrooms
     } spacious bedrooms,
-  modern amenities like ${property.amenities.join(
-    ", "
-  )}, and features such as ${property.features.join(", ")}.
+  modern amenities like ${property?.amenities?.join(
+    ", ",
+  )}, and features such as ${property?.features?.join(", ")}.
   With a beautiful ${
     property.facing
-  } facing and overlooking ${property.overlooking.join(", ")},
+  } facing and overlooking ${property?.overlooking?.join(", ")},
   it's perfect for families seeking comfort and luxury. Don't miss this opportunity—schedule a visit today!`;
   }, []);
 
@@ -361,7 +363,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         router.back();
       }
     } catch (error) {
-      console.error("Failed to delete property:", error);
+      showErrorToast("Failed to delete property:", error);
     }
   };
   return (
@@ -729,7 +731,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
           </h2>
           <p className="text-gray-700">Facing: {propertyData?.facing}</p>
           <p className="text-gray-700">
-            Overlooking: {propertyData?.overlooking.join(", ")}
+            Overlooking: {propertyData?.overlooking?.join(", ")}
           </p>
         </div>
 
@@ -749,9 +751,9 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             </p>
             <p>Furnishing: {propertyData?.furnishing}</p>
             <p>Flooring Type: {propertyData?.flooring_type}</p>
-            <p>Amenities: {propertyData?.amenities.join(", ")}</p>
-            <p>Features: {propertyData?.features.join(", ")}</p>
-            <p>Water Source: {propertyData?.water_source.join(", ")}</p>
+            <p>Amenities: {propertyData?.amenities?.join(", ")}</p>
+            <p>Features: {propertyData?.features?.join(", ")}</p>
+            <p>Water Source: {propertyData?.water_source?.join(", ")}</p>
             <p>Power Backup: {propertyData?.power_backup}</p>
             <p>RERA Status: {propertyData?.rera_status}</p>
           </div>

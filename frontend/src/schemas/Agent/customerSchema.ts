@@ -1,4 +1,4 @@
-import { string, z } from "zod";
+import {  z } from "zod";
 
 const phoneRegex = /^(?:\+91)?[6-9]\d{9}$/;
 
@@ -61,7 +61,7 @@ export const customerSchema = z
     {
       message: "Maximum budget must be greater than or equal to minimum budget",
       path: ["maximumBudget"],
-    }
+    },
   );
 
 export type CustomerFormDataSchema = z.infer<typeof customerSchema>;

@@ -35,7 +35,7 @@ export default function Profile() {
         setCustomer(res.data);
       }
     } catch (error) {
-      console.error("Profile fetch error:", error);
+      showErrorToast("Profile fetch error:", error);
     }
   };
 
@@ -44,8 +44,8 @@ export default function Profile() {
     try {
       const res: ApiResponse<Customer> = await updateCustomerProfile(data);
       if (res.success) {
-        setLoading(false)
-        showSuccessToast(res.message)
+        setLoading(false);
+        showSuccessToast(res.message);
       }
     } catch (error: unknown) {
   if (error instanceof Error) {
@@ -177,7 +177,7 @@ export default function Profile() {
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl shadow-sm 
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl shadow-sm
                      hover:bg-blue-700 transition-colors duration-150 font-medium disabled:opacity-60"
           >
             {loading ? "Saving..." : "Save Changes"}

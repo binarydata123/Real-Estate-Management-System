@@ -5,7 +5,7 @@ export const getAgents = async (
   page?: number,
   limit?: string,
   search = "",
-  status = ""
+  status = "",
 ) => {
   const params: Record<string, string> = {};
   if (page !== undefined) {
@@ -22,18 +22,18 @@ export const getAgents = async (
   }
   const query = new URLSearchParams(params);
   const response = await api.get<AgentResponse>(
-    `/admin/agents/get-all-agents?${query.toString()}`
+    `/admin/agents/get-all-agents?${query.toString()}`,
   );
   return response.data;
 };
 
 export const updateCustomer = async (
   id: string,
-  agentData: Partial<AgentFormDataSchema>
+  agentData: Partial<AgentFormDataSchema>,
 ) => {
   const response = await api.put<AgentResponse>(
     `/admin/agents/update/${id}`,
-    agentData
+    agentData,
   );
   return response;
 };

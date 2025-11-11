@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
@@ -6,6 +6,7 @@ import {
   getNotifications,
   getUnreadNotificationsCount,
   markAllAsRead,
+  markAsRead,
   NotificationType,
 } from "@/lib/Common/Notifications";
 import { showErrorToast } from "@/utils/toastHandler";
@@ -15,11 +16,11 @@ interface Notification {
   title: string;
   message: string;
   type:
-    | "meeting_reminder"
-    | "property_shared"
-    | "customer_activity"
-    | "system_update"
-    | string;
+  | "meeting_reminder"
+  | "property_shared"
+  | "customer_activity"
+  | "system_update"
+  | string;
   read_at: string | null;
   created_at: string;
 }
@@ -37,6 +38,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchNotifications();
@@ -71,7 +73,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
   };
 
-  const markAsRead = (notificationId: string) => {
+  const handleMarkAsRead =async (notificationId: string) => {
     setNotifications((prev) =>
       prev.map((notification) =>
         notification._id === notificationId
@@ -79,6 +81,13 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           : notification,
       ),
     );
+  try {
+   await markAsRead(notificationId);
+   fetchNotifications();
+      fetchUnreadCount();
+  } catch (error) {
+    showErrorToast("Error",error);
+  }
   };
 
   const handleMarkAllRead = async () => {
@@ -105,11 +114,31 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
   };
 
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose(); // Close if clicked outside modal
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+
+
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-start justify-center pt-16 p-4 z-50">
-      <div className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-start justify-end pt-16 p-4 z-50">
+      <div ref={modalRef} className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden  md:mr-12">
         {/* Header */}
         <div className="border-b border-gray-200 p-2 md:p-4">
           <div className="flex items-center justify-between">
@@ -155,10 +184,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               {notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                    !notification.read ? "bg-blue-50" : ""
-                  }`}
-                  onClick={() => markAsRead(notification._id)}
+                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!notification.read ? "bg-blue-50" : ""
+                    }`}
+                  onClick={() => handleMarkAsRead(notification._id)}
                 >
                   <div className="flex items-start space-x-3">
                     <span className="text-lg">
@@ -167,11 +195,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <p
-                          className={`text-sm font-medium ${
-                            !notification.read
-                              ? "text-gray-900"
-                              : "text-gray-700"
-                          }`}
+                          className={`text-sm font-medium ${!notification.read
+                            ? "text-gray-900"
+                            : "text-gray-700"
+                            }`}
                         >
                           {notification.type}
                         </p>
