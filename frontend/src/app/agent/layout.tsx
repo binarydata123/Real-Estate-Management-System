@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { AgentHeader } from '@/components/Agent/Common/AgentHeader';
 import { AgentSidebar } from '@/components/Agent/Common/AgentSidebar';
 import { useAuth } from '@/context/AuthContext';
@@ -46,12 +46,12 @@ export default function AgentLayout({ children }: LayoutProps) {
             id: "more",
             label: "More",
             icon: MoreVertical,
-            path: ''
-        }
+            path: '',
+        },
     ];
 
     const handleMoreClick = () => {
-        setIsSidebarOpen(!isSidebarOpen)
+        setIsSidebarOpen(!isSidebarOpen);
     };
 
 
@@ -106,7 +106,7 @@ export default function AgentLayout({ children }: LayoutProps) {
                                         <link.icon className="w-5 h-5 mb-1" />
                                         <span>{link.label}</span>
                                     </Link>
-                                )
+                                ),
                             )}
                     </div>
                 </div>
