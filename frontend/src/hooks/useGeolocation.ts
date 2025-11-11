@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useState } from 'react';
 
 interface GeolocationResult {
@@ -52,7 +52,6 @@ export const useGeolocation = () => {
                         break;
                 }
             } else {
-                console.error("Geolocation error:", error);
                 message = "An unknown error occurred while fetching location details.";
             }
             return { locationUrl: null, error: message };

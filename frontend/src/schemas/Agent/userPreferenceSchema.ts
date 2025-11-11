@@ -7,7 +7,7 @@ const makeOptionalNumber = (schema: z.ZodNumber) =>
             val === "" || val === null || val === undefined || (typeof val === "number" && isNaN(val))
                 ? undefined
                 : Number(val),
-        schema
+        schema,
     ).optional();
 
 const optionalNumber = makeOptionalNumber(z.number({ message: "Invalid number" }).min(0));
@@ -33,7 +33,7 @@ export const preferenceSchema = z.object({
         return data.maxPrice >= data.minPrice;
     }
     return true;
-}, { message: 'Max price must be greater than or equal to min price', path: ['maxPrice'] })
+}, { message: 'Max price must be greater than or equal to min price', path: ['maxPrice'] });
 
 
 export type UserPreferenceFormData = z.infer<typeof preferenceSchema>;

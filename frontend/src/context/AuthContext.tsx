@@ -17,6 +17,7 @@ import {
 } from "@/lib/Authentication/AuthenticationAPI";
 import { AxiosError } from "axios";
 import { LoginData } from "@/components/Auth/LoginForm";
+import { showErrorToast } from "@/utils/toastHandler";
 
 export const AUTH_SESSION_KEY = "auth-session";
 
@@ -115,7 +116,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           clearSession();
         }
       } catch (error) {
-        console.error("Session check failed, signing out.", error);
+        showErrorToast("Session check failed, signing out.", error);
         clearSession();
       } finally {
         setLoading(false);
@@ -127,7 +128,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const protectedRoutes = ["/admin", "/agent"];
     const isProtectedRoute = protectedRoutes.some((route) =>
-      pathname.startsWith(route)
+      pathname.startsWith(route),
     );
 
     if (!loading && !user && isProtectedRoute) {
@@ -195,7 +196,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       signOut,
       router,
     }),
-    [user, session, loading, router, signIn, completeSignIn]
+    [user, session, loading, router, signIn, completeSignIn],
   );
 
   if (loading) {

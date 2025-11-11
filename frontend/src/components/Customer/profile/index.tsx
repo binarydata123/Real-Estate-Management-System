@@ -35,7 +35,7 @@ export default function Profile() {
         setCustomer(res.data);
       }
     } catch (error) {
-      console.error("Profile fetch error:", error);
+      showErrorToast("Profile fetch error:", error);
     }
   };
 
@@ -44,8 +44,8 @@ export default function Profile() {
     try {
       const res: ApiResponse<Customer> = await updateCustomerProfile(data);
       if (res.success) {
-        setLoading(false)
-        showSuccessToast(res.message)
+        setLoading(false);
+        showSuccessToast(res.message);
       }
     } catch (error: unknown) {
   if (error instanceof Error) {

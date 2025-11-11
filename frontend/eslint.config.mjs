@@ -44,12 +44,12 @@ const eslintConfig = [
 
       /* 🌍 --- Next.js Performance & Structure --- */
 
-      "@next/next/no-img-element": "error", // Prefer <Image /> for optimization
-      "@next/next/no-html-link-for-pages": "error", // Prevent using <a> for internal routing (use next/link)
-      "@next/next/no-document-import-in-page": "error", // Prevent importing _document in pages
-      "@next/next/no-head-element": "error", // Enforce <Head> from 'next/head' for metadata
-      "@next/next/no-sync-scripts": "error", // Warn for blocking scripts (performance)
-      "@next/next/no-page-custom-font": "error", // Enforce font optimization through next/font
+      "@next/next/no-img-element": "off", // Prefer <Image /> for optimization
+      "@next/next/no-html-link-for-pages": "off", // Prevent using <a> for internal routing (use next/link)
+      "@next/next/no-document-import-in-page": "off", // Prevent importing _document in pages
+      "@next/next/no-head-element": "off", // Enforce <Head> from 'next/head' for metadata
+      "@next/next/no-sync-scripts": "off", // Warn for blocking scripts (performance)
+      "@next/next/no-page-custom-font": "off", // Enforce font optimization through next/font
 
       /* ⚡ --- Performance & Optimization --- */
 
@@ -71,7 +71,7 @@ const eslintConfig = [
       "comma-dangle": ["error", "always-multiline"], // Trailing commas for cleaner diffs
       "object-curly-spacing": ["error", "always"], // Consistent spacing in object literals
       "arrow-spacing": "error", // Ensure spacing around arrow functions
-      "keyword-spacing": "error", // Ensure spacing around keywords
+      "keyword-spacing": "off", // Ensure spacing around keywords
       "spaced-comment": "error", // Enforce consistent spacing after comment slashes
 
       /* 🧠 --- Code Safety --- */

@@ -33,7 +33,7 @@ export const agentProfileSchema = z.object({
 
   timezone: z
     .string()
-    .nonempty("Timezone is required")
+    .nonempty("Timezone is required"),
 });
 
 export type AgentProfileUpdate = z.infer<typeof agentProfileSchema>;
