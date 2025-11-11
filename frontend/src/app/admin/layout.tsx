@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-//import { Menu } from 'lucide-react';
 import AdminSidebar from '@/components/Admin/Common/AdminSidebar';
 import { Header } from '@/components/Admin/Common/Header';
 
@@ -8,7 +7,7 @@ interface LayoutProps {
     children: React.ReactNode;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout( { children }: LayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
