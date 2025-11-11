@@ -14,7 +14,7 @@ export const createPreference = async (preferenceData: UserPreferenceFormData) =
     } catch (error) {
         throw error;
     }
-}
+};
 
 export const getPreferenceDetail = async (id: string) => {
     try {
@@ -23,7 +23,7 @@ export const getPreferenceDetail = async (id: string) => {
     } catch (error) {
         throw error;
     }
-}
+};
 
 export const sendRequestToCustomer = async (id: string) => {
     try {
@@ -32,4 +32,4 @@ export const sendRequestToCustomer = async (id: string) => {
     } catch (error) {
         throw error;
     }
-}
+};

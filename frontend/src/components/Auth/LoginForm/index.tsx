@@ -99,8 +99,7 @@ export const LoginForm = () => {
                 setLoading(false);
             }
         } catch (err) {
-            setError("An error occurred while selecting the agency.");
-            console.error('Error selecting agency:', err);
+            setError("An error occurred while selecting the agency.",err);
             setLoading(false);
         }
     };

@@ -5,18 +5,18 @@ export interface CustomerSettingsResponse {
   data: CustomerSettingsType;
 }
 export const updateCustomerSettings = async (
-  data: CustomerSettingsType | undefined
+  data: CustomerSettingsType | undefined,
 ) => {
   const res = await api.post<CustomerSettingsResponse>(
     `/customer/customer-settings/update-settings`,
-    data
+    data,
   );
   return res.data.data;
 };
 
 export const getCustomerSettings = async () => {
   const response = await api.get<CustomerSettingsResponse>(
-    `/customer/customer-settings/get-settings`
+    `/customer/customer-settings/get-settings`,
   );
   return response.data.data;
 };

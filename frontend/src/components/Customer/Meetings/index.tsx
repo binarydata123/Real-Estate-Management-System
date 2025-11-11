@@ -180,7 +180,7 @@ export const Meetings: React.FC = () => {
           }
           description={
             activeTab === "upcoming"
-              ? "Plan ahead by scheduling new meetings with your customers."
+              ? ""
               : activeTab === "past"
               ? "Once meetings are completed, they’ll show up here for your records."
               : "Cancelled meetings will be listed here if any were called off."

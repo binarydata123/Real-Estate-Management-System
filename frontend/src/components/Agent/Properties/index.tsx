@@ -177,7 +177,6 @@ export const Properties: React.FC = () => {
         </div>
       )}
 
-
       {/* Property Detail Modal */}
       {selectedProperty && (
         <PropertyDetailModal

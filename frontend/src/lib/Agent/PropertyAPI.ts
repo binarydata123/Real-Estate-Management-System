@@ -30,7 +30,7 @@ export const getSinglePropertyDetail = async (id: string) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 export const deleteProperty = async (id: string) => {
   try {
@@ -39,10 +39,10 @@ export const deleteProperty = async (id: string) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 export const getProperties = async (
-  filters?: Record<string, string | number>
+  filters?: Record<string, string | number>,
 ): Promise<{ data: Property[] }> => {
   try {
     const response = await api.get<{ data: Property[] }>(API_URL, {

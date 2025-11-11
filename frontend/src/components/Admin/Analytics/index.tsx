@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { getAllAnalyticsData } from "@/lib/Admin/AnalyticsAPI";
+import { showErrorToast } from '@/utils/toastHandler';
 
 
 // --- Mock Data (replace with your actual data fetching) ---
@@ -100,7 +101,7 @@ export default function Analytics() {
                 setRecentActivities(res.data.recentActivities);
             }
         } catch (error) {
-            console.error('Error fetching analytics:', error);
+            showErrorToast('Error fetching analytics:', error);
         } finally {
             setLoading(false);
         }

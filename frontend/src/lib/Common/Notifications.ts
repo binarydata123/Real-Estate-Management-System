@@ -32,7 +32,7 @@ export const getNotifications = async (
       | "unread"
     page?: number;
     limit?: number;
-  }
+  },
 ): Promise<
   AxiosResponse<{
     success: boolean;
@@ -73,7 +73,7 @@ export const markAllAsRead = async (): Promise<AxiosResponse> => {
 
 // Delete a notification
 export const deleteNotification = async (
-  id: string
+  id: string,
 ): Promise<AxiosResponse> => {
   return api.delete(`/common/notification/delete/${id}`);
 };

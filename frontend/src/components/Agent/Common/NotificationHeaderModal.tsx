@@ -9,6 +9,7 @@ import {
   markAsRead,
   NotificationType,
 } from "@/lib/Common/Notifications";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface Notification {
   id: string;
@@ -56,7 +57,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
       setNotifications(res.data.data || []);
     } catch (err) {
-      console.error("Error fetching notifications:", err);
+      showErrorToast("Error fetching notifications:", err);
     } finally {
       setLoading(false);
     }
@@ -68,7 +69,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       const res = await getUnreadNotificationsCount();
       setUnreadCount(res.data);
     } catch (err) {
-      console.error("Error fetching notifications:", err);
+      showErrorToast("Error fetching notifications:", err);
     }
   };
 
@@ -212,7 +213,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                       <p className="text-xs text-gray-500 mt-2">
                         {format(
                           new Date(notification.createdAt),
-                          "MMM dd, hh:mm a"
+                          "MMM dd, hh:mm a",
                         )}
                       </p>
                     </div>
