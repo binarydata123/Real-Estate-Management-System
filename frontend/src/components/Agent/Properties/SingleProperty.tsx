@@ -17,7 +17,8 @@ import { useToast } from "@/context/ToastContext";
 import { showErrorToast } from "@/utils/toastHandler";
 
 interface Images {
-  _id: string;
+  id?: string;
+  _id?: string;
   url: string;
   alt?: string;
   isPrimary?: boolean;
@@ -76,7 +77,6 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   // --- AI Voice Assistant State & Logic ---
   const [isListening, setIsListening] = useState(false);
   const [assistantStatus, setAssistantStatus] = useState("idle"); // idle, listening, thinking, speaking
-  // const [assistantResponse, setAssistantResponse] = useState("");
   //const [isSummaryPaused, setIsSummaryPaused] = useState(false);
   const [error, setError] = useState("");
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -174,7 +174,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     let text = `Here are the full details of the property: ${
       property.title
     }, a ${property.category} located in ${property.location}.
-    Price: ₹${formatIndianPrice(property.price)}, Status: ${property.status}.
+    Price: ₹${formatIndianPrice(property.price ?? 0)}, Status: ${property.status}.
     Description: ${property.description}.
     Built-up Area: ${property.built_up_area} ${
       property.unit_area_type
@@ -539,7 +539,6 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                 </button>
               )}
             </div>
-
             {error && <p className="mt-3 text-red-600 text-sm">{error}</p>}
           </div>
 

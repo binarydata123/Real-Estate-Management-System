@@ -56,14 +56,14 @@ const eslintConfig = [
       "no-unused-expressions": "error", // Disallow useless expressions (improves readability)
       "no-constant-condition": "error", // Catch accidental always-true/false conditions
       "no-unreachable": "error", // Prevent unreachable code
-      "no-return-assign": "off", // Prevent assignments in return statements
+      "no-return-assign": "error", // Prevent assignments in return statements
       "no-self-compare": "error", // Disallow comparing a variable to itself
-      "no-useless-concat": "off", // Avoid unnecessary string concatenation
-      "no-useless-return": "off", // Remove redundant return statements
-      "no-else-return": "off", // Simplify returns by removing unnecessary else
-      "prefer-template": "off", // Prefer template literals over concatenation
-      "no-multi-str": "off", // Avoid multiline string literals (use template strings)
-      eqeqeq: "error", // Enforce === and !== for type-safe comparisons
+      "no-useless-concat": "error", // Avoid unnecessary string concatenation
+      "no-useless-return": "error", // Remove redundant return statements
+      "no-else-return": "error", // Simplify returns by removing unnecessary else
+      "prefer-template": "error", // Prefer template literals over concatenation
+      "no-multi-str": "error", // Avoid multiline string literals (use template strings)
+      "eqeqeq": "error", // Enforce === and !== for type-safe comparisons
 
       /* 💄 --- Code Style / Consistency --- */
 
@@ -76,15 +76,16 @@ const eslintConfig = [
 
       /* 🧠 --- Code Safety --- */
 
-      "no-fallthrough": "off", // Prevent switch case fallthrough
+      "no-fallthrough": "error", // Prevent switch case fallthrough
       "no-unsafe-finally": "error", // Prevent unsafe behavior in finally blocks
       "no-redeclare": "error", // Prevent redeclaring variables
       "no-shadow": "error", // Prevent variable shadowing
-      "no-delete-var": "off", // Prevent deleting variables (not allowed in strict mode)
-      "no-inner-declarations": "off", // Prevent declarations inside blocks
-      "no-eval": "off", // Disallow eval() for security
-      "no-implied-eval": "off", // Disallow implied eval-like code
-      "no-script-url": "off", // Prevent javascript: URLs (security)
+      "no-delete-var": "error", // Prevent deleting variables (not allowed in strict mode)
+      "no-inner-declarations": "error", // Prevent declarations inside blocks
+      "no-eval": "error", // Disallow eval() for security
+      "no-implied-eval": "error", // Disallow implied eval-like code
+      "no-script-url": "error", // Prevent javascript: URLs (security)
+
     },
   },
 ];

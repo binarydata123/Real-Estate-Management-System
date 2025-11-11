@@ -172,7 +172,6 @@ declare global {
       | "cold_call"
       | "other";
     initialNotes?: string;
-    //agencyId?: string;
     status: string;
     assigned_agent: string;
     minimumBudget: number;

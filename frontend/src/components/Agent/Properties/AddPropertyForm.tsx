@@ -317,7 +317,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           showErrorToast("Error", err);
           // Fallback for non-registered fields (like custom IconRadio)
           const element = document.querySelector<HTMLElement>(
-            `[name="${firstErrorField}"]`
+            `[name="${firstErrorField}"]`,
           );
           if (element) {
             // Find the parent Field component to scroll to
@@ -407,7 +407,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
 
     setValue(
       "description",
-      desc.trim().replace(/\s\s+/g, " ").replace(/\.\./g, ".")
+      desc.trim().replace(/\s\s+/g, " ").replace(/\.\./g, "."),
     );
   }, [
     watch,
@@ -554,21 +554,21 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       return featuresOptions.filter((opt) => opt.value === "vaastu compliant");
     }
     return featuresOptions.filter(
-      (opt) => !opt.categories || opt.categories.includes(watchedCategory)
+      (opt) => !opt.categories || opt.categories.includes(watchedCategory),
     );
   }, [watchedCategory, isPlotOrLand]);
 
   const filteredAmenities = useMemo(() => {
     if (!watchedCategory) return [];
     return amenitiesOptions.filter(
-      (opt) => !opt.categories || opt.categories.includes(watchedCategory)
+      (opt) => !opt.categories || opt.categories.includes(watchedCategory),
     );
   }, [watchedCategory]);
 
   const filteredOverlookingOptions = useMemo(() => {
     if (!watchedCategory) return [];
     return overlookingOptions.filter(
-      (opt) => !opt.categories || opt.categories.includes(watchedCategory)
+      (opt) => !opt.categories || opt.categories.includes(watchedCategory),
     );
   }, [watchedCategory]);
 
@@ -577,7 +577,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     if (!isEditMode && watchedType && watchedCategory) {
       const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
       const generatedTitle = `${capitalize(watchedType)} ${capitalize(
-        watchedCategory
+        watchedCategory,
       )}`;
       setValue("title", generatedTitle, { shouldValidate: true });
       generateDescription();
@@ -633,7 +633,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
 
     // ✅ AI Voice confirmation
     await speakWithOpenAI(
-      `Image uploaded successfully. All Step ${step} fields are completed. You can continue to the next step.`
+      `Image uploaded successfully. All Step ${step} fields are completed. You can continue to the next step.`,
     );
   };
 
@@ -645,7 +645,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       const blobIndex = blobImages.indexOf(imageUrl);
       if (blobIndex > -1) {
         setImageFiles((prevFiles) =>
-          prevFiles.filter((_, i) => i !== blobIndex)
+          prevFiles.filter((_, i) => i !== blobIndex),
         );
       }
       URL.revokeObjectURL(imageUrl);
@@ -720,7 +720,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
         setStep(stepWithError);
         showToast(
           `Please fix the errors on Step ${stepWithError} before submitting.`,
-          "error"
+          "error",
         );
         setTimeout(() => {
           setFocus(firstErrorField, { shouldSelect: true });
@@ -728,14 +728,14 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       } else {
         showToast(
           "An unknown validation error occurred. Please check all fields.",
-          "error"
+          "error",
         );
       }
     }
   };
 
   const onSubmit: SubmitHandler<PropertyFormData> = async (
-    data: PropertyFormData
+    data: PropertyFormData,
   ) => {
     if (!user) {
       showToast("You must be logged in to add a property.", "error");
@@ -744,7 +744,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     if (!isEditMode || !propertyId) {
       showToast(
         "Cannot update property without an ID. Please start over.",
-        "error"
+        "error",
       );
       router.push("/agent/add-property");
       return;
@@ -1179,7 +1179,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     step,
     filteredOverlookingOptions,
     filteredFeatures,
-    filteredAmenities
+    filteredAmenities,
   );
   //useVoiceForm(StepOneFields, setValue, trigger, getValues, () => handleSubmit(onSubmit)());
 
@@ -1857,7 +1857,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     let isVideo = false;
                     if (url.startsWith("blob:")) {
                       const blobImages = images.filter((img) =>
-                        img.startsWith("blob:")
+                        img.startsWith("blob:"),
                       );
                       const blobIndex = blobImages.indexOf(url);
                       if (blobIndex > -1 && imageFiles[blobIndex]) {
@@ -1867,7 +1867,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     } else {
                       const videoExtensions = [".mp4", ".webm", ".ogg"];
                       isVideo = videoExtensions.some((ext) =>
-                        url.toLowerCase().endsWith(ext)
+                        url.toLowerCase().endsWith(ext),
                       );
                     }
 
@@ -1897,7 +1897,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         </button>
                       </div>
                     );
-                  })()
+                  })(),
                 )}
               </div>
             )}

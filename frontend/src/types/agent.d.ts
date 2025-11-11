@@ -97,7 +97,11 @@ interface AgentProfileFormData {
   phoneNumber: string;
 }
 
-
+interface PropertyImage {
+  url: string;
+  alt: string;
+  isPrimary: boolean;
+}
 
 // interface Property {
 //   owner_contact: string|number;
