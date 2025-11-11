@@ -65,7 +65,7 @@ const SignupForm = () => {
 
             if (!registerResponse?.data?.success) {
                 throw new Error(
-                    registerResponse?.data?.message || "Failed to register agency."
+                    registerResponse?.data?.message || "Failed to register agency.",
                 );
             }
 

@@ -54,7 +54,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         "...",
         ...range(leftSiblingIndex, rightSiblingIndex),
         "...",
-        totalPages
+        totalPages,
       );
     }
 
@@ -106,7 +106,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           >
             {page}
           </span>
-        )
+        ),
       )}
 
       {showPrevNext && (

@@ -12,32 +12,29 @@ import { useNotificationPermission } from "@/components/Common/pushNotification"
 import { usePushSubscription } from "@/components/Common/SubscribeUserForNotification";
 import { useAuth } from "@/context/AuthContext";
 import { getDashboardData } from "@/lib/Dashboard/DashboarAPI";
+import { showErrorToast } from "@/utils/toastHandler";
 
 export const AgentDashboard = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null
+    null,
   );
   const [showShareModal, setShowShareModal] = useState(false);
-  const [data,setData]=useState({})
+  // const [data,setData]=useState({})
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-
-  const getData=async()=>{
+  const getData=async() => {
     try {
-         const res =await getDashboardData()
-         if(res.success){
-          setData(res.data)
+         const res =await getDashboardData();
+         if (res.success){
+          // setData(res.data);
          }
     } catch (error) {
-       console.log(error)
+      showErrorToast("Error",error);
     }
-  }
+  };
 
-  useEffect(()=>{
-    getData()
-  },[])
-console.log(data)
+  useEffect(() => {
+    getData();
+  },[]);
   const recentProperties: any[] = [
     {
       id: "1",

@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { getNotifications, markAllAsRead, markAsRead } from '@/lib/Common/Notifications';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { showErrorToast } from '@/utils/toastHandler';
 interface Notification {
     _id: string;
     title: string;
@@ -21,46 +22,43 @@ interface NotificationCenterProps {
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose }) => {
      const { user } = useAuth();
      const [notifications, setNotifications] = useState<Notification[]>([]);
-     const [unreadCount,setUnreadCount]=useState(0)
+     const [unreadCount,setUnreadCount]=useState(0);
      const modalRef = useRef<HTMLDivElement>(null);
          const fetchNotifications = async () => {
              if (!user?._id) return;
-     
              try {
                  const response = await getNotifications(user._id, {
         type: "unread",
         page: 1,
         limit: 10,
-      })
+      });
                  if (response.data.success&&response.data.data) {
-                     setNotifications(response.data.data||[])
+                     setNotifications(response.data.data||[]);
                  }
              } catch (err) {
-                 console.error('Failed to fetch notifications', err);
+                  showErrorToast("Error",err);
              }
          };
-     
          useEffect(() => {
              fetchNotifications();
          }, [user]);
 
-  useEffect(()=>{
-   setUnreadCount(notifications.length)
-  },[notifications])
- 
+  useEffect(() => {
+   setUnreadCount(notifications.length);
+  },[notifications]);
     const handelMarkAsRead = async(notificationId: string) => {
            setNotifications(prev =>
             prev.map(notif =>
                 notif._id === notificationId
                     ? { ...notif, read: new Date().toISOString() }
-                    : notif
-            )
+                    : notif,
+            ),
         );
         try {
-           await markAsRead(notificationId) 
+           await markAsRead(notificationId);
            fetchNotifications();
         } catch (error) {
-            console.log(error)
+             showErrorToast("Error",error);
         }
     };
 
@@ -71,7 +69,6 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
           fetchNotifications();
         }
       };
-    
 
     const getNotificationIcon = (type: Notification['type']) => {
         switch (type) {
@@ -88,12 +85,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
         }
     };
 
-    //let unreadCount = notifications.filter(n => !n.read).length;
-
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose(); 
+        onClose();
       }
     }
 
@@ -101,8 +96,6 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
       document.addEventListener("mousedown", handleClickOutside);
       document.body.style.overflow = "hidden";
     }
-   
-
     return () => {
         document.removeEventListener("mousedown", handleClickOutside);
         document.body.style.overflow = "auto";

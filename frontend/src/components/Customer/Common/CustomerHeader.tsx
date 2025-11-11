@@ -1,17 +1,18 @@
-'use client'
+'use client';
 import React, { Fragment, useEffect, useState } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import {
     BellIcon,
     UserCircleIcon,
     ArrowRightOnRectangleIcon,
-    Bars3Icon
+    Bars3Icon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
 import { NotificationCenter } from './Notification';
 import InstallButton from '@/components/Common/InstallButton';
 import Link from 'next/link';
 import { getUnreadNotificationsCount } from '@/lib/Common/Notifications';
+import { showErrorToast } from '@/utils/toastHandler';
 
 interface HeaderProps {
     onMenuButtonClick: () => void;
@@ -20,19 +21,19 @@ interface HeaderProps {
 export const CustomerHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     const { user, signOut } = useAuth();
     const [showNotifications, setShowNotifications] = React.useState<boolean>(false);
-    const [unReadCount, setUnreadCount] = useState(0)
+    const [unReadCount, setUnreadCount] = useState(0);
     const fetchUnreadCount = async () => {
         try {
             if (!user?._id) return;
             const res = await getUnreadNotificationsCount();
             setUnreadCount(res.data);
         } catch (err) {
-            console.error("Error fetching notifications:", err);
+             showErrorToast("Error",err);
         }
     };
     useEffect(() => {
         fetchUnreadCount();
-    }, [showNotifications])
+    }, [showNotifications]);
     return (
         <>
             <header className="bg-white shadow-sm border-b border-gray-200">

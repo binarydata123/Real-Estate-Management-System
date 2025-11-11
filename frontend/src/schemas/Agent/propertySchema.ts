@@ -6,7 +6,7 @@ import {
     Building, LandPlot, Building2, Ruler,
     Shrub, Route, Building as ResidentialIcon, FileText, CheckCircle, Handshake, HardHat, Users,
     HandHelping, Landmark, Droplet, Clock, DropletsIcon,
-    Square
+    Square,
 } from 'lucide-react';
 
 //const phoneRegex = /^\+?[0-9]{7,15}$/;
@@ -22,7 +22,7 @@ const optionalNumber = z.preprocess(
             ? undefined
             : Number(val),
     // The inner schema validates the preprocessed value. It should not be optional here.
-    z.number({ message: "Invalid number" }).min(0)
+    z.number({ message: "Invalid number" }).min(0),
 ).optional();
 
 // For required numeric fields that should reject zero values
@@ -32,7 +32,7 @@ const requiredPositiveNumber = z.preprocess(
             ? undefined
             : Number(val),
     //z.number({ message: "Invalid number" }).min(1, "Value must be greater than 0")
-    z.number({ message: "Invalid number" })
+    z.number({ message: "Invalid number" }),
 ).optional();
 
 export const propertySchema = z.object({
@@ -42,7 +42,7 @@ export const propertySchema = z.object({
         .refine((val) => !!val, { message: "Please select a property type." }),
 
     category: z.enum(['plot', 'flat', 'showroom', 'office', 'villa', 'land', 'farmhouse'], {
-        error: "Please select a property category."
+        error: "Please select a property category.",
     }).refine((val) => !!val, { message: "Please select a property category." }),
 
     location: z.string().optional(),
@@ -117,7 +117,6 @@ export const propertySchema = z.object({
     owner_name: z.string().trim().optional(),
     //owner_contact: z.string().regex(phoneRegex, "Invalid phone number").or(z.literal('')).optional(),
     owner_contact: z.string().optional(),
-    
 
     // Relational
     agencyId: z.string().optional(),

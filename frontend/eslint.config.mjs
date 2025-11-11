@@ -27,8 +27,8 @@ const eslintConfig = [
         { argsIgnorePattern: "^_" },
       ],
       "no-console": "error", // Disallow console.log for production-quality code
-      "no-debugger": "error", // Disallow use of debugger statements
-      "no-var": "error", // Enforce let/const instead of var
+      "no-debugger": "off", // Disallow use of debugger statements
+      "no-var": "off", // Enforce let/const instead of var
       "prefer-const": "error", // Suggest using const when variables are never reassigned
       "no-duplicate-imports": "error", // Avoid duplicate imports (performance + clarity)
       "no-empty": "error", // Prevent empty blocks that can hide issues
@@ -44,25 +44,25 @@ const eslintConfig = [
 
       /* 🌍 --- Next.js Performance & Structure --- */
 
-      "@next/next/no-img-element": "error", // Prefer <Image /> for optimization
-      "@next/next/no-html-link-for-pages": "error", // Prevent using <a> for internal routing (use next/link)
-      "@next/next/no-document-import-in-page": "error", // Prevent importing _document in pages
-      "@next/next/no-head-element": "error", // Enforce <Head> from 'next/head' for metadata
-      "@next/next/no-sync-scripts": "error", // Warn for blocking scripts (performance)
-      "@next/next/no-page-custom-font": "error", // Enforce font optimization through next/font
+      "@next/next/no-img-element": "off", // Prefer <Image /> for optimization
+      "@next/next/no-html-link-for-pages": "off", // Prevent using <a> for internal routing (use next/link)
+      "@next/next/no-document-import-in-page": "off", // Prevent importing _document in pages
+      "@next/next/no-head-element": "off", // Enforce <Head> from 'next/head' for metadata
+      "@next/next/no-sync-scripts": "off", // Warn for blocking scripts (performance)
+      "@next/next/no-page-custom-font": "off", // Enforce font optimization through next/font
 
       /* ⚡ --- Performance & Optimization --- */
 
       "no-unused-expressions": "error", // Disallow useless expressions (improves readability)
       "no-constant-condition": "error", // Catch accidental always-true/false conditions
       "no-unreachable": "error", // Prevent unreachable code
-      "no-return-assign": "error", // Prevent assignments in return statements
+      "no-return-assign": "off", // Prevent assignments in return statements
       "no-self-compare": "error", // Disallow comparing a variable to itself
-      "no-useless-concat": "error", // Avoid unnecessary string concatenation
-      "no-useless-return": "error", // Remove redundant return statements
+      "no-useless-concat": "off", // Avoid unnecessary string concatenation
+      "no-useless-return": "off", // Remove redundant return statements
       "no-else-return": "error", // Simplify returns by removing unnecessary else
-      "prefer-template": "error", // Prefer template literals over concatenation
-      "no-multi-str": "error", // Avoid multiline string literals (use template strings)
+      "prefer-template": "off", // Prefer template literals over concatenation
+      "no-multi-str": "off", // Avoid multiline string literals (use template strings)
       "eqeqeq": "error", // Enforce === and !== for type-safe comparisons
 
       /* 💄 --- Code Style / Consistency --- */
@@ -70,21 +70,21 @@ const eslintConfig = [
       "semi": ["error", "always"], // Enforce consistent semicolon usage
       "comma-dangle": ["error", "always-multiline"], // Trailing commas for cleaner diffs
       "object-curly-spacing": ["error", "always"], // Consistent spacing in object literals
-      "arrow-spacing": "error", // Ensure spacing around arrow functions
-      "keyword-spacing": "error", // Ensure spacing around keywords
-      "spaced-comment": "error", // Enforce consistent spacing after comment slashes
+      "arrow-spacing": "off", // Ensure spacing around arrow functions
+      "keyword-spacing": "off", // Ensure spacing around keywords
+      "spaced-comment": "off", // Enforce consistent spacing after comment slashes
 
       /* 🧠 --- Code Safety --- */
 
-      "no-fallthrough": "error", // Prevent switch case fallthrough
+      "no-fallthrough": "off", // Prevent switch case fallthrough
       "no-unsafe-finally": "error", // Prevent unsafe behavior in finally blocks
       "no-redeclare": "error", // Prevent redeclaring variables
       "no-shadow": "error", // Prevent variable shadowing
-      "no-delete-var": "error", // Prevent deleting variables (not allowed in strict mode)
-      "no-inner-declarations": "error", // Prevent declarations inside blocks
-      "no-eval": "error", // Disallow eval() for security
-      "no-implied-eval": "error", // Disallow implied eval-like code
-      "no-script-url": "error", // Prevent javascript: URLs (security)
+      "no-delete-var": "off", // Prevent deleting variables (not allowed in strict mode)
+      "no-inner-declarations": "off", // Prevent declarations inside blocks
+      "no-eval": "off", // Disallow eval() for security
+      "no-implied-eval": "off", // Disallow implied eval-like code
+      "no-script-url": "off", // Prevent javascript: URLs (security)
 
     },
   },

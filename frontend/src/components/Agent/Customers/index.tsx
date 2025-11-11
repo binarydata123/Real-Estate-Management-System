@@ -1,6 +1,5 @@
 "use client";
-import React, { useCallback, useEffect } from "react";
-import { useState } from "react";
+import React, { useCallback, useEffect ,useState } from "react";
 import { PlusIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
 import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
@@ -10,6 +9,7 @@ import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { Pagination } from "@/components/Common/Pagination";
 import SearchInput from "@/components/Common/SearchInput";
 import Link from "next/link";
+import { showErrorToast } from "@/utils/toastHandler";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -23,7 +23,7 @@ export const Customers: React.FC = () => {
     useState<CustomerFormData | null>(null);
   const [open, setOpen] = useState(false);
   const [viewCustomer, setViewCustomer] = useState<CustomerFormData | null>(
-    null
+    null,
   );
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,11 +49,10 @@ export const Customers: React.FC = () => {
     try {
       const response = await deleteCustomerById(id);
       if (response.data.success) {
-        console.log(response.data.message);
         setCustomers((prev) => prev.filter((c) => c._id !== id));
       }
     } catch (error) {
-      console.error("Failed to delete customer:", error);
+      showErrorToast("Failed to delete customer:", error);
     }
   };
 
@@ -69,12 +68,12 @@ export const Customers: React.FC = () => {
           setTotalPages(res.pagination?.totalPages ?? 1);
         }
       } catch (error) {
-        console.error("Failed to fetch customers:", error);
+        showErrorToast("Failed to fetch customers:", error);
       } finally {
         setLoading(false);
       }
     },
-    [user?._id]
+    [user?._id],
   );
 
   useEffect(() => {
@@ -107,10 +106,10 @@ export const Customers: React.FC = () => {
   };
 
   const formatBudget = (min?: number, max?: number) => {
-    const formatPrice = (price: number = 0) => {
+    const formatPrice = (price = 0) => {
       if (price >= 10000000) return `₹${(price / 10000000).toFixed(1)}Cr`;
       else if (price >= 100000) return `₹${(price / 100000).toFixed(1)}L`;
-      else return `₹${price?.toLocaleString()}`;
+      else if(price<100000) return `₹${price?.toLocaleString()}`;
     };
     return `${formatPrice(min)} - ${formatPrice(max)}`;
   };
@@ -185,7 +184,7 @@ export const Customers: React.FC = () => {
                       </div>
                       <span
                         className={`md:hidden capitalize inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          customer?.status
+                          customer?.status,
                         )}`}
                       >
                         {customer?.status}
@@ -215,7 +214,7 @@ export const Customers: React.FC = () => {
                         <p className="text-sm font-medium text-gray-900">
                           {formatBudget(
                             customer?.minimumBudget,
-                            customer?.maximumBudget
+                            customer?.maximumBudget,
                           )}
                         </p>
                       </div>
@@ -225,7 +224,7 @@ export const Customers: React.FC = () => {
                       <div className="hidden md:block">
                         <span
                           className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            customer?.status
+                            customer?.status,
                           )}`}
                         >
                           {customer?.status}
@@ -305,12 +304,11 @@ export const Customers: React.FC = () => {
           }}
           initialData={
             editingCustomer
-              ? {
+              && {
                 ...editingCustomer,
                 name: editingCustomer.fullName,
                 phoneNumber: editingCustomer.phoneNumber ?? "",
               }
-              : undefined
           }
           customerId={editingCustomer?._id}
         />

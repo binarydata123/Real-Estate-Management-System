@@ -53,11 +53,11 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             error: ValueOrFunction<Renderable, unknown>;
             warning?: ValueOrFunction<Renderable, T>;
         },
-        options?: ToastOptions
+        options?: ToastOptions,
     ): Promise<T> => {
         const resolveValue = <TValue, TArg>(
             valOrFunction: ValueOrFunction<TValue, TArg>,
-            arg: TArg
+            arg: TArg,
         ): TValue => {
             return typeof valOrFunction === "function"
                 ? (valOrFunction as (arg: TArg) => TValue)(arg)
@@ -87,7 +87,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 },
                 error: (err) => resolveValue(messages.error, err) as Renderable,
             },
-            options
+            options,
         );
 
         return promise;

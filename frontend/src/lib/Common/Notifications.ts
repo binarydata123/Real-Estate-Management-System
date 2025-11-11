@@ -23,6 +23,7 @@ export const getNotifications = async (
   userId: string,
   options?: {
     type:
+    "all"
       | "welcome"
       | "new_lead"
       | "task_assigned"
@@ -62,7 +63,6 @@ export const getUnreadNotificationsCount = async (): Promise<
 
 // Mark a single notification as read
 export const markAsRead = async (id: string): Promise<AxiosResponse> => {
-  console.log(id)
   return api.patch(`/common/notification/mark-as-read/${id}`);
 };
 

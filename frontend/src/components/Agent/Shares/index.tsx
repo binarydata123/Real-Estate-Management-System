@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import SearchInput from "@/components/Common/SearchInput";
+import { showErrorToast } from "@/utils/toastHandler";
 
 export const Shares: React.FC = () => {
   const { user } = useAuth();
@@ -33,7 +34,7 @@ export const Shares: React.FC = () => {
         setSharedData(response.data);
       }
     } catch (error) {
-      console.error("Error fetching shared properties:", error);
+      showErrorToast("Error fetching shared properties:", error);
     }
   };
 
@@ -95,7 +96,7 @@ export const Shares: React.FC = () => {
                       className="p-2 rounded-lg"
                       onClick={() =>
                         setPreviewImage(
-                          `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share?.propertyId?.images[0]?.url}`
+                          `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share?.propertyId?.images[0]?.url}`,
                         )
                       }
                     >
@@ -155,7 +156,7 @@ export const Shares: React.FC = () => {
                 <div className="flex md:flex-col justify-between md:justify-start items-center md:items-end space-y-2 w-full md:w-auto">
                   <span
                     className={`inline-flex items-center px-2 py-1 capitalize rounded-full text-xs font-medium ${getStatusColor(
-                      share.status
+                      share.status,
                     )}`}
                   >
                     {share.status}

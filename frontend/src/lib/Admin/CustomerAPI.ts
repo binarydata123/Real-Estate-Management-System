@@ -6,7 +6,7 @@ export const getCustomers = async (
   limit?: string,
   search = "",
   status = "",
-  agencyId = ""
+  agencyId = "",
 ) => {
   const params: Record<string, string> = {};
   if (page !== undefined) {
@@ -21,23 +21,23 @@ export const getCustomers = async (
   if(status) {
     params.status = status;
   }
-  if (agencyId) { 
+  if (agencyId) {
     params.agencyId = agencyId;
   }
   const query = new URLSearchParams(params);
   const response = await api.get<CustomerResponse>(
-    `/admin/customers/get-all-customers?${query.toString()}`
+    `/admin/customers/get-all-customers?${query.toString()}`,
   );
   return response.data;
 };
 
 export const updateCustomer = async (
   id: string,
-  customerData: Partial<CustomerFormDataSchema>
+  customerData: Partial<CustomerFormDataSchema>,
 ) => {
   const response = await api.put<CustomerResponse>(
     `/admin/customers/update/${id}`,
-    customerData
+    customerData,
   );
   return response;
 };

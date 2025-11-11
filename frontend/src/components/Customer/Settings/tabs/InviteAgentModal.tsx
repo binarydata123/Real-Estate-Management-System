@@ -10,6 +10,7 @@ import { CustomerFormDataSchema } from "@/schemas/Agent/customerSchema";
 import { z } from "zod";
 import { inviteAgent } from "@/lib/Agent/InviteAPI ";
 import { useAuth } from "@/context/AuthContext";
+import { showErrorToast } from "@/utils/toastHandler";
 
 // Zod schema for the invite form
 const inviteSchema = z.object({
@@ -75,7 +76,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.error("Invitation failed:", error);
+      showErrorToast("Invitation failed:", error);
     } finally {
       setLoading(false);
     }

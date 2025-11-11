@@ -3,6 +3,7 @@ import { BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
 import { getNotifications, markAsRead, markAllAsRead } from "@/lib/Common/Notifications";
+import { showErrorToast } from '@/utils/toastHandler';
 
 interface Notification {
     _id: string;
@@ -28,11 +29,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
 
         try {
             const response = await getNotifications(user._id);
-            if (response.data.success == true) {
+            if (response.data.success) {
                 setNotifications(response.data.data);
             }
         } catch (err) {
-            console.error('Failed to fetch notifications', err);
+            showErrorToast("Error",err);
         }
     };
 
@@ -43,10 +44,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
         try {
             await markAsRead(notificationId);
             setNotifications(prev =>
-                prev.map(n => n._id === notificationId ? { ...n, read: true } : n)
+                prev.map(n => n._id === notificationId ? { ...n, read: true } : n),
             );
         } catch (err) {
-            console.error(err);
+            showErrorToast("Error",err);
         }
     };
 
@@ -54,7 +55,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
         await markAllAsRead();
         setNotifications(prev =>
             //prev.map(notif => ({ ...notif, read: new Date().toISOString() }))
-            prev.map(n => ({ ...n, read: true }))
+            prev.map(n => ({ ...n, read: true })),
         );
     };
 
@@ -165,9 +166,8 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                                                         {format(new Date(notification.createdAt), 'MMM dd, hh:mm a')}
                                                     </p>
                                                 </div>
-                                            </div> 
-                                    }               
-                                </div>
+                                            </div>  }
+                                                                        </div>
                             ))}
                         </div>
                     ) : (

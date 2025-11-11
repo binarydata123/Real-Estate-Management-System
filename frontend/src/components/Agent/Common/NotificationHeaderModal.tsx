@@ -74,20 +74,19 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   };
 
   const handleMarkAsRead =async (notificationId: string) => {
-    console.log(notificationId)
-    // setNotifications((prev) =>
-    //   prev.map((notification) =>
-    //     notification._id === notificationId
-    //       ? { ...notification, read_at: new Date().toISOString() }
-    //       : notification
-    //   )
-    // );
+    setNotifications((prev) =>
+      prev.map((notification) =>
+        notification._id === notificationId
+          ? { ...notification, read_at: new Date().toISOString() }
+          : notification,
+      ),
+    );
   try {
-   await markAsRead(notificationId)
+   await markAsRead(notificationId);
    fetchNotifications();
       fetchUnreadCount();
   } catch (error) {
-    console.log(error)
+    showErrorToast("Error",error);
   }
   };
 
