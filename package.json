@@ -24,11 +24,10 @@
       "pre-commit": "lint-staged"
     }
   },
- "lint-staged": {
-  "*.{js,jsx,ts,tsx,html}": [
-    "prettier --write",
-    "eslint"
-  ]
-}
-
+  "lint-staged": {
+    "frontend/src/**/*.{js,jsx,ts,tsx}": [
+      "eslint --max-warnings=0",
+      "prettier --write"
+    ]
+  }
 }
