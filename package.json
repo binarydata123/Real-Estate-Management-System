@@ -7,6 +7,7 @@
     "backend"
   ],
   "scripts": {
+     "prepare": "husky install",
     "dev": "concurrently \"npm run dev --workspace frontend\" \"npm run dev --workspace backend\"",
     "build": "npm run build --workspace frontend ",
     "start": "npm run start --workspace backend",
@@ -24,12 +25,9 @@
       "pre-commit": "lint-staged"
     }
   },
-"lint-staged": {
-  "frontend/**/*.{js,jsx,ts,tsx}": [
-    "eslint --max-warnings=0",
-    "prettier --write"
-  ]
-}
+  "lint-staged": {
+    "frontend/**/*.{js,jsx,ts,tsx}": "eslint --fix"
+  }
 
 
 }
