@@ -9,7 +9,6 @@ import {
     Square,
 } from 'lucide-react';
 
-//const phoneRegex = /^\+?[0-9]{7,15}$/;
 
 const residentialCategories = ['plot', 'flat', 'villa', 'land', 'farmhouse'] as const;
 const commercialCategories = ['showroom', 'office', 'land'] as const;
@@ -57,15 +56,6 @@ export const propertySchema = z.object({
     plot_front_area: optionalNumber,
     plot_depth_area: optionalNumber,
     plot_dimension_unit: z.enum(["feet", "meter"]).optional(),
-    //is_corner_plot: z.boolean().optional(),
-    // is_corner_plot: z.preprocess(
-    //     (val) => {
-    //         if (val === "yes") return true;
-    //         if (val === "no") return false;
-    //         return val; // leave as-is if already boolean or undefined
-    //     },
-    //     z.boolean().optional()
-    // ),
     is_corner_plot: z.enum(["yes", "no"]).optional(),
 
     // Residential specific
@@ -93,7 +83,6 @@ export const propertySchema = z.object({
     // Age / Transaction Details
     property_age: z.enum(["new", "1 - 5 years", "5 - 10 years", "10 + years"]).or(z.literal('')).optional(),
     transaction_type: z.enum(['new', 'resale']).optional(),
-    //gated_community: z.boolean().optional(),
     gated_community: z.enum(["yes", "no"]).optional(),
 
     // Parking & Utilities
@@ -115,7 +104,6 @@ export const propertySchema = z.object({
 
     // Owner Details
     owner_name: z.string().trim().optional(),
-    //owner_contact: z.string().regex(phoneRegex, "Invalid phone number").or(z.literal('')).optional(),
     owner_contact: z.string().optional(),
 
     // Relational

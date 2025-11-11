@@ -1,6 +1,5 @@
 import api from "@/lib/api";
 
-
 export const getAdminProfile = async () => {
   const response = await api.get<ProfileResponse>(
     `/admin/profile/get-admin-profile`,

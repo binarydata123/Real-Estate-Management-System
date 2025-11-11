@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import DashboardStats from "./DashboardStats";
 import TodaysReminders from "./TodaysReminders";
@@ -14,6 +13,8 @@ import { useAuth } from "@/context/AuthContext";
 import { getDashboardData } from "@/lib/Dashboard/DashboarAPI";
 import { showErrorToast } from "@/utils/toastHandler";
 
+
+
 export const AgentDashboard = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null,
@@ -21,21 +22,21 @@ export const AgentDashboard = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   // const [data,setData]=useState({})
 
-  const getData=async() => {
+  const getData = async () => {
     try {
-         const res =await getDashboardData();
-         if (res.success){
-          // setData(res.data);
-         }
+      const res = await getDashboardData();
+      if (res.success) {
+        // setData(res.data);
+      }
     } catch (error) {
-      showErrorToast("Error",error);
+      showErrorToast("Error", error);
     }
   };
 
   useEffect(() => {
     getData();
-  },[]);
-  const recentProperties: any[] = [
+  }, []);
+  const recentProperties: Property[] = [
     {
       id: "1",
       title: "Luxury 3BHK Apartment",
@@ -155,9 +156,9 @@ export const AgentDashboard = () => {
               property={property}
               onView={handleViewProperty}
               onShare={handleShareProperty}
-              onFavorite={(property) =>
-                console.log("Favorite property:", property)
-              }
+            // onFavorite={(property:) =>
+            //   console.log("Favorite property:", property)
+            // }
             />
           ))}
         </div>

@@ -97,12 +97,29 @@ interface AgentProfileFormData {
   phoneNumber: string;
 }
 
-
+interface PropertyImage {
+  url: string;
+  alt: string;
+  isPrimary: boolean;
+}
 
 interface Property {
-  owner_contact: string|number;
-  rera_status: string;
-  flooring_type: string;
   _id: string;
   title: string;
+  type?: string;
+  category?: string;
+  location?: string;
+  price?: number;
+  size?: number;
+  size_unit?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  status: string;
+  images: PropertyImage[];
+  createdAt: string;
+  description?: string;
+  owner_contact?: string | number;
+  rera_status?: string;
+  flooring_type?: string;
+  created_at:string;
 }
