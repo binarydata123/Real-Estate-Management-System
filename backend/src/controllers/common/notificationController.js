@@ -91,7 +91,6 @@ export const markAsRead = async (req, res) => {
     const notification = await Notification.findOneAndUpdate(
       { _id: id, userId },
       { read: true },
-      { new: true }
     );
 
     if (!notification) {

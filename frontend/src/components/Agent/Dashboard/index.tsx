@@ -11,14 +11,33 @@ import Link from "next/link";
 import { useNotificationPermission } from "@/components/Common/pushNotification";
 import { usePushSubscription } from "@/components/Common/SubscribeUserForNotification";
 import { useAuth } from "@/context/AuthContext";
+import { getDashboardData } from "@/lib/Dashboard/DashboarAPI";
 
 export const AgentDashboard = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null
   );
   const [showShareModal, setShowShareModal] = useState(false);
+  const [data,setData]=useState({})
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+
+  const getData=async()=>{
+    try {
+         const res =await getDashboardData()
+         if(res.success){
+          setData(res.data)
+         }
+    } catch (error) {
+       console.log(error)
+    }
+  }
+
+  useEffect(()=>{
+    getData()
+  },[])
+console.log(data)
   const recentProperties: any[] = [
     {
       id: "1",

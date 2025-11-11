@@ -33,8 +33,12 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     const fetchNotifications = async () => {
       if (!user?._id) return;
       try {
-        const res = await await getNotifications(user._id);
-        if (res.data.success == true) {
+        const res = await getNotifications(user._id, {
+        type: "unread",
+        page: 1,
+        limit: 10,
+      });
+        if (res.data.success) {
           setNotifications(res.data.data);
         }
       } catch (err) {

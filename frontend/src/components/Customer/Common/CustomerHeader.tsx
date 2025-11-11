@@ -1,5 +1,5 @@
 'use client'
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import {
     BellIcon,
@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { NotificationCenter } from './Notification';
 import InstallButton from '@/components/Common/InstallButton';
 import Link from 'next/link';
+import { getUnreadNotificationsCount } from '@/lib/Common/Notifications';
 
 interface HeaderProps {
     onMenuButtonClick: () => void;
@@ -19,8 +20,19 @@ interface HeaderProps {
 export const CustomerHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     const { user, signOut } = useAuth();
     const [showNotifications, setShowNotifications] = React.useState<boolean>(false);
-
-
+    const [unReadCount, setUnreadCount] = useState(0)
+    const fetchUnreadCount = async () => {
+        try {
+            if (!user?._id) return;
+            const res = await getUnreadNotificationsCount();
+            setUnreadCount(res.data);
+        } catch (err) {
+            console.error("Error fetching notifications:", err);
+        }
+    };
+    useEffect(() => {
+        fetchUnreadCount();
+    }, [showNotifications])
     return (
         <>
             <header className="bg-white shadow-sm border-b border-gray-200">
@@ -90,8 +102,8 @@ export const CustomerHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => 
                                 aria-label="View notifications"
                             >
                                 <span className="sr-only">View notifications</span>
-                                <BellIcon className="md:h-6 md:w-6 w-5 h-5 header-icon" />
-                                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" aria-hidden="true"></span>
+                                <BellIcon className="md:h-6 md:w-6 w-5 h-5 header-icon " />
+                                {unReadCount ? <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" aria-hidden="true"></span> : ""}
                             </span>
 
                             {/* User Menu */}
