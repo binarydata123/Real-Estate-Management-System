@@ -24,11 +24,11 @@
       "pre-commit": "lint-staged"
     }
   },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx,html}": [
-      "prettier --write",
-      "eslint",
-      "git add"
-    ]
-  }
+ "lint-staged": {
+  "*.{js,jsx,ts,tsx,html}": [
+    "prettier --write",
+    "eslint"
+  ]
+}
+
 }
