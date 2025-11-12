@@ -34,6 +34,14 @@ const agencySchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    whatsAppNumber:{
+    type:String,
+    trim:true
+    },
+    timezone:{
+      type:String,
+      trim:true
+    },
     address: String,
     logoUrl: String, // Consolidated from `logo` and `branding.logoUrl`
     status: {
@@ -76,8 +84,8 @@ agencySchema.virtual("members").get(function () {
 });
 
 agencySchema.virtual('properties', {
-  ref: 'Property',       // The model to use
-  localField: '_id',     // Field in Agency
+  ref: 'Property',// The model to use
+  localField: '_id',// Field in Agency
   foreignField: 'agencyId',// Field in Property
 });
 

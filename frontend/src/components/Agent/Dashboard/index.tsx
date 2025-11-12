@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import React, { useEffect, useState } from "react";
 import DashboardStats from "./DashboardStats";
 import TodaysReminders from "./TodaysReminders";
@@ -11,14 +11,32 @@ import Link from "next/link";
 import { useNotificationPermission } from "@/components/Common/pushNotification";
 import { usePushSubscription } from "@/components/Common/SubscribeUserForNotification";
 import { useAuth } from "@/context/AuthContext";
+import { getDashboardData } from "@/lib/Dashboard/DashboarAPI";
+import { showErrorToast } from "@/utils/toastHandler";
+
+
 
 export const AgentDashboard = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null
   );
   const [showShareModal, setShowShareModal] = useState(false);
+  // const [data,setData]=useState({})
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getData = async () => {
+    try {
+      const res = await getDashboardData();
+      if (res.success) {
+        // setData(res.data);
+      }
+    } catch (error) {
+      showErrorToast("Error", error);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
   const recentProperties: any[] = [
     {
       id: "1",
@@ -139,9 +157,9 @@ export const AgentDashboard = () => {
               property={property}
               onView={handleViewProperty}
               onShare={handleShareProperty}
-              onFavorite={(property) =>
-                console.log("Favorite property:", property)
-              }
+              // onFavorite={(property) =>
+              //   console.log("Favorite property:", property)
+              // }
             />
           ))}
         </div>

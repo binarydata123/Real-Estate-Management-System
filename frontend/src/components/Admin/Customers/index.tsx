@@ -1,14 +1,13 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
-//import { Building2, CheckCircle, Clock, PlusIcon, UserPlus, Heart, Handshake, XCircle } from 'lucide-react';
 import { Building2, PlusIcon, UserPlus } from 'lucide-react';
 import { getCustomers, deleteCustomerById } from "@/lib/Admin/CustomerAPI";
 import { Pagination } from "@/components/Common/Pagination";
-import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
 import { useSearchParams } from 'next/navigation';
 import Link from "next/link";
+import { showErrorToast } from '@/utils/toastHandler';
 
 const statusStyles: { [key: string]: string } = {
     new: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400',
@@ -25,42 +24,28 @@ function classNames(...classes: string[]) {
 
 export default function Customers() {
     // State to control the Add Agency modal
-    //const [isAddAgencyModalOpen, setAddAgencyModalOpen] = useState(false);
-    const { user } = useAuth();
     const [customers, setCustomers] = useState<CustomerFormData[]>([]);
     const [loading, setLoading] = useState(false);
-    //const [editingAgency, setEditingAgency] = useState<AgencyFormData | null>(null);
     const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState<CustomerFormData | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    //const [totalRecords, setTotalRecords] = useState(0);
     const limit = '10';
     const [searchTerm, setSearchTerm] = useState("");
     const [searchStatus, setSearchStatus] = useState("");
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
-    //const [showAddForm, setShowAddForm] = useState(false);
     const searchParams = useSearchParams(); // ✅ to access query string params
     const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
 
     // Calculate stats from mock data
     const totalCustomers = customers.length;
     const newCustomers = customers.filter(a => a.status === 'new').length;
-    // const interestedCustomers = customers.filter(a => a.status === 'interested').length;
-    // const negotiatingCustomers = customers.filter(a => a.status === 'negotiating').length;
-    // const convertedCustomers = customers.filter(a => a.status === 'converted').length;
-    // const notInterestedCustomers = customers.filter(a => a.status === 'not_interested').length;
-    // const followUpCustomers = customers.filter(a => a.status === 'follow_up').length;
+
 
     const customerStats = [
         { name: 'Total Customers', value: totalCustomers, icon: Building2, color: 'bg-blue-500' },
         { name: 'New', value: newCustomers, icon: UserPlus, color: 'bg-indigo-500' },
-        // { name: 'Interested', value: interestedCustomers, icon: Heart, color: 'bg-pink-500' },
-        // { name: 'Negotiating', value: negotiatingCustomers, icon: Handshake, color: 'bg-yellow-500' },
-        // { name: 'Converted', value: convertedCustomers, icon: CheckCircle, color: 'bg-green-500' },
-        // { name: 'Not Interested', value: notInterestedCustomers, icon: XCircle, color: 'bg-red-500' },
-        // { name: 'Follow Up', value: followUpCustomers, icon: Clock, color: 'bg-orange-500' },
     ];
 
     useEffect(() => {
@@ -71,12 +56,10 @@ export default function Customers() {
         }, 400);
         return () => clearTimeout(handler);
     }, [searchTerm, searchStatus]);
-    
     const handleDeleteClick = (customer: CustomerFormData) => {
         setSelectedCustomer(customer);
         setShowConfirmDialog(true);
     };
-    
     const handleDelete = async (id: string) => {
         try {
             const response = await deleteCustomerById(id);
@@ -84,10 +67,9 @@ export default function Customers() {
                 setCustomers((prev) => prev.filter((c) => c._id !== id));
             }
         } catch (error) {
-          console.error("Failed to delete customer:", error);
+          showErrorToast("Error:",error);
         }
     };
-    
     const getAllCustomers = useCallback(
         async (page = 1, search = "", status = "", agencyIdParam = "") => {
             try {
@@ -100,18 +82,18 @@ export default function Customers() {
                     //setTotalRecords(res.pagination?.total ?? 0);
                 }
             } catch (error) {
-                console.error("Failed to fetch customers:", error);
+                showErrorToast("Error:",error);
             } finally {
                 setLoading(false);
             }
         },
-        [user?._id]
+        [],
     );
-    
+
     useEffect(() => {
         getAllCustomers(currentPage, debouncedSearchTerm, debouncedSearchStatus, agencyId || "");
     }, [getAllCustomers, currentPage, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
-    
+
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);

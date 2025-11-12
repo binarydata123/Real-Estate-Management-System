@@ -1,4 +1,5 @@
-'use client'
+'use client';
+import { showErrorToast } from '@/utils/toastHandler';
 import { useState } from 'react';
 
 interface GeolocationResult {
@@ -52,7 +53,7 @@ export const useGeolocation = () => {
                         break;
                 }
             } else {
-                console.error("Geolocation error:", error);
+                showErrorToast("Geolocation error:", error);
                 message = "An unknown error occurred while fetching location details.";
             }
             return { locationUrl: null, error: message };

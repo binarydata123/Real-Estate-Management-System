@@ -37,7 +37,7 @@ export const createMeeting = async (req, res) => {
       type: "meeting_scheduled",
     });
 
-    // ✅ Push notification to meeting creator
+    //Push notification to meeting creator
     await sendPushNotification({
       userId: user._id,
       title: "Meeting Scheduled",
@@ -181,7 +181,6 @@ export const getMeetingById = async (req, res) => {
 // Update a meeting
 export const updateMeeting = async (req, res) => {
   try {
-    const agencyId = req.user.agencyId._id._id;
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -243,3 +242,5 @@ export const deleteMeeting = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+

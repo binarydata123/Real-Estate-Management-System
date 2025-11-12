@@ -33,7 +33,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
     } else if (price >= 100000) {
       // 1 lakh
       return `₹${(price / 100000).toFixed(1)}L`;
-    } else {
+    } else if(price<100000) {
       return `₹${price.toLocaleString()}`;
     }
   };
@@ -76,7 +76,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
         <div className="absolute md:top-3 md:left-3 top-2 left-2">
           <span
             className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-              property.status
+              property.status,
             )}`}
           >
             {property.status}

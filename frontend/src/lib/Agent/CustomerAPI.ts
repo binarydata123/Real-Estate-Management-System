@@ -4,7 +4,7 @@ import { CustomerFormDataSchema } from "@/schemas/Agent/customerSchema";
 export const createCustomer = async (customerData: CustomerFormDataSchema) => {
   return await api.post<CustomerResponse>(
     `/agent/customers/create`,
-    customerData
+    customerData,
   );
 };
 
@@ -12,7 +12,7 @@ export const getCustomers = async (
   userId: string,
   page?: number,
   limit?: number,
-  search = ""
+  search = "",
 ) => {
   const params: Record<string, string> = {};
   if (page !== undefined) {
@@ -26,18 +26,18 @@ export const getCustomers = async (
   }
   const query = new URLSearchParams(params);
   const response = await api.get<CustomerResponse>(
-    `/agent/customers/get-all?userId=${userId}&${query.toString()}`
+    `/agent/customers/get-all?userId=${userId}&${query.toString()}`,
   );
   return response.data;
 };
 
 export const updateCustomer = async (
   id: string,
-  customerData: Partial<CustomerFormDataSchema>
+  customerData: Partial<CustomerFormDataSchema>,
 ) => {
   const response = await api.put<CustomerResponse>(
     `/agent/customers/update/${id}`,
-    customerData
+    customerData,
   );
   return response;
 };
@@ -47,7 +47,7 @@ export const deleteCustomerById = async (id: string) => {
 
 export const getCustomersForDropDown = async (userId: string) => {
   const response = await api.get<CustomerResponse>(
-    `/agent/customers/get-all-for-dropDown?userId=${userId}`
+    `/agent/customers/get-all-for-dropDown?userId=${userId}`,
   );
   return response.data;
 };

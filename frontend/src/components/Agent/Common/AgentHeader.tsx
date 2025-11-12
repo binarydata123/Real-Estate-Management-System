@@ -1,6 +1,7 @@
 "use client";
 import React, { Fragment, useEffect, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
+import Link from "next/link";
 import {
   BellIcon,
   UserCircleIcon,
@@ -11,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { NotificationCenter } from "./NotificationHeaderModal";
 import InstallButton from "@/components/Common/InstallButton";
 import { getUnreadNotificationsCount } from "@/lib/Common/Notifications";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface HeaderProps {
   onMenuButtonClick: () => void;
@@ -30,7 +32,7 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
       const res = await getUnreadNotificationsCount();
       setUnreadCount(res.data);
     } catch (err) {
-      console.error("Error fetching notifications:", err);
+      showErrorToast("Error",err);
     }
   };
   return (
@@ -137,15 +139,15 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                       </div>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="/profile"
+                          <Link
+                            href="/agent/profile"
                             className={`${
                               active ? "bg-gray-100" : ""
                             } flex items-center md:px-4 px-2 py-2 text-sm text-gray-700`}
                           >
                             <UserCircleIcon className="mr-3 h-4 w-4" />
                             Profile
-                          </a>
+                          </Link>
                         )}
                       </Menu.Item>
                       <Menu.Item>

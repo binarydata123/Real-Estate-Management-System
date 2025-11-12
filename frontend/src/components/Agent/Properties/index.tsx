@@ -10,6 +10,7 @@ import { PropertyCard } from "./PropertyCard";
 import { getProperties } from "@/lib/Agent/PropertyAPI";
 import { useDebounce } from "@/components/Common/UseDebounce";
 import { Pagination } from "@/components/Common/Pagination";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface PropertyListFilters {
   type: string;
@@ -44,7 +45,7 @@ const PropertyCardSkeleton = () => (
 
 export const Properties: React.FC = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null
+    null,
   );
   const [showShareModal, setShowShareModal] = useState(false);
   const [propertyToShare, setPropertyToShare] = useState<Property | null>(null);
@@ -61,7 +62,7 @@ export const Properties: React.FC = () => {
       try {
         setIsFetching(true);
         const activeFilters = Object.fromEntries(
-          Object.entries(debouncedFilters).filter(([, value]) => value !== "")
+          Object.entries(debouncedFilters).filter(([, value]) => value !== ""),
         );
 
         const response = await getProperties({
@@ -76,12 +77,12 @@ export const Properties: React.FC = () => {
           setTotalPages(response.pagination?.pages ?? 1);
         }
       } catch (error) {
-        console.error(error);
+      showErrorToast("Error",error);
       } finally {
         setIsFetching(false);
       }
     },
-    [debouncedFilters, limit]
+    [debouncedFilters, limit],
   );
 
   useEffect(() => {
@@ -176,7 +177,6 @@ export const Properties: React.FC = () => {
           </p>
         </div>
       )}
-
 
       {/* Property Detail Modal */}
       {selectedProperty && (

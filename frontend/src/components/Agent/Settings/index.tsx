@@ -14,7 +14,7 @@ export const Settings: React.FC = () => {
   const updateAgencySetting = (
     section: keyof AgencySettingsType,
     field: string,
-    value: string | boolean
+    value: string | boolean,
   ) => {
     setAgencySettings((prev) => {
       if (!prev) return prev;

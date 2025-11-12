@@ -1,6 +1,5 @@
 import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js";
-import mongoose from "mongoose";
 
 export const getAllSharedProperties = async (req, res) => {
   try {

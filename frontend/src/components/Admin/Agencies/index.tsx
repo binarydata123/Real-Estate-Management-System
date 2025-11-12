@@ -7,6 +7,7 @@ import { Pagination } from "@/components/Common/Pagination";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
+import { showErrorToast } from '@/utils/toastHandler';
 
 const statusStyles: { [key: string]: string } = {
     approved: 'bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400',
@@ -24,18 +25,15 @@ export default function Agencies() {
      const { user } = useAuth();
     const [agencies, setAgencies] = useState<AgencyFormData[]>([]);
     const [loading, setLoading] = useState(false);
-    //const [editingAgency, setEditingAgency] = useState<AgencyFormData | null>(null);
     const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
     const [selectedAgency, setSelectedAgency] = useState<AgencyFormData | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    //const [totalRecords, setTotalRecords] = useState(0);
     const limit = '10';
     const [searchTerm, setSearchTerm] = useState("");
     const [searchStatus, setSearchStatus] = useState("");
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
-    //const [showAddForm, setShowAddForm] = useState(false);
 
     // Calculate stats from mock data
     const totalAgencies = agencies.length;
@@ -44,7 +42,6 @@ export default function Agencies() {
     const rejectedAgencies = agencies.filter(a => a.status === 'rejected').length;
 
     const agencyStats = [
-        //{ name: 'Total Agencies', value: totalRecords, icon: Building2, color: 'bg-blue-500' },
         { name: 'Total Agencies', value: totalAgencies, icon: Building2, color: 'bg-blue-500' },
         { name: 'Approved', value: approvedAgencies, icon: CheckCircle, color: 'bg-green-500' },
         { name: 'Pending', value: pendingAgencies, icon: Clock, color: 'bg-yellow-500' },
@@ -59,24 +56,22 @@ export default function Agencies() {
         }, 400);
         return () => clearTimeout(handler);
     }, [searchTerm, searchStatus]);
-    
+
     const handleDeleteClick = (agency: AgencyFormData) => {
         setSelectedAgency(agency);
         setShowConfirmDialog(true);
     };
-    
     const handleDelete = async (id: string) => {
         try {
             const response = await deleteAgencyById(id);
             if (response.data.success) {
-                console.log(response.data.message);
                 setAgencies((prev) => prev.filter((c) => c._id !== id));
             }
         } catch (error) {
-          console.error("Failed to delete customer:", error);
+          showErrorToast("Failed to delete customer:", error);
         }
     };
-    
+
     const getAllAgencies = useCallback(
         async (page = 1, search = "", status = "") => {
             try {
@@ -86,21 +81,20 @@ export default function Agencies() {
                 setAgencies(res.data);
                 setCurrentPage(res.pagination?.page ?? 1);
                 setTotalPages(res.pagination?.totalPages ?? 1);
-                //setTotalRecords(res.pagination?.total ?? 0);
             }
             } catch (error) {
-            console.error("Failed to fetch customers:", error);
+            showErrorToast("Failed to delete customer:", error);
             } finally {
             setLoading(false);
             }
         },
-        [user?._id]
+        [user?._id],
     );
-    
+
     useEffect(() => {
         getAllAgencies(currentPage, debouncedSearchTerm, debouncedSearchStatus);
     }, [getAllAgencies, currentPage, debouncedSearchTerm, debouncedSearchStatus]);
-    
+
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);

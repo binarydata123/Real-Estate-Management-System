@@ -1,12 +1,13 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { AUTH_SESSION_KEY, type Session } from '@/context/AuthContext';
+import { showErrorToast } from '@/utils/toastHandler';
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         'Content-Type': 'application/json',
-    }
+    },
 });
 
 api.interceptors.request.use(
@@ -26,14 +27,14 @@ api.interceptors.request.use(
                     }
                 }
             } catch (error) {
-                console.error("Could not get auth token from local storage", error);
+                showErrorToast("Could not get auth token from local storage", error);
             }
         }
         return config;
     },
     (error) => {
         return Promise.reject(error);
-    }
+    },
 );
 
 export default api;

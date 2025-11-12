@@ -1,15 +1,18 @@
-'use client'
-import React, { Fragment } from 'react';
+'use client';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import {
     BellIcon,
     UserCircleIcon,
     ArrowRightOnRectangleIcon,
-    Bars3Icon
+    Bars3Icon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
 import { NotificationCenter } from './Notification';
 import InstallButton from '@/components/Common/InstallButton';
+import Link from 'next/link';
+import { getUnreadNotificationsCount } from '@/lib/Common/Notifications';
+import { showErrorToast } from '@/utils/toastHandler';
 
 interface HeaderProps {
     onMenuButtonClick: () => void;
@@ -18,8 +21,19 @@ interface HeaderProps {
 export const CustomerHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     const { user, signOut } = useAuth();
     const [showNotifications, setShowNotifications] = React.useState<boolean>(false);
-
-
+    const [unReadCount, setUnreadCount] = useState(0);
+    const fetchUnreadCount = async () => {
+        try {
+            if (!user?._id) return;
+            const res = await getUnreadNotificationsCount();
+            setUnreadCount(res.data);
+        } catch (err) {
+             showErrorToast("Error",err);
+        }
+    };
+    useEffect(() => {
+        fetchUnreadCount();
+    }, [showNotifications]);
     return (
         <>
             <header className="bg-white shadow-sm border-b border-gray-200">
@@ -89,8 +103,8 @@ export const CustomerHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => 
                                 aria-label="View notifications"
                             >
                                 <span className="sr-only">View notifications</span>
-                                <BellIcon className="md:h-6 md:w-6 w-5 h-5 header-icon" />
-                                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" aria-hidden="true"></span>
+                                <BellIcon className="md:h-6 md:w-6 w-5 h-5 header-icon " />
+                                {unReadCount ? <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" aria-hidden="true"></span> : ""}
                             </span>
 
                             {/* User Menu */}
@@ -115,14 +129,14 @@ export const CustomerHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => 
                                             </div>
                                             <Menu.Item>
                                                 {({ active }) => (
-                                                    <a
-                                                        href="/profile"
+                                                    <Link
+                                                        href="/customer/profile"
                                                         className={`${active ? 'bg-gray-100' : ''
                                                             } flex items-center md:px-4 px-2 py-2 text-sm text-gray-700`}
                                                     >
                                                         <UserCircleIcon className="mr-3 h-4 w-4" />
                                                         Profile
-                                                    </a>
+                                                    </Link>
                                                 )}
                                             </Menu.Item>
                                             <Menu.Item>

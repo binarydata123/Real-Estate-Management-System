@@ -25,7 +25,8 @@ const navigation = [
   { name: "Analytics", href: "/agent/analytics", icon: ChartBarIcon },
   { name: "Notifications", href: "/agent/notifications", icon: Bell },
   { name: "Settings", href: "/agent/settings", icon: Cog6ToothIcon },
-  { name: "Profile", href: "/agent/profile", icon: UsersIcon },
+  // { name: "Profile", href: "/agent/profile", icon: UsersIcon },
+  { name: "Team Management", href: "/agent/team-members", icon: UsersIcon },
 ];
 
 interface SidebarProps {

@@ -6,7 +6,7 @@ export const getProperty = async (
   limit?: string,
   search = "",
   status = "",
-  agencyId = ""
+  agencyId = "",
 ) => {
   const params: Record<string, string> = {};
   if (page !== undefined) {
@@ -18,26 +18,26 @@ export const getProperty = async (
   if (search) {
     params.search = search;
   }
-  if(status) {
+  if (status) {
     params.status = status;
   }
-  if (agencyId) { 
+  if (agencyId) {
     params.agencyId = agencyId;
   }
   const query = new URLSearchParams(params);
   const response = await api.get<PropertyResponse>(
-    `/admin/properties/get-all-properties?${query.toString()}`
+    `/admin/properties/get-all-properties?${query.toString()}`,
   );
   return response.data;
 };
 
 export const updateProperty = async (
   id: string,
-  propertyData: Partial<PropertyFormDataSchema>
+  propertyData: Partial<PropertyFormDataSchema>,
 ) => {
   const response = await api.put<PropertyResponse>(
     `/admin/properties/update/${id}`,
-    propertyData
+    propertyData,
   );
   return response;
 };

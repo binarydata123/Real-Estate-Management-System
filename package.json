@@ -7,10 +7,14 @@
     "backend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace frontend\" \"npm run dev --workspace backend\"",
+    "lint:frontend": "eslint -c frontend/eslint.config.mjs 'frontend/src/**/*.{js,jsx,ts,tsx}' --quiet",
+    "lint:backend": "eslint -c backend/eslint.config.mjs 'backend/**/*.js' --quiet",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "dev": "npm run lint && concurrently --names \"FRONTEND,BACKEND\" --prefix-colors \"cyan,magenta\" --kill-others-on-fail \"npm run dev --workspace frontend\" \"npm run dev --workspace backend\"",
     "build": "npm run build --workspace frontend ",
     "start": "npm run start --workspace backend",
-    "prod": "npm run build && npm run start"
+    "prod": "npm run build && npm run start",
+    "prepare": "husky"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",

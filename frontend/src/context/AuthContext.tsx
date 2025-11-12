@@ -17,6 +17,7 @@ import {
 } from "@/lib/Authentication/AuthenticationAPI";
 import { AxiosError } from "axios";
 import { LoginData } from "@/components/Auth/LoginForm";
+import { showErrorToast } from "@/utils/toastHandler";
 
 export const AUTH_SESSION_KEY = "auth-session";
 
@@ -95,12 +96,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (sessionStr) {
           const savedSession: Session = JSON.parse(sessionStr);
 
-          // Verify session with the backend to ensure it's still valid
-          const {
-            data: { user: freshUser },
-          } = await checkSessionApi(savedSession.access_token);
+          // Verify session with the backend. The user object is nested in response.data.data.user
+          const response = await checkSessionApi(savedSession.access_token);
+          const freshUser = response.data.data.user;
 
-          // Update user data from backend response
+          // Update user data from the fresh backend response
           const newSession: Session = {
             ...savedSession,
           };
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           clearSession();
         }
       } catch (error) {
-        console.error("Session check failed, signing out.", error);
+        showErrorToast("Session check failed, signing out.", error);
         clearSession();
       } finally {
         setLoading(false);
@@ -140,20 +140,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       // The backend now returns a consistent user object on login
       const response = await loginUser(credentials);
-      const { token, user } = response.data;
+      const { token, user: userData } = response.data;
 
       const newSession: Session = {
         access_token: token,
       };
 
       setSession(newSession);
-      setUser(user);
+      setUser(userData);
       Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
         expires: 365, // Keep user logged in for 1 year
         secure: process.env.NODE_ENV === "production",
       });
 
-      return { data: { user, session: newSession }, error: null };
+      return { data: {  user: userData, session: newSession }, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const errorMessage =
@@ -166,19 +166,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const completeSignIn = (user: User, token: string) => {
+  const completeSignIn = (userData: User, token: string) => {
     const newSession: Session = {
       access_token: token,
     };
 
     setSession(newSession);
-    setUser(user);
+    setUser(userData);
     Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
       expires: 365,
       secure: process.env.NODE_ENV === "production",
     });
 
-    router.push(`/${user.role}/dashboard`);
+    router.push(`/${userData.role}/dashboard`);
   };
 
   const signOut = async () => {

@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
 import { useSearchParams } from 'next/navigation';
+import { showErrorToast } from '@/utils/toastHandler';
 
 const statusStyles: { [key: string]: string } = {
     Available: 'bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400',
@@ -64,12 +65,10 @@ export default function Properties() {
         }, 400);
         return () => clearTimeout(handler);
     }, [searchTerm, searchStatus]);
-    
     const handleDeleteClick = (property: Property) => {
         setSelectedProperty(property);
         setShowConfirmDialog(true);
     };
-    
     const handleDelete = async (id: string) => {
         try {
             const response = await deletePropertyById(id);
@@ -77,13 +76,12 @@ export default function Properties() {
                 setProperties((prev) => prev.filter((c) => c._id !== id));
             }
         } catch (error) {
-          console.error("Failed to delete customer:", error);
+         showErrorToast("Error:",error);
         }
     };
-    
+
     const getAllProperty = useCallback(
         async (page = 1, search = "", status = "", agencyIdParam = "") => {
-            console.log(agencyIdParam);
             try {
                 setLoading(true);
                 const res = await getProperty(page, limit, search, status, agencyIdParam);
@@ -94,14 +92,14 @@ export default function Properties() {
                     //setTotalRecords(res.pagination?.total ?? 0);
                 }
             } catch (error) {
-                console.error("Failed to fetch customers:", error);
+                showErrorToast("Error:",error);
             } finally {
                 setLoading(false);
             }
         },
-        [user?._id]
+        [user?._id],
     );
-    
+
     useEffect(() => {
         let finalAgencyId = '';
         if(agencyId){
@@ -109,7 +107,7 @@ export default function Properties() {
         }
         getAllProperty(currentPage, debouncedSearchTerm, debouncedSearchStatus, finalAgencyId || "");
     }, [getAllProperty, currentPage, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
-    
+
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);

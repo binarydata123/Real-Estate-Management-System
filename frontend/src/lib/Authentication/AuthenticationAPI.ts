@@ -27,4 +27,4 @@ export const checkSession = async (token: string): Promise<AxiosResponse> => {
             Authorization: `Bearer ${token}`,
         },
     });
-}
+};

@@ -1,6 +1,5 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { User } from "../../models/Common/UserModel.js";
-import bcrypt from "bcryptjs";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
@@ -60,14 +59,14 @@ export const createCustomer = async (req, res) => {
     if (savedCustomer) {
       await createNotification({
         userId: savedCustomer._id,
-        message: `Welcome ${savedCustomer.name}! Your account has been created. You can now log in and get started.`,
+        message: `Welcome ${savedCustomer.fullName}! Your account has been created. You can now log in and get started.`,
         type: "welcome",
       });
 
       await sendPushNotification({
         userId: savedCustomer._id,
         title: "Welcome to Our Platform 🎉",
-        message: `Hi ${savedCustomer.name}, your account has been created!`,
+        message: `Hi ${savedCustomer.fullName}, your account has been created!`,
         urlPath: "/login",
       });
     }
