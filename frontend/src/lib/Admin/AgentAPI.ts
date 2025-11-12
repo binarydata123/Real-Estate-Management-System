@@ -17,7 +17,7 @@ export const getAgents = async (
   if (search) {
     params.search = search;
   }
-  if(status) {
+  if (status) {
     params.status = status;
   }
   const query = new URLSearchParams(params);

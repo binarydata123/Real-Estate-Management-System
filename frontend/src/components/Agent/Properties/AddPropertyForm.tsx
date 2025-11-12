@@ -314,9 +314,11 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           // Use react-hook-form's setFocus for registered fields
           setFocus(firstErrorField);
         } catch (err) {
-           showErrorToast("Error",err);
+          showErrorToast("Error", err);
           // Fallback for non-registered fields (like custom IconRadio)
-             const element = document.querySelector<HTMLElement>(`[name="${firstErrorField}"]`);
+          const element = document.querySelector<HTMLElement>(
+            `[name="${firstErrorField}"]`,
+          );
           if (element) {
             // Find the parent Field component to scroll to
             const fieldContainer = element.closest('div[class*="col-span"]');
@@ -708,8 +710,9 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     amenities: 3,
   };
 
-  const onValidationError = (error: FieldErrors<PropertyFormData>) => {
-    const errorFields = Object.keys(error) as (keyof PropertyFormData)[];
+  const onValidationError = (err: FieldErrors<PropertyFormData>) => {
+    const errorFields = Object.keys(err) as (keyof PropertyFormData)[];
+
 
     if (errorFields.length > 0) {
       const firstErrorField = errorFields[0];
@@ -1259,7 +1262,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         </Field>
                       </div>
                     )}
-                    {f.name ==="location" && (
+                    {f.name === "location" && (
                       <div className="">
                         <Field label={f.label} error={errors.location}>
                           <div className="relative">
@@ -1328,7 +1331,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                   <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     {StepOneFields.map((f) => (
                       <div key={f.name}>
-                        {f.name ==="built_up_area" && (
+                        {f.name === "built_up_area" && (
                           <div className="md:col-span-2">
                             <Field label={f.label} error={errors.built_up_area}>
                               <input
@@ -1375,7 +1378,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                       {StepOneFields.map((f) => (
                         <div key={f.name}>
-                          {f.name ==="plot_front_area" && (
+                          {f.name === "plot_front_area" && (
                             <div className="md:col-span-1">
                               <Field
                                 label={f.label}
@@ -1506,7 +1509,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               />
                             </Field>
                           )}
-                          {f.name ==="conference_rooms" && (
+                          {f.name === "conference_rooms" && (
                             <Field
                               label={f.label}
                               error={errors.conference_rooms}
@@ -1575,7 +1578,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       {StepOneFields.map((f) => (
                         <div key={f.name}>
-                          {isBuiltStructure && f.name ==="property_age" && (
+                          {isBuiltStructure && f.name === "property_age" && (
                             <Field label={f.label} error={errors.property_age}>
                               <IconRadio
                                 name={f.name}

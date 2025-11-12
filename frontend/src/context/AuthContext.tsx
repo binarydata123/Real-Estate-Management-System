@@ -140,14 +140,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       // The backend now returns a consistent user object on login
       const response = await loginUser(credentials);
-      const { token, user } = response.data;
 
       const newSession: Session = {
-        access_token: token,
+        access_token: response.data.token,
       };
 
       setSession(newSession);
-      setUser(user);
+      setUser(response.data.user);
       Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
         expires: 365, // Keep user logged in for 1 year
         secure: process.env.NODE_ENV === "production",
@@ -166,19 +165,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const completeSignIn = (user: User, token: string) => {
+  const completeSignIn = (User: User, token: string) => {
     const newSession: Session = {
       access_token: token,
     };
 
     setSession(newSession);
-    setUser(user);
+    setUser(User);
     Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
       expires: 365,
       secure: process.env.NODE_ENV === "production",
     });
 
-    router.push(`/${user.role}/dashboard`);
+    router.push(`/${User.role}/dashboard`);
   };
 
   const signOut = async () => {

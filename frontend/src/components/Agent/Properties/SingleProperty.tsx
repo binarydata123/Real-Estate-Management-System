@@ -17,7 +17,7 @@ import { useToast } from "@/context/ToastContext";
 import { showErrorToast } from "@/utils/toastHandler";
 
 interface Images {
-  _id: string;
+  _id?: string;
   url: string;
   alt?: string;
   isPrimary?: boolean;
@@ -76,7 +76,6 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   // --- AI Voice Assistant State & Logic ---
   const [isListening, setIsListening] = useState(false);
   const [assistantStatus, setAssistantStatus] = useState("idle"); // idle, listening, thinking, speaking
-  const [assistantResponse, setAssistantResponse] = useState("");
   //const [isSummaryPaused, setIsSummaryPaused] = useState(false);
   const [error, setError] = useState("");
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -174,7 +173,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     let text = `Here are the full details of the property: ${
       property.title
     }, a ${property.category} located in ${property.location}.
-    Price: ₹${formatIndianPrice(property.price)}, Status: ${property.status}.
+    Price: ₹${formatIndianPrice(property.price ?? 0)}, Status: ${property.status}.
     Description: ${property.description}.
     Built-up Area: ${property.built_up_area} ${
       property.unit_area_type
@@ -224,72 +223,72 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     }
   }, [assistantStatus, generateFullPropertyText, propertyData]);
 
-  const handleQuestion = async (question: string) => {
-    setAssistantStatus("thinking");
-    setError("");
-    setAssistantResponse("");
+  // const handleQuestion = async (question: string) => {
+  //   setAssistantStatus("thinking");
+  //   setError("");
+  //   setAssistantResponse("");
 
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/assistant/ask`,
-        {
-          question,
-          propertyData,
-        },
-      );
+  //   try {
+  //     const response = await axios.post(
+  //       `${process.env.NEXT_PUBLIC_API_URL}/assistant/ask`,
+  //       {
+  //         question,
+  //         propertyData,
+  //       },
+  //     );
 
-      if (response.data && response.data.answer) {
-        setAssistantResponse(response.data.answer);
-        speak(response.data.answer, () => setAssistantStatus("idle"));
-      } else {
-        throw new Error("No answer received from the assistant.");
-      }
-    } catch (err) {
-      const errorMessage = "Sorry, I couldn't process that. Please try again.";
-      setError(errorMessage);
-      setAssistantStatus("idle");
-      showErrorToast("Error with AI Assistant:", err);
-    }
-  };
+  //     if (response.data && response.data.answer) {
+  //       setAssistantResponse(response.data.answer);
+  //       speak(response.data.answer, () => setAssistantStatus("idle"));
+  //     } else {
+  //       throw new Error("No answer received from the assistant.");
+  //     }
+  //   } catch (err) {
+  //     const errorMessage = "Sorry, I couldn't process that. Please try again.";
+  //     setError(errorMessage);
+  //     setAssistantStatus("idle");
+  //     showErrorToast("Error with AI Assistant:", err);
+  //   }
+  // };
 
-  const generateSummaryText = useCallback((property: Property): string => {
-    return `Discover your dream home! The "${property.title}" is a stunning ${
-      property.category
-    } located in ${property.location}.
-  Priced at just ${formatIndianPrice(property.price)}, this property offers ${
-      property.bedrooms
-    } spacious bedrooms,
-  modern amenities like ${property?.amenities?.join(
-    ", ",
-  )}, and features such as ${property?.features?.join(", ")}.
-  With a beautiful ${
-    property.facing
-  } facing and overlooking ${property?.overlooking?.join(", ")},
-  it's perfect for families seeking comfort and luxury. Don't miss this opportunity—schedule a visit today!`;
-  }, []);
+  // const generateSummaryText = useCallback((property: Property): string => {
+  //   return `Discover your dream home! The "${property.title}" is a stunning ${
+  //     property.category
+  //   } located in ${property.location}.
+  // Priced at just ${formatIndianPrice(property.price)}, this property offers ${
+  //     property.bedrooms
+  //   } spacious bedrooms,
+  // modern amenities like ${property?.amenities?.join(
+  //   ", ",
+  // )}, and features such as ${property?.features?.join(", ")}.
+  // With a beautiful ${
+  //   property.facing
+  // } facing and overlooking ${property?.overlooking?.join(", ")},
+  // it's perfect for families seeking comfort and luxury. Don't miss this opportunity—schedule a visit today!`;
+  // }, []);
 
-  const handleSpeakSummary = useCallback(() => {
-    if (!audioContextRef.current) {
-      setError(
-        "Audio context not ready. Please click anywhere on the page first.",
-      );
-      return;
-    }
-    if (assistantStatus === "speaking") {
-      stopAll();
-      return;
-    }
+  // const handleSpeakSummary = useCallback(() => {
+  //   if (!audioContextRef.current) {
+  //     setError(
+  //       "Audio context not ready. Please click anywhere on the page first."
+  //     );
+  //     return;
+  //   }
+  //   if (assistantStatus === "speaking") {
+  //     stopAll();
+  //     return;
+  //   }
 
-    // If idle, start speaking the summary
-    let speechText = "";
-    if (propertyData) {
-      speechText = generateSummaryText(propertyData);
-    }
-    speak(speechText, () => {
-      setAssistantStatus("idle");
-      //setIsSummaryPaused(false);
-    });
-  }, [assistantStatus, generateSummaryText, speak]);
+  //   // If idle, start speaking the summary
+  //   let speechText = "";
+  //   if (propertyData) {
+  //     speechText = generateSummaryText(propertyData);
+  //   }
+  //   speak(speechText, () => {
+  //     setAssistantStatus("idle");
+  //     //setIsSummaryPaused(false);
+  //   });
+  // }, [assistantStatus, generateSummaryText, speak]);
 
   // const toggleListening = () => {
   //   const SpeechRecognition =
@@ -362,8 +361,8 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         showToast(response.message, "success");
         router.back();
       }
-    } catch (err) {
-      showErrorToast("Failed to delete property:", err);
+    } catch (deleteError) { // Renamed from 'error' to 'deleteError'
+      showErrorToast("Failed to delete property:", deleteError);
     }
   };
   return (
@@ -460,7 +459,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             onClick={() => {
               if (!propertyData?.images?.length || !selectedImage) return;
               const idx = propertyData.images.findIndex(
-                (img) => img._id === selectedImage._id
+                (img) => img._id === selectedImage._id,
               );
               const prevIdx =
                 (idx - 1 + propertyData.images.length) %
@@ -477,7 +476,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             onClick={() => {
               if (!propertyData?.images?.length || !selectedImage) return;
               const idx = propertyData.images.findIndex(
-                (img) => img._id === selectedImage._id
+                (img) => img._id === selectedImage._id,
               );
               const nextIdx = (idx + 1) % propertyData.images.length;
               setSelectedImage(propertyData.images[nextIdx]);
@@ -644,11 +643,11 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                 </button>
               )}
             </div>
-            {assistantResponse && (
+            {/* {assistantResponse && (
               <p className="mt-3 text-gray-800 bg-blue-50 p-3 rounded-md">
                 {assistantResponse}
               </p>
-            )}
+            )} */}
             {error && <p className="mt-3 text-red-600 text-sm">{error}</p>}
           </div>
 
