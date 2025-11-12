@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useForm ,SubmitHandler, FieldErrors } from "react-hook-form";
+import { useForm ,SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SparklesIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -710,7 +710,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     amenities: 3,
   };
 
-  const onValidationError = (errors: FieldErrors<PropertyFormData>) => {
+  const onValidationError = () => {
     const errorFields = Object.keys(errors) as (keyof PropertyFormData)[];
 
 

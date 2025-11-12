@@ -477,7 +477,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             onClick={() => {
               if (!propertyData?.images?.length || !selectedImage) return;
               const idx = propertyData.images.findIndex(
-                (img) => img._id === selectedImage._id
+                (img) => img._id === selectedImage._id,
               );
               const nextIdx = (idx + 1) % propertyData.images.length;
               setSelectedImage(propertyData.images[nextIdx]);

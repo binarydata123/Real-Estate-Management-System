@@ -109,7 +109,6 @@ export function useVoiceForm(
       }
 
       if (repeatCountRef.current >= 2) {
-        console.log("⚠️ Same answer repeated twice — waiting for new input.");
         await speakWithOpenAI(
           `You already said that. Please provide a different answer for ${field.label}.`
         );
@@ -142,7 +141,6 @@ export function useVoiceForm(
               tempRecognition.lang = "en-US";
               tempRecognition.onresult = async (evt: any) => {
                 const answer = evt.results[0][0].transcript.trim().toLowerCase();
-                console.log(`🗣️ Heard for ${missingField.label}:`, answer);
                 setValue(missingField.name, answer);
                 await trigger(missingField.name);
                 tempRecognition.stop();
@@ -170,7 +168,6 @@ export function useVoiceForm(
         speechResult.toLowerCase() === "skip" ||
         speechResult.toLowerCase() === "skip this field"
       ) {
-        console.log(`⏭️ Skipping field: ${field.label}`);
 
         // Speak confirmation for skipping
         await speakWithOpenAI(`Okay, skipping ${field.label}.`);
@@ -196,7 +193,6 @@ export function useVoiceForm(
 
         // ✅ If user says "next" or "done", move to next field
         if (["next", "done", "go next", "continue"].includes(spokenValue)) {
-          console.log(`➡️ Moving to next field after selecting: ${currentValues}`);
           await speakWithOpenAI(`Okay, moving to next field.`);
           if (currentFieldIndex < filteredFields.length - 1) {
             setCurrentFieldIndex((prev) => prev + 1);
@@ -239,14 +235,11 @@ export function useVoiceForm(
               shouldDirty: true,
               shouldValidate: true,
             });
-            console.log(`✅ Added value: ${matchedOption.value}`);
             await speakWithOpenAI(`${matchedOption.value} added for ${field.label}. You can say another option or say "next" to continue.`);
           } else {
-            console.log(`⚠️ Already selected: ${matchedOption.value}`);
             await speakWithOpenAI(`${matchedOption.value} is already selected. You can say another option or say "next" to continue.`);
           }
         } else {
-          console.log(`❌ No match found for "${spokenValue}"`);
           await speakWithOpenAI(`I could not find a matching option for ${spokenValue}. Please try again.`);
         }
 
@@ -254,9 +247,10 @@ export function useVoiceForm(
         setIsProcessing(false);
         startListening(filteredFields);
         return;
-      } else {
-        setValue(field.name, speechResult);
       }
+      //  else {
+      //   setValue(field.name, speechResult);
+      // }
       // Check if field type is checkbox (Step 3)
       // if (field.fieldType === 'checkbox') {
       //     const currentValues: string[] = getValues(field.name) || [];
@@ -359,10 +353,6 @@ export function useVoiceForm(
       } else {
         await speakWithOpenAI(`Please Enter ${field.label}`);
       }
-
-      
-
-
       // Start listening for user answer
       startListening(filteredFields);
     };
@@ -409,7 +399,6 @@ export function useVoiceForm(
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setVoiceReady(false);
-      console.log("🎙️ Voice stopped manually.");
     }
   };
 
