@@ -264,7 +264,7 @@ export function useVoiceForm(
         setIsProcessing(false);
         startListening(filteredFields);
         return;
-      } else {
+      } else if (field.fieldType !== "checkbox") {
         setValue(field.name, speechResult);
       }
       // Check if field type is checkbox (Step 3)
@@ -482,7 +482,7 @@ export function useVoiceForm(
   // 🎚️ Toggle from parent
   const toggleVoiceListening = (enable: boolean) => {
     if (enable) setVoiceReady(true);
-    else stopListening();
+    else if (!enable) stopListening();
   };
   return {
     toggleVoiceListening,

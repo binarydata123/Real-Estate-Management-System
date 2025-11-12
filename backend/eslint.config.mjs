@@ -10,12 +10,16 @@ export default [
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
+      // globals: {
+      //   ...globals.node,
+      // },
     },
+
     rules: {
       // 🔹 General Code Quality Rules
       "no-unused-vars": "error", // Warns about declared but unused variables
-      "no-undef": "off", // Detects use of undeclared variables
-      "no-console": "off", // Discourages use of console (prefer proper logger)
+      "no-undef": "error", // Detects use of undeclared variables
+      "no-console": "error", // Discourages use of console (prefer proper logger)
       "no-extra-semi": "error", // Prevents unnecessary semicolons
       "no-unexpected-multiline": "error", // Avoids ambiguity from missing semicolons
       "no-var": "off", // Enforces use of let/const instead of var
