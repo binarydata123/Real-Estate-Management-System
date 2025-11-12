@@ -2,9 +2,9 @@ import { Meetings } from "../../models/Agent/MeetingModel.js";
 import { User } from "../../models/Common/UserModel.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
-export async function meetingReminderCronJob(mode = "today") {
+export async function meetingReminderCronJob (mode = "today") {
   try {
-    let meetingsQuery = {
+    const meetingsQuery = {
       status: { $in: ["scheduled", "rescheduled"] },
     };
 
@@ -50,7 +50,7 @@ export async function meetingReminderCronJob(mode = "today") {
         return meetingDateTime >= start && meetingDateTime <= end;
       });
     }
-    for (let meeting of meetings) {
+    for (const meeting of meetings) {
       const user = await User.findOne({ agencyId: meeting.agencyId._id });
 
       // Push notification to agency user

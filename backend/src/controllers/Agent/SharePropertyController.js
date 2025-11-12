@@ -50,13 +50,13 @@ export const shareProperty = async (req, res) => {
       message: "You have shared a property successfully.",
       urlPath: "/agent/shares",
     });
-    res.status(201).json({
+   return res.status(201).json({
       share: savedShare,
       message: "Share property successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error" });
+   return res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -74,13 +74,13 @@ export const getAllSharedProperties = async (req, res) => {
       .populate("sharedByUserId", "name email phone createdAt")
       .populate("propertyId", "title images price");
 
-    res.status(200).json({
+   return res.status(200).json({
       success: true,
       data: shares,
       message: "Shared properties fetched successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 };

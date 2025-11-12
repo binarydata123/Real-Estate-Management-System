@@ -63,9 +63,9 @@ export const createMeeting = async (req, res) => {
       ],
     });
 
-    res.status(201).json({ success: true, data: savedMeeting });
+   return res.status(201).json({ success: true, data: savedMeeting });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -80,7 +80,7 @@ export const getMeetingsByAgency = async (req, res) => {
 
     const now = new Date();
 
-    let query = { agencyId: id };
+    const query = { agencyId: id };
 
     if (status === "upcoming") {
       query.$expr = {
@@ -172,9 +172,9 @@ export const getMeetingById = async (req, res) => {
         .json({ success: false, message: "Meeting not found" });
     }
 
-    res.json({ success: true, data: meeting });
+    return res.json({ success: true, data: meeting });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -193,14 +193,13 @@ export const updateMeeting = async (req, res) => {
         .json({ success: false, message: "Meeting not found" });
     }
 
-    res.json({ success: true, data: updatedMeeting });
+    return res.json({ success: true, data: updatedMeeting });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 export const updateMeetingStatus = async (req, res) => {
   try {
-    console.log(req.body, req.params);
     const { status } = req.body; // only accept status
     if (!status) {
       return res
@@ -222,9 +221,9 @@ export const updateMeetingStatus = async (req, res) => {
         .json({ success: false, message: "Meeting not found" });
     }
 
-    res.json({ success: true, data: updatedMeeting });
+    return res.json({ success: true, data: updatedMeeting });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -237,9 +236,9 @@ export const deleteMeeting = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Meeting not found" });
     }
-    res.json({ success: true, message: "Meeting deleted successfully" });
+    return res.json({ success: true, message: "Meeting deleted successfully" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 

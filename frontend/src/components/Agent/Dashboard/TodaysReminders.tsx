@@ -1,58 +1,26 @@
 "use client";
 
 import React from "react";
-import { CalendarIcon, ClockIcon, UserIcon } from "@heroicons/react/24/outline";
+import { CalendarIcon, ClockIcon, } from "@heroicons/react/24/outline";
 
-interface Reminder {
-  id: string;
-  title: string;
-  customer: string;
+interface Customer {
+  fullName: string;
+}
+
+export interface Reminder {
+  _id: string;
+  propertyId: {title:string};
+  customerId: Customer;
   time: string;
   type: "meeting" | "follow_up" | "call";
   priority: "high" | "medium" | "low";
 }
 
-const TodaysReminders = () => {
-  const reminders: Reminder[] = [
-    {
-      id: "1",
-      title: "Property viewing with Sarah Johnson",
-      customer: "Sarah Johnson",
-      time: "10:00 AM",
-      type: "meeting",
-      priority: "high",
-    },
-    {
-      id: "2",
-      title: "Follow up on luxury villa inquiry",
-      customer: "Michael Chen",
-      time: "2:30 PM",
-      type: "follow_up",
-      priority: "medium",
-    },
-    {
-      id: "3",
-      title: "Contract signing meeting",
-      customer: "David Wilson",
-      time: "4:00 PM",
-      type: "meeting",
-      priority: "high",
-    },
-  ];
+interface TodaysRemindersProps {
+  reminders: Reminder[];
+}
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "meeting":
-        return CalendarIcon;
-      case "follow_up":
-        return UserIcon;
-      case "call":
-        return UserIcon;
-      default:
-        return ClockIcon;
-    }
-  };
-
+const TodaysReminders: React.FC<TodaysRemindersProps> = ({ reminders }) => {
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200">
       <div className="md:p-6 p-2 border-b border-gray-200">
@@ -60,26 +28,27 @@ const TodaysReminders = () => {
           Today&apos;s Meetings
         </h2>
       </div>
+
       <div className="p-2 md:p-6">
-        {reminders.length > 0 ? (
+        {reminders?.length > 0 ? (
           <div className="md:space-y-4 space-y-2">
             {reminders.map((reminder) => {
-              const Icon = getTypeIcon(reminder.type);
+              const Icon =CalendarIcon ;
               return (
-                <div key={reminder.id}>
+                <div key={reminder._id}>
                   <div className="flex flex-col md:flex-row md:items-center justify-between bg-gradient-to-br from-white to-gray-50 rounded-xl p-2 md:p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
                     <div className="flex items-start md:items-center gap-3 w-full">
                       <div className="p-2 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Icon className="h-5 w-5 text-gray-600" />
+                        <Icon className="h-5 w-5 text-blue-600" />
                       </div>
 
                       <div className="flex-1">
                         {/* Title and Priority */}
                         <div className="flex items-start justify-between gap-2">
                           <p className="text-gray-900 text-[13px] md:text-sm font-medium leading-snug">
-                            {reminder.title}
+                            {reminder.propertyId?.title || "Unknown"}
                           </p>
-                          <span
+                          {/* <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-semibold capitalize shadow-sm ${
                               reminder.priority === "high"
                                 ? "bg-red-100 text-red-700"
@@ -88,17 +57,17 @@ const TodaysReminders = () => {
                                 : "bg-green-100 text-green-700"
                             }`}
                           >
-                            {reminder.priority}
-                          </span>
+                            {reminder.priority || "NA"}
+                          </span> */}
                         </div>
 
                         {/* Customer and Time */}
                         <div className="flex items-center justify-between mt-1">
                           <p className="text-[13px] md:text-sm font-semibold text-gray-800 bg-gray-100 px-2 py-0.5 rounded-md hover:bg-gray-200 transition-colors">
-                            {reminder.customer}
+                            {reminder.customerId?.fullName || "Unknown"}
                           </p>
                           <div className="flex items-center gap-1 text-gray-500">
-                            <ClockIcon className="w-4 h-4" />
+                            <ClockIcon className="w-4 h-4 text-blue" />
                             <p className="text-[10px] md:text-xs font-medium mt-1">
                               {reminder.time}
                             </p>

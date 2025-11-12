@@ -21,9 +21,9 @@ export const getAdminProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: "Admin not found" });
     }
 
-    res.json({ success: true, data: admin });
+    return res.json({ success: true, data: admin });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -49,13 +49,13 @@ export const updateAdminProfile = async (req, res) => {
             return res.status(404).json({ success: false, message: "Admin not found" });
         }
 
-        res.json({
+       return res.json({
             success: true,
             message: "Profile updated successfully",
             data: updatedAdmin,
         });
     } catch (error) {
         console.error("Update Admin Error:", error);
-        res.status(500).json({ success: false, message: error.message });
+       return res.status(500).json({ success: false, message: error.message });
     }
 };

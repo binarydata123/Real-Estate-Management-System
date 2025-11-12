@@ -1,29 +1,29 @@
 import { Agency } from "../../models/Agent/AgencyModel.js";
 import { User } from "../../models/Common/UserModel.js";
 
-export const getAgentProfile=async (req,res)=>{
+export const getAgentProfile=async (req,res) => {
 try {
         const agentId =req.user._id;
-        const agent=await Agency.findOne({owner:agentId}).populate("owner")
-    
+        const agent=await Agency.findOne({owner:agentId}).populate("owner");
      if (!agent) {
       return res.status(404).json({
         success: false,
         message: "Agent not found.",
-      });}   
-        res.status(200).json({
+      }
+    );
+  }
+      return res.status(200).json({
       success: true,
       data:agent,
-      message: "Agent Profile fetched successfully",})
+      message: "Agent Profile fetched successfully",});
 
     } catch (error) {
-       console.error("Error fetching Agent Profile ", error);
-      res.status(500).json({
+     return res.status(500).json({
       success: false,
       message: error.message || "Server error",
-    });   
+    });
     }
-}
+  };
 
 
 export const updateAgentProfile = async (req, res) => {
@@ -70,7 +70,6 @@ export const updateAgentProfile = async (req, res) => {
       message: "Profile updated successfully.",
     });
   } catch (error) {
-    console.error("Error updating Agent Profile:", error);
     return res.status(500).json({
       success: false,
       message: error.message || "Server error while updating profile.",

@@ -8,9 +8,9 @@ const storage = (folderName) =>
       const folderPath = `src/storage/${folderName}/original`;
       try {
         await fs.mkdir(folderPath, { recursive: true });
-        cb(null, folderPath);
+      return cb(null, folderPath);
       } catch (error) {
-        cb(error, folderPath);
+        return cb(error, folderPath);
       }
     },
     filename: (req, file, cb) => {
@@ -75,12 +75,16 @@ export const createUpload = (folderName) => {
   return {
     single: (fieldName) => async (req, res, next) => {
       upload.single(fieldName)(req, res, async (err) => {
-        if (err) return res.status(500).json({ message: 'Error uploading file', status: false });
-        if (!req.file) return next();
+        if (err) {
+          return res.status(500).json({ message: 'Error uploading file', status: false });
+      }
+        if (!req.file) {
+          return next();
+        }
 
         try {
           req.uploadedFilename = await processAndSaveImages(req.file, folderName);
-          next();
+       return next();
         } catch (error) {
           console.error(error);
           return res.status(500).json({ message: 'Error processing image', status: false });
@@ -90,8 +94,9 @@ export const createUpload = (folderName) => {
 
     multiple: (fieldName, maxCount) => async (req, res, next) => {
       upload.array(fieldName, maxCount)(req, res, async (err) => {
-        if (err) return res.status(500).json({ message: 'Error uploading files', status: false });
-
+        if (err) {
+          return res.status(500).json({ message: 'Error uploading files', status: false });
+      }
         try {
           req.uploadedFilenames = [];
           if (req.files && req.files.length > 0) {
@@ -116,7 +121,7 @@ export const createUpload = (folderName) => {
               }
             }
           }
-          next();
+        return next();
         } catch (error) {
           console.error('File processing error:', error);
           return res.status(500).json({ message: 'Error processing files', status: false });
