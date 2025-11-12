@@ -248,7 +248,9 @@ export function useVoiceForm(
         startListening(filteredFields);
         return;
       }
-      setValue(field.name, speechResult);
+      //  else {
+      //   setValue(field.name, speechResult);
+      // }
       // Check if field type is checkbox (Step 3)
       // if (field.fieldType === 'checkbox') {
       //     const currentValues: string[] = getValues(field.name) || [];
@@ -351,9 +353,6 @@ export function useVoiceForm(
       } else {
         await speakWithOpenAI(`Please Enter ${field.label}`);
       }
-
-
-
       // Start listening for user answer
       startListening(filteredFields);
     };
