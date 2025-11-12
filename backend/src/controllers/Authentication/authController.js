@@ -167,7 +167,6 @@ const registrationController = {
             .status(401)
             .json({ message: "No customer found with this phone number." });
         }
-        console.log(customers);
         // If there's only one profile, log them in directly
         if (customers.length === 1) {
           user = customers[0];

@@ -140,23 +140,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       // The backend now returns a consistent user object on login
       const response = await loginUser(credentials);
-      const { token } = response.data;
+      const { token, user: userData } = response.data;
 
       const newSession: Session = {
         access_token: token,
       };
 
       setSession(newSession);
-      setUser(response.data.user);
+      setUser(userData);
       Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
         expires: 365, // Keep user logged in for 1 year
         secure: process.env.NODE_ENV === "production",
       });
 
-      return {
-        data: { user: response.data.user, session: newSession },
-        error: null,
-      };
+      return { data: {  user: userData, session: newSession }, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const errorMessage =
