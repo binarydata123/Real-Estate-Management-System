@@ -26,7 +26,7 @@ export const createPreference = async (req, res) => {
         console.error("Error saving preference:", error);
         res.status(500).json({ success: false, message: "Server error while saving preferences." });
     }
-}
+};
 
 export const getPreferenceDetail = async (req, res) => {
     try {
@@ -43,7 +43,7 @@ export const getPreferenceDetail = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error while getting preference detail." });
 
     }
-}
+};
 
 export const sendRequestToCustomer = async (req, res) => {
     try {
@@ -56,7 +56,7 @@ export const sendRequestToCustomer = async (req, res) => {
 
         const customer = await Customer.findById(customerId).populate('agencyId');
         let agencyData;
-        if(agent.agencyId){
+        if (agent.agencyId) {
             agencyData = agent.agencyId;
         } else {
             agencyData = customer.agencyId;
@@ -82,7 +82,7 @@ export const sendRequestToCustomer = async (req, res) => {
             message: `A new preference request has been sent to your customer ${customer.fullName}.`,
             type: "preference_request",
             link: '/preferences'
-        })
+        });
 
         // Send a push notification to the customer and agency also
         const result = await sendPushNotification({
@@ -94,7 +94,7 @@ export const sendRequestToCustomer = async (req, res) => {
 
         let customerPushNotificationResult;
         if (!result.success && result.sent === 0) {
-            customerPushNotificationResult = `Notification could not be sent — customer is not subscribed to push notifications.`
+            customerPushNotificationResult = `Notification could not be sent — customer is not subscribed to push notifications.`;
         }
 
         // push notification to agency
@@ -105,9 +105,9 @@ export const sendRequestToCustomer = async (req, res) => {
             urlPath: "/preferences",
         });
 
-        res.status(200).json({ success: true, message: "Request sent to customer successfully.", customerPushNotificationResult });
+     return res.status(200).json({ success: true, message: "Request sent to customer successfully.", customerPushNotificationResult });
     } catch (err) {
         console.error("Error sending request to customer:", err);
-        res.status(500).json({ success: false, message: "Server error while sending request to customer." });
+      return res.status(500).json({ success: false, message: "Server error while sending request to customer." });
     }
-}
+};

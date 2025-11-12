@@ -11,7 +11,7 @@ export const getProperties = async (req, res) => {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    let searchQuery = {};
+    const searchQuery = {};
 
     if (agencyId) {
       searchQuery.agencyId = agencyId;
@@ -30,8 +30,8 @@ export const getProperties = async (req, res) => {
         const agencyIds = agencies.map(a => a._id);
 
         searchQuery.$or.push(
-            { title: { $regex: search, $options: "i" }}, 
-            { type: {$regex: search, $options: "i"}}, 
+            { title: { $regex: search, $options: "i" }},
+            { type: {$regex: search, $options: "i"}},
             { category: {$regex: search, $options: "i"}},
             { owner_name: {$regex: search, $options: "i"}},
             { agencyId: { $in: agencyIds } }
@@ -54,8 +54,6 @@ export const getProperties = async (req, res) => {
             select: "name email phone status logoUrl", // pick the fields you need
         });
 
-    
-
     if (!property || property.length === 0) {
       return res.status(200).json({
         success: true,
@@ -70,7 +68,7 @@ export const getProperties = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: property,
       pagination: {
@@ -81,7 +79,7 @@ export const getProperties = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+   return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -101,7 +99,6 @@ export const updateProperty = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Property not found" });
     }
-    
     await createNotification({
       userId: updatedProperty.owner,
       message: `Property (${updatedProperty.name}) has been updated successfully.`,
@@ -114,10 +111,10 @@ export const updateProperty = async (req, res) => {
       message: `Property (${updatedProperty.name}) has been updated successfully.`,
       urlPath: "Property",
     });
-    res.json({ success: true, data: updatedProperty });
+   return res.json({ success: true, data: updatedProperty });
   } catch (error) {
     console.error("Error updating property:", error);
-    res.status(400).json({ success: false, message: error.message });
+   return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -133,11 +130,11 @@ export const deleteProperty = async (req, res) => {
     }
     await Property.deleteOne({ _id: deletedProperty._id });
 
-    res.json({
+   return res.json({
       success: true,
       message: "Property deleted successfully",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };

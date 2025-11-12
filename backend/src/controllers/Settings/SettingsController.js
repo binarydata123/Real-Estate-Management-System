@@ -9,13 +9,13 @@ export const getAgencySettings = async (req, res) => {
       return res.status(404).json({ message: "Agency not found" });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: agency,
     });
   } catch (error) {
     console.error("Error fetching agency settings:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+   return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -65,13 +65,13 @@ export const updateAgencySettings = async (req, res) => {
     Object.assign(agency, mergedData);
     await agency.save();
 
-    res.status(200).json({
+   return res.status(200).json({
       success: true,
       message: "Agency settings updated successfully",
       data: agency,
     });
   } catch (error) {
     console.error("Error updating agency settings:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+     return res.status(500).json({ message: "Server error", error: error.message });
   }
 };

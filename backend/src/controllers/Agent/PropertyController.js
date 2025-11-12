@@ -7,7 +7,7 @@ export const createProperty = async (req, res) => {
     const { body } = req;
     const files = req.files || [];
     let imageEntries;
-    if(files){
+    if (files) {
       imageEntries = files.map((file, index) => ({
         url: file.filename,
         alt: file.originalname,
@@ -87,7 +87,7 @@ export const createProperty = async (req, res) => {
       // No actions needed for this informational notification
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Property created successfully.",
       data: savedProperty,
@@ -101,7 +101,7 @@ export const createProperty = async (req, res) => {
         errors: error.errors,
       });
     }
-    res.status(500).json({
+  return res.status(500).json({
       success: false,
       message: error.message || "An internal server error occurred.",
     });
@@ -179,7 +179,7 @@ export const updateProperty = async (req, res) => {
       existingImageFilenames.includes(img.url)
     );
 
-    let allImages = [...keptImages, ...newImageEntries];
+    const allImages = [...keptImages, ...newImageEntries];
 
     const primaryImageIdentifier = body.primaryImageIdentifier;
     let primarySet = false;
@@ -237,7 +237,7 @@ export const updateProperty = async (req, res) => {
     });
 
     // 7. Send response
-    res.status(200).json({
+   return res.status(200).json({
       success: true,
       message: "Property updated successfully.",
       data: updatedProperty,
@@ -251,7 +251,7 @@ export const updateProperty = async (req, res) => {
         errors: error.errors,
       });
     }
-    res.status(500).json({
+   return res.status(500).json({
       success: false,
       message: error.message || "An internal server error occurred.",
     });
@@ -266,10 +266,10 @@ export const getSingleProperty = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Property not found" });
     }
-    res.status(200).json({ success: true, data: property });
+  return res.status(200).json({ success: true, data: property });
   } catch (error) {
     console.error("Error fetching property:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message || "Server error",
     });
@@ -373,7 +373,7 @@ export const deleteProperty = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Property not found"
-      })
+      });
     }
     await Notification.create({
       userId: req.user._id,
@@ -390,17 +390,17 @@ export const deleteProperty = async (req, res) => {
       urlPath: `/agent/properties/view/${property._id}`,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Property deleted successfully"
-    })
+    });
 
   } catch (err) {
     console.error("Error deleting property:", err);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: err.message || "Server error",
 
-    })
+    });
   }
-}
+};

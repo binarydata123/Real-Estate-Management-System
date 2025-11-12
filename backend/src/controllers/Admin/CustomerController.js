@@ -11,7 +11,7 @@ export const getCustomers = async (req, res) => {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    let searchQuery = {};
+    const searchQuery = {};
 
     if (agencyId) {
       searchQuery.agencyId = agencyId;
@@ -29,8 +29,8 @@ export const getCustomers = async (req, res) => {
 
         const agencyIds = agencies.map(a => a._id);
         searchQuery.$or.push(
-            { fullName: { $regex: search, $options: "i" }}, 
-            //{ email: {$regex: search, $options: "i"}}, 
+            { fullName: { $regex: search, $options: "i" }},
+            //{ email: {$regex: search, $options: "i"}},
             { phoneNumber: {$regex: search, $options: "i"}},
             { owner_name: {$regex: search, $options: "i"}},
             { agencyId: { $in: agencyIds } }
@@ -64,7 +64,7 @@ export const getCustomers = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: customers,
       pagination: {
@@ -75,7 +75,7 @@ export const getCustomers = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+   return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -95,7 +95,6 @@ export const updateCustomer = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    
     await createNotification({
       userId: updatedCustomer.owner,
       message: `Customer (${updatedCustomer.name}) has been updated successfully.`,
@@ -108,10 +107,10 @@ export const updateCustomer = async (req, res) => {
       message: `Customer (${updatedCustomer.name}) has been updated successfully.`,
       urlPath: "Customer",
     });
-    res.json({ success: true, data: updatedCustomer });
+   return res.json({ success: true, data: updatedCustomer });
   } catch (error) {
     console.error("Error updating customer:", error);
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -127,11 +126,11 @@ export const deleteCustomer = async (req, res) => {
     }
     await Customer.deleteOne({ _id: deletedCustomer._id });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Customer deleted successfully",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+   return res.status(400).json({ success: false, message: error.message });
   }
 };

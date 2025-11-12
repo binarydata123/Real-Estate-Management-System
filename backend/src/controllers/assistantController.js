@@ -42,10 +42,10 @@ export const askQuestion = async (req, res) => {
             max_tokens: 100,
         });
 
-        res.json({ answer: completion.choices[0].message.content.trim() });
+       return res.json({ answer: completion.choices[0].message.content.trim() });
     } catch (error) {
         console.error("Error calling OpenAI:", error);
-        res.status(500).json({ message: "Failed to get a response from the AI assistant." });
+       return res.status(500).json({ message: "Failed to get a response from the AI assistant." });
     }
 };
 
@@ -68,9 +68,9 @@ export const generateSpeech = async (req, res) => {
 
         res.setHeader("Content-Type", "audio/mpeg");
         // Stream the audio buffer back to the client.
-        res.send(Buffer.from(await mp3.arrayBuffer()));
+       return res.send(Buffer.from(await mp3.arrayBuffer()));
     } catch (error) {
         console.error("Error calling OpenAI TTS:", error);
-        res.status(500).json({ message: "Failed to generate speech from the AI assistant." });
+       return res.status(500).json({ message: "Failed to generate speech from the AI assistant." });
     }
 };

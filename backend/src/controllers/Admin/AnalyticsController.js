@@ -146,7 +146,7 @@ export const getAnalyticsData = async (req, res) => {
 };
 
 // 🕒 Utility to show “x time ago”
-function timeAgo(date) {
+function timeAgo (date) {
   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
   const intervals = [
     { label: 'y', seconds: 31536000 },

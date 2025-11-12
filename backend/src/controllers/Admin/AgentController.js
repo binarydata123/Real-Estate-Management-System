@@ -13,7 +13,7 @@ export const getAgents = async (req, res) => {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    let searchQuery = { role: "agent" };
+    const searchQuery = { role: "agent" };
 
     if (search || status) {
       searchQuery.$or = [];
@@ -27,8 +27,8 @@ export const getAgents = async (req, res) => {
 
         const agencyIds = agencies.map(a => a._id);
         searchQuery.$or.push(
-            { name: { $regex: search, $options: "i" }}, 
-            //{ email: {$regex: search, $options: "i"}}, 
+            { name: { $regex: search, $options: "i" }},
+            //{ email: {$regex: search, $options: "i"}},
             { phone: {$regex: search, $options: "i"}},
             { agencyId: { $in: agencyIds } }
         );
@@ -68,7 +68,6 @@ export const getAgents = async (req, res) => {
       })
     );
 
-    
     if (!agentsWithCounts || agentsWithCounts.length === 0) {
       return res.status(200).json({
         success: true,
@@ -83,7 +82,7 @@ export const getAgents = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: agentsWithCounts,
       pagination: {
@@ -94,7 +93,7 @@ export const getAgents = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+   return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -114,7 +113,6 @@ export const updateAgent = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Agent not found" });
     }
-    
     await createNotification({
       userId: updatedAgent.owner,
       message: `Agent (${updatedAgent.name}) has been updated successfully.`,
@@ -127,10 +125,10 @@ export const updateAgent = async (req, res) => {
       message: `Agent (${updatedAgent.name}) has been updated successfully.`,
       urlPath: "Agent",
     });
-    res.json({ success: true, data: updatedAgent });
+   return res.json({ success: true, data: updatedAgent });
   } catch (error) {
     console.error("Error updating agent:", error);
-    res.status(400).json({ success: false, message: error.message });
+  return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -146,11 +144,11 @@ export const deleteAgent = async (req, res) => {
     }
     await User.deleteOne({ _id: deletedAgent._id });
 
-    res.json({
+   return res.json({
       success: true,
       message: "Agent deleted successfully",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+   return res.status(400).json({ success: false, message: error.message });
   }
 };

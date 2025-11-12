@@ -5,7 +5,7 @@ import { meetingReminderCronJob } from "./cronJobFunctions/MeetingReminderCronJo
  * Runs multiple cron jobs from a config object
  * @param {Array} jobs - Array of jobs with schedule and task
  */
-export function startCronJob() {
+export function startCronJob () {
   cron.schedule("0 10 * * *", () => {
     meetingReminderCronJob("today");
   });
