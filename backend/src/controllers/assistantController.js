@@ -60,7 +60,7 @@ export const generateSpeech = async (req, res) => {
         // Using OpenAI's TTS for a simple, cost-effective solution during development.
         const mp3 = await openai.audio.speech.create({
             model: 'tts-1', // A cost-effective and fast model.
-            voice: 'alloy',  // A clear, professional female voice.
+            voice: 'alloy',// A clear, professional female voice.
             input: text,
             response_format: 'mp3',
             speed: 0.95,

@@ -1,4 +1,3 @@
-import { Agency } from "../../models/Agent/AgencyModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js";

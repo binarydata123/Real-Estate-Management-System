@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const protectedRoutes = ["/admin", "/agent"];
     const isProtectedRoute = protectedRoutes.some((route) =>
-      pathname.startsWith(route),
+      pathname.startsWith(route)
     );
 
     if (!loading && !user && isProtectedRoute) {
@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       signOut,
       router,
     }),
-    [user, session, loading, router, signIn, completeSignIn],
+    [user, session, loading, router, signIn, completeSignIn]
   );
 
   if (loading) {
