@@ -68,7 +68,7 @@ const eslintConfig = [
       /* 💄 --- Code Style / Consistency --- */
 
       "semi": ["error", "always"], // Enforce consistent semicolon usage
-      "comma-dangle": ["error", "always-multiline"], // Trailing commas for cleaner diffs
+      "comma-dangle": ["off", "always-multiline"], // Trailing commas for cleaner diffs
       "object-curly-spacing": ["error", "always"], // Consistent spacing in object literals
       "arrow-spacing": "off", // Ensure spacing around arrow functions
       "keyword-spacing": "off", // Ensure spacing around keywords
