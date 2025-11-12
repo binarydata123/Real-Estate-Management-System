@@ -204,19 +204,19 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             if (propertyData.images && propertyData.images.length > 0) {
               const imageUrls = propertyData.images.map(
                 (img: { url: string }) =>
-                  `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${img.url}`,
+                  `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${img.url}`
               );
               setImages(imageUrls);
             }
           } else {
             showToast(
               res.message || "Failed to fetch property details.",
-              "error",
+              "error"
             );
             router.push("/agent/properties");
           }
         } catch (err) {
-          showErrorToast("Error",err);
+          showErrorToast("Error", err);
         } finally {
           setLoading(false);
         }
@@ -243,7 +243,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       // Validate that at least one image has been uploaded or exists.
       setValue(
         "images",
-        images.length > 0 ? ["dummy_value_for_validation"] : [],
+        images.length > 0 ? ["dummy_value_for_validation"] : []
       );
       fieldsToValidate = ["images"];
     }
@@ -265,7 +265,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (value !== null && value !== undefined) {
             if (Array.isArray(value)) {
               value.forEach((item) =>
-                formData.append(`${key}[]`, String(item)),
+                formData.append(`${key}[]`, String(item))
               );
             } else {
               formData.append(key, String(value));
@@ -282,7 +282,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (response.success && response.data?._id) {
             showToast(
               "Basic info saved. You can now add images and features.",
-              "success",
+              "success"
             );
             router.push(`/agent/edit-property/${response.data._id}?step=2`);
           } else {
@@ -292,7 +292,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (axios.isAxiosError(err) && err.response) {
             showToast(
               err.response.data.message || "Failed to save property.",
-              "error",
+              "error"
             );
           } else if (err instanceof Error) {
             showToast(err.message || "An unexpected error occurred.", "error");

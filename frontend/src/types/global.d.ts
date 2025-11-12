@@ -46,9 +46,13 @@ declare global {
     url: string;
     alt?: string;
     isPrimary?: boolean;
+    _id?: string;
   }
 
   interface Property {
+    owner_contact: string | number;
+    rera_status: string;
+    flooring_type: string;
     size_unit: string;
     size: ReactNode;
     _id?: string;
@@ -422,8 +426,6 @@ declare global {
     reraStatus: string[];
   }
 }
-
-
 
 export {
   RegistrationData,

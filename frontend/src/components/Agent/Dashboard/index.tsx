@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
 import DashboardStats from "./DashboardStats";
@@ -28,7 +29,7 @@ interface DashboardData {
 
 export const AgentDashboard = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null,
+    null
   );
   const [showShareModal, setShowShareModal] = useState(false);
   const [dashboardData,setDashboardData]=useState<DashboardData|null>(null);
@@ -47,7 +48,7 @@ export const AgentDashboard = () => {
   useEffect(() => {
     getData();
   }, []);
-  const recentProperties: Property[] = [
+  const recentProperties: any[] = [
     {
       id: "1",
       title: "Luxury 3BHK Apartment",
@@ -168,9 +169,9 @@ export const AgentDashboard = () => {
               property={property}
               onView={handleViewProperty}
               onShare={handleShareProperty}
-            // onFavorite={(property:) =>
-            //   console.log("Favorite property:", property)
-            // }
+              // onFavorite={(property) =>
+              //   console.log("Favorite property:", property)
+              // }
             />
           ))}
         </div>

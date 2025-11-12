@@ -84,7 +84,7 @@ agencySchema.virtual("members").get(function () {
 });
 
 agencySchema.virtual('properties', {
-  ref: 'Property', // The model to use
+  ref: 'Property',// The model to use
   localField: '_id',// Field in Agency
   foreignField: 'agencyId',// Field in Property
 });
