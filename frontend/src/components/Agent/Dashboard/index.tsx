@@ -19,13 +19,13 @@ export const AgentDashboard = () => {
     null,
   );
   const [showShareModal, setShowShareModal] = useState(false);
-  // const [data,setData]=useState({})
+  const [data,setData]=useState({});
 
   const getData=async() => {
     try {
          const res =await getDashboardData();
          if (res.success){
-          // setData(res.data);
+          setData(res.data);
          }
     } catch (error) {
       showErrorToast("Error",error);
@@ -127,7 +127,7 @@ export const AgentDashboard = () => {
       </div>
 
       {/* Stats */}
-      <DashboardStats />
+      <DashboardStats  value={data} />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-8 gap-2">

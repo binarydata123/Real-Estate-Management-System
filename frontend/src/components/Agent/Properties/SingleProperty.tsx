@@ -271,7 +271,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   const handleSpeakSummary = useCallback(() => {
     if (!audioContextRef.current) {
       setError(
-        "Audio context not ready. Please click anywhere on the page first."
+        "Audio context not ready. Please click anywhere on the page first.",
       );
       return;
     }
@@ -291,45 +291,45 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     });
   }, [assistantStatus, generateSummaryText, speak]);
 
-  const toggleListening = () => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition; // For browser compatibility
-    if (!SpeechRecognition) {
-      setError("Voice recognition is not supported in this browser.");
-      return;
-    }
+  // const toggleListening = () => {
+  //   const SpeechRecognition =
+  //     (window as any).SpeechRecognition ||
+  //     (window as any).webkitSpeechRecognition; // For browser compatibility
+  //   if (!SpeechRecognition) {
+  //     setError("Voice recognition is not supported in this browser.");
+  //     return;
+  //   }
 
-    const recognition = recognitionRef.current || new SpeechRecognition();
-    recognition.lang = "en-IN";
-    recognition.interimResults = false;
+  //   const recognition = recognitionRef.current || new SpeechRecognition();
+  //   recognition.lang = "en-IN";
+  //   recognition.interimResults = false;
 
-    recognition.onstart = () => {
-      setIsListening(true);
-      setAssistantStatus("listening");
-    };
-    recognition.onresult = (event: any) => {
-      const question = event.results[0][0].transcript;
-      setIsListening(false); // Stop listening visually once a result is received
-      handleQuestion(question);
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      setAssistantStatus((currentStatus) =>
-        currentStatus === "listening" ? "idle" : currentStatus
-      );
-    };
-    recognition.onerror = (event: any) => {
-      if (event.error !== "no-speech") {
-        setError(`Error during recognition: ${event.error}`);
-      }
-      setAssistantStatus("idle");
-      setIsListening(false);
-    };
+  //   recognition.onstart = () => {
+  //     setIsListening(true);
+  //     setAssistantStatus("listening");
+  //   };
+  //   recognition.onresult = (event: any) => {
+  //     const question = event.results[0][0].transcript;
+  //     setIsListening(false); // Stop listening visually once a result is received
+  //     handleQuestion(question);
+  //   };
+  //   recognition.onend = () => {
+  //     setIsListening(false);
+  //     setAssistantStatus((currentStatus) =>
+  //       currentStatus === "listening" ? "idle" : currentStatus
+  //     );
+  //   };
+  //   recognition.onerror = (event: any) => {
+  //     if (event.error !== "no-speech") {
+  //       setError(`Error during recognition: ${event.error}`);
+  //     }
+  //     setAssistantStatus("idle");
+  //     setIsListening(false);
+  //   };
 
-    recognitionRef.current = recognition;
-    recognition.start();
-  };
+  //   recognitionRef.current = recognition;
+  //   recognition.start();
+  // };
 
   const stopAll = () => {
     if (audioSourceRef.current) {
@@ -362,8 +362,8 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         showToast(response.message, "success");
         router.back();
       }
-    } catch (error) {
-      showErrorToast("Failed to delete property:", error);
+    } catch (err) {
+      showErrorToast("Failed to delete property:", err);
     }
   };
   return (

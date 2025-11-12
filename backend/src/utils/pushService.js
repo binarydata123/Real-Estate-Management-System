@@ -32,7 +32,7 @@ export async function sendPushNotification({
     const message = `No subscriptions found for query: ${JSON.stringify(
       query
     )}`;
-    console.log(message);
+
     return { success: false, message, sent: 0 };
   }
 
@@ -51,7 +51,6 @@ export async function sendPushNotification({
   await Promise.allSettled(
     subscriptions.map((s) =>
       webPush.sendNotification(s.subscription, payload).catch(async (err) => {
-        console.error("Push failed:", err.message);
         if (err.statusCode === 410 || err.statusCode === 404) {
           await PushNotificationSubscription.deleteOne({
             userId: s.userId,
@@ -62,7 +61,6 @@ export async function sendPushNotification({
     )
   );
 
-  console.log(`✅ Sent push to ${subscriptions.length} subscribers`);
   return {
     success: true,
     message: `Sent push to ${subscriptions.length} subscribers`,

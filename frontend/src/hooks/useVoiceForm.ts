@@ -109,9 +109,8 @@ export function useVoiceForm(
       }
 
       if (repeatCountRef.current >= 2) {
-        console.log("⚠️ Same answer repeated twice — waiting for new input.");
         await speakWithOpenAI(
-          `You already said that. Please provide a different answer for ${field.label}.`
+          `You already said that. Please provide a different answer for ${field.label}.`,
         );
 
         // Don't move forward — wait for new input
@@ -125,13 +124,13 @@ export function useVoiceForm(
 
         // Find all required fields that are empty
         const requiredFields = filteredFields.filter(
-          (f) => f.required && !getValues(f.name)
+          (f) => f.required && !getValues(f.name),
         );
 
         if (requiredFields.length > 0) {
           // 🧠 Speak required fields one by one
           await speakWithOpenAI(
-            `Some required fields are missing. Let's fill them before continuing.`
+            `Some required fields are missing. Let's fill them before continuing.`,
           );
 
           for (const missingField of requiredFields) {
@@ -142,7 +141,6 @@ export function useVoiceForm(
               tempRecognition.lang = "en-US";
               tempRecognition.onresult = async (evt: any) => {
                 const answer = evt.results[0][0].transcript.trim().toLowerCase();
-                console.log(`🗣️ Heard for ${missingField.label}:`, answer);
                 setValue(missingField.name, answer);
                 await trigger(missingField.name);
                 tempRecognition.stop();
@@ -156,7 +154,7 @@ export function useVoiceForm(
         } else {
           // ✅ Safe to skip all
           await speakWithOpenAI(
-            `Okay, skipping all fields in step ${currentStep}. You can continue to the next step.`
+            `Okay, skipping all fields in step ${currentStep}. You can continue to the next step.`,
           );
         }
 
@@ -170,7 +168,6 @@ export function useVoiceForm(
         speechResult.toLowerCase() === "skip" ||
         speechResult.toLowerCase() === "skip this field"
       ) {
-        console.log(`⏭️ Skipping field: ${field.label}`);
 
         // Speak confirmation for skipping
         await speakWithOpenAI(`Okay, skipping ${field.label}.`);
@@ -180,7 +177,7 @@ export function useVoiceForm(
           setCurrentFieldIndex((prev) => prev + 1);
         } else {
           await speakWithOpenAI(
-            `All Step ${currentStep} fields are completed. You can continue to the next step.`
+            `All Step ${currentStep} fields are completed. You can continue to the next step.`,
           );
           recognitionRef.current.stop();
         }
@@ -196,7 +193,6 @@ export function useVoiceForm(
 
         // ✅ If user says "next" or "done", move to next field
         if (["next", "done", "go next", "continue"].includes(spokenValue)) {
-          console.log(`➡️ Moving to next field after selecting: ${currentValues}`);
           await speakWithOpenAI(`Okay, moving to next field.`);
           if (currentFieldIndex < filteredFields.length - 1) {
             setCurrentFieldIndex((prev) => prev + 1);
@@ -229,7 +225,7 @@ export function useVoiceForm(
 
         // ✅ Try to match spoken value with an option
         const matchedOption = optionsList.find(
-          (opt) => opt.value.toLowerCase() === spokenValue
+          (opt) => opt.value.toLowerCase() === spokenValue,
         );
 
         if (matchedOption) {
@@ -239,14 +235,11 @@ export function useVoiceForm(
               shouldDirty: true,
               shouldValidate: true,
             });
-            console.log(`✅ Added value: ${matchedOption.value}`);
             await speakWithOpenAI(`${matchedOption.value} added for ${field.label}. You can say another option or say "next" to continue.`);
           } else {
-            console.log(`⚠️ Already selected: ${matchedOption.value}`);
             await speakWithOpenAI(`${matchedOption.value} is already selected. You can say another option or say "next" to continue.`);
           }
         } else {
-          console.log(`❌ No match found for "${spokenValue}"`);
           await speakWithOpenAI(`I could not find a matching option for ${spokenValue}. Please try again.`);
         }
 
@@ -254,9 +247,8 @@ export function useVoiceForm(
         setIsProcessing(false);
         startListening(filteredFields);
         return;
-      } else {
-        setValue(field.name, speechResult);
       }
+      setValue(field.name, speechResult);
       // Check if field type is checkbox (Step 3)
       // if (field.fieldType === 'checkbox') {
       //     const currentValues: string[] = getValues(field.name) || [];
@@ -271,7 +263,7 @@ export function useVoiceForm(
 
       if (!isValid || !getValues(field.name)) {
         await speakWithOpenAI(
-          `${field.label} is required. Please say the ${field.label} again.`
+          `${field.label} is required. Please say the ${field.label} again.`,
         );
         setIsProcessing(false);
         startListening(filteredFields);
@@ -282,7 +274,7 @@ export function useVoiceForm(
         setCurrentFieldIndex((prev) => prev + 1);
       } else {
         await speakWithOpenAI(
-          `All Step ${currentStep} fields are completed. You can continue to the next step.`
+          `All Step ${currentStep} fields are completed. You can continue to the next step.`,
         );
         recognitionRef.current.stop();
       }
@@ -298,7 +290,7 @@ export function useVoiceForm(
     if (!voiceReady) return;
 
     const filteredFields = fields.filter(
-      (f) => !f.step || f.step === currentStep
+      (f) => !f.step || f.step === currentStep,
     );
 
     if (currentFieldIndex >= filteredFields.length) return;
@@ -360,7 +352,6 @@ export function useVoiceForm(
         await speakWithOpenAI(`Please Enter ${field.label}`);
       }
 
-      
 
 
       // Start listening for user answer
@@ -409,7 +400,6 @@ export function useVoiceForm(
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setVoiceReady(false);
-      console.log("🎙️ Voice stopped manually.");
     }
   };
 

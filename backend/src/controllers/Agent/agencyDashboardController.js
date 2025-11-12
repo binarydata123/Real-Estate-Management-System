@@ -1,8 +1,6 @@
-import { Agency } from "../../models/Agent/AgencyModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js";
-
 export const agencyDashboardData = async (req, res) => {
   try {
     const agencyId = req.user.agencyId._id;
@@ -13,6 +11,12 @@ export const agencyDashboardData = async (req, res) => {
       });
     }
 
+     const startOfDay = new Date();
+
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setUTCHours(23, 59, 59, 999);
+    const todayMeetings=await Meetings.find({agencyId,date: { $gte: startOfDay, $lte: endOfDay },});
     const [totalProperties, totalCustomers, totalMeetings,] =
       await Promise.all([
         Property.countDocuments({ agencyId }),
@@ -20,10 +24,14 @@ export const agencyDashboardData = async (req, res) => {
         Meetings.countDocuments({ agencyId }),
       ]);
 
+
+
+
     const data = {
       totalProperties,
       totalCustomers,
       totalMeetings,
+      todayMeetings
     };
 
     return res.status(200).json({
@@ -32,10 +40,10 @@ export const agencyDashboardData = async (req, res) => {
       data,
     });
   } catch (error) {
-    console.error("Error in agencyDashboardData:", error);
     return res.status(500).json({
       success: false,
       message: error.message || "Server error while fetching dashboard data.",
     });
   }
 };
+
