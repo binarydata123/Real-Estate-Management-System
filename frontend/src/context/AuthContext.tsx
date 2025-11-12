@@ -143,7 +143,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const { token, user: userData } = response.data;
 
       const newSession: Session = {
-        access_token: response.data.token,
+        access_token:token,
       };
 
       setSession(newSession);
