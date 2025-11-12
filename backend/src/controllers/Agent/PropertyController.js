@@ -143,7 +143,7 @@ export const updateProperty = async (req, res) => {
       "total_floors",
     ];
     numericFields.forEach((field) => {
-      if (body[field] != null && body[field] !== "") {
+      if (body[field] !== null && body[field] !== "") {
         updateData[field] = Number(body[field]);
       } else if (body[field] === "") {
         // Allow unsetting numeric fields by sending an empty string

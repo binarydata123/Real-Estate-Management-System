@@ -1,8 +1,4 @@
 import { User } from "../../models/Common/UserModel.js";
-import multer from "multer";
-import path from "path";
-import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
-import { sendPushNotification } from "../../utils/pushService.js";
 
 // Configure storage
 // const storage = multer.diskStorage({

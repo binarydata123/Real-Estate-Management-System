@@ -1,6 +1,5 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { User } from "../../models/Common/UserModel.js";
-import bcrypt from "bcryptjs";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
