@@ -146,8 +146,9 @@ export function useVoiceForm(
               ).webkitSpeechRecognition();
               tempRecognition.lang = "en-US";
               tempRecognition.onresult = async (evt: any) => {
-                const answer = evt.results[0][0].transcript.trim().toLowerCase();
-                console.log(`🗣️ Heard for ${missingField.label}:`, answer);
+                const answer = evt.results[0][0].transcript
+                  .trim()
+                  .toLowerCase();
                 setValue(missingField.name, answer);
                 await trigger(missingField.name);
                 tempRecognition.stop();
@@ -177,8 +178,6 @@ export function useVoiceForm(
         speechResult.toLowerCase() === "skip" ||
         speechResult.toLowerCase() === "skip this field"
       ) {
-        console.log(`⏭️ Skipping field: ${field.label}`);
-
         // Speak confirmation for skipping
         await speakWithOpenAI(`Okay, skipping ${field.label}.`);
 
@@ -247,22 +246,22 @@ export function useVoiceForm(
               shouldDirty: true,
               shouldValidate: true,
             });
-            console.log(`✅ Added value: ${matchedOption.value}`);
-            await speakWithOpenAI(`${matchedOption.value} added for ${field.label}. You can say another option or say "next" to continue.`);
           } else {
-            console.log(`⚠️ Already selected: ${matchedOption.value}`);
-            await speakWithOpenAI(`${matchedOption.value} is already selected. You can say another option or say "next" to continue.`);
+            await speakWithOpenAI(
+              `${matchedOption.value} is already selected. You can say another option or say "next" to continue.`
+            );
           }
         } else {
-          console.log(`❌ No match found for "${spokenValue}"`);
-          await speakWithOpenAI(`I could not find a matching option for ${spokenValue}. Please try again.`);
+          await speakWithOpenAI(
+            `I could not find a matching option for ${spokenValue}. Please try again.`
+          );
         }
 
         // 👂 Keep listening for more values in the same field
         setIsProcessing(false);
         startListening(filteredFields);
         return;
-      } else {
+      } else if (field.fieldType !== "checkbox") {
         setValue(field.name, speechResult);
       }
       //  else {
@@ -430,9 +429,6 @@ export function useVoiceForm(
       } else {
         await speakWithOpenAI(`Please Enter ${field.label}`);
       }
-
-      
-
 
       // Start listening for user answer
       startListening(filteredFields);
