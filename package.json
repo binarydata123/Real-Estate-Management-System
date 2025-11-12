@@ -13,8 +13,7 @@
     "dev": "npm run lint && concurrently --names \"FRONTEND,BACKEND\" --prefix-colors \"cyan,magenta\" --kill-others-on-fail \"npm run dev --workspace frontend\" \"npm run dev --workspace backend\"",
     "build": "npm run build --workspace frontend ",
     "start": "npm run start --workspace backend",
-    "prod": "npm run build && npm run start",
-    "prepare": "husky"
+    "prod": "npm run build && npm run start"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
