@@ -4,7 +4,7 @@ import { protect } from "../../../middleware/authMiddleware.js";
 const router=express.Router();
 
 
-router.get("/",protect(["agent"]),getAgentProfile)
-router.post("/update",protect(["agent"]),updateAgentProfile)
+router.get("/",protect(["agent"]),getAgentProfile);
+router.post("/update",protect(["agent"]),updateAgentProfile);
 
 export default router;

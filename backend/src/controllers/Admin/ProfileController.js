@@ -1,8 +1,8 @@
 import { User } from "../../models/Common/UserModel.js";
-import multer from "multer";
-import path from "path";
-import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
-import { sendPushNotification } from "../../utils/pushService.js";
+// import multer from "multer";
+// import path from "path";
+// import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
+// import { sendPushNotification } from "../../utils/pushService.js";
 
 // Configure storage
 // const storage = multer.diskStorage({
@@ -25,9 +25,9 @@ export const getAdminProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: "Admin not found" });
     }
 
-    res.json({ success: true, data: admin });
+    return res.json({ success: true, data: admin });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -53,13 +53,13 @@ export const updateAdminProfile = async (req, res) => {
             return res.status(404).json({ success: false, message: "Admin not found" });
         }
 
-        res.json({
+       return res.json({
             success: true,
             message: "Profile updated successfully",
             data: updatedAdmin,
         });
     } catch (error) {
         console.error("Update Admin Error:", error);
-        res.status(500).json({ success: false, message: error.message });
+       return res.status(500).json({ success: false, message: error.message });
     }
 };

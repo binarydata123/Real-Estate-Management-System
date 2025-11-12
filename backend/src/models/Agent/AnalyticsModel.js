@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 const analyticsSchema = new mongoose.Schema({
   agency: { type: mongoose.Schema.Types.ObjectId, ref: "Agency" },
   totalProperties: Number,

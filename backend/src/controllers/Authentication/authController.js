@@ -79,7 +79,7 @@ const registrationController = {
       await session.commitTransaction();
 
       // 7. Respond with success and token
-      res.status(201).json({
+    return res.status(201).json({
         success: true,
         message: "Agency registered successfully!",
         token: generateToken(createdUser._id, createdUser.role),
@@ -96,7 +96,7 @@ const registrationController = {
       });
     } catch (error) {
       await session.abortTransaction();
-      res.status(400).json({
+   return res.status(400).json({
         message: error.message || "Server error during registration.",
       });
     } finally {
@@ -209,7 +209,7 @@ const registrationController = {
           .status(400)
           .json({ message: "Invalid login type specified." });
       }
-      res.json({
+    return res.json({
         success: true,
         message: "Login successful!",
         token: generateToken(user._id, user.role),
@@ -232,7 +232,7 @@ const registrationController = {
       });
     } catch (error) {
       console.error("Login error:", error); // Good to have for debugging
-      res.status(500).json({ message: "Server error during login." });
+     return res.status(500).json({ message: "Server error during login." });
     }
   },
 
@@ -264,7 +264,7 @@ const registrationController = {
       }
 
       // Successfully selected, now generate token and send full user object
-      res.json({
+    return res.json({
         success: true,
         message: "Login successful!",
         token: generateToken(user._id, user.role),
@@ -284,7 +284,8 @@ const registrationController = {
         },
       });
     } catch (error) {
-      res
+      console.log(error);
+     return res
         .status(500)
         .json({ message: "Server error during agency selection." });
     }
@@ -298,8 +299,10 @@ const registrationController = {
         return res.status(404).json({ message: "User not found." });
       }
       // if email found then send email
+  return res.status(200).json({message:"Email Sent"});
     } catch (error) {
-      res.status(500).json({ message: "Server error during password reset." });
+      console.log(error);
+    return res.status(500).json({ message: "Server error during password reset." });
     }
   },
 
@@ -327,7 +330,7 @@ const registrationController = {
           .json({ message: "User associated with this session not found." });
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Session is active.",
         data: {
@@ -353,7 +356,7 @@ const registrationController = {
     } catch (error) {
       // This catch block is for unexpected errors within this controller.
       console.error("Session check controller error:", error);
-      res.status(500).json({ message: "Server error during session check." });
+      return res.status(500).json({ message: "Server error during session check." });
     }
   },
 };

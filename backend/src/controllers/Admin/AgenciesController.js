@@ -10,7 +10,7 @@ export const getAgencies = async (req, res) => {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    let searchQuery = {};
+    const searchQuery = {};
 
     if (search || status) {
       searchQuery.$or = [];
@@ -32,7 +32,6 @@ export const getAgencies = async (req, res) => {
       .limit(limitNumber)
       .populate('properties');
 
-    
 
     if (!agency || agency.length === 0) {
       return res.status(200).json({
@@ -48,7 +47,7 @@ export const getAgencies = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: agency,
       pagination: {
@@ -59,7 +58,7 @@ export const getAgencies = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -121,10 +120,10 @@ export const updateAgency = async (req, res) => {
     //   });
     // }
 
-    res.json({ success: true, data: updatedAgency });
+    return res.json({ success: true, data: updatedAgency });
   } catch (error) {
     console.error("Error updating agency:", error);
-    res.status(400).json({ success: false, message: error.message });
+   return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -140,11 +139,11 @@ export const deleteAgency = async (req, res) => {
     }
     await Agency.deleteOne({ _id: deletedAgency._id });
 
-    res.json({
+   return res.json({
       success: true,
       message: "Agency deleted successfully",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };

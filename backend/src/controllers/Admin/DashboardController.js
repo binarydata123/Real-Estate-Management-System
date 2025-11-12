@@ -1,6 +1,5 @@
 import { User } from "../../models/Common/UserModel.js";
 import { Agency } from "../../models/Agent/AgencyModel.js";
-import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js";
 
 export const getDashboardData = async (req, res) => {

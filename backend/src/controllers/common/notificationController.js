@@ -31,7 +31,7 @@ export const getUserNotifications = async (req, res) => {
     if (type && type !== "unread" ) {
       query.type = type; // e.g. "unread", "meeting_scheduled", etc.
     }
-    if (type == "unread") {
+    if (type === "unread") {
       query.read = false;
     }
 
@@ -99,10 +99,10 @@ export const markAsRead = async (req, res) => {
         .json({ success: false, message: "Notification not found" });
     }
 
-    res.json({ success: true, data: notification });
+  return res.json({ success: true, data: notification });
   } catch (error) {
     console.error("Error marking notification as read:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -120,10 +120,10 @@ export const deleteNotification = async (req, res) => {
         .json({ success: false, message: "Notification not found" });
     }
 
-    res.json({ success: true, message: "Notification deleted successfully" });
+  return res.json({ success: true, message: "Notification deleted successfully" });
   } catch (error) {
     console.error("Error deleting notification:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+  return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
