@@ -70,7 +70,11 @@ export const createProperty = async (req, res) => {
     const property = new Property(propertyData);
     const savedProperty = await property.save();
 
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
+    });
     // Create a notification for the agency
+     if (agencySettings?.notifications?.propertyUpdates ) {
     await Notification.create({
       userId: req.user._id,
       agencyId: savedProperty.agencyId,
@@ -78,11 +82,8 @@ export const createProperty = async (req, res) => {
       type: "property_added",
       link: `/agent/properties/view/${savedProperty._id}`, // A potential link to view the property
     });
-    const agencySettings = await AgencySettings.findOne({
-      userId: req.user._id,
-    });
+}
     if (agencySettings?.notifications?.pushNotifications)
-      // Send push notification to the agency admin/agent who created it
       await sendPushNotification({
         userId: req.user._id,
         title: "New Property Added",
@@ -224,16 +225,17 @@ export const updateProperty = async (req, res) => {
       }
     );
 
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
+    });
     // 6. Post-update actions (notifications)
+     if (agencySettings?.notifications?.propertyUpdates)
     await Notification.create({
       userId: req.user._id,
       agencyId: updatedProperty.agencyId,
       message: `Property "${updatedProperty.title}" was updated.`,
       type: "property_updated",
       link: `/agent/properties/view/${updatedProperty._id}`,
-    });
-    const agencySettings = await AgencySettings.findOne({
-      userId: req.user._id,
     });
 
     if (agencySettings?.notifications?.pushNotifications)
@@ -382,15 +384,16 @@ export const deleteProperty = async (req, res) => {
         message: "Property not found",
       });
     }
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
+    });
+         if (agencySettings?.notifications?.propertyUpdates)
     await Notification.create({
       userId: req.user._id,
       agencyId: property.agencyId,
       message: `Property "${property.title}" was deleted.`,
       type: "property_deleted",
       link: `/agent/properties/view/${property._id}`,
-    });
-    const agencySettings = await AgencySettings.findOne({
-      userId: req.user._id,
     });
 
     if (agencySettings?.notifications?.pushNotifications)

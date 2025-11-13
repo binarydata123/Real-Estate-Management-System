@@ -19,42 +19,43 @@ export const createNotification = async (req, res) => {
   }
 };
 
-// Get all notifications for a user
 export const getUserNotifications = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { type, page = 1, limit = 10 } = req.query; // ✅ type filter + pagination
+    const { type, page = 1, limit = 10 } = req.query;
+
+    const numericPage = Number(page) || 1;
+    const numericLimit = Number(limit) || 10;
+    const skip = (numericPage - 1) * numericLimit;
+
 
     const query = { userId };
 
-    // ✅ if type is provided, filter by type
-    if (type && type !== "unread" ) {
-      query.type = type; // e.g. "unread", "meeting_scheduled", etc.
-    }
-    if (type === "unread") {
-      query.read = false;
+    if (type) {
+      if (type === "unread") {
+        query.read = false;
+      } else if (type !== "all") {
+        // Only filter by type if NOT "all"
+        query.type = type;
+      }
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
-
-    // ✅ fetch notifications
     const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(Number(limit))
+      .limit(numericLimit)
       .lean();
 
-    // ✅ count total for pagination
     const total = await Notification.countDocuments(query);
 
-    res.json({
+    res.status(200).json({
       success: true,
       data: notifications,
       pagination: {
         total,
-        page: Number(page),
-        limit: Number(limit),
-        totalPages: Math.ceil(total / limit),
+        page: numericPage,
+        limit: numericLimit,
+        totalPages: Math.ceil(total / numericLimit),
       },
     });
   } catch (error) {

@@ -1,6 +1,5 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
-import { User } from "../../models/Common/UserModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import generateToken from "../../utils/generateToken.js";
 import { sendPushNotification } from "../../utils/pushService.js";
@@ -19,31 +18,30 @@ export const createMeeting = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    const customerUser = await User.findOne({ email: customer.email });
-    if (!customerUser) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Customer user account not found" });
-    }
     const agentToken = generateToken(req.user._id, req.user.role);
-    const customerToken = generateToken(customerUser._id, customerUser.role);
-    await createNotification({
-      agencyId: req.body.agencyId,
-      userId: user._id,
-      message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
-      type: "meeting_scheduled",
-    });
-    await createNotification({
-      userId: customerUser._id,
-      message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
-      type: "meeting_scheduled",
-    });
+    const customerToken = generateToken(customer._id, customer.role);
     const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
     });
     const customerSettings = await CustomerSettings.findOne({
-      userId: req.user._id,
+      userId: customer._id,
     });
+    if (agencySettings?.notifications?.meetingReminders) {
+      await createNotification({
+        agencyId: req.body.agencyId,
+        userId: user._id,
+        message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
+        type: "meeting_scheduled",
+      });
+    }
+    console.log(customerSettings);
+    if (customerSettings?.notifications?.meetingReminders) {
+    await createNotification({
+      userId: customer._id,
+      message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+      type: "meeting_scheduled",
+    });
+  }
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
         userId: user._id,
@@ -59,7 +57,7 @@ export const createMeeting = async (req, res) => {
 
     if (customerSettings?.notifications?.pushNotifications)
       await sendPushNotification({
-        userId: customerUser._id,
+        userId: customer._id,
         title: "New Meeting Invitation",
         message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
         urlPath: "/meetings",

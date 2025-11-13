@@ -2,15 +2,14 @@ import CustomerSettings from "../../models/Customer/SettingsModel.js";
 
 export const getCustomerSettings = async (req, res) => {
   try {
-    const { _id: customerId } = req.user;
+    const userId = req.user._id;
 
-    // Try to find existing settings
-    let customer = await CustomerSettings.findById(customerId);
+    // Find by userId instead of _id
+    let customer = await CustomerSettings.findOne({ userId });
 
     // If not found, create default settings
     if (!customer) {
-      const defaultDoc = new CustomerSettings({ _id: customerId });
-      customer = await defaultDoc.save();
+      customer = await CustomerSettings.create({ userId });
     }
 
     res.status(200).json({
@@ -19,31 +18,41 @@ export const getCustomerSettings = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching customer settings:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
 export const updateCustomerSettings = async (req, res) => {
   try {
-    const { _id: customerId } = req.user;
-    let updateData = req.body;
+    const userId = req.user._id;
+    const updateData = req.body || {};
 
-    if (!updateData || Object.keys(updateData).length === 0) {
-      updateData = {};
-    }
+    // Find existing settings by userId
+    let customer = await CustomerSettings.findOne({ userId });
 
-    // Find or create settings
-    let customer = await CustomerSettings.findById(customerId);
-
+    // If no settings → create new with incoming data merged into defaults
     if (!customer) {
-      // Create with default values
-      const defaultDoc = new CustomerSettings({ _id: customerId });
-      customer = await defaultDoc.save();
+      customer = new CustomerSettings({
+        userId,
+        ...updateData, // apply user-sent values to default schema
+      });
+
+      await customer.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Customer settings created successfully",
+        data: customer,
+      });
     }
 
-    // Deep merge logic (same as before)
+    // Deep merge logic for updating existing settings
     const deepMerge = (target, source) => {
       if (!source || typeof source !== "object") return target;
+
       for (const key of Object.keys(source)) {
         if (
           source[key] &&
@@ -58,17 +67,27 @@ export const updateCustomerSettings = async (req, res) => {
       return target;
     };
 
-    const mergedData = deepMerge(customer.toObject(), updateData);
+    // Convert Mongoose doc → plain object
+    const currentData = customer.toObject();
+
+    // Merge new updates
+    const mergedData = deepMerge(currentData, updateData);
+
+    // Assign merged data back into the model
     Object.assign(customer, mergedData);
+
     await customer.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Customer settings updated successfully",
       data: customer,
     });
   } catch (error) {
     console.error("Error updating customer settings:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+   return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };

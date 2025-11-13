@@ -45,15 +45,11 @@ const AgencySettings = new mongoose.Schema(
         type: Boolean,
         default: true,
       },
-      meetingReminders: {
+      V: {
         type: Boolean,
         default: true,
       },
       propertyUpdates: {
-        type: Boolean,
-        default: true,
-      },
-      customerActivity: {
         type: Boolean,
         default: true,
       },
