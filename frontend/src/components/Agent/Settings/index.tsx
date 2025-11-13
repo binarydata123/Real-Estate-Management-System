@@ -9,12 +9,38 @@ import {
 
 export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState("agency");
-  const [agencySettings, setAgencySettings] = useState<AgencySettingsType>();
+  const [agencySettings, setAgencySettings] = useState<AgencySettingsType>({
+    _id: "",
+    agencySettings: {
+      agencyName: "",
+      workspaceUrl: "",
+    },
+    branding: {
+      primaryColor: "#3B82F6",
+      secondaryColor: "#1F2937",
+      agencyLogoUrl: "",
+    },
+    notifications: {
+      emailNotifications: true,
+      pushNotifications: true,
+      meetingReminders: true,
+      propertyUpdates: true,
+      customerActivity: true,
+      systemUpdates: true,
+    },
+    security: {
+      twoFactorAuth: false,
+      sessionTimeout: "7 days",
+      loginNotifications: true,
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
   const [settings, setSettings] = useState<AgencySettingsType>();
   const updateAgencySetting = (
     section: keyof AgencySettingsType,
     field: string,
-    value: string | boolean,
+    value: string | boolean
   ) => {
     setAgencySettings((prev) => {
       if (!prev) return prev;

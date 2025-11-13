@@ -2,6 +2,8 @@ import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 import mongoose from "mongoose";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
+import AgencySettings from "../../models/Agent/settingsModel.js";
+import CustomerSettings from "../../models/Customer/SettingsModel.js";
 
 export const shareProperty = async (req, res) => {
   try {
@@ -36,27 +38,33 @@ export const shareProperty = async (req, res) => {
       message: `A property has been shared with you.`,
       type: "property_share",
     });
-
-    await sendPushNotification({
-      userId: sharedWithUserId,
-      title: "New Property Shared",
-      message: "A property has been shared with you. Check it out!",
-      urlPath: "/agent/shares",
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
     });
-
-    await sendPushNotification({
-      userId: agencyId,
-      title: "Property Shared Successfully",
-      message: "You have shared a property successfully.",
-      urlPath: "/agent/shares",
+    const customerSettings = await CustomerSettings.findOne({
+      userId: req.user._id,
     });
-   return res.status(201).json({
+    if (agencySettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: agencyId,
+        title: "Property Shared Successfully",
+        message: "You have shared a property successfully.",
+        urlPath: "/agent/shares",
+      });
+    if (customerSettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: sharedWithUserId,
+        title: "New Property Shared",
+        message: "A property has been shared with you. Check it out!",
+        urlPath: "/agent/shares",
+      });
+    return res.status(201).json({
       share: savedShare,
       message: "Share property successfully",
     });
   } catch (err) {
     console.error(err);
-   return res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -74,7 +82,7 @@ export const getAllSharedProperties = async (req, res) => {
       .populate("sharedByUserId", "name email phone createdAt")
       .populate("propertyId", "title images price");
 
-   return res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: shares,
       message: "Shared properties fetched successfully",

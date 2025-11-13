@@ -1,12 +1,13 @@
 import AgencySettings from "../../models/Agent/settingsModel.js";
+import { sendPushNotification } from "../../utils/pushService.js";
 export const getAgencySettings = async (req, res) => {
   try {
-    const { agencyId } = req.user;
+    const userId = req.user._id; // Use user ID instead of agencyId
 
-    const agency = await AgencySettings.findById(agencyId);
+    const agency = await AgencySettings.findOne({ userId });
 
     if (!agency) {
-      return res.status(404).json({ message: "Agency not found" });
+      return res.status(404).json({ message: "Agency settings not found" });
     }
 
     return res.status(200).json({
@@ -15,63 +16,61 @@ export const getAgencySettings = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching agency settings:", error);
-   return res.status(500).json({ message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
 export const updateAgencySettings = async (req, res) => {
   try {
-    const { agencyId } = req.user;
-    let updateData = req.body;
+    const userId = req.user._id;
+    const updateData = req.body || {};
 
-    if (!updateData || Object.keys(updateData).length === 0) {
-      updateData = {};
-    }
+    // Remove any invalid fields that might cause validation errors
+    const sanitizedUpdateData = { ...updateData };
+    delete sanitizedUpdateData._id;
+    delete sanitizedUpdateData.__v;
+    delete sanitizedUpdateData.createdAt;
+    delete sanitizedUpdateData.updatedAt;
 
-    let agency = await AgencySettings.findById(agencyId);
-
-    if (!agency) {
-      agency = await AgencySettings.create({ _id: agencyId, ...updateData });
-      return res.status(201).json({
-        success: true,
-        message: "Agency settings created with defaults",
-        data: agency,
-      });
-    }
-
-    if (Object.keys(updateData).length === 0) {
-      const defaultDoc = new AgencySettings();
-      updateData = defaultDoc.toObject();
-    }
-
-    const deepMerge = (target, source) => {
-      if (!source || typeof source !== "object") return target;
-      for (const key of Object.keys(source)) {
-        if (
-          source[key] &&
-          typeof source[key] === "object" &&
-          !Array.isArray(source[key])
-        ) {
-          target[key] = deepMerge(target[key] || {}, source[key]);
-        } else {
-          target[key] = source[key];
-        }
+    // Use findOneAndUpdate with upsert for atomic operation
+    const agency = await AgencySettings.findOneAndUpdate(
+      { userId },
+      { $set: sanitizedUpdateData },
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+        setDefaultsOnInsert: true,
       }
-      return target;
-    };
+    );
 
-    const mergedData = deepMerge(agency.toObject(), updateData);
+    const status =
+      agency.createdAt.getTime() === agency.updatedAt.getTime() ? 201 : 200;
 
-    Object.assign(agency, mergedData);
-    await agency.save();
+    const userSettings = await AgencySettings.findOne({ userId: req.user._id });
 
-   return res.status(200).json({
+    if (userSettings.notifications.pushNotifications)
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Agency settings updated successfully",
+        message: `Hi ${req.user.name}, your settings has been updated successfully!`,
+        urlPath: "/agent/settings",
+      });
+    return res.status(status).json({
       success: true,
-      message: "Agency settings updated successfully",
+      message:
+        status === 201
+          ? "Agency settings created successfully"
+          : "Agency settings updated successfully",
       data: agency,
     });
   } catch (error) {
     console.error("Error updating agency settings:", error);
-     return res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };

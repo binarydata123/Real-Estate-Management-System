@@ -15,7 +15,7 @@ export default [
         // 🔹 General Code Quality Rules
         "no-unused-vars": "error", // Warns about declared but unused variables
         "no-undef": "warn", // Detects use of undeclared variables
-        "no-console": "warn", // Discourages use of console (prefer proper logger)
+        // "no-console": "warn", // Discourages use of console (prefer proper logger)
         "no-extra-semi": "error", // Prevents unnecessary semicolons
         "no-unexpected-multiline": "error", // Avoids ambiguity from missing semicolons
         "no-var": "error", // Enforces use of let/const instead of var

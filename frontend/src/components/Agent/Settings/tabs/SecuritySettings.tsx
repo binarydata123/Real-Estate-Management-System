@@ -5,7 +5,9 @@ import {
   ShieldCheckIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { changePassword } from "@/lib/Authentication/AuthenticationAPI";
+import { useAuth } from "@/context/AuthContext";
 
 interface SecuritySettingsProps {
   agencySettings: AgencySettingsType;
@@ -23,17 +25,35 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
   const { security } = agencySettings;
   const [loading, setLoading] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-
+  const { user } = useAuth();
+  const [newPassword, setNewPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      const data = {
+        newPassword,
+        oldPassword,
+        confirmPassword,
+        email: user?.email,
+      };
       // Demo mode - simulate password change
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      alert("Password changed successfully! (Demo mode)");
+      await changePassword(data);
+      showSuccessToast("Password updated successfully");
       setShowPasswordForm(false);
-    } catch (error) {
-      showErrorToast("Password change simulation failed", error);
+    } catch (error: unknown) {
+      if (error && typeof error === "object") {
+        const backendError = error as AxiosErrorResponse;
+        if (backendError.response?.data?.message) {
+          showErrorToast("Error: ", backendError.response.data.message);
+        } else if (error instanceof Error) {
+          showErrorToast("Error: ", error.message);
+        }
+      } else if (typeof error !== "object") {
+        showErrorToast("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -70,7 +90,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
                 updateAgencySetting(
                   "security",
                   "twoFactorAuth",
-                  !security?.twoFactorAuth,
+                  !security?.twoFactorAuth
                 )
               }
               className="sr-only peer"
@@ -147,7 +167,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
                 updateAgencySetting(
                   "security",
                   "loginNotifications",
-                  !security?.loginNotifications,
+                  !security?.loginNotifications
                 )
               }
               className="sr-only peer"
@@ -191,6 +211,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               </label>
               <input
                 type="password"
+                onChange={(e) => setOldPassword(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg
                            focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -204,6 +225,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               <input
                 type="password"
                 required
+                onChange={(e) => setNewPassword(e.target.value)}
                 minLength={6}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg
                            focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -217,6 +239,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               <input
                 type="password"
                 required
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 minLength={6}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg
                            focus:ring-1 focus:ring-blue-500 focus:border-blue-500"

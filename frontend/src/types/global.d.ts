@@ -25,6 +25,14 @@ declare global {
     userId?: string; // Optional field for backend compatibility
   }
 
+  interface changePasswordData {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+    email?: string;
+    phone?: string | number;
+  }
+
   interface LoginData {
     email: string;
     password: string;

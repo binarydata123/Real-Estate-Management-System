@@ -27,7 +27,6 @@ interface AgencySettingsType {
   __v?: number;
 }
 
-
 //
 interface Customer {
   _id?: string;
@@ -49,6 +48,9 @@ interface ApiResponse<T> {
   message: string;
   data?: T;
 }
+type AxiosErrorResponse = {
+  response?: { data: { message: string } };
+};
 
 interface AgentProfile {
   _id: string;
@@ -63,13 +65,12 @@ interface AgentProfile {
   updatedAt?: string;
 }
 
- interface AgentProfileFormData {
+interface AgentProfileFormData {
   fullName: string;
   email: string;
   phoneNumber: string;
   whatsappNumber?: string;
 }
-
 
 interface ProfileFormValues {
   fullName: string;
@@ -98,7 +99,7 @@ interface AgentProfileFormData {
 }
 
 interface PropertyImage {
-  _id:string;
+  _id: string;
   url: string;
   alt: string;
   isPrimary: boolean;
@@ -122,5 +123,5 @@ interface Property {
   owner_contact?: string | number;
   rera_status?: string;
   flooring_type?: string;
-  created_at:string;
+  created_at: string;
 }
