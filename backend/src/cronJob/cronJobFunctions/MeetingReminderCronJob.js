@@ -1,5 +1,7 @@
 import { Meetings } from "../../models/Agent/MeetingModel.js";
 import { User } from "../../models/Common/UserModel.js";
+import AgencySettings from "../../models/Agent/settingsModel.js";
+import CustomerSettings from "../../models/Customer/SettingsModel.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
 export async function meetingReminderCronJob (mode = "today") {
@@ -52,22 +54,30 @@ export async function meetingReminderCronJob (mode = "today") {
     }
     for (const meeting of meetings) {
       const user = await User.findOne({ agencyId: meeting.agencyId._id });
-
       // Push notification to agency user
-      await sendPushNotification({
-        userId: user._id,
-        title: "Meeting Scheduled",
-        message: `You have a meeting scheduled with ${meeting.customerId.fullName} today at ${meeting.time}.`,
-        urlPath: "meetings",
+      const agencySettings = await AgencySettings.findOne({
+        userId: meeting.agencyId,
       });
+      const customerSettings = await CustomerSettings.findOne({
+        userId: meeting.agencyId,
+      });
+      // Push notification to agency
+      if (agencySettings?.notifications?.pushNotifications)
+        await sendPushNotification({
+          userId: user._id,
+          title: "Meeting Scheduled",
+          message: `You have a meeting scheduled with ${meeting.customerId.fullName} today at ${meeting.time}.`,
+          urlPath: "meetings",
+        });
 
       // Push notification to customer
-      await sendPushNotification({
-        userId: meeting.customerId._id,
-        title: "New Meeting Reminder",
-        message: `You have a meeting scheduled with ${meeting.agencyId.name} today at ${meeting.time}.`,
-        urlPath: "meetings",
-      });
+      if (customerSettings?.notifications?.pushNotifications)
+        await sendPushNotification({
+          userId: meeting.customerId._id,
+          title: "New Meeting Reminder",
+          message: `You have a meeting scheduled with ${meeting.agencyId.name} today at ${meeting.time}.`,
+          urlPath: "meetings",
+        });
     }
   } catch (error) {
     console.error("Error fetching meetings:", error);

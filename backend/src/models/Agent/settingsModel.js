@@ -2,16 +2,21 @@ import mongoose from "mongoose";
 
 const AgencySettings = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true, // Ensures one settings document per user
+    },
+
     agencySettings: {
       agencyName: {
         type: String,
-        // trim: true,
         default: "",
       },
       workspaceUrl: {
         type: String,
         lowercase: true,
-        // trim: true,
         default: "",
       },
     },

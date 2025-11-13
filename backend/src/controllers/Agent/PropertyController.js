@@ -1,6 +1,7 @@
 import { Property } from "../../models/Agent/PropertyModel.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
 import { sendPushNotification } from "../../utils/pushService.js";
+import AgencySettings from "../../models/Agent/settingsModel.js";
 
 export const createProperty = async (req, res) => {
   try {
@@ -77,15 +78,18 @@ export const createProperty = async (req, res) => {
       type: "property_added",
       link: `/agent/properties/view/${savedProperty._id}`, // A potential link to view the property
     });
-
-    // Send push notification to the agency admin/agent who created it
-    await sendPushNotification({
+    const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
-      title: "New Property Added",
-      message: `A new property "${savedProperty.title}" has been successfully added.`,
-      urlPath: `/agent/properties/view/${savedProperty._id}`,
-      // No actions needed for this informational notification
     });
+    if (agencySettings?.notifications?.pushNotifications)
+      // Send push notification to the agency admin/agent who created it
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "New Property Added",
+        message: `A new property "${savedProperty.title}" has been successfully added.`,
+        urlPath: `/agent/properties/view/${savedProperty._id}`,
+        // No actions needed for this informational notification
+      });
 
     return res.status(201).json({
       success: true,
@@ -101,7 +105,7 @@ export const createProperty = async (req, res) => {
         errors: error.errors,
       });
     }
-  return res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message || "An internal server error occurred.",
     });
@@ -228,16 +232,20 @@ export const updateProperty = async (req, res) => {
       type: "property_updated",
       link: `/agent/properties/view/${updatedProperty._id}`,
     });
-
-    await sendPushNotification({
+    const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
-      title: "Property Updated",
-      message: `The property "${updatedProperty.title}" has been successfully updated.`,
-      urlPath: `/agent/properties/view/${updatedProperty._id}`,
     });
 
+    if (agencySettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Property Updated",
+        message: `The property "${updatedProperty.title}" has been successfully updated.`,
+        urlPath: `/agent/properties/view/${updatedProperty._id}`,
+      });
+
     // 7. Send response
-   return res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Property updated successfully.",
       data: updatedProperty,
@@ -251,7 +259,7 @@ export const updateProperty = async (req, res) => {
         errors: error.errors,
       });
     }
-   return res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message || "An internal server error occurred.",
     });
@@ -266,7 +274,7 @@ export const getSingleProperty = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Property not found" });
     }
-  return res.status(200).json({ success: true, data: property });
+    return res.status(200).json({ success: true, data: property });
   } catch (error) {
     console.error("Error fetching property:", error);
     return res.status(500).json({
@@ -275,7 +283,6 @@ export const getSingleProperty = async (req, res) => {
     });
   }
 };
-
 
 export const getProperties = async (req, res) => {
   try {
@@ -372,7 +379,7 @@ export const deleteProperty = async (req, res) => {
     if (!property) {
       return res.status(404).json({
         success: false,
-        message: "Property not found"
+        message: "Property not found",
       });
     }
     await Notification.create({
@@ -382,25 +389,27 @@ export const deleteProperty = async (req, res) => {
       type: "property_deleted",
       link: `/agent/properties/view/${property._id}`,
     });
-
-    await sendPushNotification({
+    const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
-      title: "Property Deleted",
-      message: `The property "${property.title}" has been successfully deleted.`,
-      urlPath: `/agent/properties/view/${property._id}`,
     });
+
+    if (agencySettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Property Deleted",
+        message: `The property "${property.title}" has been successfully deleted.`,
+        urlPath: `/agent/properties/view/${property._id}`,
+      });
 
     return res.status(200).json({
       success: true,
-      message: "Property deleted successfully"
+      message: "Property deleted successfully",
     });
-
   } catch (err) {
     console.error("Error deleting property:", err);
     return res.status(500).json({
       success: false,
       message: err.message || "Server error",
-
     });
   }
 };

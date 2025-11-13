@@ -11,12 +11,8 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import { Loader } from "lucide-react";
 import Cookies from "js-cookie";
-import {
-  loginUser,
-  checkSession as checkSessionApi,
-} from "@/lib/Authentication/AuthenticationAPI";
-import { AxiosError } from "axios";
-import { LoginData } from "@/components/Auth/LoginForm";
+import { checkSession as checkSessionApi } from "@/lib/Authentication/AuthenticationAPI";
+import { AxiosError, AxiosResponse } from "axios";
 import { showErrorToast } from "@/utils/toastHandler";
 
 export const AUTH_SESSION_KEY = "auth-session";
@@ -55,7 +51,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (credentials: LoginData) => Promise<AuthResponse>;
+  signIn: (response: AxiosResponse) => Promise<AuthResponse>;
   completeSignIn: (user: User, token: string) => void;
   signOut: () => Promise<void>;
   router: ReturnType<typeof useRouter>;
@@ -136,14 +132,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [user, loading, router, pathname]);
 
-  const signIn = async (credentials: LoginData): Promise<AuthResponse> => {
+  const signIn = async (response: AxiosResponse): Promise<AuthResponse> => {
     try {
-      // The backend now returns a consistent user object on login
-      const response = await loginUser(credentials);
       const { token, user: userData } = response.data;
 
       const newSession: Session = {
-        access_token:token,
+        access_token: token,
       };
 
       setSession(newSession);
@@ -153,7 +147,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         secure: process.env.NODE_ENV === "production",
       });
 
-      return { data: {  user: userData, session: newSession }, error: null };
+      return { data: { user: userData, session: newSession }, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const errorMessage =
