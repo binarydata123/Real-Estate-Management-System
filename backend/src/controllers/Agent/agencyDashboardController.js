@@ -38,13 +38,16 @@ export const agencyDashboardData = async (req, res) => {
       ]),
 
     ]);
-
+const properties = await Property.find({ agencyId })
+  .sort({ createdAt: -1 })
+  .limit(2);
     const data = {
       totalProperties,
       totalCustomers,
       totalMeetings,
       todayMeetings,
       topCustomers,
+      properties
     };
 
     return res.status(200).json({

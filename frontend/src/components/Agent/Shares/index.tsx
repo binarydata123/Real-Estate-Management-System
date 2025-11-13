@@ -106,7 +106,7 @@ export const Shares: React.FC = () => {
                             ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share.propertyId.images[0].url}`
                             : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
                         }
-                        alt={share.propertyId.title}
+                        alt={share.propertyId?.title}
                         width={60}
                         height={60}
                         className="rounded-lg object-cover"
@@ -114,7 +114,7 @@ export const Shares: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {share.propertyId.title}
+                        {share.propertyId?.title}
                       </h3>
                       <div className="flex flex-col space-y-1 text-sm text-gray-600">
                         <div className="flex items-center">
@@ -122,7 +122,7 @@ export const Shares: React.FC = () => {
                           <span>
                             Shared by{" "}
                             <span className="font-medium text-gray-900">
-                              {share.sharedByUserId.name}
+                              {share?.sharedByUserId.name}
                             </span>
                           </span>
                         </div>

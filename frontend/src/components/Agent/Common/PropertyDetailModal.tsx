@@ -122,7 +122,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                       property.status,
                     )}`}
                   >
-                    {property.status}
+                    {property?.status }
                   </span>
                 </h3>
                 <div className="md:space-y-3 grid grid-cols-2 gap-2">
@@ -130,7 +130,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                     <span className="text-gray-600">Price</span>
                     <span className="font-semibold text-gray-900 flex items-center">
                       {/* <CurrencyRupeeIcon className="h-4 w-4 mr-1" /> */}
-                      {formatPrice(property.price)}
+                      {formatPrice(property?.price ?? 0)}
                     </span>
                   </div>
                   <div className="flex justify-between">

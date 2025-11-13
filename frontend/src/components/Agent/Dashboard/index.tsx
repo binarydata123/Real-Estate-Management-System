@@ -24,7 +24,8 @@ export interface customer {
 interface DashboardData {
   totalMeetings: number;
   todayMeetings:Reminder[];
-  topCustomers:customer[];  // object
+  topCustomers:customer[];
+  properties:Property[] // object
 }
 
 export const AgentDashboard = () => {
@@ -163,9 +164,9 @@ export const AgentDashboard = () => {
           </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-6">
-          {recentProperties.map((property) => (
+          {dashboardData?.properties.map((property) => (
             <PropertyCardForDashboard
-              key={property.id}
+              key={property._id}
               property={property}
               onView={handleViewProperty}
               onShare={handleShareProperty}
