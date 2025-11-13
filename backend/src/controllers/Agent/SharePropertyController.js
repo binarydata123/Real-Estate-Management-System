@@ -26,38 +26,44 @@ export const shareProperty = async (req, res) => {
 
     const savedShare = await newShare.save();
 
-    await createNotification({
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
+    });
+    const customerSettings = await CustomerSettings.findOne({
+      userId: sharedWithUserId,
+    });
+
+    if (agencySettings?.notifications?.pushNotifications)
+ await sendPushNotification({
+        userId: agencyId,
+        title: "Property Shared Successfully",
+        message: "You have shared a property successfully.",
+        urlPath: "/agent/shares",
+      });
+      if (agencySettings?.notifications?.propertyUpdates) {
+        await createNotification({
       agencyId,
       userId: agencyId,
       message: `Property has been shared successfully.`,
       type: "property_share",
     });
 
-    await createNotification({
-      userId: sharedWithUserId,
-      message: `A property has been shared with you.`,
-      type: "property_share",
-    });
-    const agencySettings = await AgencySettings.findOne({
-      userId: req.user._id,
-    });
-    const customerSettings = await CustomerSettings.findOne({
-      userId: req.user._id,
-    });
-    if (agencySettings?.notifications?.pushNotifications)
-      await sendPushNotification({
-        userId: agencyId,
-        title: "Property Shared Successfully",
-        message: "You have shared a property successfully.",
-        urlPath: "/agent/shares",
-      });
+    }
     if (customerSettings?.notifications?.pushNotifications)
-      await sendPushNotification({
+await sendPushNotification({
         userId: sharedWithUserId,
         title: "New Property Shared",
         message: "A property has been shared with you. Check it out!",
         urlPath: "/agent/shares",
       });
+    if (customerSettings?.notifications?.propertyUpdates) {
+      await createNotification({
+      userId: sharedWithUserId,
+      message: `A property has been shared with you.`,
+      type: "property_share",
+    });
+
+    }
     return res.status(201).json({
       share: savedShare,
       message: "Share property successfully",

@@ -1,7 +1,12 @@
 import mongoose from "mongoose";
 
 const CustomerSettings = new mongoose.Schema(
-  {
+  {userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+        unique: true, // Ensures one settings document per user
+      },
     customerSettings: {
       customerName: {
         type: String,

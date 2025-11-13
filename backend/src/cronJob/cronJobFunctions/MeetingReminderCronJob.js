@@ -59,7 +59,7 @@ export async function meetingReminderCronJob (mode = "today") {
         userId: meeting.agencyId,
       });
       const customerSettings = await CustomerSettings.findOne({
-        userId: meeting.agencyId,
+        userId: meeting.customerId._id,
       });
       // Push notification to agency
       if (agencySettings?.notifications?.pushNotifications)
