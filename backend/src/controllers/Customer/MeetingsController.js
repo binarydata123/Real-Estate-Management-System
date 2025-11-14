@@ -3,7 +3,7 @@ import { Meetings } from "../../models/Agent/MeetingModel.js";
 // GET /agents/meetings/get-all/:id?page=1&limit=10
 export const getMeetingsByCustomer = async (req, res) => {
   try {
-    const customerId = req.user._id; 
+    const customerId = req.user._id;
     const { status } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -11,7 +11,7 @@ export const getMeetingsByCustomer = async (req, res) => {
 
     const now = new Date();
 
-    let query = { customerId };
+    const query = { customerId };
 
     if (status === "upcoming") {
       query.$expr = {
@@ -80,13 +80,13 @@ export const getMeetingsByCustomer = async (req, res) => {
       isPast: status === "past",
     }));
 
-    res.json({
+   return res.json({
       success: true,
       data: formattedMeetings,
       total,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+ return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -102,9 +102,9 @@ export const getMeetingById = async (req, res) => {
         .json({ success: false, message: "Meeting not found" });
     }
 
-    res.json({ success: true, data: meeting });
+  return res.json({ success: true, data: meeting });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+   return res.status(400).json({ success: false, message: error.message });
   }
 };
 

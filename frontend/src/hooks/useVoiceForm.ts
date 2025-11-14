@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 import { UseFormGetValues, UseFormTrigger } from "react-hook-form";
 import {
-  propertyTypeOptions, 
-  commercialCategoryOptions, 
-  residentialCategoryOptions, 
-  unitAreaTypeOptions, 
-  plotDimensionUnitOptions, 
+  propertyTypeOptions,
+  commercialCategoryOptions,
+  residentialCategoryOptions,
+  unitAreaTypeOptions,
+  plotDimensionUnitOptions,
   facingOptions,
   propertyAgeOptions,
   furnishingOptions,
@@ -15,8 +16,8 @@ import {
   overlookingOptions,
   waterSourceOptions,
   featuresOptions,
-  amenitiesOptions
-} from '@/schemas/Agent/propertySchema';
+  amenitiesOptions,
+} from "@/schemas/Agent/propertySchema";
 
 interface VoiceField {
   name: string;
@@ -88,7 +89,6 @@ export function useVoiceForm(
       setIsProcessing(true);
 
       const speechResult = event.results[0][0].transcript.trim().toLowerCase();
-      console.log("🎤 Heard:", speechResult);
 
       const field = filteredFields[currentFieldIndex];
 
@@ -109,9 +109,8 @@ export function useVoiceForm(
       }
 
       if (repeatCountRef.current >= 2) {
-        console.log("⚠️ Same answer repeated twice — waiting for new input.");
         await speakWithOpenAI(
-          `You already said that. Please provide a different answer for ${field.label}.`
+          `You already said that. Please provide a different answer for ${field.label}.`,
         );
 
         // Don't move forward — wait for new input
@@ -121,28 +120,35 @@ export function useVoiceForm(
       }
 
       // 🆕 NEW LOGIC — Handle "skip all fields" but validate required ones
-      if (speechResult === "skip all fields" || speechResult === "all fields skip") {
-
+      if (
+        speechResult === "skip all fields" ||
+        speechResult === "all fields skip"
+      ) {
         // Find all required fields that are empty
         const requiredFields = filteredFields.filter(
-          (f) => f.required && !getValues(f.name)
+          (f) => f.required && !getValues(f.name),
         );
 
         if (requiredFields.length > 0) {
           // 🧠 Speak required fields one by one
           await speakWithOpenAI(
-            `Some required fields are missing. Let's fill them before continuing.`
+            `Some required fields are missing. Let's fill them before continuing.`,
           );
 
           for (const missingField of requiredFields) {
-            await speakWithOpenAI(`${missingField.label} is required. Please provide a value.`);
+            await speakWithOpenAI(
+              `${missingField.label} is required. Please provide a value.`
+            );
             await new Promise<void>((resolve) => {
               // Wait for user to answer for this required field
-              const tempRecognition = new (window as any).webkitSpeechRecognition();
+              const tempRecognition = new (
+                window as any
+              ).webkitSpeechRecognition();
               tempRecognition.lang = "en-US";
               tempRecognition.onresult = async (evt: any) => {
-                const answer = evt.results[0][0].transcript.trim().toLowerCase();
-                console.log(`🗣️ Heard for ${missingField.label}:`, answer);
+                const answer = evt.results[0][0].transcript
+                  .trim()
+                  .toLowerCase();
                 setValue(missingField.name, answer);
                 await trigger(missingField.name);
                 tempRecognition.stop();
@@ -152,11 +158,13 @@ export function useVoiceForm(
             });
           }
 
-          await speakWithOpenAI(`All required fields are now filled. You can continue to the next step.`);
+          await speakWithOpenAI(
+            `All required fields are now filled. You can continue to the next step.`
+          );
         } else {
           // ✅ Safe to skip all
           await speakWithOpenAI(
-            `Okay, skipping all fields in step ${currentStep}. You can continue to the next step.`
+            `Okay, skipping all fields in step ${currentStep}. You can continue to the next step.`,
           );
         }
 
@@ -170,8 +178,6 @@ export function useVoiceForm(
         speechResult.toLowerCase() === "skip" ||
         speechResult.toLowerCase() === "skip this field"
       ) {
-        console.log(`⏭️ Skipping field: ${field.label}`);
-
         // Speak confirmation for skipping
         await speakWithOpenAI(`Okay, skipping ${field.label}.`);
 
@@ -180,7 +186,7 @@ export function useVoiceForm(
           setCurrentFieldIndex((prev) => prev + 1);
         } else {
           await speakWithOpenAI(
-            `All Step ${currentStep} fields are completed. You can continue to the next step.`
+            `All Step ${currentStep} fields are completed. You can continue to the next step.`,
           );
           recognitionRef.current.stop();
         }
@@ -190,18 +196,19 @@ export function useVoiceForm(
       }
 
       // ✅ Improved checkbox handling with option matching
-      if (field.fieldType === 'checkbox') {
+      if (field.fieldType === "checkbox") {
         const currentValues: string[] = getValues(field.name) || [];
         const spokenValue = speechResult.toLowerCase().trim();
 
         // ✅ If user says "next" or "done", move to next field
         if (["next", "done", "go next", "continue"].includes(spokenValue)) {
-          console.log(`➡️ Moving to next field after selecting: ${currentValues}`);
           await speakWithOpenAI(`Okay, moving to next field.`);
           if (currentFieldIndex < filteredFields.length - 1) {
             setCurrentFieldIndex((prev) => prev + 1);
           } else {
-            await speakWithOpenAI(`All Step ${currentStep} fields are completed. You can continue to the next step.`);
+            await speakWithOpenAI(
+              `All Step ${currentStep} fields are completed. You can continue to the next step.`
+            );
             recognitionRef.current.stop();
           }
           setIsProcessing(false);
@@ -229,7 +236,7 @@ export function useVoiceForm(
 
         // ✅ Try to match spoken value with an option
         const matchedOption = optionsList.find(
-          (opt) => opt.value.toLowerCase() === spokenValue
+          (opt) => opt.value.toLowerCase() === spokenValue,
         );
 
         if (matchedOption) {
@@ -239,24 +246,27 @@ export function useVoiceForm(
               shouldDirty: true,
               shouldValidate: true,
             });
-            console.log(`✅ Added value: ${matchedOption.value}`);
-            await speakWithOpenAI(`${matchedOption.value} added for ${field.label}. You can say another option or say "next" to continue.`);
           } else {
-            console.log(`⚠️ Already selected: ${matchedOption.value}`);
-            await speakWithOpenAI(`${matchedOption.value} is already selected. You can say another option or say "next" to continue.`);
+            await speakWithOpenAI(
+              `${matchedOption.value} is already selected. You can say another option or say "next" to continue.`
+            );
           }
         } else {
-          console.log(`❌ No match found for "${spokenValue}"`);
-          await speakWithOpenAI(`I could not find a matching option for ${spokenValue}. Please try again.`);
+          await speakWithOpenAI(
+            `I could not find a matching option for ${spokenValue}. Please try again.`
+          );
         }
 
         // 👂 Keep listening for more values in the same field
         setIsProcessing(false);
         startListening(filteredFields);
         return;
-      } else {
+      } else if (field.fieldType !== "checkbox") {
         setValue(field.name, speechResult);
       }
+      //  else {
+      //   setValue(field.name, speechResult);
+      // }
       // Check if field type is checkbox (Step 3)
       // if (field.fieldType === 'checkbox') {
       //     const currentValues: string[] = getValues(field.name) || [];
@@ -271,7 +281,7 @@ export function useVoiceForm(
 
       if (!isValid || !getValues(field.name)) {
         await speakWithOpenAI(
-          `${field.label} is required. Please say the ${field.label} again.`
+          `${field.label} is required. Please say the ${field.label} again.`,
         );
         setIsProcessing(false);
         startListening(filteredFields);
@@ -282,7 +292,7 @@ export function useVoiceForm(
         setCurrentFieldIndex((prev) => prev + 1);
       } else {
         await speakWithOpenAI(
-          `All Step ${currentStep} fields are completed. You can continue to the next step.`
+          `All Step ${currentStep} fields are completed. You can continue to the next step.`,
         );
         recognitionRef.current.stop();
       }
@@ -298,7 +308,7 @@ export function useVoiceForm(
     if (!voiceReady) return;
 
     const filteredFields = fields.filter(
-      (f) => !f.step || f.step === currentStep
+      (f) => !f.step || f.step === currentStep,
     );
 
     if (currentFieldIndex >= filteredFields.length) return;
@@ -319,49 +329,106 @@ export function useVoiceForm(
 
       const field = filteredFields[currentFieldIndex];
 
-      if(field.name == 'type'){
-        await speakWithOpenAI(`Please Choose the ${field.label} ${propertyTypeOptions.map((data) => data.value)}`);
-      } else if(field.name == 'category') {
+      if (field.name === "type") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${propertyTypeOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "category") {
         const currentValues = getValues(field.name);
-        if(currentValues == 'commercial'){
-          await speakWithOpenAI(`Please Choose the ${field.label} ${commercialCategoryOptions.map((data) => data.value)}`);
+        if (currentValues === "commercial") {
+          await speakWithOpenAI(
+            `Please Choose the ${field.label} ${commercialCategoryOptions.map(
+              (data) => data.value
+            )}`
+          );
         } else {
-          await speakWithOpenAI(`Please Choose the ${field.label} ${residentialCategoryOptions.map((data) => data.value)}`);
+          await speakWithOpenAI(
+            `Please Choose the ${field.label} ${residentialCategoryOptions.map(
+              (data) => data.value
+            )}`
+          );
         }
-      } else if(field.name == 'unit_area_type') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${unitAreaTypeOptions.map((data) => data.value)}`);
-      } else if(field.name == 'plot_dimension_unit') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${plotDimensionUnitOptions.map((data) => data.value)}`);
-      } else if(field.name == 'is_corner_plot') {
+      } else if (field.name === "unit_area_type") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${unitAreaTypeOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "plot_dimension_unit") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${plotDimensionUnitOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "is_corner_plot") {
         await speakWithOpenAI(`Please Choose the ${field.label} yes no`);
-      } else if(field.name == 'facing') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${facingOptions.map((data) => data.value)}`);
-      } else if(field.name == 'property_age') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${propertyAgeOptions.map((data) => data.value)}`);
-      } else if(field.name == 'furnishing') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${furnishingOptions.map((data) => data.value)}`);
-      } else if(field.name == 'power_backup') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${powerBackupOptions.map((data) => data.value)}`);
-      } else if(field.name == 'gated_community') {
+      } else if (field.name === "facing") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${facingOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "property_age") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${propertyAgeOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "furnishing") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${furnishingOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "power_backup") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${powerBackupOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "gated_community") {
         await speakWithOpenAI(`Please Choose the ${field.label} yes no`);
-      } else if(field.name == 'transaction_type') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${transactionTypeOptions.map((data) => data.value)}`);
-      } else if(field.name == 'rera_status') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${reraStatusOptions.map((data) => data.value)}`);
-      } else if(field.name == 'overlooking') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${filteredOverlookingOptions.map((data:any) => data.value)}`);
-      } else if(field.name == 'water_source') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${waterSourceOptions.map((data) => data.value)}`);
-      } else if(field.name == 'features') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${filteredFeatures.map((data:any) => data.value)}`);
-      } else if(field.name == 'amenities') {
-        await speakWithOpenAI(`Please Choose the ${field.label} ${filteredAmenities.map((data:any) => data.value)}`);
+      } else if (field.name === "transaction_type") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${transactionTypeOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "rera_status") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${reraStatusOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "overlooking") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${filteredOverlookingOptions.map(
+            (data: any) => data.value
+          )}`
+        );
+      } else if (field.name === "water_source") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${waterSourceOptions.map(
+            (data) => data.value
+          )}`
+        );
+      } else if (field.name === "features") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${filteredFeatures.map(
+            (data: any) => data.value
+          )}`
+        );
+      } else if (field.name === "amenities") {
+        await speakWithOpenAI(
+          `Please Choose the ${field.label} ${filteredAmenities.map(
+            (data: any) => data.value
+          )}`
+        );
       } else {
         await speakWithOpenAI(`Please Enter ${field.label}`);
       }
-
-      
-
 
       // Start listening for user answer
       startListening(filteredFields);
@@ -409,14 +476,13 @@ export function useVoiceForm(
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setVoiceReady(false);
-      console.log("🎙️ Voice stopped manually.");
     }
   };
 
   // 🎚️ Toggle from parent
   const toggleVoiceListening = (enable: boolean) => {
     if (enable) setVoiceReady(true);
-    else stopListening();
+    else if (!enable) stopListening();
   };
   return {
     toggleVoiceListening,

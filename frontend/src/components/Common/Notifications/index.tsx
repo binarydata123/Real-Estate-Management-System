@@ -19,6 +19,7 @@ import {
 } from "@/lib/Common/Notifications";
 import { useAuth } from "@/context/AuthContext";
 import { Pagination } from "@/components/Common/Pagination";
+import { showErrorToast } from "@/utils/toastHandler";
 
 const typeConfig: Record<
   NotificationType["type"],
@@ -57,7 +58,7 @@ const typeConfig: Record<
 };
 
 type NotificationFilter =
-  | "welcome"
+"all"  | "welcome"
   | "new_lead"
   | "task_assigned"
   | "meeting_scheduled"
@@ -92,10 +93,7 @@ const NotificationsPage: React.FC = () => {
   const fetchNotifications = async () => {
     try {
       if (!user?._id) return;
-
-      // map "all" to undefined for API
-      const typeParam: NotificationFilter | undefined =
-        activeTab === "all" ? undefined : activeTab;
+      const typeParam: NotificationFilter = activeTab;
 
       const res = await getNotifications(user?._id, {
         type: typeParam,
@@ -106,7 +104,7 @@ const NotificationsPage: React.FC = () => {
       setNotifications(res.data.data || []);
       setTotalPages(res.data.pagination.totalPages);
     } catch (err) {
-      console.error("Error fetching notifications:", err);
+    showErrorToast("Error",err);
     } finally {
       setLoading(false);
     }
@@ -118,7 +116,7 @@ const NotificationsPage: React.FC = () => {
       const res = await getUnreadNotificationsCount();
       setUnreadCount(res.data);
     } catch (err) {
-      console.error("Error fetching notifications:", err);
+       showErrorToast("Error",err);
     }
   };
 
@@ -219,7 +217,7 @@ const NotificationsPage: React.FC = () => {
                   <p className="text-xs text-gray-500 mt-1">
                     {format(
                       new Date(notification.createdAt),
-                      "MMM dd, yyyy hh:mm a"
+                      "MMM dd, yyyy hh:mm a",
                     )}
                   </p>
                 </div>

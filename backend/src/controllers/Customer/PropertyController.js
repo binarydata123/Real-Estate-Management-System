@@ -1,6 +1,5 @@
 import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js";
-import mongoose from "mongoose";
 
 export const getAllSharedProperties = async (req, res) => {
   try {
@@ -16,14 +15,14 @@ export const getAllSharedProperties = async (req, res) => {
       .populate("sharedByUserId", "name email phone createdAt")
       .populate("propertyId", "title images price");
 
-    res.status(200).json({
+  return res.status(200).json({
       success: true,
       data: shares,
       message: "Shared properties fetched successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error" });
+   return res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -104,7 +103,7 @@ export const getProperties = async (req, res) => {
     }
 
     if (agencyId) {
-      filter.agencyId = agencyId
+      filter.agencyId = agencyId;
     }
 
     // 🔹 Fetch data

@@ -5,7 +5,7 @@ export const getAgencies = async (
   page?: number,
   limit?: string,
   search = "",
-  status = ""
+  status = "",
 ) => {
   const params: Record<string, string> = {};
   if (page !== undefined) {
@@ -17,23 +17,23 @@ export const getAgencies = async (
   if (search) {
     params.search = search;
   }
-  if(status) {
+  if (status) {
     params.status = status;
   }
   const query = new URLSearchParams(params);
   const response = await api.get<AgencyResponse>(
-    `/admin/agency/get-all-agencies?${query.toString()}`
+    `/admin/agency/get-all-agencies?${query.toString()}`,
   );
   return response.data;
 };
 
 export const updateAgency = async (
   id: string,
-  agencyData: Partial<AgencyFormDataSchema>
+  agencyData: Partial<AgencyFormDataSchema>,
 ) => {
   const response = await api.put<AgencyResponse>(
     `/admin/agency/update/${id}`,
-    agencyData
+    agencyData,
   );
   return response;
 };

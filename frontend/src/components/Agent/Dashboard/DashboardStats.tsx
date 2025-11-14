@@ -10,7 +10,7 @@ import {
 
 interface StatCardProps {
   title: string;
-  value: string;
+  value: React.ReactNode;
   icon: React.ElementType;
   color: string;
   trend?: string;
@@ -54,32 +54,40 @@ const StatCard: React.FC<StatCardProps> = ({
   </div>
 );
 
-export const DashboardStats: React.FC = () => {
+interface DashboardStatsProps {
+  value?: {
+    totalProperties?: string | number;
+    totalCustomers?: string | number;
+    totalMeetings?: string | number;
+  };
+}
+
+export const DashboardStats: React.FC<DashboardStatsProps> = ({ value }) => {
   const stats = [
     {
       title: "Active",
-      value: "12",
+      value: value?.totalProperties,
       icon: BuildingOfficeIcon,
       color: "text-blue-600",
       // trend: '+2 this week',
     },
     {
       title: "Customers",
-      value: "34",
+      value: value?.totalCustomers,
       icon: UsersIcon,
       color: "text-green-600",
       // trend: '+5 this month',
     },
     {
       title: "Meetings",
-      value: "8",
+      value: value?.totalMeetings,
       icon: CalendarIcon,
       color: "text-purple-600",
       // trend: '3 today',
     },
     {
       title: "Revenue",
-      value: "₹2.4M",
+      value: "₹NA",
       icon: CurrencyDollarIcon,
       color: "text-emerald-600",
       // trend: '+12% vs last month',

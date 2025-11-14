@@ -25,6 +25,14 @@ declare global {
     userId?: string; // Optional field for backend compatibility
   }
 
+  interface changePasswordData {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+    email?: string;
+    phone?: string | number;
+  }
+
   interface LoginData {
     email: string;
     password: string;
@@ -46,9 +54,13 @@ declare global {
     url: string;
     alt?: string;
     isPrimary?: boolean;
+    _id?: string;
   }
 
   interface Property {
+    owner_contact: string | number;
+    rera_status: string;
+    flooring_type: string;
     size_unit: string;
     size: ReactNode;
     _id?: string;
@@ -171,7 +183,6 @@ declare global {
       | "cold_call"
       | "other";
     initialNotes?: string;
-    //agencyId?: string;
     status: string;
     assigned_agent: string;
     minimumBudget: number;

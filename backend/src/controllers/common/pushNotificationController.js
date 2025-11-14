@@ -27,17 +27,17 @@ export const createSubscription = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    res.status(200).json({ success: true, data: subscriptionDoc });
+  return res.status(200).json({ success: true, data: subscriptionDoc });
   } catch (err) {
     console.error("Error saving subscription:", err);
-    res.status(500).json({ error: "Failed to save subscription" });
+    return res.status(500).json({ error: "Failed to save subscription" });
   }
 };
 export const sendNotification = async (req, res) => {
   try {
     const { role, userId, message } = req.body;
 
-    let query = {};
+    const query = {};
     if (role) query.role = role;
     if (userId) query.userId = userId;
 
@@ -76,9 +76,9 @@ export const sendNotification = async (req, res) => {
       })
     );
 
-    res.json({ success: true, sent: results.length });
+    return res.json({ success: true, sent: results.length });
   } catch (err) {
     console.error("Error sending notifications:", err);
-    res.status(500).json({ error: "Failed to send notifications" });
+   return res.status(500).json({ error: "Failed to send notifications" });
   }
 };

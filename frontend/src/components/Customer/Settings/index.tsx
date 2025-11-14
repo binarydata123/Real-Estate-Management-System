@@ -10,13 +10,15 @@ import { showSuccessToast, showErrorToast } from "@/utils/toastHandler";
 
 export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState("security");
-  const [customerSettings, setCustomerSettings] = useState<CustomerSettingsType>();
-  const [settings, setSettings] = useState<CustomerSettingsType>();
-  const [loading, setLoading] = useState(false)
+  const [customerSettings, setCustomerSettings] = useState<CustomerSettingsType | null>(null);
+  const [settings, setSettings] = useState<CustomerSettingsType | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
   const updateCustomerSetting = (
     section: keyof CustomerSettingsType,
     field: string,
-    value: string | boolean
+    value: string | boolean,
   ) => {
     setCustomerSettings((prev) => {
       if (!prev) return prev;
@@ -35,37 +37,66 @@ export const Settings: React.FC = () => {
       };
     });
   };
+
   const getSettings = async () => {
-    const res = await getCustomerSettings();
-    setCustomerSettings(res);
-    setSettings(res);
+    try {
+      setInitialLoading(true);
+      const res = await getCustomerSettings();
+      setCustomerSettings(res);
+      setSettings(res);
+    } catch (error) {
+      showErrorToast("Error fetching settings:", error);
+      showErrorToast("Failed to load settings");
+    } finally {
+      setInitialLoading(false);
+    }
   };
+
   useEffect(() => {
     getSettings();
   }, []);
 
   const handleUpdateSettings = async () => {
+    if (!customerSettings) return;
+
     const isEqual = JSON.stringify(settings) === JSON.stringify(customerSettings);
     if (isEqual) return;
 
     setLoading(true);
 
     try {
-      if (customerSettings) {
-        await updateCustomerSettings(customerSettings);
-        // Since the API returns only the data, show success message directly
-        showSuccessToast("Settings updated successfully");
-      } else {
-        await updateCustomerSettings(undefined);
-        showSuccessToast("Settings updated successfully");
-      }
+      await updateCustomerSettings(customerSettings);
+      showSuccessToast("Settings updated successfully");
+      // Refresh settings after update
+      getSettings();
     } catch {
       showErrorToast("Failed to update settings");
     } finally {
       setLoading(false);
-      getSettings();
     }
   };
+
+  // Show loading state
+  if (initialLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Settings
+          </h1>
+          <p className="text-gray-600">Loading your settings...</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="h-8 bg-gray-200 rounded mb-2"></div>
+            <div className="h-8 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3 md:space-y-6">
       <div>
@@ -108,15 +139,29 @@ export const Settings: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 md:p-4">
-            {customerSettings &&
-              renderTabContent(activeTab, customerSettings, updateCustomerSetting)}
+            {customerSettings ? (
+              renderTabContent(activeTab, customerSettings, updateCustomerSetting)
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Unable to load settings</p>
+                <button
+                  onClick={getSettings}
+                  className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
 
             <div className="flex justify-end pt-4 border-t border-gray-200 mt-3 md:mt-4">
               <button
-                disabled={loading}
+                disabled={loading || !customerSettings}
                 onClick={handleUpdateSettings}
-                className={`px-6 py-2 rounded-lg text-white ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                className={`px-6 py-2 rounded-lg text-white ${
+                  loading || !customerSettings
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
               >
                 {loading ? "Saving..." : "Save Changes"}
               </button>
