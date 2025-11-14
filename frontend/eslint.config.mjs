@@ -26,6 +26,9 @@ const eslintConfig = [
         { argsIgnorePattern: "^_" },
       ],
       "react-hooks/exhaustive-deps": "off",
+      // "no-console": "error",
+      // "no-unused-vars": "off", // Use TypeScript version instead
+      // "no-unused-expressions": "error",
     },
   },
 ];

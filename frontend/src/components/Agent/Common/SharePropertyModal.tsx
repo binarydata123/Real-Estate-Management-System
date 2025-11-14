@@ -24,7 +24,6 @@ interface SharePropertyModalProps {
   property: Property;
   onClose: () => void;
   onSuccess?: () => void;
-  /** ✅ Add this line */
   sharedCustomers?: { _id: string; fullName: string }[];
 }
 
@@ -32,12 +31,11 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
   property,
   onClose,
   onSuccess,
-  /** ✅ Add default value so it never breaks */
   sharedCustomers = [],
 }) => {
   const { user } = useAuth();
   const [options, setOptions] = useState<CustomerFormData[]>([]);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { showPromiseToast } = useToast();
 
@@ -68,7 +66,6 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
     };
     fetchAll();
   }, [user?._id]);
-
   const onSubmit = async (data: SharePropertyFormData) => {
     setLoading(true);
 
@@ -107,15 +104,13 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
     return `₹${price?.toLocaleString()}`;
   };
 
-  const filteredOptions =
-    query === ""
-      ? options
-      : options.filter((option) =>
+  const filteredOptions = !query
+    ? options
+    : options.filter((option) =>
         option.fullName.toLowerCase().includes(query.toLowerCase())
       );
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 text-black">
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
@@ -163,8 +158,11 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                     >
                       <div className="relative">
                         <Combobox.Input
-                          className={`w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-blue-500 ${errors.sharedWithUserId ? "border-red-600" : "border-gray-300"
-                            }`}
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-blue-500 ${
+                            errors.sharedWithUserId
+                              ? "border-red-600"
+                              : "border-gray-300"
+                          }`}
                           displayValue={(user: CustomerFormData | null) =>
                             user?.fullName || ""
                           }
@@ -178,8 +176,10 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
 
                         {(query === "" || filteredOptions.length > 0) && (
                           <Combobox.Options className="absolute mt-1 w-full max-h-56 overflow-auto rounded-lg border bg-white shadow-lg z-50">
-                            {filteredOptions.length === 0 && query !== "" ? (
-                              <div className="px-4 py-2 text-gray-500">No customers found</div>
+                            {filteredOptions.length === 0 ? (
+                              <div className="px-4 py-2 text-gray-500">
+                                No customers found
+                              </div>
                             ) : (
                               filteredOptions.map((option) => {
                                 /** ✅ Disable if already shared */
@@ -193,9 +193,10 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                                     value={option}
                                     disabled={isAlreadyShared}
                                     className={({ active, disabled }) =>
-                                      `flex justify-between px-4 py-2 cursor-pointer ${disabled
-                                        ? "text-gray-400 cursor-not-allowed"
-                                        : active
+                                      `flex justify-between px-4 py-2 cursor-pointer ${
+                                        disabled
+                                          ? "text-gray-400 cursor-not-allowed"
+                                          : active
                                           ? "bg-blue-600 text-white"
                                           : "text-gray-700"
                                       }`
@@ -205,7 +206,8 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                                       <>
                                         <span>
                                           {option.fullName}{" "}
-                                          {isAlreadyShared && "(Already Shared)"}
+                                          {isAlreadyShared &&
+                                            "(Already Shared)"}
                                         </span>
                                         {selected && !isAlreadyShared && (
                                           <CheckIcon className="h-4 w-4" />

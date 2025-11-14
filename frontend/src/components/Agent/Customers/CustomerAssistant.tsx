@@ -5,7 +5,7 @@ import Vapi from "@vapi-ai/web";
 import { startCustomerSession } from "@/lib/AI";
 import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
 import { Loader2 } from "lucide-react";
-const AssistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID;
+const AssistantId = process.env.NEXT_PUBLIC_VAPI_CUSTOMER_ASSISTANT_ID;
 export default function CustomerAssistant() {
   const [loading, setLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);

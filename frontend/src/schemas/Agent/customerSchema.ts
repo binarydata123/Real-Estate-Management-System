@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { string, z } from "zod";
 
 const phoneRegex = /^(?:\+91)?[6-9]\d{9}$/;
 
@@ -65,3 +65,6 @@ export const customerSchema = z
   );
 
 export type CustomerFormDataSchema = z.infer<typeof customerSchema>;
+
+
+

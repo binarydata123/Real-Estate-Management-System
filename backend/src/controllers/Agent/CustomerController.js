@@ -11,12 +11,10 @@ export const createCustomer = async (req, res) => {
     const { fullName, phoneNumber, agencyId } = req.body;
 
     if (!fullName || !phoneNumber) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Full name and phone number are required.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Full name and phone number are required.",
+      });
     }
 
     // Add agencyId from the authenticated user if not provided
@@ -65,14 +63,14 @@ export const createCustomer = async (req, res) => {
     if (savedCustomer) {
       await createNotification({
         userId: savedCustomer._id,
-        message: `Welcome ${savedCustomer.name}! Your account has been created. You can now log in and get started.`,
+        message: `Welcome ${savedCustomer.fullName}! Your account has been created. You can now log in and get started.`,
         type: "welcome",
       });
 
       await sendPushNotification({
         userId: savedCustomer._id,
         title: "Welcome to Our Platform 🎉",
-        message: `Hi ${savedCustomer.name}, your account has been created!`,
+        message: `Hi ${savedCustomer.fullName}, your account has been created!`,
         urlPath: "/login",
       });
     }
@@ -96,12 +94,10 @@ export const getCustomers = async (req, res) => {
     const agencyId = req.user.agencyId._id;
 
     if (!agencyId) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "User is not associated with an agency.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "User is not associated with an agency.",
+      });
     }
 
     const pageNumber = parseInt(page);
@@ -159,12 +155,10 @@ export const getCustomersForDropDown = async (req, res) => {
     const agencyId = req.user.agencyId._id;
 
     if (!agencyId) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "User is not associated with an agency.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "User is not associated with an agency.",
+      });
     }
 
     const customers = await Customer.find({ agencyId: agencyId });

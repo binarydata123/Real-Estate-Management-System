@@ -112,9 +112,9 @@ const registrationController = {
 
       if (loginAs === "agency" || loginAs === "admin") {
         if (!email || !password) {
-          return res
-            .status(400)
-            .json({ message: "Please provide email and password for agency login." });
+          return res.status(400).json({
+            message: "Please provide email and password for agency login.",
+          });
         }
 
         user = await User.findOne({ email })
@@ -122,42 +122,60 @@ const registrationController = {
           .populate("agencyId", "name slug email phone logoUrl");
 
         if (!user) {
-          return res.status(401).json({ message: "Invalid email or password." });
+          return res
+            .status(401)
+            .json({ message: "Invalid email or password." });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-          return res.status(401).json({ message: "Invalid email or password." });
+          return res
+            .status(401)
+            .json({ message: "Invalid email or password." });
         }
 
-        if (loginAs === 'admin' && user.role !== 'admin') {
-          return res.status(403).json({ message: "Access denied. Not an admin account." });
+        if (loginAs === "admin" && user.role !== "admin") {
+          return res
+            .status(403)
+            .json({ message: "Access denied. Not an admin account." });
         }
 
-        if (loginAs === 'agency' && user.role !== 'agency' && user.role !== 'agent') {
-          return res.status(403).json({ message: "Access denied. Not an agency or agent account." });
+        if (
+          loginAs === "agency" &&
+          user.role !== "agency" &&
+          user.role !== "agent"
+        ) {
+          return res.status(403).json({
+            message: "Access denied. Not an agency or agent account.",
+          });
         }
-
       } else if (loginAs === "customer") {
         if (!phone) {
-          return res.status(400).json({ message: "Please provide a phone number for customer login." });
+          return res.status(400).json({
+            message: "Please provide a phone number for customer login.",
+          });
         }
 
         // Find all customer profiles with the given phone number
-        const customers = await Customer.find({ phoneNumber: phone }).populate("agencyId", "name slug email phone logoUrl");
+        const customers = await Customer.find({ phoneNumber: phone }).populate(
+          "agencyId",
+          "name slug email phone logoUrl"
+        );
 
         if (!customers || customers.length === 0) {
-          return res.status(401).json({ message: "No customer found with this phone number." });
+          return res
+            .status(401)
+            .json({ message: "No customer found with this phone number." });
         }
-        console.log(customers)
+        console.log(customers);
         // If there's only one profile, log them in directly
         if (customers.length === 1) {
           user = customers[0];
         } else {
           // If multiple profiles exist, ask the user to select one
           const agencies = customers
-            .filter(c => c.agencyId) // Safely filter out customers with no populated agency
-            .map(c => ({
+            .filter((c) => c.agencyId) // Safely filter out customers with no populated agency
+            .map((c) => ({
               customerId: c._id,
               agencyId: c.agencyId._id,
               name: c.agencyId.name,
@@ -167,20 +185,24 @@ const registrationController = {
           return res.json({
             success: true,
             requiresSelection: true,
-            message: "Multiple agency profiles found. Please select one to continue.",
+            message:
+              "Multiple agency profiles found. Please select one to continue.",
             agencies: agencies,
             phone: phone,
           });
         }
 
-        if (user.role !== 'customer') {
-          return res.status(403).json({ message: "Access denied. Not a customer account." });
+        if (user.role !== "customer") {
+          return res
+            .status(403)
+            .json({ message: "Access denied. Not a customer account." });
         }
 
         // The rest of the logic will handle the single user case
-
       } else {
-        return res.status(400).json({ message: "Invalid login type specified." });
+        return res
+          .status(400)
+          .json({ message: "Invalid login type specified." });
       }
       res.json({
         success: true,
@@ -193,13 +215,13 @@ const registrationController = {
           role: user.role,
           agency: user.agencyId
             ? {
-              _id: user.agencyId._id,
-              name: user.agencyId.name,
-              slug: user.agencyId.slug,
-              email: user.agencyId.email,
-              phone: user.agencyId.phone,
-              logoUrl: user.agencyId.logoUrl,
-            }
+                _id: user.agencyId._id,
+                name: user.agencyId.name,
+                slug: user.agencyId.slug,
+                email: user.agencyId.email,
+                phone: user.agencyId.phone,
+                logoUrl: user.agencyId.logoUrl,
+              }
             : null,
         },
       });
@@ -213,18 +235,27 @@ const registrationController = {
     const { customerId } = req.body;
 
     if (!customerId) {
-      return res.status(400).json({ message: "Customer ID is required for selection." });
+      return res
+        .status(400)
+        .json({ message: "Customer ID is required for selection." });
     }
 
     try {
-      const user = await Customer.findById(customerId).populate("agencyId", "name slug email phone logoUrl");
+      const user = await Customer.findById(customerId).populate(
+        "agencyId",
+        "name slug email phone logoUrl"
+      );
 
       if (!user) {
-        return res.status(404).json({ message: "Selected customer profile not found." });
+        return res
+          .status(404)
+          .json({ message: "Selected customer profile not found." });
       }
 
-      if (user.role !== 'customer') {
-        return res.status(403).json({ message: "Access denied. Not a customer account." });
+      if (user.role !== "customer") {
+        return res
+          .status(403)
+          .json({ message: "Access denied. Not a customer account." });
       }
 
       // Successfully selected, now generate token and send full user object
@@ -248,7 +279,9 @@ const registrationController = {
         },
       });
     } catch (error) {
-      res.status(500).json({ message: "Server error during agency selection." });
+      res
+        .status(500)
+        .json({ message: "Server error during agency selection." });
     }
   },
 
@@ -270,7 +303,7 @@ const registrationController = {
       let user;
       const { role, _id } = req.user;
 
-      if (role === 'customer') {
+      if (role === "customer") {
         user = await Customer.findById(_id).populate(
           "agencyId",
           "name slug email phone logoUrl"
@@ -301,16 +334,16 @@ const registrationController = {
             showAllProperty: user.showAllProperty,
             agency: user.agencyId
               ? {
-                _id: user.agencyId._id,
-                name: user.agencyId.name,
-                slug: user.agencyId.slug,
-                email: user.agencyId.email,
-                phone: user.agencyId.phone,
-                logoUrl: user.agencyId.logoUrl,
-              }
+                  _id: user.agencyId._id,
+                  name: user.agencyId.name,
+                  slug: user.agencyId.slug,
+                  email: user.agencyId.email,
+                  phone: user.agencyId.phone,
+                  logoUrl: user.agencyId.logoUrl,
+                }
               : null,
           },
-        }
+        },
       });
     } catch (error) {
       // This catch block is for unexpected errors within this controller.

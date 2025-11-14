@@ -204,6 +204,11 @@ declare global {
     notes?: string;
     created_at?: string;
     updated_at?: string;
+    agencyId?: AgencyRef;
+  }
+  interface AgencyRef {
+    _id: string;
+    name: string;
   }
 
   interface SharePropertyFormData {
@@ -418,6 +423,8 @@ declare global {
     reraStatus: string[];
   }
 }
+
+
 
 export {
   RegistrationData,

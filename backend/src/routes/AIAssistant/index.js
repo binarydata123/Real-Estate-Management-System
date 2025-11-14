@@ -4,28 +4,31 @@ import {
   generateSpeech,
   propertyPrompt,
   createAssistant,
-  createCustomerAssistant,
-  createCustomerRecord,
-  startCustomerSession,
-  handleVapiWebhook,
 } from "../../controllers/AI/assistantController.js";
 import {
-  logAISessionMessage,
-  startAISession,
-} from "../../controllers/AI/logAIInteractionController.js";
+  createCustomerAssistant,
+  startCustomerSession,
+} from "../../controllers/AI/customerAssistant/index.js";
+import {
+  createPropertyAssistant,
+  startPropertySession,
+} from "../../controllers/AI/propertyAssistant/index.js";
+import {
+  createMeetingRecord,
+  startMeetingSession,
+} from "../../controllers/AI/meetingAssistant/index.js";
 
 const router = express.Router();
 
 // POST /api/assistant/ask
 router.post("/ask", askQuestion);
-// POST /api/assistant/speak
 router.post("/speak", generateSpeech);
 router.get("/property-prompt/:propertyId/:userId", propertyPrompt);
 router.post("/create", createAssistant);
-router.post("/log", logAISessionMessage);
-router.post("/start-session", startAISession);
 router.post("/create-customer-assistant", createCustomerAssistant);
-router.post("/create-customer-record", createCustomerRecord);
 router.post("/start-customer-session", startCustomerSession);
-router.post("/webhook", handleVapiWebhook);
+router.post("/start-meeting-session", startMeetingSession);
+router.post("/start-property-session", startPropertySession);
+router.post("/create-property-assistant", createPropertyAssistant);
+
 export default router;

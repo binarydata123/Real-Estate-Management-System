@@ -40,3 +40,16 @@ export const startCustomerSession = async (data: { assistantId: string }) => {
   const response = await api.post(`/assistant/start-customer-session`, data);
   return response.data;
 };
+
+export const startPropertySession = async (data: { assistantId: string }) => {
+  const response = await api.post(`/assistant/start-property-session`, data);
+  return response.data;
+};
+
+export const startMeetingSession = async (data: {
+  assistantId: string;
+  userId: string;
+}) => {
+  const response = await api.post(`/assistant/start-meeting-session`, data);
+  return response.data;
+};
