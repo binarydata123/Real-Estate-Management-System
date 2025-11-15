@@ -1,9 +1,10 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
-import { User } from "../../models/Common/UserModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import generateToken from "../../utils/generateToken.js";
 import { sendPushNotification } from "../../utils/pushService.js";
+import AgencySettings from "../../models/Agent/settingsModel.js";
+import CustomerSettings from "../../models/Customer/SettingsModel.js";
 
 // Create a new meeting
 export const createMeeting = async (req, res) => {
@@ -17,55 +18,59 @@ export const createMeeting = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    const customerUser = await User.findOne({ email: customer.email });
-    if (!customerUser) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Customer user account not found" });
-    }
     const agentToken = generateToken(req.user._id, req.user.role);
-    const customerToken = generateToken(customerUser._id, customerUser.role);
-    await createNotification({
-      agencyId: req.body.agencyId,
-      userId: user._id,
-      message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
-      type: "meeting_scheduled",
+    const customerToken = generateToken(customer._id, customer.role);
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
     });
+    const customerSettings = await CustomerSettings.findOne({
+      userId: customer._id,
+    });
+    if (agencySettings?.notifications?.meetingReminders) {
+      await createNotification({
+        agencyId: req.body.agencyId,
+        userId: user._id,
+        message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
+        type: "meeting_scheduled",
+      });
+    }
+    console.log(customerSettings);
+    if (customerSettings?.notifications?.meetingReminders) {
     await createNotification({
-      userId: customerUser._id,
+      userId: customer._id,
       message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
       type: "meeting_scheduled",
     });
+  }
+    if (agencySettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: user._id,
+        title: "Meeting Scheduled",
+        message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
+        urlPath: "/meetings",
+        data: { meetingId: savedMeeting._id, token: agentToken },
+        actions: [
+          { action: "confirm", title: "👍 Confirm" },
+          { action: "cancel", title: "👎 Cancel" },
+        ],
+      });
 
-    //Push notification to meeting creator
-    await sendPushNotification({
-      userId: user._id,
-      title: "Meeting Scheduled",
-      message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
-      urlPath: "/meetings",
-      data: { meetingId: savedMeeting._id, token: agentToken },
-      actions: [
-        { action: "confirm", title: "👍 Confirm" },
-        { action: "cancel", title: "👎 Cancel" },
-      ],
-    });
+    if (customerSettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: customer._id,
+        title: "New Meeting Invitation",
+        message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+        urlPath: "/meetings",
+        data: { meetingId: savedMeeting._id, token: customerToken },
+        actions: [
+          { action: "confirm", title: "👍 Confirm" },
+          { action: "cancel", title: "👎 Cancel" },
+        ],
+      });
 
-    // ✅ Push notification to another participant
-    await sendPushNotification({
-      userId: customerUser._id,
-      title: "New Meeting Invitation",
-      message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
-      urlPath: "/meetings",
-      data: { meetingId: savedMeeting._id, token: customerToken },
-      actions: [
-        { action: "confirm", title: "👍 Confirm" },
-        { action: "cancel", title: "👎 Cancel" },
-      ],
-    });
-
-    res.status(201).json({ success: true, data: savedMeeting });
+    return res.status(201).json({ success: true, data: savedMeeting });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -80,7 +85,7 @@ export const getMeetingsByAgency = async (req, res) => {
 
     const now = new Date();
 
-    let query = { agencyId: id };
+    const query = { agencyId: id };
 
     if (status === "upcoming") {
       query.$expr = {
@@ -172,16 +177,15 @@ export const getMeetingById = async (req, res) => {
         .json({ success: false, message: "Meeting not found" });
     }
 
-    res.json({ success: true, data: meeting });
+    return res.json({ success: true, data: meeting });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 // Update a meeting
 export const updateMeeting = async (req, res) => {
   try {
-    const agencyId = req.user.agencyId._id._id;
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -194,14 +198,13 @@ export const updateMeeting = async (req, res) => {
         .json({ success: false, message: "Meeting not found" });
     }
 
-    res.json({ success: true, data: updatedMeeting });
+    return res.json({ success: true, data: updatedMeeting });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 export const updateMeetingStatus = async (req, res) => {
   try {
-    console.log(req.body, req.params);
     const { status } = req.body; // only accept status
     if (!status) {
       return res
@@ -223,9 +226,9 @@ export const updateMeetingStatus = async (req, res) => {
         .json({ success: false, message: "Meeting not found" });
     }
 
-    res.json({ success: true, data: updatedMeeting });
+    return res.json({ success: true, data: updatedMeeting });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -238,10 +241,8 @@ export const deleteMeeting = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Meeting not found" });
     }
-    res.json({ success: true, message: "Meeting deleted successfully" });
+    return res.json({ success: true, message: "Meeting deleted successfully" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
-
-

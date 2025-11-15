@@ -43,14 +43,13 @@ export const inviteAgent = async (req, res) => {
       return res.status(404).json({ message: "Agency not found" });
     }
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Agent invited successfully",
       user: newUser,
       agency,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 

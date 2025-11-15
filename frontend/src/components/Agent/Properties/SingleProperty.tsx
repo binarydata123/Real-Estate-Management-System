@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
@@ -13,9 +14,10 @@ import { ArrowLeftIcon, PencilIcon, ShareIcon, TrashIcon } from "lucide-react";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { useToast } from "@/context/ToastContext";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface Images {
-  _id: string;
+  _id?: string;
   url: string;
   alt?: string;
   isPrimary?: boolean;
@@ -68,7 +70,9 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   //   propertyData.images[0]
   // );
   const router = useRouter();
-  const [selectedImage, setSelectedImage] = useState<Images | null>(null);
+  const [selectedImage, setSelectedImage] = useState<PropertyImage | null>(
+    null
+  );
   const [showShareModal, setShowShareModal] = useState(false);
 
   // --- AI Voice Assistant State & Logic ---
@@ -84,9 +88,9 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   // --- Voice Loading Effect ---
   useEffect(() => {
     const loadVoices = () => {
-      const availableVoices = window.speechSynthesis.getVoices();
-      if (availableVoices.length > 0) {
-      }
+      // const availableVoices = window.speechSynthesis.getVoices();
+      // if (availableVoices.length > 0) {
+      // }
     };
     getProperty();
 
@@ -160,7 +164,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
       source.start(0);
       audioSourceRef.current = source;
     } catch (err) {
-      console.error("Error fetching or playing speech:", err);
+      showErrorToast("Error fetching or playing speech:", err);
       setError("Sorry, I couldn't generate the audio for that.");
       setAssistantStatus("idle");
     }
@@ -171,7 +175,9 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     let text = `Here are the full details of the property: ${
       property.title
     }, a ${property.category} located in ${property.location}.
-    Price: ₹${formatIndianPrice(property.price)}, Status: ${property.status}.
+    Price: ₹${formatIndianPrice(property.price ?? 0)}, Status: ${
+      property.status
+    }.
     Description: ${property.description}.
     Built-up Area: ${property.built_up_area} ${
       property.unit_area_type
@@ -186,18 +192,20 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     text += ` Bedrooms: ${property.bedrooms}, Bathrooms: ${property.bathrooms}, Balconies: ${property.balconies}, Floor Number: ${property.floor_number}, Total Floors: ${property.total_floors}.`;
     text += ` Facing: ${
       property.facing
-    }, Overlooking: ${property.overlooking.join(", ")}.`;
+    }, Overlooking: ${property?.overlooking?.join(", ")}.`;
     text += ` Property Age: ${property.property_age}, Transaction Type: ${
       property.transaction_type
     }, Gated Community: ${property.gated_community ? "Yes" : "No"}.`;
-    text += ` Furnishing: ${property.furnishing}, Flooring Type: ${property.flooring_type}.`;
-    text += ` Amenities: ${property.amenities.join(
+    text += ` Furnishing: ${property.furnishing}, Flooring Type: ${
+      property?.flooring_type ?? "N/A"
+    }.`;
+    text += ` Amenities: ${property?.amenities?.join(
       ", "
-    )}, Features: ${property.features.join(
+    )}, Features: ${property?.features?.join(
       ", "
-    )}, Water Source: ${property.water_source.join(", ")}, Power Backup: ${
+    )}, Water Source: ${property?.water_source?.join(", ")}, Power Backup: ${
       property.power_backup
-    }, RERA Status: ${property.rera_status}.`;
+    }, RERA Status: ${property?.rera_status}.`;
     text += ` Owner Name: ${property.owner_name}, Contact: ${property.owner_contact}.`;
 
     return text;
@@ -220,113 +228,6 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
       speak(fullText, () => setAssistantStatus("idle"));
     }
   }, [assistantStatus, generateFullPropertyText, propertyData]);
-
-  const handleQuestion = async (question: string) => {
-    setAssistantStatus("thinking");
-    setError("");
-    setAssistantResponse("");
-
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/assistant/ask`,
-        {
-          question,
-          propertyData,
-        }
-      );
-
-      if (response.data && response.data.answer) {
-        setAssistantResponse(response.data.answer);
-        speak(response.data.answer, () => setAssistantStatus("idle"));
-      } else {
-        throw new Error("No answer received from the assistant.");
-      }
-    } catch (err) {
-      const errorMessage = "Sorry, I couldn't process that. Please try again.";
-      setError(errorMessage);
-      setAssistantStatus("idle");
-      console.error("Error with AI Assistant:", err);
-    }
-  };
-
-  const generateSummaryText = useCallback((property: Property): string => {
-    return `Discover your dream home! The "${property.title}" is a stunning ${
-      property.category
-    } located in ${property.location}.
-  Priced at just ${formatIndianPrice(property.price)}, this property offers ${
-      property.bedrooms
-    } spacious bedrooms,
-  modern amenities like ${property.amenities.join(
-    ", "
-  )}, and features such as ${property.features.join(", ")}.
-  With a beautiful ${
-    property.facing
-  } facing and overlooking ${property.overlooking.join(", ")},
-  it's perfect for families seeking comfort and luxury. Don't miss this opportunity—schedule a visit today!`;
-  }, []);
-
-  const handleSpeakSummary = useCallback(() => {
-    if (!audioContextRef.current) {
-      setError(
-        "Audio context not ready. Please click anywhere on the page first."
-      );
-      return;
-    }
-    if (assistantStatus === "speaking") {
-      stopAll();
-      return;
-    }
-
-    // If idle, start speaking the summary
-    let speechText = "";
-    if (propertyData) {
-      speechText = generateSummaryText(propertyData);
-    }
-    speak(speechText, () => {
-      setAssistantStatus("idle");
-      //setIsSummaryPaused(false);
-    });
-  }, [assistantStatus, generateSummaryText, speak]);
-
-  const toggleListening = () => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition; // For browser compatibility
-    if (!SpeechRecognition) {
-      setError("Voice recognition is not supported in this browser.");
-      return;
-    }
-
-    const recognition = recognitionRef.current || new SpeechRecognition();
-    recognition.lang = "en-IN";
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      setAssistantStatus("listening");
-    };
-    recognition.onresult = (event: any) => {
-      const question = event.results[0][0].transcript;
-      setIsListening(false); // Stop listening visually once a result is received
-      handleQuestion(question);
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      setAssistantStatus((currentStatus) =>
-        currentStatus === "listening" ? "idle" : currentStatus
-      );
-    };
-    recognition.onerror = (event: any) => {
-      if (event.error !== "no-speech") {
-        setError(`Error during recognition: ${event.error}`);
-      }
-      setAssistantStatus("idle");
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-  };
 
   const stopAll = () => {
     if (audioSourceRef.current) {
@@ -359,8 +260,8 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         showToast(response.message, "success");
         router.back();
       }
-    } catch (error) {
-      console.error("Failed to delete property:", error);
+    } catch (err) {
+      showErrorToast("Failed to delete property:", err);
     }
   };
   return (
@@ -641,11 +542,6 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                 </button>
               )}
             </div>
-            {assistantResponse && (
-              <p className="mt-3 text-gray-800 bg-blue-50 p-3 rounded-md">
-                {assistantResponse}
-              </p>
-            )}
             {error && <p className="mt-3 text-red-600 text-sm">{error}</p>}
           </div>
 
@@ -728,7 +624,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
           </h2>
           <p className="text-gray-700">Facing: {propertyData?.facing}</p>
           <p className="text-gray-700">
-            Overlooking: {propertyData?.overlooking.join(", ")}
+            Overlooking: {propertyData?.overlooking?.join(", ")}
           </p>
         </div>
 
@@ -748,9 +644,9 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             </p>
             <p>Furnishing: {propertyData?.furnishing}</p>
             <p>Flooring Type: {propertyData?.flooring_type}</p>
-            <p>Amenities: {propertyData?.amenities.join(", ")}</p>
-            <p>Features: {propertyData?.features.join(", ")}</p>
-            <p>Water Source: {propertyData?.water_source.join(", ")}</p>
+            <p>Amenities: {propertyData?.amenities?.join(", ")}</p>
+            <p>Features: {propertyData?.features?.join(", ")}</p>
+            <p>Water Source: {propertyData?.water_source?.join(", ")}</p>
             <p>Power Backup: {propertyData?.power_backup}</p>
             <p>RERA Status: {propertyData?.rera_status}</p>
           </div>

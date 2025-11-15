@@ -7,7 +7,7 @@ export const getCustomerProifile = async (): Promise<ApiResponse<Customer>> => {
 
 
 export const updateCustomerProfile = async (
-  data: ProfileFormData
+  data: ProfileFormData,
 ): Promise<ApiResponse<Customer>> => {
   const res = await api.post<ApiResponse<Customer>>("/customer/profile/update", data);
   return res.data;

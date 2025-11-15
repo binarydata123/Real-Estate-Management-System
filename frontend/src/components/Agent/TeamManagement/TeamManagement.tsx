@@ -156,14 +156,14 @@ export const TeamManagement: React.FC = () => {
               <div className="flex flex-wrap items-center gap-2 md:gap-3 justify-end">
                 <span
                   className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(
-                    member.role
+                    member.role,
                   )}`}
                 >
                   {member.role.replace("_", " ")}
                 </span>
                 <span
                   className={`inline-flex capitalize items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                    member.status
+                    member.status,
                   )}`}
                 >
                   {member.status}

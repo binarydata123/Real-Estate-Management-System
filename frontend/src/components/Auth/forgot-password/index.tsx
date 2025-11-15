@@ -33,16 +33,14 @@ export default function ForgotPassword() {
         setSuccess(null);
 
         try {
-            console.log("Forgot password submitted:", data);
-            // Call the actual API endpoint
             const response = await axios.post('http://localhost:5001/api/auth/forgot-password', data);
             setSuccess(response.data.message || "If an account with that email exists, a password reset link has been sent.");
-        } catch (error: unknown) {  // ✅ use unknown instead of any
+        } catch (err: unknown) {  // ✅ use unknown instead of any
             if (axios.isAxiosError(error) && error.response) {
                 // Error from the backend
                 setError(error.response.data.message || 'An error occurred during forgot-password.');
-            } else if (error instanceof Error) {
-                setError(error.message || 'An unexpected error occurred.');
+            } else if (err instanceof Error) {
+                setError(err.message || 'An unexpected error occurred.');
             } else {
                 setError('An unexpected error occurred during signup.');
             }

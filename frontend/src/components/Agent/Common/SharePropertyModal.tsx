@@ -17,6 +17,7 @@ import { shareProperty } from "@/lib/Agent/SharePropertyAPI";
 import { sharePropertySchema } from "@/schemas/Agent/sharePropertySchema";
 import { useToast } from "@/context/ToastContext";
 import axios from "axios";
+import { showErrorToast } from "@/utils/toastHandler";
 
 type SharePropertyFormData = z.infer<typeof sharePropertySchema>;
 
@@ -61,7 +62,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
         const res = await getCustomers(user?._id);
         setOptions(res.data || []);
       } catch (err) {
-        console.error(err);
+        showErrorToast("Error:", err);
       }
     };
     fetchAll();
@@ -92,7 +93,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
       onSuccess?.();
       onClose?.();
     } catch (error) {
-      console.error("Share property failed:", error);
+      showErrorToast("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -129,7 +130,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
             <h3 className="font-semibold">{property.title}</h3>
             <p className="text-gray-600">{property.location}</p>
             <p className="text-lg font-bold mt-1">
-              {formatPrice(property.price)}
+              {formatPrice(property.price as number)}
             </p>
           </div>
 
@@ -154,7 +155,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                   return (
                     <Combobox
                       value={selectedUser}
-                      onChange={(user) => field.onChange(user?._id)}
+                      onChange={(customer) => field.onChange(customer?._id)}
                     >
                       <div className="relative">
                         <Combobox.Input
@@ -163,8 +164,8 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                               ? "border-red-600"
                               : "border-gray-300"
                           }`}
-                          displayValue={(user: CustomerFormData | null) =>
-                            user?.fullName || ""
+                          displayValue={(customer: CustomerFormData | null) =>
+                            customer?.fullName || ""
                           }
                           onChange={(e) => setQuery(e.target.value)}
                           placeholder="Search customer..."

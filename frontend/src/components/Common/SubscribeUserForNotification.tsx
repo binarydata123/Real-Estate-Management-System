@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { useCallback } from "react";
 import { detectDevice } from "./DetectDevice";
 import { savePushSubscription } from "@/lib/Common/SubscribeUserNotification";
+import { showErrorToast } from '@/utils/toastHandler';
 
 function getOrCreateDeviceId(): string {
   let id = Cookies.get("deviceId");
@@ -38,7 +39,7 @@ export function usePushSubscription() {
           subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: urlBase64ToUint8Array(
-              process.env.NEXT_PUBLIC_VAPID_PUBLIC as string
+              process.env.NEXT_PUBLIC_VAPID_PUBLIC as string,
             ),
           });
         }
@@ -58,11 +59,11 @@ export function usePushSubscription() {
 
         return subscription;
       } catch (err) {
-        console.error("[PWA] Push subscription failed:", err);
+        showErrorToast("[PWA] Push subscription failed:", err);
         return null;
       }
     },
-    []
+    [],
   );
 
   return { subscribeUserToPush };

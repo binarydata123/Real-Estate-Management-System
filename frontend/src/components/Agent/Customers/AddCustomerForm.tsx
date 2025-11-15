@@ -12,6 +12,7 @@ import {
 } from "@/schemas/Agent/customerSchema";
 import { createCustomer, updateCustomer } from "@/lib/Agent/CustomerAPI";
 import { useToast } from "@/context/ToastContext";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface AddCustomerFormProps {
   onClose: () => void;
@@ -54,7 +55,6 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
       showToast("You must be logged in to manage customers.", "error");
       return;
     }
-
     const dataWithAgency = {
       ...data,
       agencyId: user?.agency?._id,
@@ -62,11 +62,18 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
 
     setLoading(true);
 
-    const apiCall = async () => {
-      if (customerId) {
-        return updateCustomer(customerId, dataWithAgency);
-      } else {
-        return createCustomer(dataWithAgency);
+    const apiCall = async (): Promise<{ data?: { message?: string } }> => {
+      try {
+        if (customerId) {
+          const response = await updateCustomer(customerId, dataWithAgency);
+          return { data: { message: response.data?.message } };
+        // eslint-disable-next-line no-else-return
+        } else {
+          const response = await createCustomer(dataWithAgency);
+          return { data: { message: response.data?.message } };
+        }
+      } catch (error) {
+        throw error;
       }
     };
 
@@ -93,9 +100,9 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error(
+      showErrorToast(
         `Customer ${customerId ? "update" : "creation"} failed:`,
-        error
+        error,
       );
     } finally {
       setLoading(false);

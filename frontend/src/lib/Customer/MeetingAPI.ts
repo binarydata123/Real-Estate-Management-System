@@ -13,10 +13,10 @@ export const getMeetingsByCustomer = async (
   customerId: string,
   status: "upcoming" | "past" | "cancelled",
   page = 1,
-  limit = 10
+  limit = 10,
 ) => {
   return await api.get(
-    `/customer/meetings/get-all?customerId=${customerId}&status=${status}&page=${page}&limit=${limit}`
+    `/customer/meetings/get-all?customerId=${customerId}&status=${status}&page=${page}&limit=${limit}`,
   );
 };
 

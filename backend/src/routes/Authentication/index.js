@@ -6,7 +6,28 @@ const router = express.Router();
 
 router.post("/register-agency", registrationController.registerAgency);
 router.post("/login", registrationController.loginUser);
-router.post("/select-customer-agency", registrationController.selectCustomerAgency);
-router.get("/check-session", protect(["agent", "admin", "customer"]), registrationController.checkSession);
+router.post(
+  "/select-customer-agency",
+  registrationController.selectCustomerAgency
+);
+router.get(
+  "/check-session",
+  protect(["agent", "admin", "customer"]),
+  registrationController.checkSession
+);
+router.post(
+  "/select-customer-agency",
+  registrationController.selectCustomerAgency
+);
+router.get(
+  "/check-session",
+  protect(["agent", "admin", "customer"]),
+  registrationController.checkSession
+);
+router.post(
+  "/change-password",
+  protect(["agent", "admin", "customer"]),
+  registrationController.changePassword
+);
 
 export default router;

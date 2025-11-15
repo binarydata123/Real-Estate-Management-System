@@ -22,7 +22,8 @@ export type NotificationType = {
 export const getNotifications = async (
   userId: string,
   options?: {
-    type?:
+    type:
+    "all"
       | "welcome"
       | "new_lead"
       | "task_assigned"
@@ -32,11 +33,11 @@ export const getNotifications = async (
       | "unread"
     page?: number;
     limit?: number;
-  }
+  },
 ): Promise<
   AxiosResponse<{
     success: boolean;
-    data: NotificationType[];
+    data: [];
     pagination: {
       total: number;
       page: number;
@@ -72,7 +73,7 @@ export const markAllAsRead = async (): Promise<AxiosResponse> => {
 
 // Delete a notification
 export const deleteNotification = async (
-  id: string
+  id: string,
 ): Promise<AxiosResponse> => {
   return api.delete(`/common/notification/delete/${id}`);
 };

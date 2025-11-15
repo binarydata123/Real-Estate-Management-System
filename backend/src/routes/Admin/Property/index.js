@@ -4,12 +4,10 @@ import {
   updateProperty,
   deleteProperty
 } from "../../../controllers/Admin/PropertyController.js";
-import { createUpload } from "../../../utils/multerConfig.js";
 import { protect } from "../../../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-const upload = createUpload("Properties");
 
 
 // Using a more RESTful approach for property routes.

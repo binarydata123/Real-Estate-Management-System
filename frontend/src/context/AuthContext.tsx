@@ -11,12 +11,9 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import { Loader } from "lucide-react";
 import Cookies from "js-cookie";
-import {
-  loginUser,
-  checkSession as checkSessionApi,
-} from "@/lib/Authentication/AuthenticationAPI";
-import { AxiosError } from "axios";
-import { LoginData } from "@/components/Auth/LoginForm";
+import { checkSession as checkSessionApi } from "@/lib/Authentication/AuthenticationAPI";
+import { AxiosError, AxiosResponse } from "axios";
+import { showErrorToast } from "@/utils/toastHandler";
 
 export const AUTH_SESSION_KEY = "auth-session";
 
@@ -54,7 +51,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (credentials: LoginData) => Promise<AuthResponse>;
+  signIn: (response: AxiosResponse) => Promise<AuthResponse>;
   completeSignIn: (user: User, token: string) => void;
   signOut: () => Promise<void>;
   router: ReturnType<typeof useRouter>;
@@ -115,7 +112,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           clearSession();
         }
       } catch (error) {
-        console.error("Session check failed, signing out.", error);
+        showErrorToast("Session check failed, signing out.", error);
         clearSession();
       } finally {
         setLoading(false);
@@ -135,24 +132,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [user, loading, router, pathname]);
 
-  const signIn = async (credentials: LoginData): Promise<AuthResponse> => {
+  const signIn = async (response: AxiosResponse): Promise<AuthResponse> => {
     try {
-      // The backend now returns a consistent user object on login
-      const response = await loginUser(credentials);
-      const { token, user } = response.data;
+      const { token, user: userData } = response.data;
 
       const newSession: Session = {
         access_token: token,
       };
 
       setSession(newSession);
-      setUser(user);
+      setUser(userData);
       Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
         expires: 365, // Keep user logged in for 1 year
         secure: process.env.NODE_ENV === "production",
       });
 
-      return { data: { user, session: newSession }, error: null };
+      return { data: { user: userData, session: newSession }, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const errorMessage =
@@ -165,19 +160,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const completeSignIn = (user: User, token: string) => {
+  const completeSignIn = (userData: User, token: string) => {
     const newSession: Session = {
       access_token: token,
     };
 
     setSession(newSession);
-    setUser(user);
+    setUser(userData);
     Cookies.set(AUTH_SESSION_KEY, JSON.stringify(newSession), {
       expires: 365,
       secure: process.env.NODE_ENV === "production",
     });
 
-    router.push(`/${user.role}/dashboard`);
+    router.push(`/${userData.role}/dashboard`);
   };
 
   const signOut = async () => {

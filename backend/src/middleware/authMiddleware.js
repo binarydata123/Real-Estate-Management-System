@@ -48,7 +48,7 @@ const protect =
           }
 
           // 5. Proceed to next
-          next();
+        return next();
         } catch (error) {
           console.error("Authentication error:", error.message);
           return res

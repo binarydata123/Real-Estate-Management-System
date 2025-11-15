@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const AssistantId = process.env.NEXT_PUBLIC_VAPI_MEETING_SCHEDULE_ASSISTANT_ID; // ✅ new assistant ID for ScheduleMeeting
 import { XMarkIcon } from "@heroicons/react/24/outline"; // Import XMarkIcon for closing
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface MeetingAssistantProps {
   onClose: () => void;
@@ -28,50 +29,42 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_VAPI_API_KEY;
     if (!key) {
-      console.error("Missing NEXT_PUBLIC_VAPI_API_KEY");
+      showErrorToast("Missing NEXT_PUBLIC_VAPI_API_KEY");
       return;
     }
 
     const instance = new Vapi(key);
     setVapi(instance);
 
-    instance.on("error", (err: any) => console.error("⚠️ Vapi error:", err));
+    instance.on("error", (err: any) => showErrorToast("⚠️ Vapi error:", err));
 
     instance.on("call-start", () => {
-      console.log("📞 Meeting assistant started");
       setIsSpeaking(true);
       setLoading(false);
       setAssistantMessage("I'm listening... How can I help you?");
     });
 
     instance.on("call-end", () => {
-      console.log("✅ Meeting session ended");
       setAssistantMessage("Call ended. Review the details below if available.");
       setIsSpeaking(false);
     });
 
     // 👂 Listen for structured output events for ScheduleMeeting
     instance.on("ScheduleMeeting" as any, (event: any) => {
-      console.log("📦 Meeting Structured Output:", event);
       const result = event?.data?.result || event?.result;
       if (result) {
-        console.log("✅ Captured Meeting Data:", result);
         setAssistantMessage(
           "I've captured the details. Please review and save."
         );
-      } else {
-        console.warn("⚠️ Missing structured data in event:", event);
       }
     });
 
     // Fallback for generic structured-output event
     instance.on("structured-output" as any, (event: any) => {
-      console.log("📦 Generic Structured Output:", event);
       const firstValue: any =
         event && typeof event === "object" ? Object.values(event)[0] : null;
       const data = event?.data?.result || firstValue?.result;
       if (data?.customerName && data?.date) {
-        console.log("✅ Meeting Data Captured:", data);
         setAssistantMessage(
           "I've captured the details. Please review and save."
         );
@@ -104,7 +97,7 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
         metadata: { userId: user?._id },
       });
     } catch (err) {
-      console.error("❌ Failed to start meeting assistant:", err);
+      showErrorToast("❌ Failed to start meeting assistant:", err);
       setAssistantMessage("Error starting assistant. Please try again.");
       setLoading(false);
       setIsSpeaking(false);
@@ -117,7 +110,7 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
     try {
       await vapi.stop();
     } catch (err) {
-      console.error("Error stopping assistant:", err);
+      showErrorToast("Error stopping assistant:", err);
     }
     setIsSpeaking(false);
   }, [vapi]);

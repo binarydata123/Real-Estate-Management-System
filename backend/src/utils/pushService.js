@@ -12,7 +12,7 @@ webPush.setVapidDetails(
   VAPID_PRIVATE_KEY
 );
 
-export async function sendPushNotification({
+export async function sendPushNotification ({
   userId,
   role,
   title,
@@ -22,18 +22,22 @@ export async function sendPushNotification({
   actions = [],
 }) {
   const query = {};
-  if (userId) query.userId = userId;
-  if (role) query.role = role;
+  if (userId) {
+    query.userId = userId;
+  }
+  if (role) {
+    query.role = role;
+  }
 
   // ✅ Get subscriptions
   const subscriptions = await PushNotificationSubscription.find(query);
 
   if (!subscriptions.length) {
-    const message = `No subscriptions found for query: ${JSON.stringify(
+    const msg = `No subscriptions found for query: ${JSON.stringify(
       query
     )}`;
-    console.log(message);
-    return { success: false, message, sent: 0 };
+
+    return { success: false, message:msg, sent: 0 };
   }
 
   const payload = JSON.stringify({
@@ -51,7 +55,6 @@ export async function sendPushNotification({
   await Promise.allSettled(
     subscriptions.map((s) =>
       webPush.sendNotification(s.subscription, payload).catch(async (err) => {
-        console.error("Push failed:", err.message);
         if (err.statusCode === 410 || err.statusCode === 404) {
           await PushNotificationSubscription.deleteOne({
             userId: s.userId,
@@ -62,7 +65,6 @@ export async function sendPushNotification({
     )
   );
 
-  console.log(`✅ Sent push to ${subscriptions.length} subscribers`);
   return {
     success: true,
     message: `Sent push to ${subscriptions.length} subscribers`,

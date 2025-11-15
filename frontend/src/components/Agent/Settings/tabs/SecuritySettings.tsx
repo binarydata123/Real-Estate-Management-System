@@ -5,6 +5,9 @@ import {
   ShieldCheckIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { changePassword } from "@/lib/Authentication/AuthenticationAPI";
+import { useAuth } from "@/context/AuthContext";
 
 interface SecuritySettingsProps {
   agencySettings: AgencySettingsType;
@@ -22,17 +25,35 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
   const { security } = agencySettings;
   const [loading, setLoading] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-
+  const { user } = useAuth();
+  const [newPassword, setNewPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      const data = {
+        newPassword,
+        oldPassword,
+        confirmPassword,
+        email: user?.email,
+      };
       // Demo mode - simulate password change
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      alert("Password changed successfully! (Demo mode)");
+      await changePassword(data);
+      showSuccessToast("Password updated successfully");
       setShowPasswordForm(false);
-    } catch (error) {
-      console.error("Password change simulation failed", error);
+    } catch (error: unknown) {
+      if (error && typeof error === "object") {
+        const backendError = error as AxiosErrorResponse;
+        if (backendError.response?.data?.message) {
+          showErrorToast("Error: ", backendError.response.data.message);
+        } else if (error instanceof Error) {
+          showErrorToast("Error: ", error.message);
+        }
+      } else if (typeof error !== "object") {
+        showErrorToast("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -75,10 +96,10 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               className="sr-only peer"
             />
             <div
-              className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 
-                            peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full 
-                            peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] 
-                            after:left-[2px] after:bg-white after:border-gray-300 after:border 
+              className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
+                            peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full
+                            peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
+                            after:left-[2px] after:bg-white after:border-gray-300 after:border
                             after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
             ></div>
           </label>
@@ -152,10 +173,10 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               className="sr-only peer"
             />
             <div
-              className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 
-                            peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full 
-                            peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] 
-                            after:left-[2px] after:bg-white after:border-gray-300 after:border 
+              className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
+                            peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full
+                            peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
+                            after:left-[2px] after:bg-white after:border-gray-300 after:border
                             after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
             ></div>
           </label>
@@ -190,8 +211,9 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               </label>
               <input
                 type="password"
+                onChange={(e) => setOldPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg
                            focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -203,8 +225,9 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               <input
                 type="password"
                 required
+                onChange={(e) => setNewPassword(e.target.value)}
                 minLength={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg
                            focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -216,8 +239,9 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               <input
                 type="password"
                 required
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 minLength={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg
                            focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -226,7 +250,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700
                            transition-colors disabled:opacity-50"
               >
                 {loading ? "Updating..." : "Update Password"}
@@ -234,7 +258,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPasswordForm(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg 
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg
                            hover:bg-gray-300 transition-colors"
               >
                 Cancel

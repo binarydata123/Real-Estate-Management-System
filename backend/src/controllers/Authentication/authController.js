@@ -79,7 +79,7 @@ const registrationController = {
       await session.commitTransaction();
 
       // 7. Respond with success and token
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: "Agency registered successfully!",
         token: generateToken(createdUser._id, createdUser.role),
@@ -96,7 +96,7 @@ const registrationController = {
       });
     } catch (error) {
       await session.abortTransaction();
-      res.status(400).json({
+      return res.status(400).json({
         message: error.message || "Server error during registration.",
       });
     } finally {
@@ -105,7 +105,7 @@ const registrationController = {
   },
 
   loginUser: async (req, res) => {
-    const { email, password, phone, loginAs, customerId } = req.body;
+    const { email, password, phone, loginAs } = req.body;
 
     try {
       let user;
@@ -167,7 +167,6 @@ const registrationController = {
             .status(401)
             .json({ message: "No customer found with this phone number." });
         }
-        console.log(customers);
         // If there's only one profile, log them in directly
         if (customers.length === 1) {
           user = customers[0];
@@ -204,7 +203,15 @@ const registrationController = {
           .status(400)
           .json({ message: "Invalid login type specified." });
       }
-      res.json({
+      const notification = new Notification({
+        userId: user._id,
+        // agencyId: createdAgency._id,
+        message: `You have logged in successfully!`,
+        type: "welcome",
+        link: "/dashboard", // Optional: link to the dashboard
+      });
+      await notification.save();
+      return res.json({
         success: true,
         message: "Login successful!",
         token: generateToken(user._id, user.role),
@@ -227,7 +234,7 @@ const registrationController = {
       });
     } catch (error) {
       console.error("Login error:", error); // Good to have for debugging
-      res.status(500).json({ message: "Server error during login." });
+      return res.status(500).json({ message: "Server error during login." });
     }
   },
 
@@ -259,7 +266,7 @@ const registrationController = {
       }
 
       // Successfully selected, now generate token and send full user object
-      res.json({
+      return res.json({
         success: true,
         message: "Login successful!",
         token: generateToken(user._id, user.role),
@@ -279,7 +286,8 @@ const registrationController = {
         },
       });
     } catch (error) {
-      res
+      console.log(error);
+      return res
         .status(500)
         .json({ message: "Server error during agency selection." });
     }
@@ -293,8 +301,12 @@ const registrationController = {
         return res.status(404).json({ message: "User not found." });
       }
       // if email found then send email
+      return res.status(200).json({ message: "Email Sent" });
     } catch (error) {
-      res.status(500).json({ message: "Server error during password reset." });
+      console.log(error);
+      return res
+        .status(500)
+        .json({ message: "Server error during password reset." });
     }
   },
 
@@ -322,7 +334,7 @@ const registrationController = {
           .json({ message: "User associated with this session not found." });
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Session is active.",
         data: {
@@ -348,7 +360,63 @@ const registrationController = {
     } catch (error) {
       // This catch block is for unexpected errors within this controller.
       console.error("Session check controller error:", error);
-      res.status(500).json({ message: "Server error during session check." });
+      return res
+        .status(500)
+        .json({ message: "Server error during session check." });
+    }
+  },
+  changePassword: async (req, res) => {
+    try {
+      const { oldPassword, newPassword, confirmPassword, email, phone } =
+        req.body;
+      console.log(req.body);
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: "New passwords do not match." });
+      }
+
+      // Find user by email or phone
+      let user;
+      if (email) {
+        user = await User.findOne({ email });
+      } else if (phone) {
+        user = await User.findOne({ phone });
+      } else {
+        return res.status(400).json({ message: "Email or phone is required." });
+      }
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+
+      // Verify old password
+      const isOldPasswordValid = await bcrypt.compare(
+        oldPassword,
+        user.password
+      );
+      if (!isOldPasswordValid) {
+        return res.status(400).json({ message: "Old password is incorrect." });
+      }
+
+      if (oldPassword === newPassword) {
+        return res
+          .status(400)
+          .json({ message: "New password cannot be same as old password." });
+      }
+
+      // Hash new password
+      const saltRounds = 10;
+      const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+      // Update user's password
+      user.password = hashedNewPassword;
+      await user.save();
+
+      return res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Password change error:", error);
+      return res
+        .status(500)
+        .json({ message: "Server error during password change." });
     }
   },
 };

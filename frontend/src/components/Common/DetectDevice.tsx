@@ -1,3 +1,5 @@
+import { showErrorToast } from "@/utils/toastHandler";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface DeviceInfo {
   platform: "ios" | "android" | "desktop" | "unknown";
@@ -215,7 +217,7 @@ export async function isPWAInstalled(): Promise<boolean> {
         return true;
       }
     } catch (err) {
-      console.warn("[PWA] getInstalledRelatedApps failed:", err);
+      showErrorToast("get Installed Related Apps failed:", err);
     }
   }
 

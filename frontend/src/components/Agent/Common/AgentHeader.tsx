@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { NotificationCenter } from "./NotificationHeaderModal";
 import InstallButton from "@/components/Common/InstallButton";
 import { getUnreadNotificationsCount } from "@/lib/Common/Notifications";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface HeaderProps {
   onMenuButtonClick: () => void;
@@ -31,7 +32,7 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
       const res = await getUnreadNotificationsCount();
       setUnreadCount(res.data);
     } catch (err) {
-      console.error("Error fetching notifications:", err);
+      showErrorToast("Error",err);
     }
   };
   return (

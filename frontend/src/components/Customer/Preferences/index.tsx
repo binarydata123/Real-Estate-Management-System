@@ -5,14 +5,12 @@ import React, { useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
-// import { useRouter } from 'next/navigation';
-import { preferenceSchema } from '@/schemas/Agent/userPreferenceSchema'; // Make sure to add `userType: z.enum(['buyer', 'investor'])` to the schema
-import type { UserPreferenceFormData } from '@/schemas/Agent/userPreferenceSchema';
+import { preferenceSchema ,UserPreferenceFormData } from '@/schemas/Agent/userPreferenceSchema'; // Make sure to add `userType: z.enum(['buyer', 'investor'])` to the schema
 import { amenitiesOptions, bathroomsOptions, bedroomsOptions, commercialCategoryOptions, facingOptions, featuresOptions, furnishingOptions, propertyTypeOptions, reraStatusOptions, residentialCategoryOptions, userTypeOptions } from '@/schemas/Agent/propertySchema';
 import { createPreference, getPreferenceDetail } from '@/lib/Common/Preference';
 import { useToast } from '@/context/ToastContext';
-//import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { showErrorToast } from '@/utils/toastHandler';
 
 const formatPrice = (price: number): string => {
     if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
@@ -143,7 +141,7 @@ const RangeSlider: React.FC<{
 
     const handleInteraction = (
         e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
-        thumb: 'min' | 'max'
+        thumb: 'min' | 'max',
     ) => {
         if (!trackRef.current || readOnly) return;
         e.preventDefault();
@@ -243,8 +241,8 @@ export default function PreferenceForm() {
             maxPrice: 50000000,
             facing: [],
             reraStatus: [],
-            customerId: customerId ?? undefined
-        }
+            customerId: customerId ?? undefined,
+        },
     });
 
     const watchedType = watch('type');
@@ -263,7 +261,7 @@ export default function PreferenceForm() {
 
     const containsOnlyPlotOrLand = useMemo(() =>
         watchedCategories.length > 0 && watchedCategories.every(cat => ['plot', 'land'].includes(cat)),
-        [watchedCategories]
+        [watchedCategories],
     );
 
     const filteredFeatures = useMemo(() => {
@@ -293,16 +291,15 @@ export default function PreferenceForm() {
                         // Preferences not found, do nothing, form will have default values.
                         return;
                     }
-                    console.error("Failed to fetch preferences:", error);
-                    showToast('An unexpected error occurred while fetching preferences.', 'error');
+                    showErrorToast("Failed to fetch preferences:", error);
                 }
-            }
+            };
             fetchDetail();
         }
     }, [customerId, reset, showToast, user]);
 
     const onSubmit = async (data: UserPreferenceFormData) => {
-        if (isReadOnly) return; 
+        if (isReadOnly) return;
         setLoading(true);
         try {
             const res = await createPreference(data);
@@ -310,8 +307,7 @@ export default function PreferenceForm() {
                 showToast(res.message, 'success');
             }
         } catch (err) {
-            console.error(err);
-            showToast('An unexpected error occurred.', 'error');
+            showErrorToast("Error",err);
         } finally {
             setLoading(false);
         }

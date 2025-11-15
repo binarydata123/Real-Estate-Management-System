@@ -20,6 +20,7 @@ import {
     Legend,
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import { showErrorToast } from '@/utils/toastHandler';
 
 ChartJS.register(
     CategoryScale,
@@ -29,7 +30,7 @@ ChartJS.register(
     LineElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
 );
 
 export default function AdminDashboard() {
@@ -50,7 +51,7 @@ export default function AdminDashboard() {
                     setRecentAgencies(res.data.recentAgencies);
                 }
             } catch (err) {
-                console.error(err);
+                showErrorToast("Error:",err);
             }
         }
         fetchData();
@@ -68,9 +69,9 @@ export default function AdminDashboard() {
         },
         scales: {
             y: {
-                beginAtZero: true
-            }
-        }
+                beginAtZero: true,
+            },
+        },
     };
 
     const labels = userGrowthData.map(d => d.name);
@@ -136,7 +137,7 @@ export default function AdminDashboard() {
                                     </p> */}
                                 </dd>
                             </div>
-                        )
+                        );
                     })}
                 </dl>
             </div>
@@ -213,5 +214,5 @@ export default function AdminDashboard() {
                 </div>
             </div>
         </div>
-    )
+    );
 }

@@ -10,7 +10,12 @@ const withPWA = withPWAInit({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
-  swSrc: "public/sw.js",
+
+  // ❌ REMOVE THIS — it causes the build error
+  // swSrc: "public/sw.js",
+
+  // ⬅ Tell next-pwa NOT to overwrite custom service worker
+  buildExcludes: [/public\/sw\.js$/],
 });
 
 const nextConfig: NextConfig = {
@@ -26,17 +31,15 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
-        port: "",
         pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "images.pexels.com",
-        port: "",
         pathname: "/**",
       },
     ],
-    domains: ['localhost'], // ✅ Add the external domain here
+    domains: ["localhost"],
   },
 };
 

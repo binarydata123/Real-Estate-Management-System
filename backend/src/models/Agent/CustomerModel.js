@@ -4,6 +4,7 @@ const phoneRegex = /^\+?[1-9]\d{1,14}$/;
 // E.164 international format (+<countryCode><number>)
 
 const customerSchema = new mongoose.Schema({
+
   fullName: {
     type: String,
     required: [true, "Full name is required"],

@@ -9,7 +9,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import Image from "next/image";
-import { getPropertyImageUrlWithFallback, handleImageError } from "@/lib/imageUtils";
+import {
+  getPropertyImageUrlWithFallback,
+  handleImageError,
+} from "@/lib/imageUtils";
 
 interface PropertyCardProps {
   property: Property;
@@ -33,7 +36,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
     } else if (price >= 100000) {
       // 1 lakh
       return `₹${(price / 100000).toFixed(1)}L`;
-    } else {
+    } else if (price < 100000) {
       return `₹${price.toLocaleString()}`;
     }
   };
@@ -112,7 +115,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
               {property.title}
             </h3>
             <p className="text-lg md:text-xl font-bold text-blue-600 flex-shrink-0">
-              {formatPrice(property.price)}
+              {formatPrice(property.price as number)}
             </p>
           </div>
           <div className="flex items-center text-sm text-gray-600">

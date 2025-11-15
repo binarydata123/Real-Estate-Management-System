@@ -10,7 +10,7 @@ export const renderTabContent = (
     section: keyof AgencySettingsType,
     field: string,
     value: string | boolean
-  ) => void
+  ) => void,
 ) => {
   switch (activeTab) {
     case "agency":

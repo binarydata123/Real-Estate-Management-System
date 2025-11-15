@@ -1,6 +1,5 @@
 import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js";
-import mongoose from "mongoose";
 
 export const getAllSharedProperties = async (req, res) => {
   try {
@@ -16,14 +15,14 @@ export const getAllSharedProperties = async (req, res) => {
       .populate("sharedByUserId", "name email phone createdAt")
       .populate("propertyId", "title images price");
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: shares,
       message: "Shared properties fetched successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -46,7 +45,7 @@ export const getProperties = async (req, res) => {
       rera_status,
       transaction_type,
       customerId,
-      agencyId
+      agencyId,
     } = req.query;
 
     const pageNumber = parseInt(page, 10) || 1;
@@ -104,7 +103,7 @@ export const getProperties = async (req, res) => {
     }
 
     if (agencyId) {
-      filter.agencyId = agencyId
+      filter.agencyId = agencyId;
     }
 
     // 🔹 Fetch data
@@ -127,6 +126,24 @@ export const getProperties = async (req, res) => {
   } catch (error) {
     console.error("Error fetching properties:", error);
     res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
+
+export const getSingleProperty = async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id);
+    if (!property) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Property not found" });
+    }
+    return res.status(200).json({ success: true, data: property });
+  } catch (error) {
+    console.error("Error fetching property:", error);
+    return res.status(500).json({
       success: false,
       message: error.message || "Server error",
     });

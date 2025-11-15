@@ -1,6 +1,5 @@
 "use client";
-import React, { useCallback, useEffect } from "react";
-import { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { PlusIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
 import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
@@ -10,6 +9,7 @@ import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { Pagination } from "@/components/Common/Pagination";
 import SearchInput from "@/components/Common/SearchInput";
 import Link from "next/link";
+import { showErrorToast } from "@/utils/toastHandler";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -49,11 +49,10 @@ export const Customers: React.FC = () => {
     try {
       const response = await deleteCustomerById(id);
       if (response.data.success) {
-        console.log(response.data.message);
         setCustomers((prev) => prev.filter((c) => c._id !== id));
       }
     } catch (error) {
-      console.error("Failed to delete customer:", error);
+      showErrorToast("Failed to delete customer:", error);
     }
   };
 
@@ -69,7 +68,7 @@ export const Customers: React.FC = () => {
           setTotalPages(res.pagination?.totalPages ?? 1);
         }
       } catch (error) {
-        console.error("Failed to fetch customers:", error);
+        showErrorToast("Failed to fetch customers:", error);
       } finally {
         setLoading(false);
       }
@@ -107,10 +106,10 @@ export const Customers: React.FC = () => {
   };
 
   const formatBudget = (min?: number, max?: number) => {
-    const formatPrice = (price: number = 0) => {
+    const formatPrice = (price = 0) => {
       if (price >= 10000000) return `₹${(price / 10000000).toFixed(1)}Cr`;
       else if (price >= 100000) return `₹${(price / 100000).toFixed(1)}L`;
-      else return `₹${price?.toLocaleString()}`;
+      else if (price < 100000) return `₹${price?.toLocaleString()}`;
     };
     return `${formatPrice(min)} - ${formatPrice(max)}`;
   };
@@ -256,7 +255,9 @@ export const Customers: React.FC = () => {
                           View
                         </span>
                         <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                          <Link href={`/agent/preference?customerId=${customer._id}`}>
+                          <Link
+                            href={`/agent/preference?customerId=${customer._id}`}
+                          >
                             Preference
                           </Link>
                         </span>
@@ -306,10 +307,17 @@ export const Customers: React.FC = () => {
           initialData={
             editingCustomer
               ? {
-                ...editingCustomer,
-                name: editingCustomer.fullName,
-                phoneNumber: editingCustomer.phoneNumber ?? "",
-              }
+                  fullName: editingCustomer.fullName,
+                  phoneNumber: editingCustomer.phoneNumber ?? "",
+                  email: editingCustomer.email ?? "",
+                  whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
+                  minimumBudget: editingCustomer.minimumBudget ?? 0,
+                  maximumBudget: editingCustomer.maximumBudget ?? 0,
+                  leadSource: editingCustomer.leadSource ?? "website",
+                  initialNotes: editingCustomer.initialNotes ?? "",
+                  showAllProperty: editingCustomer.showAllProperty ?? false,
+                  agencyId: editingCustomer.agencyId?._id ?? "",
+                }
               : undefined
           }
           customerId={editingCustomer?._id}

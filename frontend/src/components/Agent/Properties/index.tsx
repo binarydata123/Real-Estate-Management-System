@@ -10,6 +10,7 @@ import { PropertyCard } from "./PropertyCard";
 import { getProperties } from "@/lib/Agent/PropertyAPI";
 import { useDebounce } from "@/components/Common/UseDebounce";
 import { Pagination } from "@/components/Common/Pagination";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface PropertyListFilters {
   type: string;
@@ -70,13 +71,13 @@ export const Properties: React.FC = () => {
           limit,
         });
 
-        if (response.success) {
+        if (response.success && response.data) {
           setProperties(response.data);
           setCurrentPage(response.pagination?.page ?? 1);
           setTotalPages(response.pagination?.pages ?? 1);
         }
       } catch (error) {
-        console.error(error);
+        showErrorToast("Error", error);
       } finally {
         setIsFetching(false);
       }

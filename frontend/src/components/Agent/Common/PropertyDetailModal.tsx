@@ -29,7 +29,6 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Here you would typically send the contact form data to the backend
-    console.log("Contact form submitted:", contactForm);
     alert("Your message has been sent to the property owner!");
     setShowContactModal(false);
     setContactForm({ name: "", email: "", phone: "", message: "" });
@@ -39,7 +38,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
       return `₹${(price / 10000000).toFixed(1)}Cr`;
     } else if (price >= 100000) {
       return `₹${(price / 100000).toFixed(1)}L`;
-    } else {
+    } else if (price < 100000) {
       return `₹${price.toLocaleString()}`;
     }
   };
@@ -137,7 +136,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                     <span className="text-gray-600">Price</span>
                     <span className="font-semibold text-gray-900 flex items-center">
                       {/* <CurrencyRupeeIcon className="h-4 w-4 mr-1" /> */}
-                      {formatPrice(property.price)}
+                      {formatPrice(property.price as number)}
                     </span>
                   </div>
                   <div className="flex justify-between">

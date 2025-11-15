@@ -8,7 +8,7 @@ export const getAgentProfile = async (): Promise<ApiResponse<AgentProfile>> => {
 };
 
 export const updateAgentProfile = async (
-  data: AgentProfileFormData
+  data: AgentProfileFormData,
 ): Promise<ApiResponse<AgentProfile>> => {
   const res = await api.post<ApiResponse<AgentProfile>>("/agent/profile/update", data);
   return res.data;

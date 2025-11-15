@@ -25,7 +25,7 @@ export const Meetings: React.FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "cancelled">(
-    "upcoming"
+    "upcoming",
   );
   const fetchMeetings = async (page = 1) => {
     if (!user?.agency?._id) return;
@@ -33,11 +33,10 @@ export const Meetings: React.FC = () => {
       user?.agency?._id,
       activeTab,
       page,
-      10
-    ); // 10 per page
+      10,
+    );
     setMeetings(res.data.data);
     setTotalPages(Math.ceil(res.data.total / 10));
-    // setCurrentPage(res.data.pagination.page);
   };
 
   useEffect(() => {
@@ -167,7 +166,7 @@ export const Meetings: React.FC = () => {
                         {meeting?.time &&
                           format(
                             new Date(`1970-01-01T${meeting.time}:00`),
-                            "hh:mm a"
+                            "hh:mm a",
                           )}
                       </p>
                     </div>
@@ -189,7 +188,7 @@ export const Meetings: React.FC = () => {
                 {meeting.status && !meeting.isPast && (
                   <span
                     className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl  text-xs font-medium ${getStatusColor(
-                      meeting.status
+                      meeting.status,
                     )}`}
                   >
                     {meeting.status}

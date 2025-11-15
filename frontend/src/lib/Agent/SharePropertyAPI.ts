@@ -4,7 +4,7 @@ import { sharePropertySchema } from "@/schemas/Agent/sharePropertySchema";
 export const shareProperty = async (data: sharePropertySchema) => {
   return await api.post<sharePropertyResponse>(
     `/agent/shareProperties/postShareProperty`,
-    data
+    data,
   );
 };
 
@@ -13,7 +13,7 @@ export const getSharedProperties = async (agencyId: string) => {
     `/agent/shareProperties/getAllSharedProperties`,
     {
       params: { agencyId },
-    }
+    },
   );
   return response.data;
 };

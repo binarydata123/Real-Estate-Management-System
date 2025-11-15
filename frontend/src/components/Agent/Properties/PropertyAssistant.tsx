@@ -6,6 +6,7 @@ import Vapi from "@vapi-ai/web";
 import { startPropertySession } from "@/lib/AI"; // reuse your session starter
 import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
 import { Loader2 } from "lucide-react";
+import { showErrorToast } from "@/utils/toastHandler";
 
 const AssistantId = process.env.NEXT_PUBLIC_VAPI_PROPERTY_ASSISTANT_ID; // ✅ new assistant ID for CaptureProperty
 
@@ -14,57 +15,26 @@ export default function PropertyAssistant() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [vapi, setVapi] = useState<Vapi | null>(null);
 
-  const [finalJson, setFinalJson] = useState<any>(null);
-  const [saveStatus, setSaveStatus] = useState<string>("");
-
   // ✅ Initialize Vapi once
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_VAPI_API_KEY;
     if (!key) {
-      console.error("Missing NEXT_PUBLIC_VAPI_API_KEY");
+      showErrorToast("Missing NEXT_PUBLIC_VAPI_API_KEY");
       return;
     }
 
     const instance = new Vapi(key);
     setVapi(instance);
 
-    instance.on("error", (err: any) => console.error("⚠️ Vapi error:", err));
+    instance.on("error", (err: any) => showErrorToast("⚠️ Vapi error:", err));
 
     instance.on("call-start", () => {
-      console.log("📞 Property assistant started");
       setIsSpeaking(true);
       setLoading(false);
-      setFinalJson(null);
-      setSaveStatus("");
     });
 
     instance.on("call-end", () => {
-      console.log("✅ Property session ended");
       setIsSpeaking(false);
-    });
-
-    // 👂 Listen for structured output events for CaptureProperty
-    instance.on("CaptureProperty" as any, (event: any) => {
-      console.log("📦 Property Structured Output:", event);
-      const result = event?.data?.result || event?.result;
-      if (result) {
-        console.log("✅ Captured Property Data:", result);
-        setFinalJson(result);
-      } else {
-        console.warn("⚠️ Missing structured data in event:", event);
-      }
-    });
-
-    // Fallback for generic structured-output event
-    instance.on("structured-output" as any, (event: any) => {
-      console.log("📦 Generic Structured Output:", event);
-      const firstValue: any =
-        event && typeof event === "object" ? Object.values(event)[0] : null;
-      const data = event?.data?.result || firstValue?.result;
-      if (data?.title && data?.type) {
-        setFinalJson(data);
-        console.log("✅ Property Data Captured:", data);
-      }
     });
 
     return () => {
@@ -89,7 +59,7 @@ export default function PropertyAssistant() {
 
       await (vapi as any).start(AssistantId);
     } catch (err) {
-      console.error("❌ Failed to start property assistant:", err);
+      showErrorToast("❌ Failed to start property assistant:", err);
       setLoading(false);
       setIsSpeaking(false);
     }
@@ -101,31 +71,10 @@ export default function PropertyAssistant() {
     try {
       await vapi.stop();
     } catch (err) {
-      console.error("Error stopping assistant:", err);
+      showErrorToast("Error stopping assistant:", err);
     }
     setIsSpeaking(false);
   }, [vapi]);
-
-  // 💾 Save captured property data manually
-  const handleSave = async () => {
-    if (!finalJson) return alert("No property data captured yet.");
-    setSaveStatus("Saving...");
-
-    try {
-      const res = await fetch("/api/vapi/save-property", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalJson),
-      });
-
-      const result = await res.json();
-      if (result.success) setSaveStatus("✅ Property saved successfully!");
-      else setSaveStatus("❌ Save failed: " + result.message);
-    } catch (err) {
-      console.error(err);
-      setSaveStatus("❌ Save failed.");
-    }
-  };
 
   return (
     <div className="p-6 space-y-4">
@@ -156,26 +105,6 @@ export default function PropertyAssistant() {
           )}
         </button>
       </div>
-
-      {finalJson && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold text-gray-800">
-            📋 Captured Property Data
-          </h3>
-          <pre className="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto">
-            {JSON.stringify(finalJson, null, 2)}
-          </pre>
-          <button
-            onClick={handleSave}
-            className="mt-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-          >
-            Save Property
-          </button>
-          {saveStatus && (
-            <p className="mt-2 text-sm text-gray-600">{saveStatus}</p>
-          )}
-        </div>
-      )}
     </div>
   );
 }

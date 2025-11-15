@@ -1,4 +1,6 @@
 import { Agency } from "../../models/Agent/AgencyModel.js";
+import AgencySettings from "../../models/Agent/settingsModel.js";
+import CustomerSettings from "../../models/Customer/SettingsModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
@@ -10,7 +12,7 @@ export const getAgencies = async (req, res) => {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    let searchQuery = {};
+    const searchQuery = {};
 
     if (search || status) {
       searchQuery.$or = [];
@@ -30,9 +32,7 @@ export const getAgencies = async (req, res) => {
       .sort({ _id: -1 })
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber)
-      .populate('properties');
-
-    
+      .populate("properties");
 
     if (!agency || agency.length === 0) {
       return res.status(200).json({
@@ -48,7 +48,7 @@ export const getAgencies = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: agency,
       pagination: {
@@ -56,15 +56,12 @@ export const getAgencies = async (req, res) => {
         page: pageNumber,
         limit: limitNumber,
         totalPages: Math.ceil(totalAgencies / limitNumber),
-      }
+      },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
-
 
 // Update a customer
 export const updateAgency = async (req, res) => {
@@ -82,49 +79,30 @@ export const updateAgency = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Agency not found" });
     }
-    // const updatedUser = await User.findOneAndUpdate(
-    //   { email: updatedCustomer.email },
-    //   {
-    //     name: updatedCustomer.fullName,
-    //     email: updatedCustomer.email,
-    //     phone: updatedCustomer.phoneNumber,
-    //     agencyId: updatedCustomer.agencyId,
-    //   },
-    //   { new: true }
-    // );
-
+    let userSettings;
+    if (req.user.role === "agency") {
+      userSettings = AgencySettings.findById(req.user._id);
+    } else if (req.user.role === "customer") {
+      userSettings = CustomerSettings.findById(req.user._id);
+    }
+    if (userSettings.notifications.pushNotifications) {
+      await sendPushNotification({
+        userId: updatedAgency.owner,
+        title: "Agency Updated",
+        message: `Agency (${updatedAgency.name}) has been updated successfully.`,
+        urlPath: "Agency",
+      });
+    }
     await createNotification({
       userId: updatedAgency.owner,
       message: `Agency (${updatedAgency.name}) has been updated successfully.`,
       type: "lead_updated",
     });
 
-    await sendPushNotification({
-      userId: updatedAgency.owner,
-      title: "Agency Updated",
-      message: `Agency (${updatedAgency.name}) has been updated successfully.`,
-      urlPath: "Agency",
-    });
-
-    // if (updatedUser?._id) {
-    //   await createNotification({
-    //     userId: updatedUser._id,
-    //     message: `Hello ${updatedUser.name}, your profile details have been updated successfully.`,
-    //     type: "lead_updated",
-    //   });
-
-    //   await sendPushNotification({
-    //     userId: updatedUser._id,
-    //     title: "Profile Updated",
-    //     message: `Hi ${updatedUser.name}, your profile details have been updated successfully.`,
-    //     urlPath: "profile",
-    //   });
-    // }
-
-    res.json({ success: true, data: updatedAgency });
+    return res.json({ success: true, data: updatedAgency });
   } catch (error) {
     console.error("Error updating agency:", error);
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -140,11 +118,11 @@ export const deleteAgency = async (req, res) => {
     }
     await Agency.deleteOne({ _id: deletedAgency._id });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Agency deleted successfully",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { showErrorToast } from "@/utils/toastHandler";
 import { useState, useCallback } from "react";
 
 export function useNotificationPermission() {
@@ -13,8 +14,7 @@ export function useNotificationPermission() {
         setNotificationPermission(permission);
         return permission;
       } catch (error) {
-        console.warn("[PWA] Notification permission request failed:", error);
-        setNotificationPermission("denied");
+        showErrorToast("[PWA] Notification permission request failed:", error);
         return "denied";
       }
     }

@@ -11,6 +11,7 @@ import {
 } from "@/lib/AI";
 import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
 import { Loader2 } from "lucide-react";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface Props {
   propertyId: string;
@@ -26,7 +27,6 @@ export default function PropertyVoiceAgent({ propertyId, userId }: Props) {
   const handleStart = async () => {
     setLoading(true);
     try {
-      console.log("🎬 Starting AI Assistant...");
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
       // 1️⃣ Get prompt + assistantId
@@ -49,7 +49,6 @@ export default function PropertyVoiceAgent({ propertyId, userId }: Props) {
       });
       const newSessionId = sessionData.sessionId;
       // setSessionId(newSessionId);
-      console.log("🧠 Started new AI session:", newSessionId);
 
       // 3️⃣ Stop previous Vapi instance (if any)
       if (vapi) {
@@ -63,7 +62,7 @@ export default function PropertyVoiceAgent({ propertyId, userId }: Props) {
 
       vapiInstance.on("call-start", () => setIsSpeaking(true));
       vapiInstance.on("call-end", () => setIsSpeaking(false));
-      vapiInstance.on("error", (err) => console.error("❌ Vapi Error:", err));
+      vapiInstance.on("error", (err) => showErrorToast("❌ Vapi Error:", err));
 
       vapiInstance.on("message", async (msg: any) => {
         if (!msg?.role || !msg?.content) return;
@@ -72,8 +71,6 @@ export default function PropertyVoiceAgent({ propertyId, userId }: Props) {
           typeof msg.content === "string"
             ? msg.content
             : msg.content[0]?.text || "";
-
-        console.log(`💬 ${role === "assistant" ? "🤖" : "🗣️"} ${message}`);
 
         if (newSessionId) {
           await logAISessionMessage({
@@ -84,10 +81,9 @@ export default function PropertyVoiceAgent({ propertyId, userId }: Props) {
         }
       });
 
-      vapiInstance.on("transcript", async (t: any) => {
+      vapiInstance.on("transcript" as any, async (t: any) => {
         const text = t?.text?.trim?.();
         if (!text || !newSessionId) return;
-        console.log("🎙️ User said:", text);
 
         await logAISessionMessage({
           sessionId: newSessionId,
@@ -96,10 +92,9 @@ export default function PropertyVoiceAgent({ propertyId, userId }: Props) {
         });
       });
 
-      console.log("🚀 Starting voice session...");
       await vapiInstance.start(assistantId);
     } catch (err) {
-      console.error("AI Start Error:", err);
+      showErrorToast("AI Start Error:", err);
     } finally {
       setLoading(false);
     }
@@ -110,7 +105,7 @@ export default function PropertyVoiceAgent({ propertyId, userId }: Props) {
     try {
       await vapi.stop();
     } catch (err) {
-      console.error("Error stopping assistant:", err);
+      showErrorToast("Error stopping assistant:", err);
     } finally {
       setIsSpeaking(false);
       setVapi(null);

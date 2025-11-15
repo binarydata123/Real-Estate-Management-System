@@ -49,7 +49,7 @@ const getErrorMessage = (error: unknown): string => {
 export const showErrorToast = (
   message: string,
   error?: unknown,
-  options?: ToastOptions
+  options?: ToastOptions,
 ): void => {
   const fullMessage = error ? `${message} ${getErrorMessage(error)}` : message;
   toast.error(fullMessage, { ...defaultOptions, ...options });

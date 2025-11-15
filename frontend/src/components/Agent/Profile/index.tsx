@@ -38,8 +38,8 @@ export default function Profile() {
      setUser(res.data);
 }
 
-    } catch (error) {
-      console.error("Error fetching profile:", error);
+    } catch (err) {
+    showErrorToast("Error",err);
     }
   };
 
@@ -65,13 +65,12 @@ export default function Profile() {
     }
   };
 
-  
+
   useEffect(() => {
     getProfile();
   }, []);
 
-  
-  useEffect(() => {
+useEffect(() => {
     if (user) {
       setValue("email", user.owner?.email);
       setValue("fullName", user.owner?.name);
@@ -187,7 +186,7 @@ export default function Profile() {
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl shadow-sm 
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl shadow-sm
             hover:bg-blue-700 transition-colors duration-150 font-medium disabled:opacity-60"
           >
             {loading ? "Saving..." : "Save Changes"}
