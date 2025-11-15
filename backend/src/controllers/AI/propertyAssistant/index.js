@@ -6,11 +6,6 @@ const vapi = new VapiClient({ token: process.env.VAPI_SERVER_API_KEY });
 
 export const createPropertyAssistant = async (req, res) => {
   try {
-    // The webhook URL where the collected property data will be sent.
-    // You will need to create a new controller and route to handle this POST request.
-    const WEBHOOK_URL =
-      "https://api.real-estate.ai-developer.site/api/vapi/save-property"; // Replace with your actual webhook endpoint
-
     const systemPrompt = `
 You are a highly efficient real estate assistant named Prop-E. Your goal is to help an agent quickly add a new property listing by asking for details in a structured, conversational manner.
 
@@ -50,7 +45,6 @@ When the conversation is complete, you MUST output a JSON object with the collec
         systemPrompt,
       },
       voice: { provider: "vapi", voiceId: "Neha" },
-      server: { url: WEBHOOK_URL },
       firstMessage:
         "Hi! I'm Prop-E. I can help you list a new property. Let's start with the basics.",
     });
@@ -79,11 +73,10 @@ export const startPropertySession = async (req, res) => {
       assistantId,
     });
 
-    console.log("🎬 Session created:", session.id);
-    res.json({ success: true, sessionId: session.id });
+    return res.json({ success: true, sessionId: session.id });
   } catch (error) {
     console.error("❌ Error starting session:", error);
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 

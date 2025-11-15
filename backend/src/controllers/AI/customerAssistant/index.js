@@ -172,20 +172,26 @@ export const startCustomerSession = async (req, res) => {
   try {
     const { assistantId } = req.body;
 
-    if (!assistantId)
+    if (!assistantId) {
       return res.status(400).json({
         success: false,
         message: "Missing assistantId (check .env)",
       });
+    }
 
     const session = await vapi.sessions.create({
       assistantId,
     });
 
-    console.log("🎬 Session created:", session.id);
-    res.json({ success: true, sessionId: session.id });
+    return res.status(200).json({
+      success: true,
+      sessionId: session.id,
+    });
   } catch (error) {
     console.error("❌ Error starting session:", error);
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to start session",
+    });
   }
 };

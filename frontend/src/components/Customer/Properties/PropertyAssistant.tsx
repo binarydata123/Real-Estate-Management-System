@@ -7,15 +7,20 @@ import { startPropertySession } from "@/lib/AI"; // reuse your session starter
 import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
 import { Loader2 } from "lucide-react";
 import { showErrorToast } from "@/utils/toastHandler";
+const AssistantId = process.env.NEXT_PUBLIC_VAPI_PROPERTY_ASSISTANT_ID;
 
-const AssistantId = process.env.NEXT_PUBLIC_VAPI_PROPERTY_ASSISTANT_ID; // ✅ new assistant ID for CaptureProperty
+interface PropertyAssistantProps {
+  propertyId: string;
+}
 
-export default function PropertyAssistant() {
+export default function PropertyAssistant({
+  propertyId,
+}: PropertyAssistantProps) {
   const [loading, setLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [assistantStatus, setAssistantStatus] = useState("idle");
   const [vapi, setVapi] = useState<Vapi | null>(null);
 
-  // ✅ Initialize Vapi once
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_VAPI_API_KEY;
     if (!key) {
@@ -26,15 +31,22 @@ export default function PropertyAssistant() {
     const instance = new Vapi(key);
     setVapi(instance);
 
-    instance.on("error", (err: any) => showErrorToast("⚠️ Vapi error:", err));
-
     instance.on("call-start", () => {
       setIsSpeaking(true);
       setLoading(false);
+      setAssistantStatus("speaking");
     });
 
     instance.on("call-end", () => {
       setIsSpeaking(false);
+      setAssistantStatus("idle");
+    });
+
+    instance.on("error", (err: any) => {
+      showErrorToast("Vapi Error", err);
+      setIsSpeaking(false);
+      setLoading(false);
+      setAssistantStatus("idle");
     });
 
     return () => {
@@ -77,24 +89,19 @@ export default function PropertyAssistant() {
   }, [vapi]);
 
   return (
-    <div className="p-6 space-y-4">
-      <h2 className="text-xl font-bold text-gray-900">🏡 Property Assistant</h2>
-      <p className="text-gray-600">
-        Speak with the AI to describe your property. The assistant will collect
-        all property details and send them to the backend.
-      </p>
-
-      <div className="flex items-center space-x-4">
+    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <button
           onClick={isSpeaking ? handleStop : handleStart}
-          disabled={loading}
+          disabled={loading || !propertyId}
           className={`w-12 h-12 flex items-center justify-center rounded-full text-white transition-all ${
             loading
               ? "bg-gray-400"
               : isSpeaking
               ? "bg-red-600 hover:bg-red-700"
-              : "bg-blue-600 hover:bg-blue-700"
+              : "bg-purple-600 hover:bg-purple-700"
           }`}
+          title={isSpeaking ? "Stop Assistant" : "Ask AI Assistant"}
         >
           {loading ? (
             <Loader2 className="h-6 w-6 animate-spin" />
@@ -104,6 +111,16 @@ export default function PropertyAssistant() {
             <MicrophoneIcon className="h-7 w-7" />
           )}
         </button>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-gray-700">AI Assistant</p>
+          <div className="text-sm text-gray-500">
+            {assistantStatus === "thinking" && <p>Thinking...</p>}
+            {assistantStatus === "speaking" && <p>Speaking...</p>}
+            {assistantStatus === "idle" && (
+              <p>Click the mic to ask questions about this property.</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { showErrorToast } from "@/utils/toastHandler";
 import api from "../api";
 
 export const getAIPrompt = async (propertyId: string, userId: string) => {
@@ -15,12 +16,13 @@ export const createCustomerAssistant = async () => {
 };
 
 // 🧠 Start session before logging messages
-export const startAISession = async (data: {
-  propertyId: string;
-  userId: string;
+export const startPreferenceSession = async (data: {
   assistantId: string;
+  userId: string;
+  propertyId: string;
 }) => {
-  return await api.post(`/assistant/start-session`, data);
+  const response = await api.post(`/assistant/start-preference-session`, data);
+  return response.data;
 };
 
 // 🧠 Log messages to the session
@@ -32,7 +34,7 @@ export const logAISessionMessage = async (data: {
   try {
     await api.post("/assistant/log", data);
   } catch (error) {
-    console.error("⚠️ Error logging AI interaction:", error);
+    showErrorToast("⚠️ Error logging AI interaction:", error);
   }
 };
 

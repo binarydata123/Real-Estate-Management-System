@@ -23,45 +23,6 @@ interface Images {
   isPrimary?: boolean;
 }
 
-// interface Property {
-//   title: string;
-//   type: string;
-//   category: string;
-//   location: string;
-//   price: number;
-//   status: string;
-//   description: string;
-//   images: Images[];
-//   built_up_area: number;
-//   carpet_area: number;
-//   unit_area_type: string;
-//   plot_front_area?: number;
-//   plot_depth_area?: number;
-//   plot_dimension_unit?: string;
-//   is_corner_plot?: boolean;
-//   bedrooms: number;
-//   bathrooms: number;
-//   balconies: number;
-//   floor_number: number;
-//   total_floors: number;
-//   washrooms?: number;
-//   cabins?: number;
-//   conference_rooms?: number;
-//   facing: string;
-//   overlooking: string[];
-//   property_age: string;
-//   transaction_type: string;
-//   gated_community: boolean;
-//   furnishing: string;
-//   flooring_type: string;
-//   amenities: string[];
-//   features: string[];
-//   water_source: string[];
-//   power_backup: string;
-//   rera_status: string;
-//   owner_name: string;
-//   owner_contact: string;
-// }
 interface SinglePropertyProps {
   propertyId: string;
 }
@@ -385,127 +346,16 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
           </button>
         </div>
 
-        {/* Thumbnail Images */}
-        {/* <div className="flex items-center gap-2 mt-2">
-        {propertyData?.images.map((img) => (
-          <Image
-            key={img._id}
-            src={getImageUrl(img.url)}
-            alt={img.alt || propertyData.title}
-            width={80}
-            height={80}
-            className={`w-20 h-20 object-cover rounded cursor-pointer border ${
-              selectedImage?._id === img._id ? "border-blue-500" : "border-gray-200"
-            }`}
-            onClick={() => setSelectedImage(img)}
-          />
-        ))}
-      </div> */}
-
-        {/* Thumbnail Images */}
-        {/* <div className="flex items-center gap-2 mb-6">
-        <button
-          onClick={handlePrevThumbs}
-          className="px-2 py-1 bg-gray-200 rounded"
-        >
-          Prev
-        </button>
-        {propertyData.images
-          .slice(thumbStart, thumbStart + thumbsPerPage)
-          .map((img, idx) => (
-            <Image
-              width={80}
-              height={80}
-              key={idx}
-              src={img.url}
-              alt={img.alt || propertyData.title}
-              className={`w-20 h-20 object-cover rounded-lg cursor-pointer border ${selectedImage.url === img.url
-                ? "border-blue-500"
-                : "border-gray-200"
-                }`}
-              onClick={() => setSelectedImage(img)}
-            />
-          ))}
-        <button
-          onClick={handleNextThumbs}
-          className="px-2 py-1 bg-gray-200 rounded"
-        >
-          Next
-        </button>
-      </div> */}
-
         {/* Basic Info */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2 text-gray-800">
             {propertyData?.title}
           </h1>
-          {/* AI Assistant Section */}
-          {/* <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={toggleListening}
-                disabled={isListening || assistantStatus !== 'idle'}
-                className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                title="Ask a question"
-              >
-                <MicrophoneIcon className="h-6 w-6" />
-              </button>
-              <button
-                onClick={handleSpeakSummary}
-                // disabled={isListening || assistantStatus === 'thinking' || (assistantStatus === 'speaking' && !isSummaryPaused && assistantResponse)}
-                className="flex items-center justify-center w-12 h-12 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                title="Read Full Summary"
-              >
-                {assistantStatus === 'speaking' && !isSummaryPaused && !assistantResponse ? <PauseIcon className="h-6 w-6" /> :
-                  assistantStatus === 'speaking' && isSummaryPaused && !assistantResponse ? <PlayIcon className="h-6 w-6" /> :
-                    <SpeakerWaveIcon className="h-6 w-6" />}
-              </button>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-gray-700">AI Assistant</p>
-              <div className="text-sm text-gray-500">
-                {assistantStatus === 'listening' && <p>Listening for your question...</p>}
-                {assistantStatus === 'thinking' && <p>Thinking...</p>}
-                {assistantStatus === 'speaking' && assistantResponse && <p>Answering your question...</p>}
-                {assistantStatus === 'speaking' && !assistantResponse && (
-                  <p>
-                    Reading property summary...
-                    {isSummaryPaused && <span className="font-semibold text-orange-600"> (Paused)</span>}
-                  </p>
-                )}
-                {assistantStatus === 'idle' && (
-                  <p>
-                    Click the <span className="text-blue-600 font-semibold">blue mic</span> to ask a question, or the{' '}
-                    <span className="text-green-600 font-semibold">green speaker</span> to hear a full summary.
-                  </p>
-                )}
-              </div>
-            </div>
-            {(assistantStatus === 'speaking' ||
-              assistantStatus === 'thinking' ||
-              isListening) && (
-                <button onClick={stopAll} className="text-gray-500 hover:text-red-600" title="Stop">
-                  <StopCircleIcon className="h-8 w-8" />
-                </button>
-              )}
-          </div>
-          {assistantResponse && <p className="mt-3 text-gray-800 bg-blue-50 p-3 rounded-md">{assistantResponse}</p>}
-          {error && <p className="mt-3 text-red-600 text-sm">{error}</p>}
-        </div> */}
 
           {/* AI Assistant Section */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="flex items-center gap-2">
-                {/* <button
-                onClick={toggleListening}
-                disabled={isListening || assistantStatus !== 'idle'}
-                className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                title="Ask a question"
-              >
-                <MicrophoneIcon className="h-6 w-6" />
-              </button> */}
                 <button
                   onClick={handleSpeakFullProperty}
                   className="flex items-center justify-center w-12 h-12 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"

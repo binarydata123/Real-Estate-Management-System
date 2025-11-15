@@ -1,138 +1,160 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Vapi from "@vapi-ai/web";
-import {
-  createAssistant,
-  getAIPrompt,
-  startAISession,
-  logAISessionMessage,
-} from "@/lib/AI";
+import { startPreferenceSession } from "@/lib/AI";
 import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
 import { Loader2 } from "lucide-react";
 import { showErrorToast } from "@/utils/toastHandler";
+import { useAuth } from "@/context/AuthContext";
+const AssistantId =
+  process.env.NEXT_PUBLIC_PREFERENCE_AND_FEEDBACK_ASSISTANT_ID; // ✅ new assistant ID for ScheduleMeeting
 
 interface Props {
   propertyId: string;
-  userId: string;
 }
 
-export default function PropertyVoiceAgent({ propertyId, userId }: Props) {
+export default function PropertyVoiceAgent({ propertyId }: Props) {
   const [loading, setLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [vapi, setVapi] = useState<Vapi | null>(null);
-  // const [sessionId, setSessionId] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [assistantMessage, setAssistantMessage] = useState(
+    "Click the mic to start scheduling."
+  );
 
-  const handleStart = async () => {
+  // ✅ Initialize Vapi once
+  useEffect(() => {
+    const key = process.env.NEXT_PUBLIC_VAPI_API_KEY;
+    if (!key) {
+      showErrorToast("Missing NEXT_PUBLIC_VAPI_API_KEY");
+      return;
+    }
+
+    const instance = new Vapi(key);
+    setVapi(instance);
+
+    instance.on("error", (err: any) => showErrorToast("⚠️ Vapi error:", err));
+
+    instance.on("call-start", () => {
+      setIsSpeaking(true);
+      setLoading(false);
+      setAssistantMessage("I'm listening... How can I help you?");
+    });
+
+    instance.on("call-end", () => {
+      setAssistantMessage("Call ended. Review the details below if available.");
+      setIsSpeaking(false);
+    });
+
+    // 👂 Listen for structured output events for ScheduleMeeting
+    instance.on("ScheduleMeeting" as any, (event: any) => {
+      const result = event?.data?.result || event?.result;
+      if (result) {
+        setAssistantMessage(
+          "I've captured the details. Please review and save."
+        );
+      }
+    });
+
+    // Fallback for generic structured-output event
+    instance.on("structured-output" as any, (event: any) => {
+      const firstValue: any =
+        event && typeof event === "object" ? Object.values(event)[0] : null;
+      const data = event?.data?.result || firstValue?.result;
+      if (data?.customerName && data?.date) {
+        setAssistantMessage(
+          "I've captured the details. Please review and save."
+        );
+      }
+    });
+
+    return () => {
+      instance.stop().catch(() => {});
+    };
+  }, []);
+
+  const handleStart = useCallback(async () => {
+    if (!vapi) return;
+    setAssistantMessage("Requesting microphone access...");
     setLoading(true);
+
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      // 1️⃣ Get prompt + assistantId
-      const { data: promptData } = await getAIPrompt(propertyId, userId);
-      const { prompt, cachedAssistantId } = promptData;
-
-      let assistantId = cachedAssistantId;
-      if (!assistantId) {
-        const response = await createAssistant({ prompt });
-        if (!response.success || !response.assistantId)
-          throw new Error("Failed to create assistant");
-        assistantId = response.assistantId;
-      }
-
-      // 2️⃣ Create DB session
-      const { data: sessionData } = await startAISession({
+      // 1️⃣ Create session first
+      const sessionRes = await startPreferenceSession({
+        assistantId: AssistantId as string,
+        userId: user?._id as string,
         propertyId,
-        userId,
-        assistantId,
-      });
-      const newSessionId = sessionData.sessionId;
-      // setSessionId(newSessionId);
-
-      // 3️⃣ Stop previous Vapi instance (if any)
-      if (vapi) {
-        await vapi.stop().catch(() => {});
-        setVapi(null);
-      }
-
-      // 4️⃣ Init Vapi
-      const vapiInstance = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY!);
-      setVapi(vapiInstance);
-
-      vapiInstance.on("call-start", () => setIsSpeaking(true));
-      vapiInstance.on("call-end", () => setIsSpeaking(false));
-      vapiInstance.on("error", (err) => showErrorToast("❌ Vapi Error:", err));
-
-      vapiInstance.on("message", async (msg: any) => {
-        if (!msg?.role || !msg?.content) return;
-        const role = msg.role === "assistant" ? "assistant" : "user";
-        const message =
-          typeof msg.content === "string"
-            ? msg.content
-            : msg.content[0]?.text || "";
-
-        if (newSessionId) {
-          await logAISessionMessage({
-            sessionId: newSessionId,
-            role,
-            message,
-          });
-        }
       });
 
-      vapiInstance.on("transcript" as any, async (t: any) => {
-        const text = t?.text?.trim?.();
-        if (!text || !newSessionId) return;
+      const sessionData = sessionRes?.data ?? sessionRes;
+      if (!sessionData?.sessionId) throw new Error("Session creation failed");
 
-        await logAISessionMessage({
-          sessionId: newSessionId,
-          role: "user",
-          message: text,
-        });
+      const sessionId = sessionData.sessionId;
+
+      // 2️⃣ Start VAPI using the sessionId (IMPORTANT)
+      await vapi.start(AssistantId, {
+        metadata: {
+          userId: user?._id,
+          propertyId: propertyId,
+        },
       });
-
-      await vapiInstance.start(assistantId);
     } catch (err) {
-      showErrorToast("AI Start Error:", err);
-    } finally {
+      showErrorToast("❌ Failed to start meeting assistant:", err);
+      setAssistantMessage("Error starting assistant. Please try again.");
       setLoading(false);
+      setIsSpeaking(false);
     }
-  };
+  }, [vapi, user?._id, propertyId]);
 
-  const handleStop = async () => {
+  const handleStop = useCallback(async () => {
     if (!vapi) return;
     try {
       await vapi.stop();
     } catch (err) {
       showErrorToast("Error stopping assistant:", err);
-    } finally {
-      setIsSpeaking(false);
-      setVapi(null);
     }
-  };
+    setIsSpeaking(false);
+  }, [vapi]);
 
   return (
-    <div className="flex items-center">
-      <button
-        onClick={isSpeaking ? handleStop : handleStart}
-        disabled={loading}
-        className={`relative flex items-center justify-center w-10 h-10 rounded-full text-white transition-all duration-300 focus:outline-none ${
-          loading
-            ? "bg-gray-400 cursor-not-allowed"
-            : isSpeaking
-            ? "bg-red-600 hover:bg-red-700"
-            : "bg-blue-600 hover:bg-blue-700"
-        }`}
-      >
-        {loading && <Loader2 className="h-5 w-5 animate-spin" />}
-        {!loading &&
-          (isSpeaking ? (
-            <StopCircleIcon className="h-6 w-6" />
+    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <button
+          onClick={isSpeaking ? handleStop : handleStart}
+          disabled={loading || !propertyId}
+          className={`w-12 h-12 flex items-center justify-center rounded-full text-white transition-all ${
+            loading
+              ? "bg-gray-400"
+              : isSpeaking
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-purple-600 hover:bg-purple-700"
+          }`}
+          title={isSpeaking ? "Stop Assistant" : "Ask AI Assistant"}
+        >
+          {loading ? (
+            <Loader2 className="h-6 w-6 animate-spin" />
+          ) : isSpeaking ? (
+            <StopCircleIcon className="h-7 w-7" />
           ) : (
-            <MicrophoneIcon className="h-6 w-6" />
-          ))}
-      </button>
+            <MicrophoneIcon className="h-7 w-7" />
+          )}
+          {isSpeaking && (
+            <div className="absolute inset-0 rounded-full bg-blue-500/50 animate-pulse z-0"></div>
+          )}
+        </button>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-gray-700">AI Assistant</p>
+          <div className="text-sm text-gray-500">
+            {/* {assistantStatus === "thinking" && <p>Thinking...</p>}
+            {assistantStatus === "speaking" && <p>Speaking...</p>}
+            {assistantStatus === "idle" && <p>{assistantMessage}</p>} */}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

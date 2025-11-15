@@ -10,7 +10,6 @@ const vapi = new VapiClient({ token: process.env.VAPI_SERVER_API_KEY });
 export const startMeetingSession = async (req, res) => {
   try {
     const { assistantId, userId } = req.body;
-    console.log(userId);
     if (!assistantId)
       return res.status(400).json({
         success: false,
@@ -20,15 +19,14 @@ export const startMeetingSession = async (req, res) => {
     const session = await vapi.sessions.create({
       assistantId,
       metadata: {
-        userId: userId, // store user ID here
+        userId: userId,
       },
     });
 
-    console.log("🎬 Session created:", session.id);
-    res.json({ success: true, sessionId: session.id });
+    return res.json({ success: true, sessionId: session.id });
   } catch (error) {
     console.error("❌ Error starting session:", error);
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -55,11 +53,6 @@ export const createMeetingRecord = async (req, res) => {
       return typeof val === "string" ? val.trim() : val;
     };
 
-    const cleanLower = (val) => {
-      if (isNullish(val)) return null;
-      return typeof val === "string" ? val.trim().toLowerCase() : val;
-    };
-
     // -------------------------------
     // EXTRACT STRUCTURED OUTPUT SAFELY
     // -------------------------------
@@ -69,11 +62,6 @@ export const createMeetingRecord = async (req, res) => {
     let structuredOutput = null;
 
     try {
-      console.log(
-        "🔎 Checking for structured output keys:",
-        Object.keys(req.body)
-      );
-
       // Case: SO is directly in body with UUID
       if (
         typeof req.body === "object" &&
@@ -82,18 +70,18 @@ export const createMeetingRecord = async (req, res) => {
         Object.values(req.body)[0]?.result
       ) {
         structuredOutput = Object.values(req.body)[0].result;
+        // eslint-disable-next-line brace-style
       }
       // Old Vapi format
       else if (req.body?.message?.artifact?.structuredOutputs) {
         const outputs = req.body.message.artifact.structuredOutputs;
         structuredOutput = outputs[Object.keys(outputs)[0]]?.result;
+        // eslint-disable-next-line brace-style
       }
       // New Vapi event format
       else if (req.body?.data?.result) {
         structuredOutput = req.body.data.result;
       }
-
-      console.log("🟢 Extracted structured output:", structuredOutput);
     } catch (err) {
       console.error("❌ SO Parsing crashed:", err);
     }
