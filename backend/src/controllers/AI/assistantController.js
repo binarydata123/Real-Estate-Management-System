@@ -244,10 +244,7 @@ export const startPreferenceSession = async (req, res) => {
 
     const session = await vapi.sessions.create({
       assistantId,
-      metadata: {
-        userId: userId,
-        propertyId: propertyId,
-      },
+      metadata: { userId, propertyId },
     });
 
     return res.json({ success: true, sessionId: session.id });

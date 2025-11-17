@@ -84,16 +84,13 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
       // 1️⃣ Create session first
-      const sessionRes = await startPreferenceSession({
+      const sessionData = await startPreferenceSession({
         assistantId: AssistantId as string,
         userId: user?._id as string,
         propertyId,
       });
 
-      const sessionData = sessionRes?.data ?? sessionRes;
       if (!sessionData?.sessionId) throw new Error("Session creation failed");
-
-      const sessionId = sessionData.sessionId;
 
       // 2️⃣ Start VAPI using the sessionId (IMPORTANT)
       await vapi.start(AssistantId, {
@@ -146,15 +143,8 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
             <div className="absolute inset-0 rounded-full bg-blue-500/50 animate-pulse z-0"></div>
           )}
         </button>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-gray-700">AI Assistant</p>
-          <div className="text-sm text-gray-500">
-            {/* {assistantStatus === "thinking" && <p>Thinking...</p>}
-            {assistantStatus === "speaking" && <p>Speaking...</p>}
-            {assistantStatus === "idle" && <p>{assistantMessage}</p>} */}
-          </div>
-        </div>
       </div>
+      <p className="text-gray-600 text-sm h-10">{assistantMessage}</p>
     </div>
   );
 }
