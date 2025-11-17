@@ -78,9 +78,6 @@ export default async function PropertyPage() {
         "__v": 0
     };
 
-    // Example user (replace with logged-in user later)
-    const userId = "68c55d7b2df74062c8341bf5";
-
     return (
         <div className="p-6">
             <h1 className="text-3xl font-semibold mb-4">{property.title}</h1>
@@ -88,7 +85,7 @@ export default async function PropertyPage() {
 
             {/* Property Voice Agent */}
             <div className="mt-6">
-                <PropertyVoiceAgent propertyId={property._id} userId={userId} />
+                <PropertyVoiceAgent propertyId={property._id}  />
             </div>
         </div>
     );

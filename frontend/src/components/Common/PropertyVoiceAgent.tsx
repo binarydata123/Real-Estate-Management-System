@@ -93,7 +93,6 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
       const sessionData = sessionRes?.data ?? sessionRes;
       if (!sessionData?.sessionId) throw new Error("Session creation failed");
 
-      const sessionId = sessionData.sessionId;
 
       // 2️⃣ Start VAPI using the sessionId (IMPORTANT)
       await vapi.start(AssistantId, {
@@ -149,9 +148,7 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-gray-700">AI Assistant</p>
           <div className="text-sm text-gray-500">
-            {/* {assistantStatus === "thinking" && <p>Thinking...</p>}
-            {assistantStatus === "speaking" && <p>Speaking...</p>}
-            {assistantStatus === "idle" && <p>{assistantMessage}</p>} */}
+           <p>{assistantMessage}</p>
           </div>
         </div>
       </div>
