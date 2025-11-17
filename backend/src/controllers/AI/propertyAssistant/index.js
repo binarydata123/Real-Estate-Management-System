@@ -1,4 +1,5 @@
 import { Property } from "../../../models/Agent/PropertyModel.js";
+import { PropertyFeedback } from "../../../models/Common/PropertyFeedbackModel.js";
 import { createNotification } from "../../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../../utils/pushService.js";
 import { VapiClient } from "@vapi-ai/server-sdk";
@@ -262,5 +263,130 @@ export const createPropertyRecord = async (req, res) => {
   } catch (err) {
     console.error("❌ Property creation error:", err.message);
     return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+export const createPropertyFeedback = async (req, res) => {
+  try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    console.log("📥 Incoming FEEDBACK payload:", req.body);
+    const metadata =
+      req.body?.message?.call?.assistantOverrides?.metadata ||
+      req.body?.message?.artifact?.variables?.metadata;
+    console.log("TOOL INPUT:", req.body);
+
+    console.log("📌 Extracted Metadata:", metadata);
+    let structuredOutput;
+
+    // Extract structured output (Vapi sends different formats)
+    if (req.body?.message?.artifact?.structuredOutputs) {
+      const out = req.body.message.artifact.structuredOutputs;
+      const firstKey = Object.keys(out)[0];
+      structuredOutput = out[firstKey]?.result;
+    } else if (req.body?.data?.result) {
+      structuredOutput = req.body.data.result;
+    } else if (
+      typeof req.body === "object" &&
+      !Array.isArray(req.body) &&
+      Object.values(req.body)?.[0]?.result
+    ) {
+      structuredOutput = Object.values(req.body)[0]?.result;
+    } else if (req.body?.result) {
+      structuredOutput = req.body.result;
+    }
+
+    // No structured output found
+    if (!structuredOutput) {
+      console.warn("⚠️ No feedback structured output found.");
+      return res.status(200).json({
+        success: true,
+        note: "No feedback data yet",
+      });
+    }
+
+    console.log("📝 Structured Feedback:", structuredOutput);
+
+    // Extract fields (REMOVE vapiUserId)
+    const { liked, reason, notes, propertyId } = structuredOutput;
+
+    // Validate required fields
+    if (liked === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: "'liked' field is required",
+      });
+    }
+
+    if (!propertyId || propertyId === "property") {
+      return res.status(400).json({
+        success: false,
+        error: "Valid propertyId required inside structuredOutput",
+      });
+    }
+
+    if (!req.user?._id) {
+      return res.status(400).json({
+        success: false,
+        error: "Authed user not found",
+      });
+    }
+
+    // Lookup property
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({
+        success: false,
+        error: "Property not found",
+      });
+    }
+
+    // Convert liked to boolean
+    const likedBoolean =
+      typeof liked === "string"
+        ? liked.trim().toLowerCase() === "true"
+        : Boolean(liked);
+
+    // Prepare feedback data
+    const feedbackData = {
+      userId: req.user._id,
+      propertyId,
+      liked: likedBoolean,
+      reason: reason || "",
+      notes: notes || "",
+    };
+
+    // Save feedback
+    const savedFeedback = await new PropertyFeedback(feedbackData).save();
+    console.log("✅ Feedback saved:", savedFeedback._id);
+
+    // Notify agent
+    await createNotification({
+      agencyId: req.user?.agencyId?._id,
+      userId: req.user._id,
+      message: `Customer submitted feedback for property: ${property.title}`,
+      type: "property_feedback",
+    });
+
+    await sendPushNotification({
+      userId: req.user._id,
+      title: "New Property Feedback",
+      message: `Feedback received for "${property.title}".`,
+      urlPath: `/agent/properties/${property._id}`,
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: savedFeedback,
+      message: "Feedback submitted successfully",
+    });
+  } catch (err) {
+    console.error("❌ Feedback creation error:", err);
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };

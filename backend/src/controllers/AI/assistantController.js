@@ -249,7 +249,7 @@ export const startPreferenceSession = async (req, res) => {
 
     return res.json({ success: true, sessionId: session.id });
   } catch (error) {
-    console.error("❌ Error starting session:", error);
+    console.error("❌ Error starting call:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };

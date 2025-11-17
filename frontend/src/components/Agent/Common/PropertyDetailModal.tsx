@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { XMarkIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import PropertyVoiceAgent from "@/components/Common/PropertyVoiceAgent";
-import { useAuth } from "@/context/AuthContext";
 
 interface PropertyDetailModalProps {
   property: Property;
@@ -24,7 +23,6 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
     phone: "",
     message: "",
   });
-  const { user } = useAuth();
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +79,6 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
             <div className="flex items-center space-x-1 md:space-x-3">
               <PropertyVoiceAgent
                 propertyId={property._id as string}
-                userId={user?._id as string}
               />
               <span
                 onClick={onClose}
