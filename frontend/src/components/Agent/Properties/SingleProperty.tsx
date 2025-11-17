@@ -17,7 +17,6 @@ import { useToast } from "@/context/ToastContext";
 import { showErrorToast } from "@/utils/toastHandler";
 
 interface Images {
-  id?: string;
   _id?: string;
   url: string;
   alt?: string;
@@ -355,7 +354,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             onClick={() => {
               if (!propertyData?.images?.length || !selectedImage) return;
               const idx = propertyData.images.findIndex(
-                (img) => img._id === selectedImage._id
+                (img) => img._id === selectedImage._id,
               );
               const prevIdx =
                 (idx - 1 + propertyData.images.length) %

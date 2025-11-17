@@ -1,5 +1,5 @@
 "use client";
-import SingleProperty from "@/components/Agent/Properties/SingleProperty";
+import SingleProperty from "@/components/Customer/Properties/SingleProperty";
 import { useParams } from "next/navigation";
 import React from "react";
 

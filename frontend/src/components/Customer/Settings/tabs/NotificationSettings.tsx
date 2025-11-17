@@ -37,11 +37,11 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
       title: "Property Updates",
       description: "Notifications when properties are updated",
     },
-    {
-      key: "customerActivity",
-      title: "Customer Activity",
-      description: "Notifications about customer interactions",
-    },
+    // {
+    //   key: "customerActivity",
+    //   title: "Customer Activity",
+    //   description: "Notifications about customer interactions",
+    // },
     {
       key: "systemUpdates",
       title: "System Updates",

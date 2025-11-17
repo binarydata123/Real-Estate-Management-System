@@ -110,7 +110,7 @@ export function useVoiceForm(
 
       if (repeatCountRef.current >= 2) {
         await speakWithOpenAI(
-          `You already said that. Please provide a different answer for ${field.label}.`
+          `You already said that. Please provide a different answer for ${field.label}.`,
         );
 
         // Don't move forward — wait for new input
@@ -126,13 +126,13 @@ export function useVoiceForm(
       ) {
         // Find all required fields that are empty
         const requiredFields = filteredFields.filter(
-          (f) => f.required && !getValues(f.name)
+          (f) => f.required && !getValues(f.name),
         );
 
         if (requiredFields.length > 0) {
           // 🧠 Speak required fields one by one
           await speakWithOpenAI(
-            `Some required fields are missing. Let's fill them before continuing.`
+            `Some required fields are missing. Let's fill them before continuing.`,
           );
 
           for (const missingField of requiredFields) {
@@ -164,7 +164,7 @@ export function useVoiceForm(
         } else {
           // ✅ Safe to skip all
           await speakWithOpenAI(
-            `Okay, skipping all fields in step ${currentStep}. You can continue to the next step.`
+            `Okay, skipping all fields in step ${currentStep}. You can continue to the next step.`,
           );
         }
 
@@ -186,7 +186,7 @@ export function useVoiceForm(
           setCurrentFieldIndex((prev) => prev + 1);
         } else {
           await speakWithOpenAI(
-            `All Step ${currentStep} fields are completed. You can continue to the next step.`
+            `All Step ${currentStep} fields are completed. You can continue to the next step.`,
           );
           recognitionRef.current.stop();
         }
@@ -236,7 +236,7 @@ export function useVoiceForm(
 
         // ✅ Try to match spoken value with an option
         const matchedOption = optionsList.find(
-          (opt) => opt.value.toLowerCase() === spokenValue
+          (opt) => opt.value.toLowerCase() === spokenValue,
         );
 
         if (matchedOption) {
@@ -281,7 +281,7 @@ export function useVoiceForm(
 
       if (!isValid || !getValues(field.name)) {
         await speakWithOpenAI(
-          `${field.label} is required. Please say the ${field.label} again.`
+          `${field.label} is required. Please say the ${field.label} again.`,
         );
         setIsProcessing(false);
         startListening(filteredFields);
@@ -292,7 +292,7 @@ export function useVoiceForm(
         setCurrentFieldIndex((prev) => prev + 1);
       } else {
         await speakWithOpenAI(
-          `All Step ${currentStep} fields are completed. You can continue to the next step.`
+          `All Step ${currentStep} fields are completed. You can continue to the next step.`,
         );
         recognitionRef.current.stop();
       }
@@ -308,7 +308,7 @@ export function useVoiceForm(
     if (!voiceReady) return;
 
     const filteredFields = fields.filter(
-      (f) => !f.step || f.step === currentStep
+      (f) => !f.step || f.step === currentStep,
     );
 
     if (currentFieldIndex >= filteredFields.length) return;

@@ -1,31 +1,20 @@
 import type { NextConfig } from "next";
 import path from "path";
 import dotenv from "dotenv";
-// import withPWAInit from "next-pwa"; // ❌ temporarily disable PWA
+import withPWAInit from "next-pwa";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-// ❌ Temporarily disable PWA for build
-// const withPWA = withPWAInit({
-//   dest: "public",
-//   register: true,
-//   skipWaiting: true,
-//   disable: process.env.NODE_ENV === "development",
-//   swSrc: "public/sw.js",
-// });
+const withPWA = withPWAInit({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === "development",
+  swSrc: "public/sw.js",
+});
 
 const nextConfig: NextConfig = {
-  reactStrictMode: false,
-
-  // ✅ Ignore build errors
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-
-  // ✅ Your existing image domains
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
@@ -47,13 +36,8 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    domains: ["localhost"],
+    domains: ['localhost'], // ✅ Add the external domain here
   },
-
 };
 
-// ❌ Skip PWA wrapping for now
-export default nextConfig;
-
-// ✅ Later (when you fix PWA):
-// export default withPWA(nextConfig);
+export default withPWA(nextConfig);
