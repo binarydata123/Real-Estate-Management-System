@@ -12,37 +12,20 @@ const router = express.Router();
 
 // Create
 
-router.post(
-  "/create",
-  protect(["admin", "agent"]),
-  createCustomer
-);
-getCustomersForDropDown;
+router.post("/create", protect(["admin", "agent"]), createCustomer);
 
 // Read
-router.get(
-  "/get-all",
-  protect(["admin", "agent"]),
-  getCustomers
-);
+router.get("/get-all", protect(["admin", "agent"]), getCustomers);
 router.get(
   "/get-all-for-dropDown",
-  protect(["admin", "agent"]),
+  // protect(["admin", "agent"]),
   getCustomersForDropDown
 );
 
 // Update
-router.put(
-  "/update/:id",
-  protect(["admin", "agent"]),
-  updateCustomer
-);
+router.put("/update/:id", protect(["admin", "agent"]), updateCustomer);
 
 // Delete
-router.delete(
-  "/delete/:id",
-  protect(["admin", "agent"]),
-  deleteCustomer
-);
+router.delete("/delete/:id", protect(["admin", "agent"]), deleteCustomer);
 
 export default router;

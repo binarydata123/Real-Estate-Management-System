@@ -39,7 +39,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     } else if (price >= 100000) {
       // 1 lakh
       return `₹${(price / 100000).toFixed(1)}L`;
-    } else if(price<100000){
+    } else if (price < 100000) {
       return `₹${price.toLocaleString()}`;
     }
   };
@@ -101,7 +101,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className="absolute top-3 left-3">
           <span
             className={`inline-flex capitalize items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-              property.status,
+              property.status
             )}`}
           >
             {property.status}
@@ -117,7 +117,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               {property.title}
             </h3>
             <p className="text-xl md:text-2xl font-bold text-blue-700">
-              {formatPrice(property.price)}
+              {formatPrice(property.price as number)}
             </p>
           </div>
           <div className="flex items-center text-sm text-gray-500 mt-1">

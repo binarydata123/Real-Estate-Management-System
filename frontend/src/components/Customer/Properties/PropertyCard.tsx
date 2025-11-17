@@ -98,7 +98,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
               {property.title}
             </h3>
             <p className="text-xl md:text-2xl font-bold text-blue-700">
-              {formatPrice(property.price)}
+              {formatPrice(property.price as number)}
             </p>
           </div>
           <div className="flex items-center text-sm text-gray-500 mt-1">
