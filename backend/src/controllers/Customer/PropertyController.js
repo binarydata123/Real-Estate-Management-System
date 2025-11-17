@@ -134,12 +134,25 @@ export const getProperties = async (req, res) => {
 
 export const getSingleProperty = async (req, res) => {
   try {
-    const property = await Property.findById(req.params.id);
-    if (!property) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Property not found" });
+    // Accept property ID from URL params or request body
+    const propertyId = req.params.id || req.body.propertyId;
+
+    if (!propertyId) {
+      return res.status(400).json({
+        success: false,
+        message: "Property ID is required",
+      });
     }
+
+    const property = await Property.findById(propertyId);
+
+    if (!property) {
+      return res.status(404).json({
+        success: false,
+        message: "Property not found",
+      });
+    }
+
     return res.status(200).json({ success: true, data: property });
   } catch (error) {
     console.error("Error fetching property:", error);
