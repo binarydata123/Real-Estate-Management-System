@@ -88,7 +88,7 @@ export const Meetings: React.FC = () => {
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="flex items-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           Schedule Meeting
@@ -100,7 +100,7 @@ export const Meetings: React.FC = () => {
             onClick={() => setActiveTab("upcoming")}
             className={`px-3 py-2 font-medium text-sm rounded-t-md ${
               activeTab === "upcoming"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
@@ -110,7 +110,7 @@ export const Meetings: React.FC = () => {
             onClick={() => setActiveTab("past")}
             className={`px-3 py-2 font-medium text-sm rounded-t-md ${
               activeTab === "past"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
@@ -120,7 +120,7 @@ export const Meetings: React.FC = () => {
             onClick={() => setActiveTab("cancelled")}
             className={`px-3 py-2 font-medium text-sm rounded-t-md ${
               activeTab === "cancelled"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >

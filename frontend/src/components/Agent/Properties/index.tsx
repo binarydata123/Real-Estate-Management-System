@@ -117,7 +117,7 @@ export const Properties: React.FC = () => {
           </p>
         </div>
         <Link href="/agent/add-property">
-          <span className="flex items-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer">
+          <span className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors cursor-pointer">
             <PlusIcon className="h-5 w-5 mr-2" />
             Add Property
           </span>

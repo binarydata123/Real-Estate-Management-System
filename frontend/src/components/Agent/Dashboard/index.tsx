@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useNotificationPermission } from "@/components/Common/pushNotification";
 import { usePushSubscription } from "@/components/Common/SubscribeUserForNotification";
 import { useAuth } from "@/context/AuthContext";
-import { getDashboardData } from "@/lib/Dashboard/DashboarAPI";
+import { getDashboardData } from "@/lib/Agent/DashboarAPI";
 import { showErrorToast } from "@/utils/toastHandler";
 import HotCustomers from "./HotCustomers";
 
@@ -23,9 +23,9 @@ export interface customer {
 
 interface DashboardData {
   totalMeetings: number;
-  todayMeetings:Reminder[];
-  topCustomers:customer[];
-  properties:Property[] // object
+  todayMeetings: Reminder[];
+  topCustomers: customer[];
+  properties: Property[]; // object
 }
 
 export const AgentDashboard = () => {
@@ -33,14 +33,15 @@ export const AgentDashboard = () => {
     null
   );
   const [showShareModal, setShowShareModal] = useState(false);
-  const [dashboardData,setDashboardData]=useState<DashboardData|null>(null);
-
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
   const getData = async () => {
     try {
-         const res =await getDashboardData();
-         if (res.success){
+      const res = await getDashboardData();
+      if (res.success) {
         setDashboardData(res.data);
-         }
+      }
     } catch (error) {
       showErrorToast("Error", error);
     }
@@ -49,6 +50,7 @@ export const AgentDashboard = () => {
   useEffect(() => {
     getData();
   }, []);
+
   // const recentProperties: any[] = [
   //   {
   //     id: "1",
@@ -142,12 +144,12 @@ export const AgentDashboard = () => {
       </div>
 
       {/* Stats */}
-      <DashboardStats  value={dashboardData ??{}} />
+      <DashboardStats value={dashboardData ?? {}} />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-8 gap-2">
-        <TodaysReminders reminders={dashboardData?.todayMeetings??[]} />
-        <HotCustomers  customers={dashboardData?.topCustomers??[] }/>
+        <TodaysReminders reminders={dashboardData?.todayMeetings ?? []} />
+        <HotCustomers customers={dashboardData?.topCustomers ?? []} />
       </div>
 
       {/* Recent Properties */}

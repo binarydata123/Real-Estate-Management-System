@@ -14,6 +14,8 @@ import Cookies from "js-cookie";
 import { checkSession as checkSessionApi } from "@/lib/Authentication/AuthenticationAPI";
 import { AxiosError, AxiosResponse } from "axios";
 import { showErrorToast } from "@/utils/toastHandler";
+import { getAgencySettings } from "@/lib/Agent/SettingsAPI";
+import { brandColor } from "@/types/global";
 
 export const AUTH_SESSION_KEY = "auth-session";
 
@@ -55,6 +57,7 @@ interface AuthContextType {
   completeSignIn: (user: User, token: string) => void;
   signOut: () => Promise<void>;
   router: ReturnType<typeof useRouter>;
+  setBrandingColor:(value:brandColor)=>void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -76,7 +79,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+    const [brandingColor, setBrandingColor] = useState<brandColor>();
   const pathname = usePathname();
+
 
   // Centralized function to clear session state and storage
   const clearSession = useCallback(() => {
@@ -120,6 +125,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
     checkSession();
   }, [clearSession]);
+  const getSetting = async () => {
+    try {
+      const res = await getAgencySettings();
+      if (res.branding) {
+        setBrandingColor(res.branding);
+      }
+    } catch (error) {
+      showErrorToast("Error", error);
+    }
+  };
+  useEffect(()=>{
+   getSetting();
+  },[]);
+useEffect(() => {
+  if (brandingColor?.primaryColor) {
+    document.documentElement.style.setProperty(
+      "--primary",
+      brandingColor.primaryColor
+    );
+  document.documentElement.style.setProperty(
+      "--secondary",
+      brandingColor.secondaryColor
+    );
+  }
+}, [brandingColor]);
 
   useEffect(() => {
     const protectedRoutes = ["/admin", "/agent"];
@@ -189,8 +219,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       completeSignIn,
       signOut,
       router,
+      setBrandingColor
     }),
-    [user, session, loading, router, signIn, completeSignIn]
+    [user, session, loading, router, signIn, completeSignIn,setBrandingColor]
   );
 
   if (loading) {

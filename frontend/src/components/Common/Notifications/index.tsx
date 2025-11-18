@@ -165,7 +165,7 @@ const NotificationsPage: React.FC = () => {
                 handleMarkAllRead();
               }
             }}
-            className="flex items-center gap-2 md:px-4 px-3 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all"
+            className="flex items-center gap-2 md:px-4 px-3 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary/80 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all"
           >
             <CheckCheck className="h-5 w-5" />
             <span>Mark All Read</span>
@@ -181,7 +181,7 @@ const NotificationsPage: React.FC = () => {
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 rounded-t-lg ${
               activeTab === tab.key
-                ? "bg-blue-600 text-white"
+                ? "bg-primary text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >

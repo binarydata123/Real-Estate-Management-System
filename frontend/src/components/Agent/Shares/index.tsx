@@ -197,7 +197,7 @@ export const Shares: React.FC = () => {
           <p className="text-gray-500 mb-6">
             Start sharing properties with customers and colleagues
           </p>
-          <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors">
             <ShareIcon className="h-5 w-5 mr-2" />
             Share Your First Property
           </button>

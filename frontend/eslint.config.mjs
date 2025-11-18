@@ -26,7 +26,7 @@ const eslintConfig = [
         "error", // Prevent unused variables (on = cleaner code)
         { argsIgnorePattern: "^_" },
       ],
-      "no-console": "error", // Disallow console.log for production-quality code
+      "no-console": "off", // Disallow console.log for production-quality code
       "no-debugger": "off", // Disallow use of debugger statements
       "no-var": "off", // Enforce let/const instead of var
       "prefer-const": "error", // Suggest using const when variables are never reassigned

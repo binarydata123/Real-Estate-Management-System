@@ -26,7 +26,7 @@ export const agencyDashboardData = async (req, res) => {
     ] = await Promise.all([
       Property.countDocuments({ agencyId }),
       Customer.countDocuments({ agencyId }),
-      Meetings.countDocuments({ agencyId }),
+      Meetings.countDocuments({ agencyId ,date:{ $gte:startOfDay} }),
       Meetings.find({
         agencyId,
         date: { $gte: startOfDay, $lte: endOfDay },

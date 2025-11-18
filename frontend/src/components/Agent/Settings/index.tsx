@@ -6,9 +6,11 @@ import {
   getAgencySettings,
   updateAgencySettings,
 } from "@/lib/Agent/SettingsAPI";
+import { useAuth } from "@/context/AuthContext";
 
 export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState("agency");
+  const { setBrandingColor } = useAuth();
   const [agencySettings, setAgencySettings] = useState<AgencySettingsType>({
     _id: "",
     agencySettings: {
@@ -62,22 +64,27 @@ export const Settings: React.FC = () => {
   const getSettings = async () => {
     const res = await getAgencySettings();
     setAgencySettings(res);
+
     setSettings(res);
   };
   useEffect(() => {
     getSettings();
   }, []);
-  const handleUpdateSettings = async () => {
-    const isEqual = JSON.stringify(settings) === JSON.stringify(agencySettings);
-    if (isEqual) return;
-    if (agencySettings) {
-      await updateAgencySettings(agencySettings);
-    } else {
-      await updateAgencySettings(undefined);
-    }
+ const handleUpdateSettings = async () => {
+  if (!agencySettings) return;
 
-    getSettings();
-  };
+  const noChanges = JSON.stringify(settings) === JSON.stringify(agencySettings);
+  if (noChanges) return;
+
+  await updateAgencySettings(agencySettings);
+
+  if (agencySettings.branding) {
+    setBrandingColor(agencySettings.branding);
+  }
+
+  getSettings();
+};
+
   return (
     <div className="space-y-3 md:space-y-6">
       <div>
@@ -105,7 +112,7 @@ export const Settings: React.FC = () => {
               flex items-center flex-shrink-0 px-2.5 md:px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors
               ${
                 activeTab === tab.id
-                  ? "bg-blue-50 text-blue-700 border-b-2 lg:border-b-0 lg:border-r-2 border-blue-700"
+                  ? "bg-primary/10 text-primary border-b-2 lg:border-b-0 lg:border-r-2 border-primary"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }
             `}
@@ -126,7 +133,7 @@ export const Settings: React.FC = () => {
 
             <div className="flex justify-end pt-4 border-t border-gray-200 mt-3 md:mt-4">
               <button
-                className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                className="px-4 py-1.5 bg-primary/90 text-white text-sm rounded-md hover:bg-primary/80 transition-colors"
                 onClick={handleUpdateSettings}
               >
                 Save Changes

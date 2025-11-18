@@ -61,8 +61,7 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 />
               ) : (
                 <div
-                  className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
-                  style={{ backgroundColor: "#2563eb" }}
+                  className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold bg-primary"
                 >
                   {user.agency?.name.charAt(0)}
                 </div>
@@ -106,7 +105,7 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               onClick={onClose}
               className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 isActive
-                  ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
+                  ? "border-r-2 bg-primary/10 border-primary text-primary"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
