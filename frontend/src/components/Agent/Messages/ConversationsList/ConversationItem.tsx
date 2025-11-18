@@ -21,9 +21,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   isSelected,
   unreadCount,
   onSelect,
-  onViewCandidate,
   getTruncatedMessage,
-  currentUserId,
   isMobile = false
 }) => {
   const isDeleted = !conversation.otherParticipant;

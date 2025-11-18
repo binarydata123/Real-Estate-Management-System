@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 //import { useSearchParams } from "react-router-dom";
 import { useParams } from "next/navigation";
-import ConversationsList from "./ConversationsList/ConversationsList";
 import MessageThread from "./MessageThread/MessageThread";
 import { Conversation, Message } from "./types/messageTypes";
 import { useAuth } from "@/context/AuthContext";
@@ -21,6 +20,7 @@ import {
   uploadFile,
 } from "@/lib/Customer/MessagesAPI";
 import { io } from "socket.io-client";
+import { showErrorToast } from "@/utils/toastHandler";
 
 const Messages: React.FC = () => {
   const { user } = useAuth();
@@ -28,31 +28,16 @@ const Messages: React.FC = () => {
     string | null
   >(null);
   const [newMessage, setNewMessage] = useState("");
-  const [allowMessage, setAllowMessage] = useState(true);
   const [anotherUserAllowMessage, setAnotherUserAllowMessage] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
-  const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [archiveCount, setArchiveCount] = useState<number>(0);
-  const [deletedCount, setDeletedCount] = useState<number>(0);
-  const [blockedCount, setBlockedCount] = useState<number>(0);
-  const [isArchiveMode, setIsArchiveMode] = useState(false);
-  const [isTrashMode, setIsTrashMode] = useState(false);
-  const [isBlockMode, setIsBlockMode] = useState(false);
-  // const [searchParams] = useSearchParams();
-  // const applicantId = searchParams.get("applicant");
-  // const applicationId = searchParams.get("applicationId");
-  // const isType = searchParams.get("type");
+
   const hasStartedConversation = useRef(false);
-  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
-  const [selectedJob, setSelectedJob] = useState(null);
-  const [showJobModal, setShowJobModal] = useState(false);
+
   const [showProfile, setShowProfile] = useState(true);
   const [showConversationList, setShowConversationList] = useState(true);
 
@@ -67,7 +52,6 @@ const Messages: React.FC = () => {
   }, []);
   useEffect(() => {
     // Join room
-    console.log(selectedConversation, "conversation id");
     if (!selectedConversation) return;
     socket.emit("join_conversation", selectedConversation);
 
@@ -75,7 +59,6 @@ const Messages: React.FC = () => {
     socket.on("messages_update", (conversationId: string) => {
       fetchConversationMessages(conversationId);
     });
-    socket.on("joined", (id) => [console.log("user joined with room:", id)]);
 
     // Cleanup listener on unmount
     return () => {
@@ -101,17 +84,11 @@ const Messages: React.FC = () => {
     }
   }, [applicantId, applicationId]);
 
-  // Updated handleSelect to automatically hide conversation list in mobile
-  const handleConversationSelect = (conversationId: string) => {
-    setSelectedConversation(conversationId);
-    // Hide conversation list in mobile view when a conversation is selected
-    if (window.innerWidth < 1024) {
-      // lg breakpoint
-      setShowConversationList(false);
-    }
-  };
+
   const startNewConversation = async (
+    // eslint-disable-next-line no-shadow
     applicantId: string,
+    // eslint-disable-next-line no-shadow
     applicationId?: string
   ) => {
     try {
@@ -130,14 +107,14 @@ const Messages: React.FC = () => {
         fetchConversations(newConversationId);
       }
     } catch (error) {
-      console.error("Error starting new conversation:", error);
+      showErrorToast("Error starting new conversation:", error);
     }
   };
 
   const fetchConversations = async (priorityConversationId?: string) => {
-    setIsLoadingConversations(true);
-    setError(null);
+
     try {
+      // eslint-disable-next-line no-shadow
       const { conversations } = await getConversations();
       //setAllowMessage(allowMessages);
       setConversations(Array.isArray(conversations) ? conversations : []);
@@ -147,101 +124,8 @@ const Messages: React.FC = () => {
       } else if (conversations.length > 0 && !selectedConversation) {
         setSelectedConversation(conversations[0]._id);
       }
-      setIsLoadingConversations(false);
     } catch (error) {
-      console.error("Error fetching conversations:", error);
-      setError("Failed to load conversations. Please try again.");
-      setIsLoadingConversations(false);
-    }
-  };
-
-  const fetchArchivedConversations = async () => {
-    setIsLoadingConversations(true);
-    setError(null);
-    try {
-      const {
-        conversations,
-        archiveCount,
-        deletedCount,
-        blockedCount,
-        allowMessages,
-      } = await getConversations({ archived: true });
-      setAllowMessage(allowMessages);
-      setConversations(Array.isArray(conversations) ? conversations : []);
-      setArchiveCount(archiveCount);
-      setDeletedCount(deletedCount);
-      setBlockedCount(blockedCount);
-
-      if (conversations.length > 0) {
-        setSelectedConversation(conversations[0]._id);
-      } else {
-        setSelectedConversation(null);
-      }
-    } catch (error) {
-      console.error("Error fetching archived conversations:", error);
-      setError("Failed to load archived conversations. Please try again.");
-    } finally {
-      setIsLoadingConversations(false);
-    }
-  };
-
-  const fetchDeletedConversations = async () => {
-    setIsLoadingConversations(true);
-    setError(null);
-    try {
-      const {
-        conversations,
-        archiveCount,
-        deletedCount,
-        blockedCount,
-        allowMessages,
-      } = await getConversations({ deleted: true });
-      setAllowMessage(allowMessages);
-      setConversations(Array.isArray(conversations) ? conversations : []);
-      setArchiveCount(archiveCount);
-      setDeletedCount(deletedCount);
-      setBlockedCount(blockedCount);
-
-      if (conversations.length > 0) {
-        setSelectedConversation(conversations[0]._id);
-      } else {
-        setSelectedConversation(null);
-      }
-    } catch (error) {
-      console.error("Error fetching deleted conversations:", error);
-      setError("Failed to load deleted conversations. Please try again.");
-    } finally {
-      setIsLoadingConversations(false);
-    }
-  };
-
-  const fetchBlockedConversations = async () => {
-    setIsLoadingConversations(true);
-    setError(null);
-    try {
-      const {
-        conversations,
-        archiveCount,
-        deletedCount,
-        blockedCount,
-        allowMessages,
-      } = await getConversations({ blocked: true });
-      setAllowMessage(allowMessages);
-      setConversations(Array.isArray(conversations) ? conversations : []);
-      setArchiveCount(archiveCount);
-      setDeletedCount(deletedCount);
-      setBlockedCount(blockedCount);
-
-      if (conversations.length > 0) {
-        setSelectedConversation(conversations[0]._id);
-      } else {
-        setSelectedConversation(null);
-      }
-    } catch (error) {
-      console.error("Error fetching blocked conversations:", error);
-      setError("Failed to load blocked conversations. Please try again.");
-    } finally {
-      setIsLoadingConversations(false);
+      showErrorToast("Error fetching conversations:", error);
     }
   };
 
@@ -256,7 +140,7 @@ const Messages: React.FC = () => {
       setAnotherUserAllowMessage(data.allowMessages);
       setShowProfile(data.showProfile);
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      showErrorToast("Error fetching messages:", error);
     } finally {
       setIsLoadingMessages(false);
     }
@@ -288,7 +172,7 @@ const Messages: React.FC = () => {
           ) || [],
       }));
     } catch (error) {
-      console.error("Error marking conversation as read:", error);
+      showErrorToast("Error marking conversation as read:", error);
     }
   };
 
@@ -345,7 +229,7 @@ const Messages: React.FC = () => {
       setSelectedFile(null);
       setFilePreview(null);
     } catch (error) {
-      console.error("Error sending message or uploading file:", error);
+      showErrorToast("Error sending message or uploading file:", error);
     } finally {
       setIsSendingMessage(false);
     }
@@ -354,132 +238,102 @@ const Messages: React.FC = () => {
   const handleArchiveConversation = async (conversationId: string) => {
     try {
       await archiveConversation(conversationId);
-      setConversations((prev) =>
-        prev.filter((conv) => conv._id !== conversationId)
-      );
-      setArchiveCount((prev) => prev + 1);
-
-      if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find(
-          (conv) => conv._id !== conversationId
-        );
-        setSelectedConversation(nextConversation?._id || null);
-      }
+      setConversations((prevConversations) => {
+        if (selectedConversation === conversationId) {
+          const nextConversation = prevConversations.find(
+            (conversation: Conversation) => conversation._id !== conversationId
+          );
+          setSelectedConversation(nextConversation?._id || null);
+        }
+        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+      });
     } catch (error) {
-      console.error("Error archiving conversation:", error);
+      showErrorToast("Error archiving conversation:", error);
     }
   };
 
   const handleUnarchiveConversation = async (conversationId: string) => {
     try {
       await unArchiveConversation(conversationId);
-      setConversations((prev) =>
-        prev.filter((conv) => conv._id !== conversationId)
-      );
-      setArchiveCount((prev) => Math.max(prev - 1, 0));
-
-      if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find(
-          (conv) => conv._id !== conversationId
-        );
-        setSelectedConversation(nextConversation?._id || null);
-      }
+      setConversations((prevConversations) => {
+        if (selectedConversation === conversationId) {
+          const nextConversation = prevConversations.find(
+            (conversation: Conversation) => conversation._id !== conversationId
+          );
+          setSelectedConversation(nextConversation?._id || null);
+        }
+        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+      });
     } catch (error) {
-      console.error("Error unarchiving conversation:", error);
+      showErrorToast("Error unarchiving conversation:", error);
     }
   };
 
   const handleRestoreConversation = async (conversationId: string) => {
     try {
       await restoreConversation(conversationId);
-      setConversations((prev) =>
-        prev.filter((conv) => conv._id !== conversationId)
-      );
-
-      if (isTrashMode) {
-        setDeletedCount((prev) => Math.max(prev - 1, 0));
-      }
-      if (isArchiveMode) {
-        setArchiveCount((prev) => Math.max(prev - 1, 0));
-      }
-
-      if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find(
-          (conv) => conv._id !== conversationId
-        );
-        setSelectedConversation(nextConversation?._id || null);
-      }
+      setConversations((prevConversations) => {
+        if (selectedConversation === conversationId) {
+          const nextConversation = prevConversations.find(
+            (conversation: Conversation) => conversation._id !== conversationId
+          );
+          setSelectedConversation(nextConversation?._id || null);
+        }
+        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+      });
     } catch (err) {
-      console.error("Error restoring conversation: ", err);
+      showErrorToast("Error restoring conversation: ", err);
     }
   };
 
   const handleUnblockConversation = async (conversationId: string) => {
     try {
       await unblockConversation(conversationId);
-      setConversations((prev) =>
-        prev.filter((conv) => conv._id !== conversationId)
-      );
-      setBlockedCount((prev) => Math.max(prev - 1, 0));
-
-      if (isArchiveMode) {
-        setArchiveCount((prev) => Math.max(prev - 1, 0));
-      }
-
-      if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find(
-          (conv) => conv._id !== conversationId
-        );
-        setSelectedConversation(nextConversation?._id || null);
-      }
+      setConversations((prevConversations) => {
+        if (selectedConversation === conversationId) {
+          const nextConversation = prevConversations.find(
+            (conversation: Conversation) => conversation._id !== conversationId
+          );
+          setSelectedConversation(nextConversation?._id || null);
+        }
+        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+      });
     } catch (error) {
-      console.error("Error unblocking conversation:", error);
+      showErrorToast("Error unblocking conversation:", error);
     }
   };
 
   const handleBlockConversation = async (conversationId: string) => {
     try {
       await blockConversation(conversationId);
-      setConversations((prev) =>
-        prev.filter((conv) => conv._id !== conversationId)
-      );
-      setBlockedCount((prev) => prev + 1);
-
-      if (isArchiveMode) {
-        setArchiveCount((prev) => Math.max(prev - 1, 0));
-      }
-
-      if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find(
-          (conv) => conv._id !== conversationId
-        );
-        setSelectedConversation(nextConversation?._id || null);
-      }
+      setConversations((prevConversations) => {
+        if (selectedConversation === conversationId) {
+          const nextConversation = prevConversations.find(
+            (conversation: Conversation) => conversation._id !== conversationId
+          );
+          setSelectedConversation(nextConversation?._id || null);
+        }
+        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+      });
     } catch (error) {
-      console.error("Error blocking conversation:", error);
+      showErrorToast("Error blocking conversation:", error);
     }
   };
 
   const handleDeleteConversation = async (conversationId: string) => {
     try {
       await deleteConversation(conversationId);
-      setConversations((prev) =>
-        prev.filter((conv) => conv._id !== conversationId)
-      );
-      setDeletedCount((prev) => prev + 1);
-
-      if (isArchiveMode) {
-        setArchiveCount((prev) => Math.max(prev - 1, 0));
-      }
-
-      if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find(
-          (conv) => conv._id !== conversationId
-        );
-        setSelectedConversation(nextConversation?._id || null);
-      }
+      setConversations((prevConversations) => {
+        if (selectedConversation === conversationId) {
+          const nextConversation = prevConversations.find(
+            (conversation: Conversation) => conversation._id !== conversationId
+          );
+          setSelectedConversation(nextConversation?._id || null);
+        }
+        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+      });
     } catch (error) {
-      console.error("Error deleting conversation:", error);
+      showErrorToast("Error deleting conversation:", error);
     }
   };
 
@@ -497,7 +351,7 @@ const Messages: React.FC = () => {
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
     if (!allowedTypes.includes(file.type)) {
-      console.error("Unsupported file type!");
+      showErrorToast("Unsupported file type!");
       return;
     }
 
@@ -510,26 +364,13 @@ const Messages: React.FC = () => {
     }
   };
 
-  const handleViewCompany = (companyId: string) => {
-    setSelectedCompany(companyId);
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
   };
 
-  const handleJobClick = (job: any) => {
-    setSelectedJob(job);
-    setShowJobModal(true);
-  };
 
-  const handleApply = async () => {
-    try {
-      console.log("action");
-    } catch (error) {
-      console.error("Error applying for job:", error);
-    }
-  };
 
-  const handleCompanyClick = (companyId: string) => {
-    setSelectedCompany(companyId);
-  };
 
   // if (selectedCompany) {
   //   return (
@@ -585,18 +426,12 @@ const Messages: React.FC = () => {
 
         <MessageThread
           selectedConversation={selectedConv}
-          messages={
-            selectedConversation ? messages[selectedConversation] || [] : []
-          }
+          messages={selectedConversation ? messages[selectedConversation] || [] : []}
           newMessage={newMessage}
           selectedFile={selectedFile}
           filePreview={filePreview}
           isLoadingMessages={isLoadingMessages}
           isSendingMessage={isSendingMessage}
-          isArchiveMode={isArchiveMode}
-          isTrashMode={isTrashMode}
-          isBlockMode={isBlockMode}
-          allowMessage={allowMessage}
           anotherUserAllowMessage={anotherUserAllowMessage}
           showProfile={showProfile}
           showConversationList={showConversationList}
@@ -604,14 +439,15 @@ const Messages: React.FC = () => {
           onFileSelected={handleFileSelected}
           onSendMessage={handleSendMessage}
           onSetShowConversationList={setShowConversationList}
-          onViewCompany={handleViewCompany}
           onArchiveConversation={handleArchiveConversation}
           onUnarchiveConversation={handleUnarchiveConversation}
           onBlockConversation={handleBlockConversation}
           onUnblockConversation={handleUnblockConversation}
           onDeleteConversation={handleDeleteConversation}
           onRestoreConversation={handleRestoreConversation}
-        />
+          onRemoveFile={handleRemoveFile} isArchiveMode={false} isTrashMode={false} isBlockMode={false} allowMessage={false} onViewCompany={function (): void {
+            throw new Error("Function not implemented.");
+          } }        />
       </div>
     </div>
   );
