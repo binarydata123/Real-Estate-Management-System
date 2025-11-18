@@ -1,7 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-//import { Link, useSearchParams } from "react-router-dom";
-//import { toast } from "react-toastify";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 // Components
@@ -10,21 +8,22 @@ import MessageThread from "./MessageThread/MessageThread";
 import ErrorDisplay from "./UI/ErrorDisplay";
 
 // Types
-import { Conversation, Message, MessageViewProps } from "./types/messageTypes";
+import { Conversation, Message } from "./types/messageTypes";
 import { useAuth } from "@/context/AuthContext";
 import { getConversations, getConversationMessages, archiveConversation, blockConversation, deleteConversation, markConversationAsRead, restoreConversation, sendMessage, startConversation, unArchiveConversation, unblockConversation, uploadFile, getCustomers } from "@/lib/Agent/MessagesAPI";
-// import { archiveConversation, blockConversation, deleteConversation, getConversationMessages, getConversations, markConversationAsRead, restoreConversation, sendMessage, startConversation, unArchiveConversation, unblockConversation, uploadFile } from "../../../services/messageService";
-import apiService from "../../../services/api";
-import CandidateProfileView from "./CandidateProfileView";
 
-
+import { io } from "socket.io-client";
 
 // View Components
 
 const CompanyMessages: React.FC = () => {
   const { user } = useAuth();
   //const [searchParams] = useSearchParams();
-
+const socket = useMemo(() => {
+        return io("http://localhost:5001", {
+            withCredentials: true,
+        });
+    }, []);
   // State
   const [allowMessage, setAllowMessage] = useState(true);
   const [anotherUserAllowMessage, setAnotherUserAllowMessage] = useState(true);
@@ -73,6 +72,27 @@ const CompanyMessages: React.FC = () => {
   //const applicationId = params.applicationId as string;
   const conversationId = params.conversationId as string;
 
+
+useEffect(() => {
+        // Join room
+        console.log(selectedConversation,"conversation id")
+        if(!selectedConversation)return;
+        socket.emit("join_conversation", selectedConversation);
+
+        // Live updates from socket
+        socket.on("messages_update", (conversationId:string) => {
+          console.log("message update",conversationId)
+            fetchConversationMessages(conversationId);
+        });
+socket.on("joined",(id)=>[
+  console.log("user joined with room:",id)
+])
+        // Cleanup listener on unmount
+        return () => {
+            socket.off("messages_update");
+        };
+    }, [selectedConversation]);
+
   // Initialize selected conversation
   useEffect(() => {
     setSelectedConversation(conversationId ?? null);
@@ -95,22 +115,9 @@ const CompanyMessages: React.FC = () => {
 
   // Fetch messages when a conversation is selected
   useEffect(() => {
-    // if (!selectedConversation) return;
-
-    // fetchConversationMessages(selectedConversation);
-
-    // const timer = setTimeout(() => {
-    //   console.log('working messages');
-    //   markAsRead(selectedConversation);
-    // }, 1500);
-
-    // return () => clearTimeout(timer);
     if (!selectedConversation) return;
-    const interval = setInterval(() => {
-      //fetchConversationMessages(selectedConversation);
+      fetchConversationMessages(selectedConversation);
       markAsRead(selectedConversation);
-    }, 2000);
-    return () => clearInterval(interval);
   }, [selectedConversation]);
 
   // Start new conversation if applicantId is provided
@@ -368,6 +375,7 @@ const CompanyMessages: React.FC = () => {
         );
   
         if (response.success && response.data?.message) {
+           socket.emit("send_message", selectedConversation);
           if (typeof selectedConversation === "string") {
             setMessages((prev) => ({
               ...prev,
