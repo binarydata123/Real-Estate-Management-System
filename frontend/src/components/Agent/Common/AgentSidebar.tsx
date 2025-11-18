@@ -21,6 +21,7 @@ const navigation = [
   { name: "Properties", href: "/agent/properties", icon: BuildingOfficeIcon },
   { name: "Customers", href: "/agent/customers", icon: UsersIcon },
   { name: "Meetings", href: "/agent/meetings", icon: CalendarIcon },
+  { name: "Messages", href: "/agent/messages", icon: CalendarIcon },
   { name: "Shares", href: "/agent/shares", icon: ChartBarIcon },
   { name: "Analytics", href: "/agent/analytics", icon: ChartBarIcon },
   { name: "Notifications", href: "/agent/notifications", icon: Bell },
