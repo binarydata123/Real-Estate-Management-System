@@ -310,7 +310,7 @@ export const createPropertyFeedback = async (req, res) => {
     console.log("📝 Structured Feedback:", structuredOutput);
 
     // Extract fields (REMOVE vapiUserId)
-    const { liked, reason, notes, propertyId } = structuredOutput;
+    const { liked, reason } = structuredOutput;
 
     // Validate required fields
     if (liked === undefined) {
@@ -320,7 +320,7 @@ export const createPropertyFeedback = async (req, res) => {
       });
     }
 
-    if (!propertyId || propertyId === "property") {
+    if (!metadata.propertyId) {
       return res.status(400).json({
         success: false,
         error: "Valid propertyId required inside structuredOutput",
@@ -335,7 +335,7 @@ export const createPropertyFeedback = async (req, res) => {
     }
 
     // Lookup property
-    const property = await Property.findById(propertyId);
+    const property = await Property.findById(metadata.propertyId);
     if (!property) {
       return res.status(404).json({
         success: false,
@@ -351,11 +351,10 @@ export const createPropertyFeedback = async (req, res) => {
 
     // Prepare feedback data
     const feedbackData = {
-      userId: req.user._id,
-      propertyId,
+      userId: metadata.userId,
+      propertyId: metadata.propertyId,
       liked: likedBoolean,
       reason: reason || "",
-      notes: notes || "",
     };
 
     // Save feedback
@@ -365,13 +364,13 @@ export const createPropertyFeedback = async (req, res) => {
     // Notify agent
     await createNotification({
       agencyId: req.user?.agencyId?._id,
-      userId: req.user._id,
+      userId: metadata.userId,
       message: `Customer submitted feedback for property: ${property.title}`,
       type: "property_feedback",
     });
 
     await sendPushNotification({
-      userId: req.user._id,
+      userId: metadata.userId,
       title: "New Property Feedback",
       message: `Feedback received for "${property.title}".`,
       urlPath: `/agent/properties/${property._id}`,

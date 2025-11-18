@@ -236,18 +236,20 @@ export const startPreferenceSession = async (req, res) => {
   try {
     const { assistantId, userId, propertyId } = req.body;
 
-    if (!assistantId)
-      return res.status(400).json({
-        success: false,
-        message: "Missing assistantId (check .env)",
-      });
+    const property = await Property.findById(propertyId);
+    const preference = await Preference.findOne({ userId });
 
     const session = await vapi.sessions.create({
       assistantId,
       metadata: { userId, propertyId },
     });
 
-    return res.json({ success: true, sessionId: session.id });
+    return res.json({
+      success: true,
+      sessionId: session.id,
+      property,
+      preference,
+    });
   } catch (error) {
     console.error("❌ Error starting call:", error);
     return res.status(500).json({ success: false, message: error.message });
