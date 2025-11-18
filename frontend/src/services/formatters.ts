@@ -1,5 +1,5 @@
+import { showErrorToast } from "@/utils/toastHandler";
 import settingsAdminService from "./admin/SettingsAdminService";
-import apiService from "./api";
 
 export const formatDateToMonthInput = (date: string | undefined | null): string => {
   if (!date) return '';
@@ -46,7 +46,7 @@ export const formatDateToReadable = (isoDate: string): string => {
       .replace("MM", monthNum)
       .replace("Month", monthName)   // full month name
       .replace("YYYY", year);
-  } else {
+  }
     // fallback if settings not loaded
     const date = new Date(isoDate);
     if (isNaN(date.getTime())) return "";
@@ -55,8 +55,7 @@ export const formatDateToReadable = (isoDate: string): string => {
     const month = date.toLocaleString('en-US', { month: 'long' }); // "July"
     const year = date.getFullYear();
 
-    return `${day} ${month} ${year}`; // e.g., "18 July 2025"
-  }
+    return `${day} ${month} ${year}`; // e.g., "18 July 2025
 };
 
 let adminDateFormat = ""; // default
@@ -69,6 +68,6 @@ export const loadAdminSettings = async () => {
       adminTimezone = settings.data.data.general.timezone || adminTimezone;
     }
   } catch (err) {
-    console.error("Error loading admin settings:", err);
+    showErrorToast("Error loading admin settings:", err);
   }
 };

@@ -10,12 +10,6 @@ const withPWA = withPWAInit({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
-
-  // ❌ REMOVE THIS — it causes the build error
-  // swSrc: "public/sw.js",
-
-  // ⬅ Tell next-pwa NOT to overwrite custom service worker
-  buildExcludes: [/public\/sw\.js$/],
 });
 
 const nextConfig: NextConfig = {
