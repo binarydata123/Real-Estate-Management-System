@@ -1,12 +1,11 @@
 import React from "react";
-import { Conversation } from "../types/messageTypes";
-import { ConversationsListProps } from "../types/messageTypes";
 import { MessageSquare } from "lucide-react";
 import SearchHeader from "./SearchHeader";
 import LoadingSpinner from "../UI/LoadingSpinner";
 import ErrorDisplay from "../UI/ErrorDisplay";
 import EmptyState from "../UI/EmptyState";
 import ConversationItem from "./ConversationItem";
+import { ConversationsListProps } from "../types/messageTypes";
 
 const ConversationsList: React.FC<ConversationsListProps> = ({
   conversations,

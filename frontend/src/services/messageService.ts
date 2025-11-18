@@ -1,3 +1,4 @@
+import { showErrorToast } from "@/utils/toastHandler";
 import apiService from "./api";
 
 // Get all conversations
@@ -16,7 +17,7 @@ export const getConversations = async (params?: {
       }
     );
   } catch (error) {
-    console.error("Error fetching conversations:", error);
+    showErrorToast("Error fetching conversations:", error);
     throw error;
   }
 };
@@ -27,7 +28,7 @@ export const getConversationMessages = async (conversationId: string) => {
     const response = await apiService.getConversationMessages(conversationId);
     return response.data?.data;
   } catch (error) {
-    console.error("Error fetching conversation messages:", error);
+    showErrorToast("Error fetching conversation messages:", error);
     throw error;
   }
 };
@@ -36,6 +37,7 @@ export const getConversationMessages = async (conversationId: string) => {
 export const sendMessage = async (
   conversationId: string,
   content: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attachments?: any[]
 ) => {
   try {
@@ -45,7 +47,7 @@ export const sendMessage = async (
     });
     return response;
   } catch (error) {
-    console.error("Error sending message:", error);
+    showErrorToast("Error sending message:", error);
     throw error;
   }
 };
@@ -55,6 +57,7 @@ export const startConversation = async (
   receiverId: string,
   content: string,
   applicationId: string | undefined,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attachments?: any[]
 ) => {
   try {
@@ -65,7 +68,7 @@ export const startConversation = async (
     });
     return response;
   } catch (error) {
-    console.error("Error starting conversation:", error);
+    showErrorToast("Error starting conversation:", error);
     throw error;
   }
 };
@@ -76,7 +79,7 @@ export const markConversationAsRead = async (conversationId: string) => {
     const response = await apiService.markConversationAsRead(conversationId);
     return response;
   } catch (error) {
-    console.error("Error marking conversation as read:", error);
+    showErrorToast("Error marking conversation as read:", error);
     throw error;
   }
 };
@@ -87,7 +90,7 @@ export const archiveConversation = async (conversationId: string) => {
     const response = await apiService.archiveConversation(conversationId);
     return response;
   } catch (error) {
-    console.error("Error archiving conversation:", error);
+    showErrorToast("Error archiving conversation:", error);
     throw error;
   }
 };
@@ -97,7 +100,7 @@ export const unArchiveConversation = async (conversationId: string) => {
     const response = await apiService.unArchiveConversation(conversationId);
     return response;
   } catch (error) {
-    console.error("Error archiving conversation:", error);
+    showErrorToast("Error archiving conversation:", error);
     throw error;
   }
 };
@@ -107,7 +110,7 @@ export const deleteConversation = async (conversationId: string) => {
     const response = await apiService.deleteConversation(conversationId);
     return response;
   } catch (error) {
-    console.error("Error archiving conversation:", error);
+    showErrorToast("Error archiving conversation:", error);
     throw error;
   }
 };
@@ -117,7 +120,7 @@ export const restoreConversation = async (conversationId: string) => {
     const res = await apiService.restoreConversation(conversationId);
     return res;
   } catch (error) {
-    console.error("Error restoring conversation:", error);
+    showErrorToast("Error restoring conversation:", error);
   }
 };
 // Block a conversation
@@ -126,7 +129,7 @@ export const blockConversation = async (conversationId: string) => {
     const response = await apiService.blockConversation(conversationId);
     return response;
   } catch (error) {
-    console.error("Error archiving conversation:", error);
+    showErrorToast("Error archiving conversation:", error);
     throw error;
   }
 };
@@ -136,7 +139,7 @@ export const unblockConversation = async (conversationId: string) => {
     const response = await apiService.unblockConversation(conversationId);
     return response;
   } catch (error) {
-    console.error("Error archiving conversation:", error);
+    showErrorToast("Error archiving conversation:", error);
     throw error;
   }
 };
@@ -156,12 +159,12 @@ export const uploadFile = async (file: File) => {
     });
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Server response:", errorText);
+      showErrorToast("Server response:", errorText);
       throw new Error(`Upload failed with status ${response.status}`);
     }
     return await response.json();
   } catch (error) {
-    console.error("Upload error:", error);
+    showErrorToast("Upload error:", error);
     throw error;
   }
 };

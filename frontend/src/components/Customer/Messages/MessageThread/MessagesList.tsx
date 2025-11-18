@@ -11,7 +11,7 @@ import MessageItem from "./MessageItem";
 interface MessagesListProps {
   messages: Message[];
   isLoading: boolean;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
+  messagesEndRef: React.Ref<HTMLDivElement>;
 }
 
 const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading, messagesEndRef }) => {

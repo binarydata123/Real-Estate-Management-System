@@ -1,4 +1,7 @@
-import { SubscriptionPlan } from "./types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { showErrorToast } from "@/utils/toastHandler";
+
 export type CandidateVideoType =
   | "aboutMe"
   | "education"
@@ -413,7 +416,7 @@ class ApiService {
   async logout(): Promise<ApiResponse> {
     this.clearAuthData();
     return {
-      success: true,
+      success: true, status: 200
     };
   }
 
@@ -715,13 +718,13 @@ class ApiService {
         response.data.success !== undefined
       ) {
         return response.data;
-      } else {
+      }
         return {
           success: false,
           message: "Invalid response format from server",
           data: null,
         };
-      }
+
     } catch (err: any) {
       return {
         success: false,
@@ -807,7 +810,7 @@ class ApiService {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Error downloading resume:", error);
+      showErrorToast("Error downloading resume:", error);
     }
   }
 
@@ -1514,8 +1517,8 @@ class ApiService {
   }
   async fetchStudentCourseById(
     id: string,
-    page: number = 1,
-    limit: number = 10
+    page = 1,
+    limit = 10
   ): Promise<any> {
     const query = new URLSearchParams({
       page: page.toString(),
@@ -1774,7 +1777,7 @@ class ApiService {
 
       return this.makeRequest(endpoint, { method: "GET" });
     } catch (error: any) {
-      console.error("Failed to fetch courses:", error.message || error);
+      showErrorToast("Failed to fetch courses:", error.message || error);
       return {
         success: false,
         error: error?.message || "An unexpected error occurred.",
@@ -1801,7 +1804,7 @@ class ApiService {
         headers: { "Content-Type": "application/json" },
       });
     } catch (error: any) {
-      console.error("Failed to create/update record:", error.message || error);
+      showErrorToast("Failed to create/update record:", error.message || error);
       return { success: false, error: error?.message || "Unexpected error" };
     }
   }
@@ -1828,7 +1831,7 @@ class ApiService {
         headers: { "Content-Type": "application/json" },
       });
     } catch (error: any) {
-      console.error(
+      showErrorToast(
         "Failed to update lesson progress:",
         error.message || error
       );
@@ -1850,7 +1853,7 @@ class ApiService {
         headers: { "Content-Type": "application/json" },
       });
     } catch (error: any) {
-      console.error("Failed to add note:", error.message || error);
+      showErrorToast("Failed to add note:", error.message || error);
       return { success: false, error: error?.message || "Unexpected error" };
     }
   }
@@ -1935,7 +1938,7 @@ class ApiService {
     });
   }
 
-  async createPlan(planData: SubscriptionPlan): Promise<ApiResponse> {
+  async createPlan(planData: any): Promise<ApiResponse> {
     return this.makeRequest("/plans/create", {
       method: "POST",
       body: JSON.stringify(planData),
@@ -1943,7 +1946,7 @@ class ApiService {
   }
   async updatePlan(
     planId: string,
-    planData: Partial<SubscriptionPlan>
+    planData: Partial<any>
   ): Promise<ApiResponse> {
     return this.makeRequest(`/plans/${planId}`, {
       method: "PUT",
@@ -1969,7 +1972,7 @@ class ApiService {
 
   async updateSubscription(
     planId: string,
-    planData: SubscriptionPlan
+    planData: any
   ): Promise<ApiResponse> {
     return this.makeRequest(`/plans/${planId}`, {
       method: "PUT",
@@ -1977,7 +1980,7 @@ class ApiService {
     });
   }
 
-  async createSubscriptions(planData: SubscriptionPlan): Promise<ApiResponse> {
+  async createSubscriptions(planData: any): Promise<ApiResponse> {
     return this.makeRequest("/subscriptions/create", {
       method: "POST",
       body: JSON.stringify(planData),
@@ -2010,7 +2013,7 @@ class ApiService {
     });
   }
 
-  async buySubscriptionPlan(planData: any): Promise<ApiResponse> {
+  async buyany(planData: any): Promise<ApiResponse> {
     return this.makeRequest("/stripe/buy-subscription-plan", {
       method: "POST",
       body: JSON.stringify(planData),
@@ -2428,7 +2431,7 @@ class ApiService {
       );
       return response; // ✅ success case
     } catch (error: any) {
-      console.error("Manual token top-up failed:", error);
+      showErrorToast("Manual token top-up failed:", error);
 
       const backendErrorMessage =
         error?.response?.data?.error || // Stripe-style or Express error
@@ -2730,9 +2733,6 @@ class ApiService {
     candidateId,
     type,
   }: StreamCandidateVideoParams): string {
-    console.log(
-      `${this.baseURL}/candidates/videos/stream/${candidateId}/${type}`
-    );
     return `${this.baseURL}/candidates/videos/stream/${candidateId}/${type}`;
   }
   // ✅ List (returns JSON response with all videos for candidate)

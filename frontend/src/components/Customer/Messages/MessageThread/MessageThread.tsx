@@ -1,10 +1,8 @@
 "use client";
 import React, { useRef, useEffect } from "react";
 import { MessageThreadProps } from "../types/messageTypes";
-import { Ban } from "lucide-react";
+import { Ban, MessageSquare } from "lucide-react";
 import Link from "next/link";
-
-import { MessageSquare } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import EmptyState from "../UI/EmptyState";
 import MessageHeader from "./MessageHeader";
@@ -28,6 +26,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({
   showConversationList,
   onMessageChange,
   onFileSelected,
+  onRemoveFile,
   onSendMessage,
   onSetShowConversationList,
   onViewCompany,
@@ -77,7 +76,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({
           <div className="flex-1">
             <p className="text-red-800 font-bold text-base">Messaging is Turned Off</p>
             <p className="text-red-700 text-sm mt-1 leading-relaxed">
-              You've disabled incoming messages, so recruiters or directors can't reach out to you.
+              You&apos;ve disabled incoming messages, so recruiters or directors can&apos;t reach out to you.
               <Link
                 href={`/${user?.role}/settings`}
                 className="font-medium underline hover:text-red-900 ml-1"
@@ -110,7 +109,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({
         messagesEndRef={messagesEndRef}
       />
 
-      {anotherUserAllowMessage == false && (
+      {anotherUserAllowMessage === false && (
         <div className="flex items-center justify-center space-x-3 px-3 py-2 ">
           <p className="text-red-600 text-sm">
             This user has disabled messages. You cannot send new messages.
@@ -131,6 +130,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({
         isFirstMessageEmpty={isFirstMessageEmpty}
         onMessageChange={onMessageChange}
         onFileSelected={onFileSelected}
+        onRemoveFile={onRemoveFile}
         onSendMessage={onSendMessage}
       />
     </div>
