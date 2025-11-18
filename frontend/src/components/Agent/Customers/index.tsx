@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect ,useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { PlusIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
 import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
@@ -23,7 +23,7 @@ export const Customers: React.FC = () => {
     useState<CustomerFormData | null>(null);
   const [open, setOpen] = useState(false);
   const [viewCustomer, setViewCustomer] = useState<CustomerFormData | null>(
-    null,
+    null
   );
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -73,7 +73,7 @@ export const Customers: React.FC = () => {
         setLoading(false);
       }
     },
-    [user?._id],
+    [user?._id]
   );
 
   useEffect(() => {
@@ -109,7 +109,7 @@ export const Customers: React.FC = () => {
     const formatPrice = (price = 0) => {
       if (price >= 10000000) return `₹${(price / 10000000).toFixed(1)}Cr`;
       else if (price >= 100000) return `₹${(price / 100000).toFixed(1)}L`;
-      else if(price<100000) return `₹${price?.toLocaleString()}`;
+      else if (price < 100000) return `₹${price?.toLocaleString()}`;
     };
     return `${formatPrice(min)} - ${formatPrice(max)}`;
   };
@@ -184,7 +184,7 @@ export const Customers: React.FC = () => {
                       </div>
                       <span
                         className={`md:hidden capitalize inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          customer?.status,
+                          customer?.status
                         )}`}
                       >
                         {customer?.status}
@@ -214,7 +214,7 @@ export const Customers: React.FC = () => {
                         <p className="text-sm font-medium text-gray-900">
                           {formatBudget(
                             customer?.minimumBudget,
-                            customer?.maximumBudget,
+                            customer?.maximumBudget
                           )}
                         </p>
                       </div>
@@ -224,7 +224,7 @@ export const Customers: React.FC = () => {
                       <div className="hidden md:block">
                         <span
                           className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            customer?.status,
+                            customer?.status
                           )}`}
                         >
                           {customer?.status}
@@ -255,7 +255,9 @@ export const Customers: React.FC = () => {
                           View
                         </span>
                         <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                          <Link href={`/agent/preference?customerId=${customer._id}`}>
+                          <Link
+                            href={`/agent/preference?customerId=${customer._id}`}
+                          >
                             Preference
                           </Link>
                         </span>
@@ -309,11 +311,19 @@ export const Customers: React.FC = () => {
           }}
           initialData={
             editingCustomer
-              && {
-                ...editingCustomer,
-                name: editingCustomer.fullName,
-                phoneNumber: editingCustomer.phoneNumber ?? "",
-              }
+              ? {
+                  fullName: editingCustomer.fullName,
+                  phoneNumber: editingCustomer.phoneNumber ?? "",
+                  email: editingCustomer.email ?? "",
+                  whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
+                  minimumBudget: editingCustomer.minimumBudget ?? 0,
+                  maximumBudget: editingCustomer.maximumBudget ?? 0,
+                  leadSource: editingCustomer.leadSource ?? "website",
+                  initialNotes: editingCustomer.initialNotes ?? "",
+                  showAllProperty: editingCustomer.showAllProperty ?? false,
+                  agencyId: editingCustomer.agencyId?._id ?? "",
+                }
+              : undefined
           }
           customerId={editingCustomer?._id}
         />

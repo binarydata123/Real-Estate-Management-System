@@ -12,6 +12,6 @@ router.use("/meetings", meetingRoutes);
 router.use("/customer-settings", settingRoutes);
 router.use("/messages", messagesRoutes);
 router.use("/properties", propertyRoutes);
-router.use("/profile",profileRoutes);
+router.use("/profile", profileRoutes);
 
 export default router;

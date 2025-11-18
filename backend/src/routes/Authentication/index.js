@@ -16,6 +16,15 @@ router.get(
   registrationController.checkSession
 );
 router.post(
+  "/select-customer-agency",
+  registrationController.selectCustomerAgency
+);
+router.get(
+  "/check-session",
+  protect(["agent", "admin", "customer"]),
+  registrationController.checkSession
+);
+router.post(
   "/change-password",
   protect(["agent", "admin", "customer"]),
   registrationController.changePassword

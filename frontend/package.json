@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "lint": "eslint . --color --format=stylish --max-warnings=0",
-    "build": "TS_NODE_TRANSPILE_ONLY=true NEXT_IGNORE_ESLINT=true next build --no-lint",
+    "build": "cross-env TS_NODE_TRANSPILE_ONLY=true NEXT_IGNORE_ESLINT=true next build --no-lint",
     "start": "next start"
   },
   "dependencies": {
@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^5.2.1",
     "@next/font": "^14.2.15",
     "@supabase/supabase-js": "^2.57.4",
+    "@vapi-ai/web": "^2.5.0",
     "axios": "^1.12.1",
     "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
@@ -30,6 +31,7 @@
     "react-hot-toast": "^2.6.0",
     "react-toastify": "^11.0.5",
     "recharts": "^3.2.0",
+    "socket.io-client": "^4.8.1",
     "web-push": "^3.6.7",
     "zod": "^4.1.9"
   },

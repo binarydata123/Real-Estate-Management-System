@@ -196,6 +196,7 @@ declare global {
       _id: string;
     };
     role?:string;
+    showAllProperty?: boolean;
   }
 
   interface Pagination {
@@ -239,6 +240,17 @@ declare global {
     data: SharePropertyFormData[];
     message?: string;
     pagination?: Pagination;
+  }
+
+  interface PropertyResponse {
+    success: boolean;
+    data: Property[];
+    pagination?: {
+      page: number;
+      pages: number;
+      totalPages: number;
+      totalProperties: number;
+    };
   }
 
   interface AgencyResponse {

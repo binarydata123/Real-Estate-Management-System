@@ -62,7 +62,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
         const res = await getCustomers(user?._id);
         setOptions(res.data || []);
       } catch (err) {
-        showErrorToast("Error:",err);
+        showErrorToast("Error:", err);
       }
     };
     fetchAll();
@@ -93,7 +93,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
       onSuccess?.();
       onClose?.();
     } catch (error) {
-      showErrorToast("Error:",error);
+      showErrorToast("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -108,7 +108,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
   const filteredOptions = !query
     ? options
     : options.filter((option) =>
-        option.fullName.toLowerCase().includes(query.toLowerCase()),
+        option.fullName.toLowerCase().includes(query.toLowerCase())
       );
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 text-black">
@@ -130,7 +130,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
             <h3 className="font-semibold">{property.title}</h3>
             <p className="text-gray-600">{property.location}</p>
             <p className="text-lg font-bold mt-1">
-              {formatPrice(property.price)}
+              {formatPrice(property.price as number)}
             </p>
           </div>
 
@@ -185,7 +185,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                               filteredOptions.map((option) => {
                                 /** ✅ Disable if already shared */
                                 const isAlreadyShared = sharedCustomers.some(
-                                  (shared) => shared._id === option._id,
+                                  (shared) => shared._id === option._id
                                 );
 
                                 return (

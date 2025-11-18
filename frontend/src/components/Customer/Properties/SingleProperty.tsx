@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { StopCircleIcon, SpeakerWaveIcon } from "@heroicons/react/24/solid";
-import axios from "axios";
 import { getSinglePropertyDetail } from "@/lib/Customer/PropertyAPI";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 import { showErrorToast } from "@/utils/toastHandler";
+import PropertyVoiceAgent from "@/components/Common/PropertyVoiceAgent";
 
 interface Images {
   _id?: string;
@@ -23,174 +22,35 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   //   propertyData.images[0]
   // );
   const router = useRouter();
-  const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
-  const [isListening, setIsListening] = useState(false);
-  const [assistantStatus, setAssistantStatus] = useState("idle");
-  const [error, setError] = useState("");
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const recognitionRef = useRef<any>(null);
+  const [selectedImage, setSelectedImage] = useState<PropertyImage | null>(
+    null
+  );
   const [propertyData, setPropertyData] = useState<Property | null>(null);
 
-  // --- Voice Loading Effect ---
   useEffect(() => {
-    const loadVoices = () => {
-      // const availableVoices = window.speechSynthesis.getVoices();
-      // if (availableVoices.length > 0) {
-      // }
-    };
     getProperty();
+  }, [propertyId]);
 
-    // The voices are loaded asynchronously.
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices(); // Also call it directly in case they are already loaded.
-
-    // Initialize AudioContext on user interaction (best practice)
-    const initAudioContext = () => {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext ||
-          (window as any).webkitAudioContext)();
-      }
-      document.removeEventListener("click", initAudioContext);
-    };
-    document.addEventListener("click", initAudioContext);
-
-    return () => {
-      window.speechSynthesis.onvoiceschanged = null;
-      document.removeEventListener("click", initAudioContext);
-    };
-  }, []);
-
-  const getProperty = async () => {
-    if (propertyId) {
-      const id = Array.isArray(propertyId) ? propertyId[0] : propertyId;
-      const response = await getSinglePropertyDetail(id);
-      const data = response.data;
-      setPropertyData(data);
-      const primaryImg =
-        data.images.find((img: Images) => img.isPrimary) ||
-        data.images[0] ||
-        null;
-      setSelectedImage(primaryImg);
-    } else {
-      setPropertyData(null);
-      setSelectedImage(null);
-    }
-  };
-
-  const formatIndianPrice = (price: number): string => {
-    if (price >= 10000000) {
-      return `${(price / 10000000).toFixed(2)} crore`;
-    } else if (price >= 100000) {
-      return `${(price / 100000).toFixed(2)} lakh`;
-    }
-    return price.toLocaleString("en-IN");
-  };
-
-  const speak = async (text: string, onEndCallback?: () => void) => {
-    if (!audioContextRef.current) {
-      setError(
-        "Audio context not ready. Please click anywhere on the page first."
-      );
-      return;
-    }
-    setAssistantStatus("speaking");
+  const getProperty = useCallback(async () => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/assistant/speak`,
-        { text },
-        { responseType: "arraybuffer" }
-      );
-      const audioBuffer = await audioContextRef.current.decodeAudioData(
-        response.data
-      );
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioContextRef.current.destination);
-      source.onended = onEndCallback || (() => setAssistantStatus("idle"));
-      source.start(0);
-      audioSourceRef.current = source;
+      if (propertyId) {
+        const id = Array.isArray(propertyId) ? propertyId[0] : propertyId;
+        const response = await getSinglePropertyDetail(id);
+        const data = response.data;
+        setPropertyData(data);
+        const primaryImg =
+          data.images.find((img: Images) => img.isPrimary) ||
+          data.images[0] ||
+          null;
+        setSelectedImage(primaryImg);
+      } else {
+        setPropertyData(null);
+        setSelectedImage(null);
+      }
     } catch (err) {
-      showErrorToast("Error fetching or playing speech:", err);
-      setError("Sorry, I couldn't generate the audio for that.");
-      setAssistantStatus("idle");
+      showErrorToast("Failed to fetch property details", err);
     }
-  };
-
-  // --- Generate full property text ---
-  const generateFullPropertyText = useCallback((property: Property): string => {
-    let text = `Here are the full details of the property: ${
-      property.title
-    }, a ${property.category} located in ${property.location}.
-    Price: ₹${formatIndianPrice(property.price ?? 0)}, Status: ${
-      property.status
-    }.
-    Description: ${property.description}.
-    Built-up Area: ${property.built_up_area} ${
-      property.unit_area_type
-    }, Carpet Area: ${property.carpet_area} ${property.unit_area_type}.`;
-
-    if (property.plot_front_area)
-      text += ` Plot Front: ${property.plot_front_area} ${property.plot_dimension_unit}.`;
-    if (property.plot_depth_area)
-      text += ` Plot Depth: ${property.plot_depth_area} ${property.plot_dimension_unit}.`;
-    if (property.is_corner_plot) text += ` Corner Plot: Yes.`;
-
-    text += ` Bedrooms: ${property.bedrooms}, Bathrooms: ${property.bathrooms}, Balconies: ${property.balconies}, Floor Number: ${property.floor_number}, Total Floors: ${property.total_floors}.`;
-    text += ` Facing: ${
-      property.facing
-    }, Overlooking: ${property?.overlooking?.join(", ")}.`;
-    text += ` Property Age: ${property.property_age}, Transaction Type: ${
-      property.transaction_type
-    }, Gated Community: ${property.gated_community ? "Yes" : "No"}.`;
-    text += ` Furnishing: ${property.furnishing}, Flooring Type: ${
-      property?.flooring_type ?? "N/A"
-    }.`;
-    text += ` Amenities: ${property?.amenities?.join(
-      ", "
-    )}, Features: ${property?.features?.join(
-      ", "
-    )}, Water Source: ${property?.water_source?.join(", ")}, Power Backup: ${
-      property.power_backup
-    }, RERA Status: ${property?.rera_status}.`;
-    text += ` Owner Name: ${property.owner_name}, Contact: ${property.owner_contact}.`;
-
-    return text;
-  }, []);
-
-  // --- Handle Speak Full Property ---
-  const handleSpeakFullProperty = useCallback(() => {
-    if (!audioContextRef.current) {
-      setError(
-        "Audio context not ready. Please click anywhere on the page first."
-      );
-      return;
-    }
-    if (assistantStatus === "speaking") {
-      stopAll();
-      return;
-    }
-    if (propertyData) {
-      const fullText = generateFullPropertyText(propertyData);
-      speak(fullText, () => setAssistantStatus("idle"));
-    }
-  }, [assistantStatus, generateFullPropertyText, propertyData]);
-
-  const stopAll = () => {
-    if (audioSourceRef.current) {
-      audioSourceRef.current.stop();
-    }
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
-    setIsListening(false);
-    //setIsSummaryPaused(false);
-    setAssistantStatus("idle");
-  };
-
-  useEffect(() => {
-    return () => stopAll();
-  }, []);
+  }, [propertyId]);
 
   const getImageUrl = (url: string) => {
     if (url.startsWith("http")) return url;
@@ -270,47 +130,9 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
           </h1>
 
           {/* AI Assistant Section */}
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleSpeakFullProperty}
-                  className="flex items-center justify-center w-12 h-12 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
-                  title="Read Full Property Details"
-                >
-                  <SpeakerWaveIcon className="h-6 w-6" />
-                </button>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-700">AI Assistant</p>
-                <div className="text-sm text-gray-500">
-                  {assistantStatus === "listening" && (
-                    <p>Listening for your question...</p>
-                  )}
-                  {assistantStatus === "thinking" && <p>Thinking...</p>}
-                  {assistantStatus === "speaking" && <p>Speaking...</p>}
-                  {assistantStatus === "idle" && (
-                    <p>
-                      Click the mic to ask a question or speaker to hear full
-                      property details.
-                    </p>
-                  )}
-                </div>
-              </div>
-              {(assistantStatus === "speaking" ||
-                assistantStatus === "thinking" ||
-                isListening) && (
-                <button
-                  onClick={stopAll}
-                  className="text-gray-500 hover:text-red-600"
-                  title="Stop"
-                >
-                  <StopCircleIcon className="h-8 w-8" />
-                </button>
-              )}
-            </div>
-            {error && <p className="mt-3 text-red-600 text-sm">{error}</p>}
-          </div>
+          {propertyData?._id && (
+            <PropertyVoiceAgent propertyId={propertyData._id} />
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-600">
             <p>

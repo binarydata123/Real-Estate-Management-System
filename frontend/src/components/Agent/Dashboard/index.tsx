@@ -23,8 +23,8 @@ export interface customer {
 
 interface DashboardData {
   totalMeetings: number;
-  todayMeetings:Reminder[];
-  topCustomers:customer[];  // object
+  todayMeetings: Reminder[];
+  topCustomers: customer[]; // object
 }
 
 export const AgentDashboard = () => {
@@ -32,14 +32,16 @@ export const AgentDashboard = () => {
     null
   );
   const [showShareModal, setShowShareModal] = useState(false);
-  const [dashboardData,setDashboardData]=useState<DashboardData|null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
 
   const getData = async () => {
     try {
-         const res =await getDashboardData();
-         if (res.success){
+      const res = await getDashboardData();
+      if (res.success) {
         setDashboardData(res.data);
-         }
+      }
     } catch (error) {
       showErrorToast("Error", error);
     }
@@ -62,7 +64,8 @@ export const AgentDashboard = () => {
       bathrooms: 2,
       status: "available",
       images: [
-        { _id:"",
+        {
+          _id: "",
           url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
           alt: "Luxury 3BHK Apartment",
           isPrimary: true,
@@ -84,7 +87,7 @@ export const AgentDashboard = () => {
       status: "available",
       images: [
         {
-          _id:"",
+          _id: "",
           url: "https://images.pexels.com/photos/373912/pexels-photo-373912.jpeg",
           alt: "Premium Commercial Office",
           isPrimary: true,
@@ -141,12 +144,12 @@ export const AgentDashboard = () => {
       </div>
 
       {/* Stats */}
-      <DashboardStats  value={dashboardData ??{}} />
+      <DashboardStats value={dashboardData ?? {}} />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-8 gap-2">
-        <TodaysReminders reminders={dashboardData?.todayMeetings??[]} />
-        <HotCustomers  customers={dashboardData?.topCustomers??[] }/>
+        <TodaysReminders reminders={dashboardData?.todayMeetings ?? []} />
+        <HotCustomers customers={dashboardData?.topCustomers ?? []} />
       </div>
 
       {/* Recent Properties */}
@@ -169,9 +172,6 @@ export const AgentDashboard = () => {
               property={property}
               onView={handleViewProperty}
               onShare={handleShareProperty}
-              // onFavorite={(property) =>
-              //   console.log("Favorite property:", property)
-              // }
             />
           ))}
         </div>

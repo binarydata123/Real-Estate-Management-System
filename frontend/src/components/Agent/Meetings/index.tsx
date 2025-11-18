@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { PlusIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
-import { AddMeetingForm } from "./AddMeetingForm";
+// import { AddMeetingForm } from "./AddMeetingForm";
 import {
   getMeetingsByAgency,
   updateMeetingStatus,
@@ -12,6 +12,7 @@ import { EditMeetingForm } from "./EditMeetingForm";
 import ConfirmDialog from "../../Common/ConfirmDialogBox";
 import { Pagination } from "../../Common/Pagination";
 import { NoData } from "../../Common/NoData";
+import MeetingAssistant from "./MeetingAssistant";
 
 export const Meetings: React.FC = () => {
   const [showAddForm, setShowAddForm] = React.useState(false);
@@ -267,7 +268,7 @@ export const Meetings: React.FC = () => {
 
       {/* Add Meeting Modal */}
       {showAddForm && (
-        <AddMeetingForm
+        <MeetingAssistant
           onClose={() => setShowAddForm(false)}
           onSuccess={() => {
             setShowAddForm(false);

@@ -14,7 +14,7 @@ import {
   unblockConversation,
   getLatestMessages,
   getCustomers
-} from "../../../controllers/Agent/messageController.js";
+} from "../../../controllers/Agent/MessageController.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
