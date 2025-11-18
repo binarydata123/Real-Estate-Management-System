@@ -30,7 +30,9 @@ export const getProperties = async (
 
 export const getSinglePropertyDetail = async (id: string) => {
   try {
-    const response = await api.get(`${API_URL}/${id}`);
+    const response = await api.post(`${API_URL}/fetch`, {
+      propertyId: id,
+    });
     return response.data;
   } catch (error) {
     throw error;

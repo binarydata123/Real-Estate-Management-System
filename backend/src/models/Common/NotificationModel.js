@@ -28,7 +28,8 @@ const notificationSchema = new mongoose.Schema(
         "property_added",
         "property_deleted",
         "preference_request",
-        "property_share"
+        "property_share",
+        "property_feedback",
       ],
       default: "welcome",
     },

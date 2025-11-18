@@ -97,6 +97,16 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
         metadata: {
           userId: user?._id,
           propertyId: propertyId,
+          property: sessionData.property,
+          preference: sessionData.preference,
+        },
+      });
+
+      vapi.send({
+        type: "add-message",
+        message: {
+          role: "user",
+          content: "start",
         },
       });
     } catch (err) {
