@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { 
-  MapPinIcon, 
-  //ShareIcon, 
-  EyeIcon 
+import React from "react";
+import {
+  MapPinIcon,
+  //ShareIcon,
+  EyeIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import {
@@ -13,11 +13,12 @@ import {
   RulerIcon,
   //TrashIcon,
 } from "lucide-react";
-//import Link from "next/link";
-import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
-import { deleteProperty } from "@/lib/Agent/PropertyAPI";
-import { useToast } from "@/context/ToastContext";
-import { getPropertyImageUrlWithFallback, handleImageError } from "@/lib/imageUtils";
+
+import {
+  getPropertyImageUrlWithFallback,
+  handleImageError,
+} from "@/lib/imageUtils";
+import Link from "next/link";
 
 interface PropertyCardProps {
   property: Property;
@@ -27,12 +28,7 @@ interface PropertyCardProps {
   onRefresh?: () => void;
 }
 
-export const PropertyCard: React.FC<PropertyCardProps> = ({
-  property,
-  //onShare,
-  onView,
-  onRefresh,
-}) => {
+export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const formatPrice = (price: number) => {
     if (price >= 10000000) {
       // 1 crore
@@ -40,7 +36,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     } else if (price >= 100000) {
       // 1 lakh
       return `₹${(price / 100000).toFixed(1)}L`;
-    } else {
+    } else if (price < 100000) {
       return `₹${price.toLocaleString()}`;
     }
   };
@@ -58,28 +54,13 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     }
   };
 
-  const primaryImage = property?.images?.length > 0
-    ? (() => {
-      const primary = property.images.find((img) => img.isPrimary);
-      return getPropertyImageUrlWithFallback(primary?.url);
-    })()
-    : getPropertyImageUrlWithFallback();
-
-  const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
-  const { showToast } = useToast();
-
-  const handleDelete = async (id: string) => {
-    try {
-      const response = await deleteProperty(id);
-      if (response.success) {
-        showToast(response.message, "success");
-        onRefresh?.();
-      }
-    } catch (error) {
-      console.error("Failed to delete property:", error);
-    }
-  };
+  const primaryImage =
+    property?.images?.length > 0
+      ? (() => {
+          const primary = property.images.find((img) => img.isPrimary);
+          return getPropertyImageUrlWithFallback(primary?.url);
+        })()
+      : getPropertyImageUrlWithFallback();
 
   const hasKeyDetails =
     (property.built_up_area ?? 0) > 0 ||
@@ -117,7 +98,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               {property.title}
             </h3>
             <p className="text-xl md:text-2xl font-bold text-blue-700">
-              {formatPrice(property.price)}
+              {formatPrice(property.price as number)}
             </p>
           </div>
           <div className="flex items-center text-sm text-gray-500 mt-1">
@@ -166,53 +147,19 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 
         <div className="mt-auto pt-3 border-t border-gray-100">
           <div className="flex space-x-2">
-            <button
-              onClick={() => onView?.(property)}
-              className="flex-1 flex items-center justify-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            <Link
+              href={`/customer/properties/${property._id}`}
+              className="flex-1 w-100"
             >
-              <EyeIcon className="h-4 w-4 mr-2" />
-              <span className="hidden md:inline">View Details</span>
-              <span className="md:hidden">View</span>
-            </button>
-            {/* <button
-              onClick={() => onShare?.(property)}
-              className="flex items-center justify-center md:px-4 px-2 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <ShareIcon className="h-4 w-4" />
-            </button>
-            <Link href={`/agent/edit-property/${property._id}`}>
-              <button className="flex items-center justify-center md:px-4 px-2 py-2 border border-blue-300 text-blue-400 rounded-lg hover:bg-gray-50 transition-colors">
-                <PencilIcon className="h-4 w-4" />
+              <button className="flex-1 flex items-center justify-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                <EyeIcon className="h-4 w-4 mr-2" />
+                <span className="hidden md:inline">View Details</span>
+                <span className="md:hidden">View</span>
               </button>
-            </Link> */}
-            {/* <button
-              onClick={() => {
-                setSelectedProperty(property._id as string);
-                setShowConfirmDialog(true);
-              }}
-              className="flex items-center justify-center md:px-4 px-2 py-2 border border-red-300 text-red-400 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <TrashIcon className="h-4 w-4" />
-            </button> */}
+            </Link>
           </div>
         </div>
       </div>
-      <ConfirmDialog
-        open={showConfirmDialog}
-        onCancel={() => setShowConfirmDialog(false)}
-        onConfirm={() => {
-          if (selectedProperty) {
-            handleDelete(selectedProperty);
-          }
-          setShowConfirmDialog(false);
-          setSelectedProperty(null);
-        }}
-        heading="Are you sure?"
-        description="This property will be deleted, and this action cannot be undone."
-        confirmText="Delete"
-        cancelText="Back"
-        confirmColor="bg-red-600 hover:bg-red-700"
-      />
     </div>
   );
 };

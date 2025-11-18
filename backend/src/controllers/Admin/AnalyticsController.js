@@ -3,7 +3,6 @@ import { Agency } from "../../models/Agent/AgencyModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
-import { PreferenceRequest } from "../../models/Agent/PreferenceRequestModel.js";
 
 export const getAnalyticsData = async (req, res) => {
   try {
@@ -147,7 +146,7 @@ export const getAnalyticsData = async (req, res) => {
 };
 
 // 🕒 Utility to show “x time ago”
-function timeAgo(date) {
+function timeAgo (date) {
   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
   const intervals = [
     { label: 'y', seconds: 31536000 },

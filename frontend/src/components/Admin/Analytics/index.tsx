@@ -1,18 +1,17 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { 
-    Users, 
-    Home, 
-    DollarSign, 
-    Activity, 
-    //TrendingUp, 
-    UserPlus, 
-    Star, 
-    Building2 
+import { Users,
+    Home,
+    DollarSign,
+    Activity,
+    UserPlus,
+    Star,
+    Building2,
 } from 'lucide-react';
 import Image from 'next/image';
 import { getAllAnalyticsData } from "@/lib/Admin/AnalyticsAPI";
+import { showErrorToast } from '@/utils/toastHandler';
 
 
 // --- Mock Data (replace with your actual data fetching) ---
@@ -100,7 +99,7 @@ export default function Analytics() {
                 setRecentActivities(res.data.recentActivities);
             }
         } catch (error) {
-            console.error('Error fetching analytics:', error);
+            showErrorToast('Error fetching analytics:', error);
         } finally {
             setLoading(false);
         }
@@ -113,7 +112,7 @@ export default function Analytics() {
     }
     const formattedRevenue = stats?.totalRevenue?.toLocaleString('en-US', {
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
     });
     const iconsMap: Record<string, React.ElementType> = {
         HOME: Home,
@@ -186,7 +185,7 @@ export default function Analytics() {
                                 contentStyle={{
                                     backgroundColor: 'rgba(31, 41, 55, 0.8)',
                                     borderColor: 'rgba(128, 128, 128, 0.5)',
-                                    color: '#ffffff'
+                                    color: '#ffffff',
                                 }}
                             />
                             <Legend />

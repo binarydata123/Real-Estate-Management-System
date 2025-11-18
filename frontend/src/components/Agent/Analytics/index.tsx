@@ -9,28 +9,28 @@ export const Analytics: React.FC = () => {
       value: '142',
       change: '+23%',
       trend: 'up',
-      period: 'vs last month'
+      period: 'vs last month',
     },
     {
       title: ' Acquisitions',
       value: '67',
       change: '+15%',
       trend: 'up',
-      period: 'vs last month'
+      period: 'vs last month',
     },
     {
       title: 'Properties Sold',
       value: '28',
       change: '+8%',
       trend: 'up',
-      period: 'vs last month'
+      period: 'vs last month',
     },
     {
       title: 'Total Revenue',
       value: '₹4.2Cr',
       change: '+32%',
       trend: 'up',
-      period: 'vs last month'
+      period: 'vs last month',
     },
   ];
 

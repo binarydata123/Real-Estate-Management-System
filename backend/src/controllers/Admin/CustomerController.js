@@ -11,7 +11,7 @@ export const getCustomers = async (req, res) => {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    let searchQuery = {};
+    const searchQuery = {};
 
     if (agencyId) {
       searchQuery.agencyId = agencyId;
@@ -22,18 +22,16 @@ export const getCustomers = async (req, res) => {
 
       if (search && typeof search === "string") {
         const agencies = await Agency.find({
-            $or: [
-                { name: { $regex: search, $options: "i" } }
-            ]
+          $or: [{ name: { $regex: search, $options: "i" } }],
         }).select("_id");
 
-        const agencyIds = agencies.map(a => a._id);
+        const agencyIds = agencies.map((a) => a._id);
         searchQuery.$or.push(
-            { fullName: { $regex: search, $options: "i" }}, 
-            //{ email: {$regex: search, $options: "i"}}, 
-            { phoneNumber: {$regex: search, $options: "i"}},
-            { owner_name: {$regex: search, $options: "i"}},
-            { agencyId: { $in: agencyIds } }
+          { fullName: { $regex: search, $options: "i" } },
+          //{ email: {$regex: search, $options: "i"}},
+          { phoneNumber: { $regex: search, $options: "i" } },
+          { owner_name: { $regex: search, $options: "i" } },
+          { agencyId: { $in: agencyIds } }
         );
       }
 
@@ -45,10 +43,10 @@ export const getCustomers = async (req, res) => {
     const totalCustomers = await Customer.countDocuments(searchQuery);
 
     const customers = await Customer.find(searchQuery)
-        .sort({ _id: -1 })
-        .skip((pageNumber - 1) * limitNumber)
-        .limit(limitNumber)
-        .populate('agencyId');
+      .sort({ _id: -1 })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber)
+      .populate("agencyId");
 
     if (!customers || customers.length === 0) {
       return res.status(200).json({
@@ -64,7 +62,7 @@ export const getCustomers = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: customers,
       pagination: {
@@ -72,10 +70,10 @@ export const getCustomers = async (req, res) => {
         page: pageNumber,
         limit: limitNumber,
         totalPages: Math.ceil(totalCustomers / limitNumber),
-      }
+      },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -95,23 +93,21 @@ export const updateCustomer = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    
     await createNotification({
       userId: updatedCustomer.owner,
       message: `Customer (${updatedCustomer.name}) has been updated successfully.`,
       type: "lead_updated",
     });
-
-    await sendPushNotification({
-      userId: updatedCustomer.owner,
-      title: "Customer Updated",
-      message: `Customer (${updatedCustomer.name}) has been updated successfully.`,
-      urlPath: "Customer",
-    });
-    res.json({ success: true, data: updatedCustomer });
+      await sendPushNotification({
+        userId: updatedCustomer.owner,
+        title: "Customer Updated",
+        message: `Customer (${updatedCustomer.name}) has been updated successfully.`,
+        urlPath: "Customer",
+      });
+    return res.json({ success: true, data: updatedCustomer });
   } catch (error) {
     console.error("Error updating customer:", error);
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -127,11 +123,11 @@ export const deleteCustomer = async (req, res) => {
     }
     await Customer.deleteOne({ _id: deletedCustomer._id });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Customer deleted successfully",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };

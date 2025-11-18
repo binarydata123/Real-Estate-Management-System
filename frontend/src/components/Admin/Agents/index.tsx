@@ -3,14 +3,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Building2, CheckCircle, Clock, PlusIcon, XCircle } from 'lucide-react';
 import { getAgents, deleteAgentById } from "@/lib/Admin/AgentAPI";
 import { Pagination } from "@/components/Common/Pagination";
-import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
+import { showErrorToast } from '@/utils/toastHandler';
 
 const statusStyles: { [key: string]: string } = {
     active: 'bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400',
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400',
-    inactive: 'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400'
+    inactive: 'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400',
 };
 
 function classNames(...classes: string[]) {
@@ -19,31 +19,23 @@ function classNames(...classes: string[]) {
 
 export default function Agents() {
     // State to control the Add Agency modal
-    //const [isAddAgencyModalOpen, setAddAgencyModalOpen] = useState(false);
-    const { user } = useAuth();
     const [agents, setAgents] = useState<AgentFormData[]>([]);
     const [loading, setLoading] = useState(false);
-    //const [editingAgency, setEditingAgency] = useState<AgencyFormData | null>(null);
     const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
     const [selectedAgent, setSelectedAgent] = useState<AgentFormData | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    //const [totalRecords, setTotalRecords] = useState(0);
     const limit = '10';
     const [searchTerm, setSearchTerm] = useState("");
     const [searchStatus, setSearchStatus] = useState("");
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
-    //const [showAddForm, setShowAddForm] = useState(false);
-
-    // Calculate stats from mock data
     const totalAgents = agents.length;
     const activeAgents = agents.filter(a => a.status === 'active').length;
     const pendingAgents = agents.filter(a => a.status === 'pending').length;
     const inactiveAgents = agents.filter(a => a.status === 'inactive').length;
 
     const agentsStats = [
-        //{ name: 'Total Agents', value: totalRecords, icon: Building2, color: 'bg-blue-500' },
         { name: 'Total Agents', value: totalAgents, icon: Building2, color: 'bg-blue-500' },
         { name: 'Active', value: activeAgents, icon: CheckCircle, color: 'bg-green-500' },
         { name: 'Pending', value: pendingAgents, icon: Clock, color: 'bg-yellow-500' },
@@ -52,18 +44,18 @@ export default function Agents() {
 
     useEffect(() => {
         const handler = setTimeout(() => {
-          setDebouncedSearchTerm(searchTerm);
-          setDebouncedSearchStatus(searchStatus);
-          setCurrentPage(1);
+            setDebouncedSearchTerm(searchTerm);
+            setDebouncedSearchStatus(searchStatus);
+            setCurrentPage(1);
         }, 400);
         return () => clearTimeout(handler);
     }, [searchTerm, searchStatus]);
-    
+
     const handleDeleteClick = (agent: AgentFormData) => {
         setSelectedAgent(agent);
         setShowConfirmDialog(true);
     };
-    
+
     const handleDelete = async (id: string) => {
         try {
             const response = await deleteAgentById(id);
@@ -71,10 +63,10 @@ export default function Agents() {
                 setAgents((prev) => prev.filter((c) => c._id !== id));
             }
         } catch (error) {
-          console.error("Failed to delete agent:", error);
+            showErrorToast("Failed to delete agent:", error);
         }
     };
-    
+
     const getAllAgents = useCallback(
         async (page = 1, search = "", status = "") => {
             try {
@@ -87,18 +79,18 @@ export default function Agents() {
                     //setTotalRecords(res.pagination?.total ?? 0);
                 }
             } catch (error) {
-                console.error("Failed to fetch agents:", error);
+                showErrorToast("Failed to fetch agents:", error);
             } finally {
                 setLoading(false);
             }
         },
-        [user?._id]
+        [],
     );
-    
+
     useEffect(() => {
         getAllAgents(currentPage, debouncedSearchTerm, debouncedSearchStatus);
     }, [getAllAgents, currentPage, debouncedSearchTerm, debouncedSearchStatus]);
-    
+
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
@@ -218,18 +210,18 @@ export default function Agents() {
                                                             {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agent.email || 'N/A'}</td> */}
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{agent.phone || 'N/A'}</td>
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                                                { (agent.customersCount ?? 0) > 0 && agent.agencyId?._id ? (
+                                                                {(agent.customersCount ?? 0) > 0 && agent.agencyId?._id ? (
                                                                     <a className="text-blue-800" href={`/admin/customers?agencyId=${agent.agencyId._id}`}>
-                                                                    {agent.customersCount ?? 0}
+                                                                        {agent.customersCount ?? 0}
                                                                     </a>
                                                                 ) : (
                                                                     agent.customersCount ?? 0
                                                                 )}
                                                             </td>
                                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                                                { (agent.propertiesCount ?? 0) > 0 && agent.agencyId?._id ? (
+                                                                {(agent.propertiesCount ?? 0) > 0 && agent.agencyId?._id ? (
                                                                     <a className="text-blue-800" href={`/admin/properties?agencyId=${agent.agencyId._id}`}>
-                                                                    {agent.propertiesCount ?? 0}
+                                                                        {agent.propertiesCount ?? 0}
                                                                     </a>
                                                                 ) : (
                                                                     agent.propertiesCount ?? 0
@@ -285,13 +277,13 @@ export default function Agents() {
                                                 </p>
                                                 {!debouncedSearchTerm && (
                                                     <div className="flex justify-center mt-4">
-                                                    <button
-                                                        // onClick={() => setShowAddForm(true)}
-                                                        className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                                    >
-                                                        <PlusIcon className="h-5 w-5 mr-2" />
-                                                        Add Agent
-                                                    </button>
+                                                        <button
+                                                            // onClick={() => setShowAddForm(true)}
+                                                            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                                        >
+                                                            <PlusIcon className="h-5 w-5 mr-2" />
+                                                            Add Agent
+                                                        </button>
                                                     </div>
                                                 )}
                                             </div>

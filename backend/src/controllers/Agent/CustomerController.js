@@ -1,6 +1,7 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
+import AgencySettings from "../../models/Agent/settingsModel.js";
+import CustomerSettings from "../../models/Customer/SettingsModel.js";
 import { User } from "../../models/Common/UserModel.js";
-import bcrypt from "bcryptjs";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
@@ -11,20 +12,22 @@ export const createCustomer = async (req, res) => {
     const { fullName, phoneNumber, agencyId } = req.body;
 
     if (!fullName || !phoneNumber) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Full name and phone number are required." });
+      return res.status(400).json({
+        success: false,
+        message: "Full name and phone number are required.",
+      });
     }
 
     // Add agencyId from the authenticated user if not provided
     const customerData = {
       ...req.body,
-      agencyId: agencyId || req.user.agencyId._id
+      agencyId: agencyId || req.user.agencyId._id,
     };
 
     if (!customerData.agencyId) {
       return res.status(400).json({
-        success: false, message: "Agency ID is required"
+        success: false,
+        message: "Agency ID is required",
       });
     }
 
@@ -35,7 +38,8 @@ export const createCustomer = async (req, res) => {
     });
 
     if (existingCustomer) {
-      return res.status(409).json({ // 409 Conflict is a suitable status code
+      return res.status(409).json({
+        // 409 Conflict is a suitable status code
         success: false,
         message: "This customer already exists in your agency.",
       });
@@ -44,43 +48,44 @@ export const createCustomer = async (req, res) => {
     const customer = new Customer(customerData);
     const savedCustomer = await customer.save();
 
-    res.status(201).json({
-      success: true,
-      data: savedCustomer,
-      message: "Customer has been successfully added.",
+    // Send notification to the agent/agency who created the customer
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
     });
-    await createNotification({
+    if (agencySettings?.notifications?.customerActivity) {
+     await createNotification({
       agencyId: savedCustomer.agencyId,
       userId: req.user._id,
       message: `A new customer lead (${savedCustomer.fullName}) has been created successfully.`,
       type: "new_lead",
     });
+  }
 
     // Send notifications to the newly created user if they exist
     if (savedCustomer) {
       await createNotification({
         userId: savedCustomer._id,
-        message: `Welcome ${savedCustomer.name}! Your account has been created. You can now log in and get started.`,
+        message: `Welcome ${savedCustomer.fullName}! Your account has been created. You can now log in and get started.`,
         type: "welcome",
-      });
-
-      await sendPushNotification({
-        userId: savedCustomer._id,
-        title: "Welcome to Our Platform 🎉",
-        message: `Hi ${savedCustomer.name}, your account has been created!`,
-        urlPath: "/login",
       });
     }
 
-    // Send notification to the agent/agency who created the customer
-    await sendPushNotification({
-      userId: req.user._id,
-      title: "New Customer Lead",
-      message: `A new customer "${savedCustomer.fullName}" has been added to your agency.`,
-      urlPath: "/agent/customers",
+
+    if (agencySettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "New Customer Lead",
+        message: `A new customer "${savedCustomer.fullName}" has been added to your agency.`,
+        urlPath: "/agent/customers",
+      });
+
+    return res.status(201).json({
+      success: true,
+      data: savedCustomer,
+      message: "Customer has been successfully added.",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -91,23 +96,24 @@ export const getCustomers = async (req, res) => {
     const agencyId = req.user.agencyId._id;
 
     if (!agencyId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User is not associated with an agency." });
+      return res.status(400).json({
+        success: false,
+        message: "User is not associated with an agency.",
+      });
     }
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
     const searchQuery = search
       ? {
-        agencyId: agencyId,
-        $or: [
-          { fullName: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-          { whatsAppNumber: { $regex: search, $options: "i" } },
-          { phoneNumber: { $regex: search, $options: "i" } },
-        ],
-      }
+          agencyId: agencyId,
+          $or: [
+            { fullName: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { whatsAppNumber: { $regex: search, $options: "i" } },
+            { phoneNumber: { $regex: search, $options: "i" } },
+          ],
+        }
       : { agencyId: agencyId };
 
     const totalCustomers = await Customer.countDocuments(searchQuery);
@@ -131,7 +137,7 @@ export const getCustomers = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: customers,
       pagination: {
@@ -142,7 +148,7 @@ export const getCustomers = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -151,9 +157,10 @@ export const getCustomersForDropDown = async (req, res) => {
     const agencyId = req.user.agencyId._id;
 
     if (!agencyId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User is not associated with an agency." });
+      return res.status(400).json({
+        success: false,
+        message: "User is not associated with an agency.",
+      });
     }
 
     const customers = await Customer.find({ agencyId: agencyId });
@@ -166,12 +173,12 @@ export const getCustomersForDropDown = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: customers,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -201,20 +208,26 @@ export const updateCustomer = async (req, res) => {
       },
       { new: true }
     );
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
+    });
 
+    if (agencySettings?.notifications?.customerActivity) {
     await createNotification({
       agencyId: updatedCustomer.agencyId,
       userId: updatedCustomer.agencyId,
       message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
       type: "lead_updated",
     });
+  }
 
-    await sendPushNotification({
-      userId: updatedCustomer.agencyId,
-      title: "Customer Updated",
-      message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
-      urlPath: "customers",
-    });
+    if (agencySettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Customer Updated",
+        message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
+        urlPath: "customers",
+      });
 
     if (updatedUser?._id) {
       await createNotification({
@@ -222,19 +235,22 @@ export const updateCustomer = async (req, res) => {
         message: `Hello ${updatedUser.name}, your profile details have been updated successfully.`,
         type: "lead_updated",
       });
-
-      await sendPushNotification({
+      const customerSettings = await CustomerSettings.findOne({
         userId: updatedUser._id,
-        title: "Profile Updated",
-        message: `Hi ${updatedUser.name}, your profile details have been updated successfully.`,
-        urlPath: "profile",
       });
+      if (customerSettings?.notifications?.pushNotifications)
+        await sendPushNotification({
+          userId: updatedUser._id,
+          title: "Profile Updated",
+          message: `Hi ${updatedUser.name}, your profile details have been updated successfully.`,
+          urlPath: "profile",
+        });
     }
 
-    res.json({ success: true, data: updatedCustomer });
+    return res.json({ success: true, data: updatedCustomer });
   } catch (error) {
     console.error("Error updating customer:", error);
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -250,11 +266,11 @@ export const deleteCustomer = async (req, res) => {
     }
     await User.deleteOne({ email: deletedCustomer.email });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Customer and user deleted successfully",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };

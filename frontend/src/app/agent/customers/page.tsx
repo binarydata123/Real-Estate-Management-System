@@ -1,8 +1,6 @@
-import { Customers } from '@/components/Agent/Customers'
-import React from 'react'
+import { Customers } from "@/components/Agent/Customers";
+import React from "react";
 
 export default function Page() {
-    return (
-        <Customers />
-    )
+  return <Customers />;
 }

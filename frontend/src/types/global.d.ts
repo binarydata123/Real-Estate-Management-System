@@ -25,6 +25,14 @@ declare global {
     userId?: string; // Optional field for backend compatibility
   }
 
+  interface changePasswordData {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+    email?: string;
+    phone?: string | number;
+  }
+
   interface LoginData {
     email: string;
     password: string;
@@ -46,9 +54,13 @@ declare global {
     url: string;
     alt?: string;
     isPrimary?: boolean;
+    _id?: string;
   }
 
   interface Property {
+    owner_contact: string | number;
+    rera_status: string;
+    flooring_type: string;
     size_unit: string;
     size: ReactNode;
     _id?: string;
@@ -171,7 +183,6 @@ declare global {
       | "cold_call"
       | "other";
     initialNotes?: string;
-    //agencyId?: string;
     status: string;
     assigned_agent: string;
     minimumBudget: number;
@@ -185,6 +196,7 @@ declare global {
       _id: string;
     };
     role?:string;
+    showAllProperty?: boolean;
   }
 
   interface Pagination {
@@ -228,6 +240,17 @@ declare global {
     data: SharePropertyFormData[];
     message?: string;
     pagination?: Pagination;
+  }
+
+  interface PropertyResponse {
+    success: boolean;
+    data: Property[];
+    pagination?: {
+      page: number;
+      pages: number;
+      totalPages: number;
+      totalProperties: number;
+    };
   }
 
   interface AgencyResponse {

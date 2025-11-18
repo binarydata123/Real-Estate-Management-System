@@ -5,18 +5,18 @@ export interface AgencySettingsResponse {
   data: AgencySettingsType;
 }
 export const updateAgencySettings = async (
-  data: AgencySettingsType | undefined
+  data: AgencySettingsType | undefined,
 ) => {
   const res = await api.post<AgencySettingsResponse>(
     `/agent/agency-settings/update-settings`,
-    data
+    data,
   );
   return res.data.data;
 };
 
 export const getAgencySettings = async () => {
   const response = await api.get<AgencySettingsResponse>(
-    `/agent/agency-settings/get-settings`
+    `/agent/agency-settings/get-settings`,
   );
   return response.data.data;
 };

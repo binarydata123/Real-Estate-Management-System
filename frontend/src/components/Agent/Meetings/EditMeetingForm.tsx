@@ -11,6 +11,7 @@ import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
 import { updateMeeting, getMeetingById } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
 import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
+import { showErrorToast } from "@/utils/toastHandler";
 
 interface EditMeetingFormProps {
   meetingId: string | null;
@@ -29,7 +30,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   const [initialData, setInitialData] = useState<MeetingFormData | null>(null);
   const { user } = useAuth();
   const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
-    []
+    [],
   );
 
   const mockProperties = [
@@ -68,7 +69,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         setValue("time", meeting.time || "");
         setValue("status", meetingStatus || meeting.status);
       } catch (err) {
-        console.error("Failed to load meeting:", err);
+        showErrorToast("Failed to load meeting:", err);
         alert("Failed to load meeting details");
         onClose();
       }
@@ -80,10 +81,10 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   useEffect(() => {
     const init = async () => {
       if (user?._id) {
-        const customers = await getCustomersForDropDown(user?._id);
+        const result = await getCustomersForDropDown(user?._id);
 
         // extract only _id and fullName
-        const filtered = customers.data
+        const filtered = result.data
           .map((c: CustomerFormData) => ({
             id: c._id,
             name: c.fullName,
@@ -109,10 +110,10 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
       onClose();
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error("Failed to update meeting:", error);
+        showErrorToast("Failed to update meeting:", error);
         alert(error.message);
       } else {
-        console.error("Failed to update meeting:", error);
+        showErrorToast("Failed to update meeting:", error);
         alert("Failed to update meeting");
       }
     } finally {

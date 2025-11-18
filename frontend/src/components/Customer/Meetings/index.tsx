@@ -13,7 +13,7 @@ export const Meetings: React.FC = () => {
   const { user } = useAuth();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "cancelled">(
-    "upcoming"
+    "upcoming",
   );
 
   const fetchMeetings = async (page = 1) => {
@@ -22,7 +22,7 @@ export const Meetings: React.FC = () => {
       user?._id,
       activeTab,
       page,
-      10
+      10,
     ); // 10 per page
     setMeetings(res.data.data);
     setTotalPages(Math.ceil(res.data.total / 10));
@@ -38,7 +38,7 @@ export const Meetings: React.FC = () => {
     setCurrentPage(page);
     fetchMeetings(page);
   };
- 
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "scheduled":
@@ -134,7 +134,7 @@ export const Meetings: React.FC = () => {
                         {meeting?.time &&
                           format(
                             new Date(`1970-01-01T${meeting.time}:00`),
-                            "hh:mm a"
+                            "hh:mm a",
                           )}
                       </p>
                     </div>
@@ -156,7 +156,7 @@ export const Meetings: React.FC = () => {
                 {meeting.status && !meeting.isPast && (
                   <span
                     className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl  text-xs font-medium ${getStatusColor(
-                      meeting.status
+                      meeting.status,
                     )}`}
                   >
                     {meeting.status}
@@ -180,12 +180,11 @@ export const Meetings: React.FC = () => {
           }
           description={
             activeTab === "upcoming"
-              ? "Plan ahead by scheduling new meetings with your customers."
+              ? ""
               : activeTab === "past"
               ? "Once meetings are completed, they’ll show up here for your records."
               : "Cancelled meetings will be listed here if any were called off."
           }
-        
         />
       )}
 

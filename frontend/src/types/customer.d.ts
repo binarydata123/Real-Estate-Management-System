@@ -29,7 +29,10 @@ interface CustomerSettingsType {
 
 
 
-interface Property {
-  _id: string;
-  title: string;
-}
+// interface Property {
+//   rera_status: any;
+//   owner_contact: any;
+//   flooring_type: string;
+//   _id: string;
+//   title: string;
+// }

@@ -9,7 +9,7 @@ export const renderTabContent = (
     section: keyof CustomerSettingsType,
     field: string,
     value: string | boolean
-  ) => void
+  ) => void,
 ) => {
   switch (activeTab) {
     case "notifications":

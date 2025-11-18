@@ -4,6 +4,7 @@ const phoneRegex = /^\+?[1-9]\d{1,14}$/;
 // E.164 international format (+<countryCode><number>)
 
 const customerSchema = new mongoose.Schema({
+
   fullName: {
     type: String,
     required: [true, "Full name is required"],
@@ -31,15 +32,17 @@ const customerSchema = new mongoose.Schema({
     },
   },
   maximumBudget: {
-    type: Number,
-    min: [0, "Maximum budget must be a positive number"],
+    type: String,
+    trim: true,
   },
   minimumBudget: {
-    type: Number,
-    min: [0, "Minimum budget must be a positive number"],
+    type: String,
+    trim: true,
     validate: {
       validator: function (v) {
-        return !this.maximumBudget || v <= this.maximumBudget;
+        if (!this.maximumBudget || !v) return true; // No validation if one is missing
+        // Convert to numbers for comparison
+        return parseFloat(v) <= parseFloat(this.maximumBudget);
       },
       message: "Minimum budget cannot be greater than maximum budget",
     },
@@ -61,7 +64,7 @@ const customerSchema = new mongoose.Schema({
     },
   },
   initialNotes: { type: String },
-  showAllProperty: {type: Boolean, default: false},
+  showAllProperty: { type: Boolean, default: false },
   status: {
     type: String,
     enum: {

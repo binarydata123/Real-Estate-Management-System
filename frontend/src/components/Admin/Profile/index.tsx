@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Edit, Mail, Phone, Shield, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 import { getAdminProfile, updateAdminProfile } from "@/lib/Admin/ProfileAPI";
 import { useAuth } from "@/context/AuthContext";
+import { showErrorToast } from '@/utils/toastHandler';
 
 export default function AdminProfile() {
     const [admin, setAdmin] = useState<UserData | null>(null);
@@ -39,17 +40,13 @@ export default function AdminProfile() {
         }
 
         try {
-            const response = await updateAdminProfile(user?._id, data); 
+            const response = await updateAdminProfile(user?._id, data);
             if (response.data.success) {
                 setAdmin(response.data.data);
                 setShowForm(false);
-            } else {
-                console.error(response.data.message);
             }
-            //setAdmin({ ...admin, ...formData });
-            //setShowForm(false); // Hide form after upd ate
         } catch (err) {
-            console.error("Error updating profile:", err);
+            showErrorToast("Error:",err);
         }
     };
 
@@ -67,8 +64,8 @@ export default function AdminProfile() {
                         profilePictureFile: null as File | null,
                     });
                 }
-            } catch (error) {
-                console.error('Error fetching admin profile:', error);
+            } catch (err) {
+            showErrorToast("Error",err);
             }
         };
         fetchAdminProfile();
@@ -137,7 +134,7 @@ export default function AdminProfile() {
                         <span className="text-gray-800 font-medium">{admin.email}</span>
                     </div>
 
-                    {admin.phone 
+                    {admin.phone
                         ?
                             <div className="flex items-center gap-3">
                                 <Phone className="text-gray-500 w-5 h-5" />
@@ -146,11 +143,6 @@ export default function AdminProfile() {
                         :
                             ''
                     }
-
-                    {/* <div className="flex items-center gap-3">
-                        <MapPin className="text-gray-500 w-5 h-5" />
-                        <span className="text-gray-800 font-medium">{admin.location}</span>
-                    </div> */}
 
                     <div className="flex items-center gap-3">
                         <Shield className="text-gray-500 w-5 h-5" />

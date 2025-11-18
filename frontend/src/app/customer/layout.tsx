@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { CustomerHeader } from '@/components/Customer/Common/CustomerHeader';
 import { CustomerSidebar } from '@/components/Customer/Common/CustomerSidebar';
 import { useAuth } from '@/context/AuthContext';
@@ -46,12 +46,12 @@ export default function CustomerLayout({ children }: LayoutProps) {
             id: "more",
             label: "More",
             icon: MoreVertical,
-            path: ''
-        }
+            path: '',
+        },
     ];
 
     const handleMoreClick = () => {
-        setIsSidebarOpen(!isSidebarOpen)
+        setIsSidebarOpen(!isSidebarOpen);
     };
 
 
@@ -105,7 +105,7 @@ export default function CustomerLayout({ children }: LayoutProps) {
                                         <link.icon className="w-5 h-5 mb-1" />
                                         <span>{link.label}</span>
                                     </Link>
-                                )
+                                ),
                             )}
                     </div>
                 </div>
