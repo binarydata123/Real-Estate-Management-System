@@ -195,6 +195,7 @@ declare global {
       status: string;
       _id: string;
     };
+    role?:string;
     showAllProperty?: boolean;
   }
 

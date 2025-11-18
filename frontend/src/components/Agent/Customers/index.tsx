@@ -261,6 +261,11 @@ export const Customers: React.FC = () => {
                             Preference
                           </Link>
                         </span>
+                        <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                          <Link href={`/agent/messages?customerId=${customer._id}`}>
+                            Message
+                          </Link>
+                        </span>
                       </div>
                     </div>
                   </div>
