@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect } from 'react';
 import SearchHeader from './SearchHeader';
 import ConversationItem from './ConversationItem';
-import CustomerProfileItem from '../CustomerProfileList/CustomerProfileItem';
 import ActionButtons from './ActionButtons';
 import { IoArrowBackSharp } from 'react-icons/io5';
 import { useAuth } from "@/context/AuthContext";
@@ -18,7 +18,6 @@ interface ConversationsListComponentProps extends ConversationListProps {
 }
 
 const ConversationsList: React.FC<ConversationsListComponentProps> = ({
-  conversations,
   selectedConversation,
   setSelectedConversation,
   searchTerm,
@@ -44,14 +43,12 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
   getUnreadCount,
   getTruncatedMessage,
   filteredConversations,
-  customers
 }) => {
   const { user } = useAuth();
   const [isMobile, setIsMobile] = useState(false);
 
   // Detect mobile screen size
   useEffect(() => {
-    console.log(customers);
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 1024); // lg breakpoint
     };

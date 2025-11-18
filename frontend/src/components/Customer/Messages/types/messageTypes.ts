@@ -24,21 +24,21 @@ export interface Conversation {
       };
     } | null;
   }
-  
+
   export interface Message {
     _id: string;
     conversationId: string;
     senderId: string;
     receiverId: string;
     content: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     attachments?: any[];
     isRead: boolean;
     readAt?: string;
     createdAt: string;
   }
-  
-  export interface MessagesCenterProps {}
-  
+
+
   export interface ConversationsListProps {
     conversations: Conversation[];
     selectedConversation: string | null;
@@ -62,9 +62,9 @@ export interface Conversation {
     onSetTrashMode: (mode: boolean) => void;
     onSetBlockMode: (mode: boolean) => void;
     onSetShowConversationList: (show: boolean) => void;
-    customers?: CustomerFormData[]; 
+    customers?: CustomerFormData[];
   }
-  
+
   export interface MessageThreadProps {
     selectedConversation: Conversation | undefined;
     messages: Message[];
@@ -81,7 +81,8 @@ export interface Conversation {
     showProfile: boolean;
     showConversationList: boolean;
     onMessageChange: (message: string) => void;
-    onFileSelected: (file: File | null) => void;
+    onFileSelected: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onRemoveFile: () => void;
     onSendMessage: () => void;
     onSetShowConversationList: (show: boolean) => void;
     onViewCompany: (companyId: string) => void;

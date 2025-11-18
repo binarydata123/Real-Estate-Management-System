@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { formatDate } from "../../../../utils/dateFunction/dateFormate";
 import StatusBadge from "../UI/StatusBadge";
 import Image from "next/image";
+import { showErrorToast } from "@/utils/toastHandler";
 
 
 interface ConversationItemProps {
@@ -24,21 +25,21 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     return conv.unreadCount?.[user?._id as string] || 0;
   };
 
-  const getTruncatedMessage = (html: string | null | undefined, length: number = 50): string => {
+  const getTruncatedMessage = (html: string | null | undefined, length = 50): string => {
     try {
       if (!html || typeof html !== "string") return "";
 
       if (typeof document === "undefined") {
         const plain = html.replace(/<[^>]*>/g, "");
-        return plain.length > length ? plain.substring(0, length) + "..." : plain;
+        return plain.length > length ? `${plain.substring(0, length)  }...` : plain;
       }
 
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = html;
       const plainText = tempDiv.textContent || tempDiv.innerText || "";
-      return plainText.length > length ? plainText.substring(0, length) + "..." : plainText;
+      return plainText.length > length ? `${plainText.substring(0, length)  }...` : plainText;
     } catch (error) {
-      console.error("Error processing HTML for truncation:", error);
+      showErrorToast("Error processing HTML for truncation:", error);
       return "";
     }
   };
@@ -109,4 +110,4 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   );
 };
 
-export default ConversationItem;
+export default ConversationItem

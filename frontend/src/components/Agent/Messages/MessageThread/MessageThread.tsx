@@ -2,11 +2,8 @@ import React from 'react';
 import MessageHeader from './MessageHeader';
 import MessagesList from './MessagesList';
 import MessageInput from './MessageInput';
-import { MessageSquare, Ban } from 'lucide-react';
 //import { Link } from 'react-router-dom';
 import { Conversation, Message } from '../types/messageTypes';
-import EmptyState from '../UI/EmptyState';
-import Link from 'next/link';
 
 interface MessageThreadProps {
   conversation?: Conversation | null;
@@ -53,7 +50,6 @@ const MessageThread: React.FC<MessageThreadProps> = ({
   isArchiveMode,
   isTrashMode,
   isBlockMode,
-  allowMessage,
   anotherUserAllowMessage,
   showConversationList,
   setShowConversationList,
@@ -72,8 +68,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({
   copyToast,
   onCopyToClipboard,
   firstUnreadIndex,
-  isLoadingMessages,
-  userRole
+  isLoadingMessages
 }) => {
   // Safe null checks for conversation properties - convert to boolean with default false
   const conversationBlockedByUser = Boolean(conversation?.blockedBy?.includes(currentUserId as string));

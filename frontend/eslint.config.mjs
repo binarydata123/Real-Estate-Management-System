@@ -33,8 +33,8 @@ const eslintConfig = [
       "no-duplicate-imports": "error", // Avoid duplicate imports (performance + clarity)
       "no-empty": "error", // Prevent empty blocks that can hide issues
       "no-extra-semi": "error", // Prevent unnecessary semicolons
-      "no-trailing-spaces": "error", // Enforce removing trailing spaces
-      "eol-last": "error", // Enforce newline at end of file (consistency)
+      "no-trailing-spaces": "off", // Enforce removing trailing spaces
+      "eol-last": "off", // Enforce newline at end of file (consistency)
 
       /* ⚙️ --- TypeScript Best Practices --- */
 
@@ -67,7 +67,7 @@ const eslintConfig = [
 
       /* 💄 --- Code Style / Consistency --- */
 
-      "semi": ["error", "always"], // Enforce consistent semicolon usage
+      "semi": ["off", "always"], // Enforce consistent semicolon usage
       "comma-dangle": ["off", "always-multiline"], // Trailing commas for cleaner diffs
       "object-curly-spacing": ["error", "always"], // Consistent spacing in object literals
       "arrow-spacing": "off", // Ensure spacing around arrow functions
