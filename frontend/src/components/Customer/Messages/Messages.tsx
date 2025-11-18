@@ -6,12 +6,27 @@ import ConversationsList from "./ConversationsList/ConversationsList";
 import MessageThread from "./MessageThread/MessageThread";
 import { Conversation, Message } from "./types/messageTypes";
 import { useAuth } from "@/context/AuthContext";
-import { getConversations, getConversationMessages, archiveConversation, blockConversation, deleteConversation, markConversationAsRead, restoreConversation, sendMessage, startConversation, unArchiveConversation, unblockConversation, uploadFile } from "@/lib/Customer/MessagesAPI";
+import {
+  getConversations,
+  getConversationMessages,
+  archiveConversation,
+  blockConversation,
+  deleteConversation,
+  markConversationAsRead,
+  restoreConversation,
+  sendMessage,
+  startConversation,
+  unArchiveConversation,
+  unblockConversation,
+  uploadFile,
+} from "@/lib/Customer/MessagesAPI";
 import { io } from "socket.io-client";
 
 const Messages: React.FC = () => {
   const { user } = useAuth();
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<
+    string | null
+  >(null);
   const [newMessage, setNewMessage] = useState("");
   const [allowMessage, setAllowMessage] = useState(true);
   const [anotherUserAllowMessage, setAnotherUserAllowMessage] = useState(true);
@@ -45,30 +60,28 @@ const Messages: React.FC = () => {
   const applicantId = params.applicant as string;
   const applicationId = params.applicationId as string;
   const isType = params.type as string;
-const socket = useMemo(() => {
-        return io("http://localhost:5001", {
-            withCredentials: true,
-        });
-    }, []);
-useEffect(() => {
-        // Join room
-         console.log(selectedConversation,"conversation id")
-        if(!selectedConversation)return;
-        socket.emit("join_conversation", selectedConversation);
+  const socket = useMemo(() => {
+    return io("http://localhost:5001", {
+      withCredentials: true,
+    });
+  }, []);
+  useEffect(() => {
+    // Join room
+    console.log(selectedConversation, "conversation id");
+    if (!selectedConversation) return;
+    socket.emit("join_conversation", selectedConversation);
 
-        // Live updates from socket
-        socket.on("messages_update", (conversationId:string) => {
-            fetchConversationMessages(conversationId);
-        });
-        socket.on("joined",(id)=>[
-  console.log("user joined with room:",id)
-])
+    // Live updates from socket
+    socket.on("messages_update", (conversationId: string) => {
+      fetchConversationMessages(conversationId);
+    });
+    socket.on("joined", (id) => [console.log("user joined with room:", id)]);
 
-        // Cleanup listener on unmount
-        return () => {
-            socket.off("messages_update");
-        };
-    }, [selectedConversation]);
+    // Cleanup listener on unmount
+    return () => {
+      socket.off("messages_update");
+    };
+  }, [selectedConversation]);
   // Fetch conversations on component mount
   useEffect(() => {
     fetchConversations();
@@ -77,8 +90,8 @@ useEffect(() => {
   // Fetch messages when a conversation is selected
   useEffect(() => {
     if (!selectedConversation) return;
-      fetchConversationMessages(selectedConversation);
-      markAsRead(selectedConversation);
+    fetchConversationMessages(selectedConversation);
+    markAsRead(selectedConversation);
   }, [selectedConversation]);
 
   useEffect(() => {
@@ -88,26 +101,29 @@ useEffect(() => {
     }
   }, [applicantId, applicationId]);
 
-    // Updated handleSelect to automatically hide conversation list in mobile
-    const handleConversationSelect = (conversationId: string) => {
-      setSelectedConversation(conversationId);
-      // Hide conversation list in mobile view when a conversation is selected
-      if (window.innerWidth < 1024) { // lg breakpoint
-        setShowConversationList(false);
-      }
-    };
-  const startNewConversation = async (applicantId: string, applicationId?: string) => {
+  // Updated handleSelect to automatically hide conversation list in mobile
+  const handleConversationSelect = (conversationId: string) => {
+    setSelectedConversation(conversationId);
+    // Hide conversation list in mobile view when a conversation is selected
+    if (window.innerWidth < 1024) {
+      // lg breakpoint
+      setShowConversationList(false);
+    }
+  };
+  const startNewConversation = async (
+    applicantId: string,
+    applicationId?: string
+  ) => {
     try {
       const attachments = selectedFile ? [selectedFile] : [];
       const bodyData = {
-        content: isType ? "Hey! I saw your profile on this platform and wanted to connect." : "",
+        content: isType
+          ? "Hey! I saw your profile on this platform and wanted to connect."
+          : "",
         attachments,
         applicationId,
       };
-      const data = await startConversation(
-        applicantId,
-        bodyData
-      );
+      const data = await startConversation(applicantId, bodyData);
       if (data.success) {
         const newConversationId = data.data.data.conversationId;
         setSelectedConversation(newConversationId);
@@ -143,8 +159,13 @@ useEffect(() => {
     setIsLoadingConversations(true);
     setError(null);
     try {
-      const { conversations, archiveCount, deletedCount, blockedCount, allowMessages } = 
-        await getConversations({ archived: true });
+      const {
+        conversations,
+        archiveCount,
+        deletedCount,
+        blockedCount,
+        allowMessages,
+      } = await getConversations({ archived: true });
       setAllowMessage(allowMessages);
       setConversations(Array.isArray(conversations) ? conversations : []);
       setArchiveCount(archiveCount);
@@ -168,8 +189,13 @@ useEffect(() => {
     setIsLoadingConversations(true);
     setError(null);
     try {
-      const { conversations, archiveCount, deletedCount, blockedCount, allowMessages } = 
-        await getConversations({ deleted: true });
+      const {
+        conversations,
+        archiveCount,
+        deletedCount,
+        blockedCount,
+        allowMessages,
+      } = await getConversations({ deleted: true });
       setAllowMessage(allowMessages);
       setConversations(Array.isArray(conversations) ? conversations : []);
       setArchiveCount(archiveCount);
@@ -193,8 +219,13 @@ useEffect(() => {
     setIsLoadingConversations(true);
     setError(null);
     try {
-      const { conversations, archiveCount, deletedCount, blockedCount, allowMessages } = 
-        await getConversations({ blocked: true });
+      const {
+        conversations,
+        archiveCount,
+        deletedCount,
+        blockedCount,
+        allowMessages,
+      } = await getConversations({ blocked: true });
       setAllowMessage(allowMessages);
       setConversations(Array.isArray(conversations) ? conversations : []);
       setArchiveCount(archiveCount);
@@ -323,11 +354,15 @@ useEffect(() => {
   const handleArchiveConversation = async (conversationId: string) => {
     try {
       await archiveConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setArchiveCount((prev) => prev + 1);
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -338,11 +373,15 @@ useEffect(() => {
   const handleUnarchiveConversation = async (conversationId: string) => {
     try {
       await unArchiveConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setArchiveCount((prev) => Math.max(prev - 1, 0));
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -353,7 +392,9 @@ useEffect(() => {
   const handleRestoreConversation = async (conversationId: string) => {
     try {
       await restoreConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
 
       if (isTrashMode) {
         setDeletedCount((prev) => Math.max(prev - 1, 0));
@@ -363,7 +404,9 @@ useEffect(() => {
       }
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (err) {
@@ -374,7 +417,9 @@ useEffect(() => {
   const handleUnblockConversation = async (conversationId: string) => {
     try {
       await unblockConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setBlockedCount((prev) => Math.max(prev - 1, 0));
 
       if (isArchiveMode) {
@@ -382,7 +427,9 @@ useEffect(() => {
       }
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -393,7 +440,9 @@ useEffect(() => {
   const handleBlockConversation = async (conversationId: string) => {
     try {
       await blockConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setBlockedCount((prev) => prev + 1);
 
       if (isArchiveMode) {
@@ -401,7 +450,9 @@ useEffect(() => {
       }
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -412,7 +463,9 @@ useEffect(() => {
   const handleDeleteConversation = async (conversationId: string) => {
     try {
       await deleteConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setDeletedCount((prev) => prev + 1);
 
       if (isArchiveMode) {
@@ -420,7 +473,9 @@ useEffect(() => {
       }
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -459,14 +514,14 @@ useEffect(() => {
     setSelectedCompany(companyId);
   };
 
-  const handleJobClick = (job:any) => {
+  const handleJobClick = (job: any) => {
     setSelectedJob(job);
     setShowJobModal(true);
   };
 
   const handleApply = async () => {
     try {
-      console.log('action')
+      console.log("action");
     } catch (error) {
       console.error("Error applying for job:", error);
     }
@@ -500,10 +555,10 @@ useEffect(() => {
     ? conversations.find((c) => c._id === selectedConversation)
     : undefined;
 
-    return (
-      <div className="max-w-full mx-auto lg:p-6" style={{ overflow: "hidden" }}>
-        <div className="bg-white lg:rounded-xl shadow-sm border border-gray-100 flex h-[94vh] lg:h-[85vh]">
-          {/* <ConversationsList
+  return (
+    <div className="max-w-full mx-auto lg:p-6" style={{ overflow: "hidden" }}>
+      <div className="bg-white lg:rounded-xl shadow-sm border border-gray-100 flex h-[94vh] lg:h-[85vh]">
+        {/* <ConversationsList
             conversations={conversations}
             selectedConversation={selectedConversation}
             searchTerm={searchTerm}
@@ -527,37 +582,39 @@ useEffect(() => {
             onSetBlockMode={setIsBlockMode}
             onSetShowConversationList={setShowConversationList}
           /> */}
-  
-          <MessageThread
-            selectedConversation={selectedConv}
-            messages={selectedConversation ? messages[selectedConversation] || [] : []}
-            newMessage={newMessage}
-            selectedFile={selectedFile}
-            filePreview={filePreview}
-            isLoadingMessages={isLoadingMessages}
-            isSendingMessage={isSendingMessage}
-            isArchiveMode={isArchiveMode}
-            isTrashMode={isTrashMode}
-            isBlockMode={isBlockMode}
-            allowMessage={allowMessage}
-            anotherUserAllowMessage={anotherUserAllowMessage}
-            showProfile={showProfile}
-            showConversationList={showConversationList}
-            onMessageChange={setNewMessage}
-            onFileSelected={handleFileSelected}
-            onSendMessage={handleSendMessage}
-            onSetShowConversationList={setShowConversationList}
-            onViewCompany={handleViewCompany}
-            onArchiveConversation={handleArchiveConversation}
-            onUnarchiveConversation={handleUnarchiveConversation}
-            onBlockConversation={handleBlockConversation}
-            onUnblockConversation={handleUnblockConversation}
-            onDeleteConversation={handleDeleteConversation}
-            onRestoreConversation={handleRestoreConversation}
-          />
-        </div>
+
+        <MessageThread
+          selectedConversation={selectedConv}
+          messages={
+            selectedConversation ? messages[selectedConversation] || [] : []
+          }
+          newMessage={newMessage}
+          selectedFile={selectedFile}
+          filePreview={filePreview}
+          isLoadingMessages={isLoadingMessages}
+          isSendingMessage={isSendingMessage}
+          isArchiveMode={isArchiveMode}
+          isTrashMode={isTrashMode}
+          isBlockMode={isBlockMode}
+          allowMessage={allowMessage}
+          anotherUserAllowMessage={anotherUserAllowMessage}
+          showProfile={showProfile}
+          showConversationList={showConversationList}
+          onMessageChange={setNewMessage}
+          onFileSelected={handleFileSelected}
+          onSendMessage={handleSendMessage}
+          onSetShowConversationList={setShowConversationList}
+          onViewCompany={handleViewCompany}
+          onArchiveConversation={handleArchiveConversation}
+          onUnarchiveConversation={handleUnarchiveConversation}
+          onBlockConversation={handleBlockConversation}
+          onUnblockConversation={handleUnblockConversation}
+          onDeleteConversation={handleDeleteConversation}
+          onRestoreConversation={handleRestoreConversation}
+        />
       </div>
-    );
-  };
-  
-  export default Messages;
+    </div>
+  );
+};
+
+export default Messages;

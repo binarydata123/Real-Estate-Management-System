@@ -10,7 +10,21 @@ import ErrorDisplay from "./UI/ErrorDisplay";
 // Types
 import { Conversation, Message } from "./types/messageTypes";
 import { useAuth } from "@/context/AuthContext";
-import { getConversations, getConversationMessages, archiveConversation, blockConversation, deleteConversation, markConversationAsRead, restoreConversation, sendMessage, startConversation, unArchiveConversation, unblockConversation, uploadFile, getCustomers } from "@/lib/Agent/MessagesAPI";
+import {
+  getConversations,
+  getConversationMessages,
+  archiveConversation,
+  blockConversation,
+  deleteConversation,
+  markConversationAsRead,
+  restoreConversation,
+  sendMessage,
+  startConversation,
+  unArchiveConversation,
+  unblockConversation,
+  uploadFile,
+  getCustomers,
+} from "@/lib/Agent/MessagesAPI";
 
 import { io } from "socket.io-client";
 
@@ -19,15 +33,17 @@ import { io } from "socket.io-client";
 const CompanyMessages: React.FC = () => {
   const { user } = useAuth();
   //const [searchParams] = useSearchParams();
-const socket = useMemo(() => {
-        return io("http://localhost:5001", {
-            withCredentials: true,
-        });
-    }, []);
+  const socket = useMemo(() => {
+    return io("http://localhost:5001", {
+      withCredentials: true,
+    });
+  }, []);
   // State
   const [allowMessage, setAllowMessage] = useState(true);
   const [anotherUserAllowMessage, setAnotherUserAllowMessage] = useState(true);
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<
+    string | null
+  >(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -52,7 +68,9 @@ const socket = useMemo(() => {
   // Message View States
   //const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
-  const [selectedApplication, setSelectedApplication] = useState<string | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<string | null>(
+    null
+  );
   const [applicants, setApplicants] = useState<any[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [showJobDetail, setShowJobDetail] = useState(false);
@@ -72,26 +90,23 @@ const socket = useMemo(() => {
   //const applicationId = params.applicationId as string;
   const conversationId = params.conversationId as string;
 
+  useEffect(() => {
+    // Join room
+    console.log(selectedConversation, "conversation id");
+    if (!selectedConversation) return;
+    socket.emit("join_conversation", selectedConversation);
 
-useEffect(() => {
-        // Join room
-        console.log(selectedConversation,"conversation id")
-        if(!selectedConversation)return;
-        socket.emit("join_conversation", selectedConversation);
-
-        // Live updates from socket
-        socket.on("messages_update", (conversationId:string) => {
-          console.log("message update",conversationId)
-            fetchConversationMessages(conversationId);
-        });
-socket.on("joined",(id)=>[
-  console.log("user joined with room:",id)
-])
-        // Cleanup listener on unmount
-        return () => {
-            socket.off("messages_update");
-        };
-    }, [selectedConversation]);
+    // Live updates from socket
+    socket.on("messages_update", (conversationId: string) => {
+      console.log("message update", conversationId);
+      fetchConversationMessages(conversationId);
+    });
+    socket.on("joined", (id) => [console.log("user joined with room:", id)]);
+    // Cleanup listener on unmount
+    return () => {
+      socket.off("messages_update");
+    };
+  }, [selectedConversation]);
 
   // Initialize selected conversation
   useEffect(() => {
@@ -116,8 +131,8 @@ socket.on("joined",(id)=>[
   // Fetch messages when a conversation is selected
   useEffect(() => {
     if (!selectedConversation) return;
-      fetchConversationMessages(selectedConversation);
-      markAsRead(selectedConversation);
+    fetchConversationMessages(selectedConversation);
+    markAsRead(selectedConversation);
   }, [selectedConversation]);
 
   // Start new conversation if applicantId is provided
@@ -289,23 +304,24 @@ socket.on("joined",(id)=>[
   const startNewConversation = async (customerId: string) => {
     try {
       const messageText =
-      user?.role === "customer"
-        ? ""
-        : "Hello! We are reaching out regarding your information. Please feel free to reply here if you have any questions or would like to discuss further.";
+        user?.role === "customer"
+          ? ""
+          : "Hello! We are reaching out regarding your information. Please feel free to reply here if you have any questions or would like to discuss further.";
 
-      const data = await startConversation(customerId, { content: messageText });
+      const data = await startConversation(customerId, {
+        content: messageText,
+      });
 
       if (data.success) {
         const newConversationId = data.data.conversationId;
         setSelectedConversation(newConversationId);
         fetchConversations(newConversationId);
       } else {
-        if (typeof data.error === "string" && data.error.includes("Not enough tokens")) {
-          setError(
-            <>
-              {data.error}{" "}
-            </>
-          );
+        if (
+          typeof data.error === "string" &&
+          data.error.includes("Not enough tokens")
+        ) {
+          setError(<>{data.error} </>);
         } else {
           setError("Failed to start conversation.");
         }
@@ -329,12 +345,12 @@ socket.on("joined",(id)=>[
         prev.map((conv) =>
           conv._id === conversationId
             ? {
-              ...conv,
-              unreadCount: {
-                ...conv.unreadCount,
-                [user?._id as string]: 0,
-              },
-            }
+                ...conv,
+                unreadCount: {
+                  ...conv.unreadCount,
+                  [user?._id as string]: 0,
+                },
+              }
             : conv
         )
       );
@@ -353,11 +369,11 @@ socket.on("joined",(id)=>[
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() && !selectedFile) return;
-  
+
     setIsSendingMessage(true);
     try {
       const attachments = [];
-  
+
       if (selectedFile) {
         const uploadRes = await uploadFile(selectedFile);
         if (uploadRes.success && uploadRes.file) {
@@ -366,16 +382,16 @@ socket.on("joined",(id)=>[
           throw new Error("File upload failed or response missing data");
         }
       }
-      
+
       if (newMessage.trim() || attachments.length > 0) {
         const response = await sendMessage(
           selectedConversation as string,
           newMessage,
           attachments
         );
-  
+
         if (response.success && response.data?.message) {
-           socket.emit("send_message", selectedConversation);
+          socket.emit("send_message", selectedConversation);
           if (typeof selectedConversation === "string") {
             setMessages((prev) => ({
               ...prev,
@@ -385,21 +401,21 @@ socket.on("joined",(id)=>[
               ],
             }));
           }
-  
+
           setConversations((prev) =>
             prev.map((conv) =>
               conv._id === selectedConversation
                 ? {
-                  ...conv,
-                  lastMessage: newMessage || "📎 Attachment",
-                  lastMessageAt: new Date().toISOString(),
-                }
+                    ...conv,
+                    lastMessage: newMessage || "📎 Attachment",
+                    lastMessageAt: new Date().toISOString(),
+                  }
                 : conv
             )
           );
         }
       }
-  
+
       // THIS IS CRUCIAL - Clear the message state
       setNewMessage("");
       setSelectedFile(null);
@@ -410,16 +426,19 @@ socket.on("joined",(id)=>[
       setIsSendingMessage(false);
     }
   };
-  
 
   const handleArchiveConversation = async (conversationId: string) => {
     try {
       await archiveConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setArchiveCount((prev) => prev + 1);
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -430,11 +449,15 @@ socket.on("joined",(id)=>[
   const handleUnarchiveConversation = async (conversationId: string) => {
     try {
       await unArchiveConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setArchiveCount((prev) => Math.max(prev - 1, 0));
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -445,7 +468,9 @@ socket.on("joined",(id)=>[
   const handleDeleteConversation = async (conversationId: string) => {
     try {
       await deleteConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setDeletedCount((prev) => prev + 1);
 
       if (isArchiveMode) {
@@ -453,7 +478,9 @@ socket.on("joined",(id)=>[
       }
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -464,7 +491,9 @@ socket.on("joined",(id)=>[
   const handleRestoreConversation = async (conversationId: string) => {
     try {
       await restoreConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
 
       if (isTrashMode) {
         setDeletedCount((prev) => Math.max(prev - 1, 0));
@@ -475,7 +504,9 @@ socket.on("joined",(id)=>[
       }
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (err) {
@@ -486,7 +517,9 @@ socket.on("joined",(id)=>[
   const handleUnblockConversation = async (conversationId: string) => {
     try {
       await unblockConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setBlockedCount((prev) => Math.max(prev - 1, 0));
 
       if (isArchiveMode) {
@@ -494,7 +527,9 @@ socket.on("joined",(id)=>[
       }
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -505,7 +540,9 @@ socket.on("joined",(id)=>[
   const handleBlockConversation = async (conversationId: string) => {
     try {
       await blockConversation(conversationId);
-      setConversations((prev) => prev.filter((conv) => conv._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((conv) => conv._id !== conversationId)
+      );
       setBlockedCount((prev) => prev + 1);
 
       if (isArchiveMode) {
@@ -513,7 +550,9 @@ socket.on("joined",(id)=>[
       }
 
       if (selectedConversation === conversationId) {
-        const nextConversation = conversations.find((conv) => conv._id !== conversationId);
+        const nextConversation = conversations.find(
+          (conv) => conv._id !== conversationId
+        );
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
@@ -526,7 +565,10 @@ socket.on("joined",(id)=>[
     return conversation.unreadCount?.[user?._id as string] || 0;
   };
 
-  const getTruncatedMessage = (html: string | null | undefined, length: number = 50): string => {
+  const getTruncatedMessage = (
+    html: string | null | undefined,
+    length: number = 50
+  ): string => {
     try {
       if (!html || typeof html !== "string") return "";
 
@@ -602,21 +644,20 @@ socket.on("joined",(id)=>[
     setShowJobDetail(true);
   };
 
-  
   // Derived Values
   const filteredConversations = Array.isArray(conversations)
     ? conversations.filter((conv) => {
-      const nameMatch = conv.otherParticipant?.name
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const positionMatch = conv.otherParticipant?.position
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const lastMessageMatch = conv.lastMessage
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      return nameMatch || positionMatch || lastMessageMatch;
-    })
+        const nameMatch = conv.otherParticipant?.name
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        const positionMatch = conv.otherParticipant?.position
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        const lastMessageMatch = conv.lastMessage
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        return nameMatch || positionMatch || lastMessageMatch;
+      })
     : [];
 
   const selectedConv = Array.isArray(conversations)
