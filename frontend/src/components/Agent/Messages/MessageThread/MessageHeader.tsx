@@ -25,10 +25,8 @@ interface MessageHeaderProps {
 
 const MessageHeader: React.FC<MessageHeaderProps> = ({
   conversation,
-  showConversationList,
   setShowConversationList,
   onViewCandidate,
-  onViewJob,
   onArchive,
   onUnarchive,
   onBlock,
@@ -78,8 +76,8 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
               <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
                 {/^https?:\/\//.test(conversation.otherParticipant?.avatar || "") ? (
                   <Image
-                    src={conversation.otherParticipant?.avatar}
-                    alt={conversation.otherParticipant?.name}
+                    src={conversation.otherParticipant?.avatar as string}
+                    alt={conversation.otherParticipant?.name as string}
                     className="w-full h-full object-cover"
                     width={280}
                     height={280}

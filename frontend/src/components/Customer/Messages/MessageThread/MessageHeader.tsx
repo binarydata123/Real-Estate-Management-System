@@ -1,11 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { Conversation } from "../types/messageTypes";
-import { MoreVertical } from "lucide-react";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { Tooltip } from "react-tooltip";
-import { useAuth } from "@/context/AuthContext";
-import StatusBadge from "../UI/StatusBadge";
 import Image from "next/image";
 
 interface MessageHeaderProps {
@@ -24,19 +21,10 @@ interface MessageHeaderProps {
 
 const MessageHeader: React.FC<MessageHeaderProps> = ({
   selectedConversation,
-  showConversationList,
   showProfile,
   onSetShowConversationList,
   onViewCompany,
-  onArchiveConversation,
-  onUnarchiveConversation,
-  onBlockConversation,
-  onUnblockConversation,
-  onDeleteConversation,
-  onRestoreConversation,
 }) => {
-  const [showMenu, setShowMenu] = useState<string | null>(null);
-  const { user } = useAuth();
 
   return (
     <div className="p-2 md:p-4 border-b border-gray-200 bg-gray-50 flex items-center">
@@ -72,7 +60,9 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
               }}
               onClick={() => {
                 if (selectedConversation.otherParticipant?.role !== "admin") {
-                  showProfile && onViewCompany(selectedConversation.otherParticipant?._id);
+                  if (showProfile) {
+                    onViewCompany(selectedConversation.otherParticipant?._id as string);
+                  }
                 }
               }}
             >

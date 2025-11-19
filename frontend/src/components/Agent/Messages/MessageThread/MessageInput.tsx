@@ -29,7 +29,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
   isSendingMessage,
   isArchiveMode,
   isTrashMode,
-  isBlockMode,
   anotherUserAllowMessage,
   conversationBlockedByUser,
   conversationBlockedByOther,
@@ -137,7 +136,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             contentEditable={
               !isSendingMessage && 
               !isDisabled &&
-              (anotherUserAllowMessage || anotherUserAllowMessage == null)
+              (anotherUserAllowMessage || anotherUserAllowMessage === null)
             }
             onInput={handleInput}
             onKeyDown={(e) => {

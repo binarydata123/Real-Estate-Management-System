@@ -1,5 +1,5 @@
 import settingsAdminService from "../../services/admin/SettingsAdminService";
-import apiService from "../../services/api";
+import { showErrorToast } from "../toastHandler";
 export function formatDate(input: string | number | Date): string {
   try {
     if (adminDateFormat) {
@@ -38,7 +38,7 @@ export function formatDate(input: string | number | Date): string {
         .replace("Mon", monthShort) // e.g. Jul
         .replace("Month", monthFull) // e.g. July
         .replace("YYYY", year);
-    } else {
+    }
       // Fallback if settings not loaded
       const date = new Date(input);
       if (isNaN(date.getTime())) {
@@ -48,9 +48,9 @@ export function formatDate(input: string | number | Date): string {
       const month = date.toLocaleString("en-US", { month: "short" });
       const year = date.getFullYear();
       return `${day} ${month} ${year}`; // e.g., "18 July 2025"
-    }
+
   } catch (error) {
-    console.error("Error formatting date:", error);
+    showErrorToast("Error formatting date:", error);
     return "";
   }
 }
@@ -68,7 +68,7 @@ export const convertTo12Hour = (input: string | number | Date): string => {
 
     return `${hours}:${minutes} ${ampm}`;
   } catch (error) {
-    console.error("Error converting to 12-hour format:", error);
+    showErrorToast("Error converting to 12-hour format:", error);
     return "";
   }
 };
@@ -85,6 +85,6 @@ export const loadAdminSettingData = async () => {
       adminTimezone = settings.data.data.general.timezone || adminTimezone;
     }
   } catch (err) {
-    console.error("Error loading admin settings:", err);
+    showErrorToast("Error loading admin settings:", err);
   }
 };

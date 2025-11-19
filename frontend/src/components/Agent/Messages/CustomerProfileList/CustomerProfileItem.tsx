@@ -1,9 +1,6 @@
 "use client";
 import React from 'react';
-import { Conversation } from '../types/messageTypes';
-import { formatDate } from '../../../../utils/dateFunction/dateFormate';
 import StatusBadge from '../UI/StatusBadge';
-import Image from 'next/image';
 
 interface CustomerProfileItemProps {
   customer: CustomerFormData;
@@ -21,9 +18,6 @@ const CustomerProfileItem: React.FC<CustomerProfileItemProps> = ({
   isSelected,
   unreadCount,
   onSelect,
-  onViewCandidate,
-  getTruncatedMessage,
-  currentUserId,
   isMobile = false
 }) => {
   const isDeleted = !customer;

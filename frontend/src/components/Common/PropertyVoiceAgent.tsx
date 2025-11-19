@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Vapi from "@vapi-ai/web";
 import { startPreferenceSession } from "@/lib/AI";
-import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
+import { StopCircleIcon } from "@heroicons/react/24/solid";
 import { Loader2 } from "lucide-react";
 import { showErrorToast } from "@/utils/toastHandler";
 import { useAuth } from "@/context/AuthContext";
@@ -21,7 +21,7 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
   const [vapi, setVapi] = useState<Vapi | null>(null);
   const { user } = useAuth();
   const [assistantMessage, setAssistantMessage] = useState(
-    "Click the mic to start scheduling."
+    "Connecting to AI assistant..."
   );
 
   // ✅ Initialize Vapi once
@@ -97,6 +97,16 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
         metadata: {
           userId: user?._id,
           propertyId: propertyId,
+          property: sessionData.property,
+          preference: sessionData.preference,
+        },
+      });
+
+      vapi.send({
+        type: "add-message",
+        message: {
+          role: "user",
+          content: "start",
         },
       });
     } catch (err) {
@@ -115,36 +125,47 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
       showErrorToast("Error stopping assistant:", err);
     }
     setIsSpeaking(false);
+    setLoading(false);
   }, [vapi]);
 
+  // Auto-start the assistant when the component is ready
+  useEffect(() => {
+    if (vapi && propertyId && user?._id) {
+      handleStart();
+    }
+  }, [vapi, propertyId, user?._id, handleStart]);
+
   return (
-    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+    <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-xl border border-gray-200 mb-6 shadow-sm">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <button
           onClick={isSpeaking ? handleStop : handleStart}
           disabled={loading || !propertyId}
-          className={`w-12 h-12 flex items-center justify-center rounded-full text-white transition-all ${
+          className={`relative w-14 h-14 flex items-center justify-center rounded-full text-white transition-all duration-300 shadow-lg ${
             loading
-              ? "bg-gray-400"
+              ? "bg-gray-400 cursor-not-allowed"
               : isSpeaking
-              ? "bg-red-600 hover:bg-red-700"
-              : "bg-purple-600 hover:bg-purple-700"
+              ? "bg-red-500 hover:bg-red-600"
+              : "bg-gray-400 cursor-not-allowed" // Disabled look before speaking starts
           }`}
-          title={isSpeaking ? "Stop Assistant" : "Ask AI Assistant"}
+          title={isSpeaking ? "Stop Assistant" : "Talk to AI Assistant"}
         >
           {loading ? (
             <Loader2 className="h-6 w-6 animate-spin" />
           ) : isSpeaking ? (
-            <StopCircleIcon className="h-7 w-7" />
+            <StopCircleIcon className="h-8 w-8" />
           ) : (
-            <MicrophoneIcon className="h-7 w-7" />
+            <Loader2 className="h-6 w-6 animate-spin" /> // Show loader initially
           )}
           {isSpeaking && (
-            <div className="absolute inset-0 rounded-full bg-blue-500/50 animate-pulse z-0"></div>
+            <div className="absolute inset-0 rounded-full bg-red-500/50 animate-pulse z-0"></div>
           )}
         </button>
+        <div className="flex-1">
+          <p className="font-semibold text-gray-800">AI Property Assistant</p>
+          <p className="text-gray-600 text-sm mt-1">{assistantMessage}</p>
+        </div>
       </div>
-      <p className="text-gray-600 text-sm h-10">{assistantMessage}</p>
     </div>
   );
 }

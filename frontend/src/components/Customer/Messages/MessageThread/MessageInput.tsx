@@ -18,6 +18,7 @@ interface MessageInputProps {
   isFirstMessageEmpty: boolean;
   onMessageChange: (message: string) => void;
   onFileSelected: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemoveFile?: () => void; // Make optional if not always provided
   onSendMessage: () => void;
 }
 
@@ -34,6 +35,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   isFirstMessageEmpty,
   onMessageChange,
   onFileSelected,
+  onRemoveFile,
   onSendMessage,
 }) => {
   const { user } = useAuth();
@@ -56,7 +58,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     isBlockMode ||
     isBlockedByUser ||
     isBlockedByOther ||
-    (anotherUserAllowMessage == false);
+    (anotherUserAllowMessage === false);
 
   return (
     <div className="p-2 md:p-4 border-t border-gray-200 relative">
@@ -94,13 +96,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             className={`absolute top-0 right-0 bg-red-500 text-white p-2 rounded-bl hover:bg-red-600 transition ${
               isDisabled ? "pointer-events-none opacity-50" : ""
             }`}
-            onClick={() => {
-              // This would need to be handled by the parent
-              // For now, we'll trigger file selection with null
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.click();
-            }}
+            onClick={onRemoveFile} // Use the onRemoveFile prop
             title="Remove attachment"
             disabled={isDisabled}
           >
@@ -149,10 +145,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
               !isSendingMessage &&
               !isDisabled &&
               !isFirstMessageEmpty &&
-              (anotherUserAllowMessage || anotherUserAllowMessage == null)
+              (anotherUserAllowMessage || anotherUserAllowMessage === null)
             }
             onPaste={(e) => {
               e.preventDefault();
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const clipboardData = e.clipboardData || (window as any).clipboardData;
               const text = clipboardData.getData("text/plain");
               document.execCommand("insertText", false, text);

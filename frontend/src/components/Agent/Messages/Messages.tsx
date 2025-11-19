@@ -1,3 +1,5 @@
+/* eslint-disable no-shadow */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useSearchParams } from "next/navigation";
@@ -27,6 +29,7 @@ import {
 } from "@/lib/Agent/MessagesAPI";
 
 import { io } from "socket.io-client";
+import { showErrorToast } from "@/utils/toastHandler";
 
 // View Components
 
@@ -34,7 +37,7 @@ const CompanyMessages: React.FC = () => {
   const { user } = useAuth();
   //const [searchParams] = useSearchParams();
   const socket = useMemo(() => {
-    return io("http://localhost:5001", {
+    return io(process.env.NEXT_PUBLIC_BACKEND_URL, {
       withCredentials: true,
     });
   }, []);
@@ -66,15 +69,6 @@ const CompanyMessages: React.FC = () => {
   const [customers, setCustomers] = useState<CustomerFormData[]>([]);
 
   // Message View States
-  //const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null);
-  const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
-  const [selectedApplication, setSelectedApplication] = useState<string | null>(
-    null
-  );
-  const [applicants, setApplicants] = useState<any[]>([]);
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [showJobDetail, setShowJobDetail] = useState(false);
-  //const [showEditForm, setShowEditForm] = useState(false);
 
   const hasStartedConversation = useRef(false);
   const editableRef = useRef<HTMLDivElement>(null);
@@ -92,16 +86,14 @@ const CompanyMessages: React.FC = () => {
 
   useEffect(() => {
     // Join room
-    console.log(selectedConversation, "conversation id");
     if (!selectedConversation) return;
     socket.emit("join_conversation", selectedConversation);
 
     // Live updates from socket
+    // eslint-disable-next-line no-shadow
     socket.on("messages_update", (conversationId: string) => {
-      console.log("message update", conversationId);
       fetchConversationMessages(conversationId);
     });
-    socket.on("joined", (id) => [console.log("user joined with room:", id)]);
     // Cleanup listener on unmount
     return () => {
       socket.off("messages_update");
@@ -157,7 +149,7 @@ const CompanyMessages: React.FC = () => {
         setCustomers([]);
       }
     } catch (error: any) {
-      console.error("Error fetching customers:", error);
+      showErrorToast("Error fetching customers:", error);
       setError("Failed to load customers. Please try again.");
     } finally {
       setIsLoadingConversations(false);
@@ -170,6 +162,7 @@ const CompanyMessages: React.FC = () => {
     setError(null);
     try {
       const {
+        // eslint-disable-next-line no-shadow
         conversations,
         archiveCount,
         deletedCount,
@@ -188,7 +181,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(conversations[0]._id);
       }
     } catch (error: any) {
-      console.error("Error fetching conversations:", error);
+      showErrorToast("Error fetching conversations:", error);
       setError("Failed to load conversations. Please try again.");
     } finally {
       setIsLoadingConversations(false);
@@ -218,7 +211,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(null);
       }
     } catch (error: any) {
-      console.error("Error fetching archived conversations:", error);
+      showErrorToast("Error fetching archived conversations:", error);
       setError("Failed to load archived conversations. Please try again.");
     } finally {
       setIsLoadingConversations(false);
@@ -248,7 +241,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(null);
       }
     } catch (error: any) {
-      console.error("Error fetching deleted conversations:", error);
+      showErrorToast("Error fetching deleted conversations:", error);
       setError("Failed to load deleted conversations. Please try again.");
     } finally {
       setIsLoadingConversations(false);
@@ -278,7 +271,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(null);
       }
     } catch (error: any) {
-      console.error("Error fetching blocked conversations:", error);
+      showErrorToast("Error fetching blocked conversations:", error);
       setError("Failed to load blocked conversations. Please try again.");
     } finally {
       setIsLoadingConversations(false);
@@ -295,7 +288,7 @@ const CompanyMessages: React.FC = () => {
       }));
       setAnotherUserAllowMessage(data.allowMessages);
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      showErrorToast("Error fetching messages:", error);
     } finally {
       setIsLoadingMessages(false);
     }
@@ -325,10 +318,9 @@ const CompanyMessages: React.FC = () => {
         } else {
           setError("Failed to start conversation.");
         }
-        return;
       }
     } catch (error: any) {
-      console.error("Error starting new conversation:", error);
+      showErrorToast("Error starting new conversation:", error);
       const errorMessage =
         error?.response?.data?.message ||
         error.message ||
@@ -363,7 +355,7 @@ const CompanyMessages: React.FC = () => {
           ) || [],
       }));
     } catch (error) {
-      console.error("Error marking conversation as read:", error);
+      showErrorToast("Error marking conversation as read:", error);
     }
   };
 
@@ -421,7 +413,7 @@ const CompanyMessages: React.FC = () => {
       setSelectedFile(null);
       setFilePreview(null);
     } catch (error) {
-      console.error("Error sending message or uploading file:", error);
+      showErrorToast("Error sending message or uploading file:", error);
     } finally {
       setIsSendingMessage(false);
     }
@@ -442,7 +434,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
-      console.error("Error archiving conversation:", error);
+      showErrorToast("Error archiving conversation:", error);
     }
   };
 
@@ -461,7 +453,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
-      console.error("Error unarchiving conversation:", error);
+      showErrorToast("Error unarchiving conversation:", error);
     }
   };
 
@@ -484,7 +476,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
-      console.error("Error deleting conversation:", error);
+      showErrorToast("Error deleting conversation:", error);
     }
   };
 
@@ -510,7 +502,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (err) {
-      console.error("Error restoring conversation: ", err);
+      showErrorToast("Error restoring conversation: ", err);
     }
   };
 
@@ -533,7 +525,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
-      console.error("Error unblocking conversation:", error);
+      showErrorToast("Error unblocking conversation:", error);
     }
   };
 
@@ -556,7 +548,7 @@ const CompanyMessages: React.FC = () => {
         setSelectedConversation(nextConversation?._id || null);
       }
     } catch (error) {
-      console.error("Error blocking conversation:", error);
+      showErrorToast("Error blocking conversation:", error);
     }
   };
 
@@ -567,7 +559,7 @@ const CompanyMessages: React.FC = () => {
 
   const getTruncatedMessage = (
     html: string | null | undefined,
-    length: number = 50
+    length = 50
   ): string => {
     try {
       if (!html || typeof html !== "string") return "";
@@ -575,7 +567,7 @@ const CompanyMessages: React.FC = () => {
       if (typeof document === "undefined") {
         const plain = html.replace(/<[^>]*>/g, "");
         return plain.length > length
-          ? plain.substring(0, length) + "..."
+          ? `${plain.substring(0, length)  }...`
           : plain;
       }
 
@@ -583,10 +575,10 @@ const CompanyMessages: React.FC = () => {
       tempDiv.innerHTML = html;
       const plainText = tempDiv.textContent || tempDiv.innerText || "";
       return plainText.length > length
-        ? plainText.substring(0, length) + "..."
+        ? `${plainText.substring(0, length)  }...`
         : plainText;
     } catch (error) {
-      console.error("Error processing HTML for truncation:", error);
+      showErrorToast("Error processing HTML for truncation:", error);
       return "";
     }
   };
@@ -599,7 +591,7 @@ const CompanyMessages: React.FC = () => {
         setTimeout(() => setCopyToast(null), 2000);
       })
       .catch((err) => {
-        console.error("Failed to copy:", err);
+        showErrorToast("Failed to copy:", err);
       });
   };
 
@@ -635,14 +627,14 @@ const CompanyMessages: React.FC = () => {
     setFilePreview(null);
   };
 
-  const handleViewCandidate = (customerId: string) => {
-    setSelectedCustomer(customerId);
-  };
+  // const handleViewCandidate = (customerId: string) => {
+  //   setSelectedCustomer(customerId);
+  // };
 
-  const handleViewJob = (jobId: string) => {
-    setSelectedJobId(jobId);
-    setShowJobDetail(true);
-  };
+  // const handleViewJob = (jobId: string) => {
+  //   setSelectedJobId(jobId);
+  //   setShowJobDetail(true);
+  // };
 
   // Derived Values
   const filteredConversations = Array.isArray(conversations)
@@ -701,7 +693,7 @@ const CompanyMessages: React.FC = () => {
           fetchBlockedConversations={fetchBlockedConversations}
           showConversationList={showConversationList}
           setShowConversationList={setShowConversationList}
-          handleViewCandidate={handleViewCandidate}
+          handleViewCandidate={()=>{}}
           getUnreadCount={getUnreadCount}
           getTruncatedMessage={getTruncatedMessage}
           filteredConversations={filteredConversations}
@@ -723,8 +715,8 @@ const CompanyMessages: React.FC = () => {
           anotherUserAllowMessage={anotherUserAllowMessage}
           showConversationList={showConversationList}
           setShowConversationList={setShowConversationList}
-          onViewCandidate={handleViewCandidate}
-          onViewJob={handleViewJob}
+          onViewCandidate={()=>{}}
+          onViewJob={()=>{}}
           onArchive={handleArchiveConversation}
           onUnarchive={handleUnarchiveConversation}
           onBlock={handleBlockConversation}
