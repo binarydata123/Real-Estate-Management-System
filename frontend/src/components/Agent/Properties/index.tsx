@@ -9,8 +9,8 @@ import SharePropertyModal from "../Common/SharePropertyModal";
 import { PropertyCard } from "./PropertyCard";
 import { getProperties } from "@/lib/Agent/PropertyAPI";
 import { useDebounce } from "@/components/Common/UseDebounce";
-import { Pagination } from "@/components/Common/Pagination";
 import { showErrorToast } from "@/utils/toastHandler";
+import ScrollPagination from "@/components/Common/ScrollPagination";
 
 interface PropertyListFilters {
   type: string;
@@ -58,7 +58,7 @@ export const Properties: React.FC = () => {
   const limit = 10;
 
   const getAllProperties = useCallback(
-    async (page = 1) => {
+    async (page = 1, append = false) => {
       try {
         setIsFetching(true);
         const activeFilters = Object.fromEntries(
@@ -72,7 +72,9 @@ export const Properties: React.FC = () => {
         });
 
         if (response.success && response.data) {
-          setProperties(response.data);
+          setProperties((prev) =>
+            append ? [...prev, ...response.data] : response.data
+          );
           setCurrentPage(response.pagination?.page ?? 1);
           setTotalPages(response.pagination?.pages ?? 1);
         }
@@ -86,14 +88,13 @@ export const Properties: React.FC = () => {
   );
 
   useEffect(() => {
-    setCurrentPage(1); // reset to first page when filters change
+    setProperties([]);
     getAllProperties(1);
   }, [debouncedFilters, getAllProperties]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-      getAllProperties(page);
+      getAllProperties(page, true);
     }
   };
 
@@ -129,7 +130,7 @@ export const Properties: React.FC = () => {
         onFilterChange={(newFilters) => setFilters(newFilters)}
       />
 
-      {isFetching ? (
+      {isFetching && properties.length === 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
           {Array.from({ length: limit }).map((_, index) => (
             <PropertyCardSkeleton key={index} />
@@ -153,13 +154,22 @@ export const Properties: React.FC = () => {
           {/* Pagination outside the grid */}
           {totalPages > 1 && (
             <div className="mt-6 flex justify-center">
-              <Pagination
+              <ScrollPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
-                siblingCount={1}
-                showFirstLast={true}
-                showPrevNext={true}
+                isLoading={isFetching}
+                hasMore={currentPage < totalPages}
+                loader={
+                  <div className="text-center py-4">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                }
+                endMessage={
+                  <div className="text-center py-8 text-green-600 font-medium">
+                    🎉 All caught up!
+                  </div>
+                }
               />
             </div>
           )}

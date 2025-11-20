@@ -44,12 +44,16 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
     });
 
     instance.on("call-end", () => {
-      setAssistantMessage("Call ended. Review the details below if available.");
+      setAssistantMessage(
+        "The call has ended. Feel free to start a new conversation if needed."
+      );
       setIsSpeaking(false);
+      setLoading(false);
     });
 
     // 👂 Listen for structured output events for ScheduleMeeting
     instance.on("ScheduleMeeting" as any, (event: any) => {
+      // This event might be used to populate a form elsewhere
       const result = event?.data?.result || event?.result;
       if (result) {
         setAssistantMessage(
@@ -60,6 +64,7 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
 
     // Fallback for generic structured-output event
     instance.on("structured-output" as any, (event: any) => {
+      // This event might be used to populate a form elsewhere
       const firstValue: any =
         event && typeof event === "object" ? Object.values(event)[0] : null;
       const data = event?.data?.result || firstValue?.result;
@@ -137,10 +142,10 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
 
   return (
     <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-xl border border-gray-200 mb-6 shadow-sm">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
         <button
           onClick={isSpeaking ? handleStop : handleStart}
-          disabled={loading || !propertyId}
+          disabled={!isSpeaking && (loading || !propertyId)}
           className={`relative w-14 h-14 flex items-center justify-center rounded-full text-white transition-all duration-300 shadow-lg ${
             loading
               ? "bg-gray-400 cursor-not-allowed"
