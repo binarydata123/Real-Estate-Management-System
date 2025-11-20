@@ -126,9 +126,11 @@ export const Properties: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <PropertyFilters
-        onFilterChange={(newFilters) => setFilters(newFilters)}
-      />
+      {(properties.length > 0 || Object.values(filters).some((v) => v)) && (
+        <PropertyFilters
+          onFilterChange={(newFilters) => setFilters(newFilters)}
+        />
+      )}
 
       {isFetching && properties.length === 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">

@@ -286,11 +286,6 @@ export const Meetings: React.FC = () => {
                 <PlusIcon className="h-5 w-5 mr-2" />
               ) : undefined
             }
-            buttonText={
-              activeTab === "upcoming"
-                ? "Schedule Your First Meeting"
-                : undefined
-            }
             onButtonClick={
               activeTab === "upcoming"
                 ? () => setShowSelectionModal(true)
@@ -351,23 +346,25 @@ export const Meetings: React.FC = () => {
         confirmColor="bg-red-600 hover:bg-red-700"
       />
 
-      <ScrollPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        isLoading={isFetching}
-        hasMore={currentPage < totalPages}
-        loader={
-          <div className="text-center py-4">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        }
-        endMessage={
-          <div className="text-center py-8 text-green-600 font-medium">
-            🎉 All caught up!
-          </div>
-        }
-      />
+      {meetings.length > 0 && (
+        <ScrollPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isFetching}
+          hasMore={currentPage < totalPages}
+          loader={
+            <div className="text-center py-4">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          }
+          endMessage={
+            <div className="text-center py-8 text-green-600 font-medium">
+              🎉 All caught up!
+            </div>
+          }
+        />
+      )}
     </div>
   );
 };

@@ -64,36 +64,18 @@ const residentialCategories = [
 ] as const;
 const commercialCategories = ["showroom", "office", "land"] as const;
 
-// Preprocessing for optional number fields from a form. Handles empty strings and NaN.
-// The .optional() is moved outside the preprocess to make the input property optional.
-const optionalNumber = z
-  .preprocess(
-    (val) =>
-      val === "" ||
-      val === null ||
-      val === undefined ||
-      (typeof val === "number" && isNaN(val))
-        ? undefined
-        : Number(val),
-    // The inner schema validates the preprocessed value. It should not be optional here.
-    z.number({ message: "Invalid number" }).min(0)
-  )
-  .optional();
-
-// For required numeric fields that should reject zero values
-const requiredPositiveNumber = z
-  .preprocess(
-    (val) =>
-      val === "" ||
-      val === null ||
-      val === undefined ||
-      (typeof val === "number" && isNaN(val))
-        ? undefined
-        : Number(val),
-    //z.number({ message: "Invalid number" }).min(1, "Value must be greater than 0")
-    z.number({ message: "Invalid number" })
-  )
-  .optional();
+// Fixed preprocessing for optional number fields
+const optionalNumber = z.preprocess((val: unknown) => {
+  if (
+    val === "" ||
+    val === null ||
+    val === undefined ||
+    (typeof val === "number" && isNaN(val))
+  ) {
+    return undefined;
+  }
+  return Number(val);
+}, z.number().min(0).optional());
 
 export const propertySchema = z
   .object({
@@ -117,7 +99,7 @@ export const propertySchema = z
       }),
 
     location: z.string().optional(),
-    price: requiredPositiveNumber,
+    price: optionalNumber,
 
     // Area & Configuration
     built_up_area: optionalNumber,

@@ -32,16 +32,25 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   onShare,
   onRefresh,
 }) => {
-  const formatPrice = (price: number) => {
-    if (price >= 10000000) {
-      // 1 crore
-      return `₹${(price / 10000000).toFixed(1)}Cr`;
-    } else if (price >= 100000) {
-      // 1 lakh
-      return `₹${(price / 100000).toFixed(1)}L`;
-    } else if (price < 100000) {
-      return `₹${price.toLocaleString()}`;
+  const formatPrice = (price: number | null | undefined) => {
+    // Handle null, undefined, empty string, NaN, invalid numbers
+    if (price === null || price === undefined || isNaN(Number(price))) {
+      return "Price not available";
     }
+
+    const value = Number(price);
+
+    // Handle zero
+    if (value === 0) {
+      return "₹0";
+    }
+
+    if (value >= 10000000) {
+      return `₹${(value / 10000000).toFixed(1)}Cr`;
+    } else if (value >= 100000) {
+      return `₹${(value / 100000).toFixed(1)}L`;
+    }
+    return `₹${value.toLocaleString()}`;
   };
 
   const getStatusColor = (status: string) => {
@@ -84,7 +93,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   const hasKeyDetails =
     (property.built_up_area ?? 0) > 0 ||
     (property.bedrooms ?? 0) > 0 ||
-    (property.bathrooms ?? 0) > 0;
+    (property.bathrooms ?? 0) > 0 ||
+    !!property.furnishing;
 
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
@@ -119,14 +129,18 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                 {property.title}
               </h3>
             </Link>
-            <p className="text-xl md:text-2xl font-bold text-blue-700">
-              {formatPrice(property.price as number)}
-            </p>
+            {(property.price ?? 0) > 0 && (
+              <p className="text-xl md:text-2xl font-bold text-blue-700">
+                {formatPrice(property.price as number)}
+              </p>
+            )}
           </div>
-          <div className="flex items-center text-sm text-gray-500 mt-1">
-            <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-            <span className="truncate">{property.location}</span>
-          </div>
+          {property.location && (
+            <div className="flex items-center text-sm text-gray-500 mt-1">
+              <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+              <span className="truncate">{property.location}</span>
+            </div>
+          )}
         </div>
 
         <div className="flex-grow mb-2 md:mb-4">
