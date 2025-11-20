@@ -46,7 +46,7 @@ const Messages: React.FC = () => {
   const applicationId = params.applicationId as string;
   const isType = params.type as string;
   const socket = useMemo(() => {
-    return io("http://localhost:5001", {
+    return io(process.env.NEXT_PUBLIC_BACKEND_URL, {
       withCredentials: true,
     });
   }, []);
