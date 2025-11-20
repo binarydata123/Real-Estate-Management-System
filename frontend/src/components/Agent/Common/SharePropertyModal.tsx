@@ -125,7 +125,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 text-black">
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-5 flex items-center justify-between rounded-t-2xl">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-2 md:p-5 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-3">
             <div className="bg-blue-100 text-blue-600 p-2 rounded-lg">
               <ShareIcon className="h-5 w-5" />
@@ -142,9 +142,9 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto">
+        <div className="p-2 md:p-5 overflow-y-auto">
           {/* Property Preview */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6 flex items-center gap-4">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-2 md:mb-4 flex items-center gap-4">
             {primaryImage && (
               <Image
                 src={getImageUrl(primaryImage)}
@@ -301,7 +301,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4">
+            <div className="flex justify-end space-x-3">
               <button
                 type="button"
                 onClick={onClose}

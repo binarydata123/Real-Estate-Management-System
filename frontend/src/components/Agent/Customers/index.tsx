@@ -289,22 +289,26 @@ export const Customers: React.FC = () => {
           ) : (
             <div className="text-center py-12">
               <UserIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No customers yet
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Start building your customer base
-              </p>
-              {!debouncedSearchTerm && (
-                <div className="flex justify-center mt-4">
-                  <button
-                    onClick={() => setShowSelectionModal(true)}
-                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <PlusIcon className="h-5 w-5 mr-2" />
-                    Add Customer
-                  </button>
-                </div>
+              {debouncedSearchTerm ? (
+                <>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No customers found
+                  </h3>
+                  <p className="text-gray-500 mb-6">
+                    Your search for &ldquo;{debouncedSearchTerm}&ldquo; did not
+                    return any results.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No customers yet
+                  </h3>
+                  <p className="text-gray-500 mb-6">
+                    Start building your customer base by adding your first
+                    customer.
+                  </p>
+                </>
               )}
             </div>
           )}
@@ -383,23 +387,25 @@ export const Customers: React.FC = () => {
         customer={viewCustomer}
       />
 
-      <ScrollPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        isLoading={isFetching} // Pass the loading state to ScrollPagination
-        hasMore={currentPage < totalPages}
-        loader={
-          <div className="text-center py-4">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        }
-        endMessage={
-          <div className="text-center py-8 text-green-600 font-medium">
-            🎉 All caught up!
-          </div>
-        }
-      />
+      {customers.length > 0 && (
+        <ScrollPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isFetching} // Pass the loading state to ScrollPagination
+          hasMore={currentPage < totalPages}
+          loader={
+            <div className="text-center py-4">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          }
+          endMessage={
+            <div className="text-center py-8 text-green-600 font-medium">
+              🎉 All caught up!
+            </div>
+          }
+        />
+      )}
     </div>
   );
 };

@@ -60,7 +60,10 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
 
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-1 md:p-6 mb-2 md:mb-6">
-      <div className="flex items-center justify-between md:mb-4">
+      <div
+        className="flex items-center justify-between md:mb-4"
+        onClick={handleFilterToggle}
+      >
         <h3 className="text-lg font-semibold text-gray-900 flex items-center">
           <FunnelIcon className="h-5 w-5 mr-2" />
           Filter Properties
