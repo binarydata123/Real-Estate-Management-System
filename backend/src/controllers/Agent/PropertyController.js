@@ -74,15 +74,15 @@ export const createProperty = async (req, res) => {
       userId: req.user._id,
     });
     // Create a notification for the agency
-     if (agencySettings?.notifications?.propertyUpdates ) {
-    await Notification.create({
-      userId: req.user._id,
-      agencyId: savedProperty.agencyId,
-      message: `New property "${savedProperty.title}" was added.`,
-      type: "property_added",
-      link: `/agent/properties/view/${savedProperty._id}`, // A potential link to view the property
-    });
-}
+    if (agencySettings?.notifications?.propertyUpdates) {
+      await Notification.create({
+        userId: req.user._id,
+        agencyId: savedProperty.agencyId,
+        message: `New property "${savedProperty.title}" was added.`,
+        type: "property_added",
+        link: `/agent/properties/view/${savedProperty._id}`, // A potential link to view the property
+      });
+    }
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
         userId: req.user._id,
@@ -229,14 +229,14 @@ export const updateProperty = async (req, res) => {
       userId: req.user._id,
     });
     // 6. Post-update actions (notifications)
-     if (agencySettings?.notifications?.propertyUpdates)
-    await Notification.create({
-      userId: req.user._id,
-      agencyId: updatedProperty.agencyId,
-      message: `Property "${updatedProperty.title}" was updated.`,
-      type: "property_updated",
-      link: `/agent/properties/view/${updatedProperty._id}`,
-    });
+    if (agencySettings?.notifications?.propertyUpdates)
+      await Notification.create({
+        userId: req.user._id,
+        agencyId: updatedProperty.agencyId,
+        message: `Property "${updatedProperty.title}" was updated.`,
+        type: "property_updated",
+        link: `/agent/properties/view/${updatedProperty._id}`,
+      });
 
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
@@ -311,7 +311,7 @@ export const getProperties = async (req, res) => {
     const skip = (pageNumber - 1) * pageSize;
 
     // 🔹 Build filter
-    const filter = {};
+    const filter = { owner: req.user._id };
 
     // 🔹 Flexible search (title, description, location, etc.)
     if (title && title.trim() !== "") {
@@ -387,14 +387,14 @@ export const deleteProperty = async (req, res) => {
     const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
     });
-         if (agencySettings?.notifications?.propertyUpdates)
-    await Notification.create({
-      userId: req.user._id,
-      agencyId: property.agencyId,
-      message: `Property "${property.title}" was deleted.`,
-      type: "property_deleted",
-      link: `/agent/properties/view/${property._id}`,
-    });
+    if (agencySettings?.notifications?.propertyUpdates)
+      await Notification.create({
+        userId: req.user._id,
+        agencyId: property.agencyId,
+        message: `Property "${property.title}" was deleted.`,
+        type: "property_deleted",
+        link: `/agent/properties/view/${property._id}`,
+      });
 
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({

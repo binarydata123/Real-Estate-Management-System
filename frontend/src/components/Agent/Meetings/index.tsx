@@ -45,6 +45,7 @@ export const Meetings: React.FC = () => {
         append ? [...prev, ...res.data.data] : res.data.data
       );
       setTotalPages(Math.ceil(res.data.total / 10));
+      setCurrentPage(page);
     } catch (error) {
       showErrorToast("Failed to fetch meetings:", error);
     } finally {
