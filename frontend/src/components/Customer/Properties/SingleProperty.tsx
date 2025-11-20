@@ -58,7 +58,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   };
   return (
     <div className="max-w-6xl mx-auto ">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
         {/* Back Button */}
         <button
           onClick={() => router.back()}
@@ -68,7 +68,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
           <span>Back to Properties</span>
         </button>
       </div>
-      <div className="p-6 bg-white shadow-lg rounded-xl">
+      <div className="md:p-6 p-3 bg-white shadow-lg rounded-xl">
         {/* Main Image */}
 
         <div className="mb-4 relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px]">

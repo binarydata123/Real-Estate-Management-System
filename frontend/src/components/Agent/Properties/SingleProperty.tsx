@@ -1,16 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { StopCircleIcon, SpeakerWaveIcon } from "@heroicons/react/24/solid";
-import axios from "axios";
 import {
   deleteProperty,
   getSinglePropertyDetail,
 } from "@/lib/Agent/PropertyAPI";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeftIcon, PencilIcon, ShareIcon, TrashIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PencilIcon,
+  PlayCircleIcon,
+  ShareIcon,
+  TrashIcon,
+  MapPinIcon,
+  HomeIcon,
+  BathIcon,
+  BedIcon,
+  SquareIcon,
+  CalendarIcon,
+  UserIcon,
+  PhoneIcon,
+} from "lucide-react";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { useToast } from "@/context/ToastContext";
@@ -26,194 +40,48 @@ interface Images {
 interface SinglePropertyProps {
   propertyId: string;
 }
+
 const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
-  // const [selectedImage, setSelectedImage] = useState<Images>(
-  //   propertyData.images[0]
-  // );
   const router = useRouter();
-  const [selectedImage, setSelectedImage] = useState<PropertyImage | null>(
-    null
-  );
+  const [selectedImage, setSelectedImage] = useState<Images | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
-
-  // --- AI Voice Assistant State & Logic ---
-  const [isListening, setIsListening] = useState(false);
-  const [assistantStatus, setAssistantStatus] = useState("idle"); // idle, listening, thinking, speaking
-  //const [isSummaryPaused, setIsSummaryPaused] = useState(false);
-  const [error, setError] = useState("");
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const recognitionRef = useRef<any>(null);
   const [propertyData, setPropertyData] = useState<Property | null>(null);
+  const [imageLoading, setImageLoading] = useState(true);
+  const { showToast } = useToast();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
-  // --- Voice Loading Effect ---
   useEffect(() => {
-    const loadVoices = () => {
-      // const availableVoices = window.speechSynthesis.getVoices();
-      // if (availableVoices.length > 0) {
-      // }
-    };
     getProperty();
-
-    // The voices are loaded asynchronously.
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices(); // Also call it directly in case they are already loaded.
-
-    // Initialize AudioContext on user interaction (best practice)
-    const initAudioContext = () => {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext ||
-          (window as any).webkitAudioContext)();
-      }
-      document.removeEventListener("click", initAudioContext);
-    };
-    document.addEventListener("click", initAudioContext);
-
-    return () => {
-      window.speechSynthesis.onvoiceschanged = null;
-      document.removeEventListener("click", initAudioContext);
-    };
-  }, []);
+  }, [propertyId]);
 
   const getProperty = async () => {
     if (propertyId) {
-      const id = Array.isArray(propertyId) ? propertyId[0] : propertyId;
-      const response = await getSinglePropertyDetail(id);
-      const data = response.data;
-      setPropertyData(data);
-      const primaryImg =
-        data.images.find((img: Images) => img.isPrimary) ||
-        data.images[0] ||
-        null;
-      setSelectedImage(primaryImg);
-    } else {
-      setPropertyData(null);
-      setSelectedImage(null);
+      try {
+        const id = Array.isArray(propertyId) ? propertyId[0] : propertyId;
+        const response = await getSinglePropertyDetail(id);
+        const data = response.data;
+        setPropertyData(data);
+        const primaryImg =
+          data.images.find((img: Images) => img.isPrimary) ||
+          data.images[0] ||
+          null;
+        setSelectedImage(primaryImg);
+      } catch (error) {
+        showErrorToast("Failed to load property details", error);
+      }
     }
   };
-
-  const formatIndianPrice = (price: number): string => {
-    if (price >= 10000000) {
-      return `${(price / 10000000).toFixed(2)} crore`;
-    } else if (price >= 100000) {
-      return `${(price / 100000).toFixed(2)} lakh`;
-    }
-    return price.toLocaleString("en-IN");
-  };
-
-  const speak = async (text: string, onEndCallback?: () => void) => {
-    if (!audioContextRef.current) {
-      setError(
-        "Audio context not ready. Please click anywhere on the page first."
-      );
-      return;
-    }
-    setAssistantStatus("speaking");
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/assistant/speak`,
-        { text },
-        { responseType: "arraybuffer" }
-      );
-      const audioBuffer = await audioContextRef.current.decodeAudioData(
-        response.data
-      );
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioContextRef.current.destination);
-      source.onended = onEndCallback || (() => setAssistantStatus("idle"));
-      source.start(0);
-      audioSourceRef.current = source;
-    } catch (err) {
-      showErrorToast("Error fetching or playing speech:", err);
-      setError("Sorry, I couldn't generate the audio for that.");
-      setAssistantStatus("idle");
-    }
-  };
-
-  // --- Generate full property text ---
-  const generateFullPropertyText = useCallback((property: Property): string => {
-    let text = `Here are the full details of the property: ${
-      property.title
-    }, a ${property.category} located in ${property.location}.
-    Price: ₹${formatIndianPrice(property.price ?? 0)}, Status: ${
-      property.status
-    }.
-    Description: ${property.description}.
-    Built-up Area: ${property.built_up_area} ${
-      property.unit_area_type
-    }, Carpet Area: ${property.carpet_area} ${property.unit_area_type}.`;
-
-    if (property.plot_front_area)
-      text += ` Plot Front: ${property.plot_front_area} ${property.plot_dimension_unit}.`;
-    if (property.plot_depth_area)
-      text += ` Plot Depth: ${property.plot_depth_area} ${property.plot_dimension_unit}.`;
-    if (property.is_corner_plot) text += ` Corner Plot: Yes.`;
-
-    text += ` Bedrooms: ${property.bedrooms}, Bathrooms: ${property.bathrooms}, Balconies: ${property.balconies}, Floor Number: ${property.floor_number}, Total Floors: ${property.total_floors}.`;
-    text += ` Facing: ${
-      property.facing
-    }, Overlooking: ${property?.overlooking?.join(", ")}.`;
-    text += ` Property Age: ${property.property_age}, Transaction Type: ${
-      property.transaction_type
-    }, Gated Community: ${property.gated_community ? "Yes" : "No"}.`;
-    text += ` Furnishing: ${property.furnishing}, Flooring Type: ${
-      property?.flooring_type ?? "N/A"
-    }.`;
-    text += ` Amenities: ${property?.amenities?.join(
-      ", "
-    )}, Features: ${property?.features?.join(
-      ", "
-    )}, Water Source: ${property?.water_source?.join(", ")}, Power Backup: ${
-      property.power_backup
-    }, RERA Status: ${property?.rera_status}.`;
-    text += ` Owner Name: ${property.owner_name}, Contact: ${property.owner_contact}.`;
-
-    return text;
-  }, []);
-
-  // --- Handle Speak Full Property ---
-  const handleSpeakFullProperty = useCallback(() => {
-    if (!audioContextRef.current) {
-      setError(
-        "Audio context not ready. Please click anywhere on the page first."
-      );
-      return;
-    }
-    if (assistantStatus === "speaking") {
-      stopAll();
-      return;
-    }
-    if (propertyData) {
-      const fullText = generateFullPropertyText(propertyData);
-      speak(fullText, () => setAssistantStatus("idle"));
-    }
-  }, [assistantStatus, generateFullPropertyText, propertyData]);
-
-  const stopAll = () => {
-    if (audioSourceRef.current) {
-      audioSourceRef.current.stop();
-    }
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
-    setIsListening(false);
-    //setIsSummaryPaused(false);
-    setAssistantStatus("idle");
-  };
-
-  useEffect(() => {
-    // Cleanup function to stop speech and recognition when the component unmounts
-    return () => stopAll(); // Cleanup on unmount
-  }, []);
 
   const getImageUrl = (url: string) => {
     if (url.startsWith("http")) return url;
     return `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${url}`;
   };
-  const property = propertyData;
-  const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-  const { showToast } = useToast();
+
+  const isVideo = (url: string) => {
+    const videoExtensions = [".mp4", ".webm", ".ogg"];
+    return videoExtensions.some((ext) => url.toLowerCase().endsWith(ext));
+  };
+
   const handleDelete = async (id: string) => {
     try {
       const response = await deleteProperty(id);
@@ -225,21 +93,76 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
       showErrorToast("Failed to delete property:", err);
     }
   };
+
+  const InfoCard = ({
+    title,
+    children,
+    className = "",
+  }: {
+    title: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <div
+      className={`bg-gray-50 rounded-2xl p-4 border border-gray-100 ${className}`}
+    >
+      <h3 className="font-semibold text-gray-800 mb-3 text-lg">{title}</h3>
+      {children}
+    </div>
+  );
+
+  const DetailItem = ({
+    icon: Icon,
+    label,
+    value,
+  }: {
+    icon: any;
+    label: string;
+    value: any;
+  }) => (
+    <div className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0">
+      <div className="bg-blue-50 p-2 rounded-lg">
+        <Icon className="h-4 w-4 text-blue-600" />
+      </div>
+      <div className="flex-1">
+        <p className="text-sm text-gray-600">{label}</p>
+        <p className="font-medium text-gray-900">{value || "N/A"}</p>
+      </div>
+    </div>
+  );
+
+  if (!propertyData) {
+    return (
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-96 bg-gray-200 rounded-lg mb-4"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-6xl mx-auto ">
-      {showShareModal && property && (
+    <div className="max-w-6xl mx-auto pb-6">
+      {/* Share Modal */}
+      {showShareModal && propertyData && (
         <SharePropertyModal
-          property={property}
-          onClose={() => {
-            setShowShareModal(false);
-          }}
+          property={propertyData}
+          onClose={() => setShowShareModal(false)}
         />
       )}
+
+      {/* Confirm Dialog */}
       <ConfirmDialog
         open={showConfirmDialog}
         onCancel={() => setShowConfirmDialog(false)}
         onConfirm={() => {
-          if (property && property._id) handleDelete(property._id);
+          if (propertyData && propertyData._id) handleDelete(propertyData._id);
           setShowConfirmDialog(false);
         }}
         heading="Are you sure?"
@@ -248,270 +171,450 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"
       />
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all duration-200"
-        >
-          <ArrowLeftIcon className="h-5 w-5" />
-          <span>Back to Properties</span>
-        </button>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Share */}
+      {/* Header with Back and Actions */}
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 mb-4">
+        <div className="flex items-center justify-between">
           <button
-            onClick={() => {
-              setShowShareModal(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 font-medium rounded-xl hover:bg-blue-100 hover:scale-105 transition-all shadow-sm"
+            onClick={() => router.back()}
+            className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-xl transition-all duration-200"
           >
-            <ShareIcon className="h-5 w-5" />
-            <span className="inline">Share</span>
+            <ArrowLeftIcon className="h-5 w-5 text-gray-700" />
+            <span className="font-medium text-gray-700">Back</span>
           </button>
 
-          {/* Edit */}
-          <Link href={`/agent/edit-property/${propertyId}`}>
-            <button className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 font-medium rounded-xl hover:bg-green-100 hover:scale-105 transition-all shadow-sm">
-              <PencilIcon className="h-5 w-5" />
-              <span className="inline">Edit Property</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-all"
+            >
+              <ShareIcon className="h-5 w-5" />
             </button>
-          </Link>
-
-          {/* Delete */}
-          <button
-            onClick={() => {
-              setShowConfirmDialog(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 font-medium rounded-xl hover:bg-red-100 hover:scale-105 transition-all shadow-sm"
-          >
-            <TrashIcon className="h-5 w-5" />
-            <span className="inline">Delete</span>
-          </button>
+            <Link href={`/agent/edit-property/${propertyId}`}>
+              <button className="p-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-all">
+                <PencilIcon className="h-5 w-5" />
+              </button>
+            </Link>
+            <button
+              onClick={() => setShowConfirmDialog(true)}
+              className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
-      <div className="p-6 bg-white shadow-lg rounded-xl">
-        {/* Main Image */}
 
-        <div className="mb-4 relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px]">
-          {selectedImage?.url ? (
-            <Image
-              src={getImageUrl(selectedImage.url)}
-              alt={selectedImage.alt || propertyData?.title || "Property Image"}
-              fill
-              className="rounded-lg border-4 border-blue-500 object-cover"
-              priority={true}
-            />
-          ) : (
-            <Image
-              src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
-              alt="Default Property Image"
-              fill
-              className="rounded-lg border-4 border-blue-500 object-cover"
-              priority={true}
-            />
-          )}
-
-          {/* Prev Button */}
-          <button
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded"
-            onClick={() => {
-              if (!propertyData?.images?.length || !selectedImage) return;
-              const idx = propertyData.images.findIndex(
-                (img) => img._id === selectedImage._id
-              );
-              const prevIdx =
-                (idx - 1 + propertyData.images.length) %
-                propertyData.images.length;
-              setSelectedImage(propertyData.images[prevIdx]);
-            }}
-          >
-            ❮
-          </button>
-
-          {/* Next Button */}
-          <button
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded"
-            onClick={() => {
-              if (!propertyData?.images?.length || !selectedImage) return;
-              const idx = propertyData.images.findIndex(
-                (img) => img._id === selectedImage._id
-              );
-              const nextIdx = (idx + 1) % propertyData.images.length;
-              setSelectedImage(propertyData.images[nextIdx]);
-            }}
-          >
-            ❯
-          </button>
-        </div>
-
-        {/* Basic Info */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2 text-gray-800">
-            {propertyData?.title}
-          </h1>
-
-          {/* AI Assistant Section */}
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleSpeakFullProperty}
-                  className="flex items-center justify-center w-12 h-12 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
-                  title="Read Full Property Details"
-                >
-                  <SpeakerWaveIcon className="h-6 w-6" />
-                </button>
+      <div className="px-4 space-y-6">
+        {/* Image Gallery */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="relative aspect-[4/3] bg-gray-100">
+            {imageLoading && !isVideo(selectedImage?.url || "") && (
+              <div className="absolute inset-0 z-10 flex animate-pulse items-center justify-center bg-gray-200">
+                <HomeIcon className="h-16 w-16 text-gray-400" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-700">AI Assistant</p>
-                <div className="text-sm text-gray-500">
-                  {assistantStatus === "listening" && (
-                    <p>Listening for your question...</p>
-                  )}
-                  {assistantStatus === "thinking" && <p>Thinking...</p>}
-                  {assistantStatus === "speaking" && <p>Speaking...</p>}
-                  {assistantStatus === "idle" && (
-                    <p>
-                      Click the mic to ask a question or speaker to hear full
-                      property details.
-                    </p>
-                  )}
-                </div>
+            )}
+
+            {selectedImage?.url ? (
+              isVideo(selectedImage.url) ? (
+                <video
+                  src={getImageUrl(selectedImage.url)}
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Image
+                  src={getImageUrl(selectedImage.url)}
+                  alt={
+                    selectedImage.alt || propertyData?.title || "Property Image"
+                  }
+                  fill
+                  className={`object-cover transition-opacity duration-300 ${
+                    imageLoading ? "opacity-0" : "opacity-100"
+                  }`}
+                  priority
+                  onLoad={() => setImageLoading(false)}
+                />
+              )
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                <HomeIcon className="h-16 w-16 text-gray-400" />
               </div>
-              {(assistantStatus === "speaking" ||
-                assistantStatus === "thinking" ||
-                isListening) && (
+            )}
+
+            {/* Navigation Arrows */}
+            {propertyData.images.length > 1 && (
+              <>
                 <button
-                  onClick={stopAll}
-                  className="text-gray-500 hover:text-red-600"
-                  title="Stop"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 text-gray-800 p-2 rounded-full shadow-lg hover:bg-white transition-all active:scale-95"
+                  onClick={() => {
+                    setImageLoading(true);
+                    const idx = propertyData.images.findIndex(
+                      (img) => img._id === selectedImage?._id
+                    );
+                    const prevIdx =
+                      (idx - 1 + propertyData.images.length) %
+                      propertyData.images.length;
+                    setSelectedImage(propertyData.images[prevIdx]);
+                  }}
                 >
-                  <StopCircleIcon className="h-8 w-8" />
+                  <ChevronLeftIcon className="h-5 w-5" />
                 </button>
-              )}
+                <button
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 text-gray-800 p-2 rounded-full shadow-lg hover:bg-white transition-all active:scale-95"
+                  onClick={() => {
+                    setImageLoading(true);
+                    const idx = propertyData.images.findIndex(
+                      (img) => img._id === selectedImage?._id
+                    );
+                    const nextIdx = (idx + 1) % propertyData.images.length;
+                    setSelectedImage(propertyData.images[nextIdx]);
+                  }}
+                >
+                  <ChevronRightIcon className="h-5 w-5" />
+                </button>
+              </>
+            )}
+
+            {/* Image Counter */}
+            {propertyData.images.length > 1 && (
+              <div className="absolute top-3 right-3 bg-black/70 text-white px-2 py-1 rounded-full text-sm">
+                {propertyData.images.findIndex(
+                  (img) => img._id === selectedImage?._id
+                ) + 1}{" "}
+                / {propertyData.images.length}
+              </div>
+            )}
+          </div>
+
+          {/* Thumbnails */}
+          {propertyData.images.length > 1 && (
+            <div className="p-3 bg-gray-50 border-t border-gray-100">
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {propertyData.images.map((image, index) => (
+                  <button
+                    key={image._id || index}
+                    onClick={() => {
+                      setImageLoading(true);
+                      setSelectedImage(image);
+                    }}
+                    className={`flex-shrink-0 relative rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                      selectedImage?._id === image._id
+                        ? "border-blue-500 ring-2 ring-blue-300"
+                        : "border-gray-200 hover:border-gray-400"
+                    }`}
+                  >
+                    <div className="relative h-14 w-16">
+                      {isVideo(image.url) ? (
+                        <div className="w-full h-full bg-black flex items-center justify-center">
+                          <PlayCircleIcon className="h-5 w-5 text-white" />
+                        </div>
+                      ) : (
+                        <Image
+                          src={getImageUrl(image.url)}
+                          alt={image.alt || `Thumbnail ${index + 1}`}
+                          width={64}
+                          height={56}
+                          className="object-cover h-full w-full"
+                        />
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
-            {error && <p className="mt-3 text-red-600 text-sm">{error}</p>}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-600">
-            <p>
-              Type:{" "}
-              <span className="font-semibold text-gray-800">
-                {propertyData?.type}
-              </span>
-            </p>
-            <p>
-              Category:{" "}
-              <span className="font-semibold text-gray-800">
-                {propertyData?.category}
-              </span>
-            </p>
-            <p>
-              Location:{" "}
-              <span className="font-semibold text-gray-800">
-                {propertyData?.location}
-              </span>
-            </p>
-            <p>
-              Price:{" "}
-              <span className="font-semibold text-gray-800">
-                ₹{propertyData?.price}
-              </span>
-            </p>
-            <p>
-              Status:{" "}
-              <span className="font-semibold text-gray-800">
-                {propertyData?.status}
-              </span>
-            </p>
-          </div>
-          <p className="text-gray-700 mt-4">{propertyData?.description}</p>
+          )}
         </div>
 
-        {/* Area & Configuration */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-800">
-            Area & Configuration
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700">
-            <p>
-              Built-up Area: {propertyData?.built_up_area}{" "}
-              {propertyData?.unit_area_type}
-            </p>
-            <p>
-              Carpet Area: {propertyData?.carpet_area}{" "}
-              {propertyData?.unit_area_type}
-            </p>
-            {propertyData?.plot_front_area && (
-              <p>
-                Plot Front: {propertyData.plot_front_area}{" "}
-                {propertyData.plot_dimension_unit}
-              </p>
-            )}
-            {propertyData?.plot_depth_area && (
-              <p>
-                Plot Depth: {propertyData.plot_depth_area}{" "}
-                {propertyData.plot_dimension_unit}
-              </p>
-            )}
-            {propertyData?.is_corner_plot && (
-              <p>Corner Plot: {propertyData?.is_corner_plot}</p>
-            )}
-            <p>Bedrooms: {propertyData?.bedrooms}</p>
-            <p>Bathrooms: {propertyData?.bathrooms}</p>
-            <p>Balconies: {propertyData?.balconies}</p>
-            <p>Floor Number: {propertyData?.floor_number}</p>
-            <p>Total Floors: {propertyData?.total_floors}</p>
+        {/* Basic Info Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div className="mb-4">
+            <div className="flex items-start justify-between mb-3">
+              <h1 className="text-2xl font-bold text-gray-900 pr-2">
+                {propertyData.title}
+              </h1>
+              <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap">
+                {propertyData.status}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 text-gray-600 mb-4">
+              <MapPinIcon className="h-4 w-4" />
+              <span className="text-sm">{propertyData.location}</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                ₹{propertyData.price?.toLocaleString()}
+              </div>
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <span className="bg-white px-2 py-1 rounded-lg border border-gray-200">
+                  {propertyData.type}
+                </span>
+                <span className="bg-white px-2 py-1 rounded-lg border border-gray-200">
+                  {propertyData.category}
+                </span>
+              </div>
+            </div>
           </div>
+
+          {/* Key Features Grid */}
+          <div className="grid grid-cols-4 gap-3 py-4 border-y border-gray-100">
+            <div className="text-center">
+              <div className="bg-blue-50 p-2 rounded-xl inline-block mb-1">
+                <BedIcon className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="text-sm font-semibold text-gray-900">
+                {propertyData.bedrooms}
+              </div>
+              <div className="text-xs text-gray-500">Beds</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-50 p-2 rounded-xl inline-block mb-1">
+                <BathIcon className="h-5 w-5 text-green-600" />
+              </div>
+              <div className="text-sm font-semibold text-gray-900">
+                {propertyData.bathrooms}
+              </div>
+              <div className="text-xs text-gray-500">Baths</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-purple-50 p-2 rounded-xl inline-block mb-1">
+                <SquareIcon className="h-5 w-5 text-purple-600" />
+              </div>
+              <div className="text-sm font-semibold text-gray-900">
+                {propertyData.built_up_area}
+              </div>
+              <div className="text-xs text-gray-500">Area</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-orange-50 p-2 rounded-xl inline-block mb-1">
+                <HomeIcon className="h-5 w-5 text-orange-600" />
+              </div>
+              <div className="text-sm font-semibold text-gray-900">
+                {propertyData.balconies}
+              </div>
+              <div className="text-xs text-gray-500">Balcony</div>
+            </div>
+          </div>
+
+          {/* Description */}
+          {propertyData.description && (
+            <div className="mt-4">
+              <p className="text-gray-700 leading-relaxed">
+                {propertyData.description}
+              </p>
+            </div>
+          )}
         </div>
+
+        {/* Property Details */}
+        <InfoCard title="Property Details">
+          <div className="space-y-1">
+            <DetailItem
+              icon={HomeIcon}
+              label="Property Type"
+              value={propertyData.type}
+            />
+            <DetailItem
+              icon={CalendarIcon}
+              label="Property Age"
+              value={propertyData.property_age}
+            />
+            <DetailItem
+              icon={SquareIcon}
+              label="Built-up Area"
+              value={`${propertyData.built_up_area} ${propertyData.unit_area_type}`}
+            />
+            <DetailItem
+              icon={SquareIcon}
+              label="Carpet Area"
+              value={`${propertyData.carpet_area} ${propertyData.unit_area_type}`}
+            />
+            <DetailItem
+              icon={HomeIcon}
+              label="Furnishing"
+              value={propertyData.furnishing}
+            />
+            <DetailItem
+              icon={HomeIcon}
+              label="Transaction Type"
+              value={propertyData.transaction_type}
+            />
+          </div>
+        </InfoCard>
+
+        {/* Floor & Configuration */}
+        <InfoCard title="Floor & Configuration">
+          <div className="space-y-1">
+            <DetailItem
+              icon={HomeIcon}
+              label="Floor Number"
+              value={propertyData.floor_number}
+            />
+            <DetailItem
+              icon={HomeIcon}
+              label="Total Floors"
+              value={propertyData.total_floors}
+            />
+            <DetailItem
+              icon={BedIcon}
+              label="Bedrooms"
+              value={propertyData.bedrooms}
+            />
+            <DetailItem
+              icon={BathIcon}
+              label="Bathrooms"
+              value={propertyData.bathrooms}
+            />
+            <DetailItem
+              icon={HomeIcon}
+              label="Balconies"
+              value={propertyData.balconies}
+            />
+          </div>
+        </InfoCard>
 
         {/* Facing & Overlooking */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-800">
-            Facing & Overlooking
-          </h2>
-          <p className="text-gray-700">Facing: {propertyData?.facing}</p>
-          <p className="text-gray-700">
-            Overlooking: {propertyData?.overlooking?.join(", ")}
-          </p>
-        </div>
+        {(propertyData.facing || propertyData.overlooking?.length) && (
+          <InfoCard title="Facing & Overlooking">
+            <div className="space-y-1">
+              {propertyData.facing && (
+                <DetailItem
+                  icon={HomeIcon}
+                  label="Facing"
+                  value={propertyData.facing}
+                />
+              )}
+              {propertyData.overlooking?.length &&
+                propertyData.overlooking?.length > 0 && (
+                  <div className="flex items-center gap-3 py-2">
+                    <div className="bg-blue-50 p-2 rounded-lg">
+                      <HomeIcon className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-600">Overlooking</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {propertyData.overlooking.map((item, index) => (
+                          <span
+                            key={index}
+                            className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+            </div>
+          </InfoCard>
+        )}
 
-        {/* Additional Info */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-800">
-            Additional Info
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700">
-            <p>Property Age: {propertyData?.property_age}</p>
-            <p>Transaction Type: {propertyData?.transaction_type}</p>
-            <p>
-              Gated Community:{" "}
-              {propertyData?.gated_community
-                ? propertyData?.gated_community
-                : "No"}
-            </p>
-            <p>Furnishing: {propertyData?.furnishing}</p>
-            <p>Flooring Type: {propertyData?.flooring_type}</p>
-            <p>Amenities: {propertyData?.amenities?.join(", ")}</p>
-            <p>Features: {propertyData?.features?.join(", ")}</p>
-            <p>Water Source: {propertyData?.water_source?.join(", ")}</p>
-            <p>Power Backup: {propertyData?.power_backup}</p>
-            <p>RERA Status: {propertyData?.rera_status}</p>
-          </div>
-        </div>
+        {/* Amenities & Features */}
+        {(propertyData.amenities?.length || propertyData.features?.length) && (
+          <InfoCard title="Amenities & Features">
+            <div className="space-y-3">
+              {propertyData.amenities?.length &&
+                propertyData.amenities?.length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-gray-700 mb-2">
+                      Amenities
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {propertyData.amenities.map((amenity, index) => (
+                        <span
+                          key={index}
+                          className="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-sm border border-green-100"
+                        >
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              {propertyData.features?.length &&
+                propertyData.features?.length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-gray-700 mb-2">Features</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {propertyData.features.map((feature, index) => (
+                        <span
+                          key={index}
+                          className="bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-sm border border-purple-100"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+            </div>
+          </InfoCard>
+        )}
 
         {/* Owner Details */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-800">
-            Owner Details
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700">
-            <p>Name: {propertyData?.owner_name}</p>
-            <p>Contact: {propertyData?.owner_contact}</p>
+        {(propertyData.owner_name || propertyData.owner_contact) && (
+          <InfoCard title="Owner Details">
+            <div className="space-y-1">
+              <DetailItem
+                icon={UserIcon}
+                label="Name"
+                value={propertyData.owner_name}
+              />
+              <DetailItem
+                icon={PhoneIcon}
+                label="Contact"
+                value={propertyData.owner_contact}
+              />
+            </div>
+          </InfoCard>
+        )}
+
+        {/* Additional Info */}
+        <InfoCard title="Additional Information">
+          <div className="space-y-1">
+            {propertyData.water_source?.length &&
+              propertyData.water_source?.length > 0 && (
+                <div className="flex items-center gap-3 py-2">
+                  <div className="bg-blue-50 p-2 rounded-lg">
+                    <HomeIcon className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600">Water Source</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {propertyData.water_source.map((source, index) => (
+                        <span
+                          key={index}
+                          className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-xs"
+                        >
+                          {source}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            <DetailItem
+              icon={HomeIcon}
+              label="Power Backup"
+              value={propertyData.power_backup}
+            />
+            <DetailItem
+              icon={HomeIcon}
+              label="RERA Status"
+              value={propertyData.rera_status}
+            />
+            <DetailItem
+              icon={HomeIcon}
+              label="Gated Community"
+              value={propertyData.gated_community ? "Yes" : "No"}
+            />
           </div>
-        </div>
+        </InfoCard>
       </div>
     </div>
   );
