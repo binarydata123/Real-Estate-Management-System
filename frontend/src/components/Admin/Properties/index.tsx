@@ -9,7 +9,7 @@ import {
   Key,
 } from "lucide-react";
 import { getProperty, deletePropertyById } from "@/lib/Admin/PropertyAPI";
-import { Pagination } from "@/components/Common/Pagination";
+import ScrollPagination from "@/components/Common/ScrollPagination";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
@@ -34,7 +34,7 @@ export default function Properties() {
   //const [isAddAgencyModalOpen, setAddAgencyModalOpen] = useState(false);
   const { user } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   //const [editingAgency, setEditingAgency] = useState<AgencyFormData | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
@@ -123,9 +123,15 @@ export default function Properties() {
   };
 
   const getAllProperty = useCallback(
-    async (page = 1, search = "", status = "", agencyIdParam = "") => {
+    async (
+      page = 1,
+      search = "",
+      status = "",
+      agencyIdParam = "",
+      append = false
+    ) => {
       try {
-        setLoading(true);
+        setIsFetching(true);
         const res = await getProperty(
           page,
           limit,
@@ -134,7 +140,7 @@ export default function Properties() {
           agencyIdParam
         );
         if (res.success) {
-          setProperties(res.data);
+          setProperties((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
           //setTotalRecords(res.pagination?.total ?? 0);
@@ -142,7 +148,7 @@ export default function Properties() {
       } catch (error) {
         showErrorToast("Error:", error);
       } finally {
-        setLoading(false);
+        setIsFetching(false);
       }
     },
     [user?._id]
@@ -153,24 +159,25 @@ export default function Properties() {
     if (agencyId) {
       finalAgencyId = agencyId;
     }
+    setProperties([]); // Clear properties when filters change
     getAllProperty(
-      currentPage,
+      1,
       debouncedSearchTerm,
       debouncedSearchStatus,
       finalAgencyId || ""
     );
-  }, [
-    getAllProperty,
-    currentPage,
-    debouncedSearchTerm,
-    debouncedSearchStatus,
-    agencyId,
-  ]);
+  }, [getAllProperty, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
 
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
+    if (page < 1 || page > totalPages || isFetching) return;
+    const finalAgencyId = agencyId || "";
+    getAllProperty(
+      page,
+      debouncedSearchTerm,
+      debouncedSearchStatus,
+      finalAgencyId,
+      true
+    );
   };
 
   return (
@@ -275,7 +282,7 @@ export default function Properties() {
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden shadow-sm  md:rounded-lg">
-              {loading ? (
+              {isFetching && properties.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
                   <p className="text-gray-600">Loading Property...</p>
@@ -440,13 +447,22 @@ export default function Properties() {
                   </table>
                 </>
               )}
-              <Pagination
+              <ScrollPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
-                siblingCount={1}
-                showFirstLast={true}
-                showPrevNext={true}
+                isLoading={isFetching}
+                hasMore={currentPage < totalPages}
+                loader={
+                  <div className="text-center py-4">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                }
+                endMessage={
+                  <div className="text-center py-8 text-green-600 font-medium">
+                    🎉 All caught up!
+                  </div>
+                }
               />
             </div>
           </div>

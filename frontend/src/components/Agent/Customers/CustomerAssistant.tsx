@@ -4,12 +4,18 @@ import { useState, useCallback, useEffect } from "react";
 import Vapi from "@vapi-ai/web";
 import { startCustomerSession } from "@/lib/AI";
 import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { showErrorToast } from "@/utils/toastHandler";
 const AssistantId = process.env.NEXT_PUBLIC_VAPI_CUSTOMER_ASSISTANT_ID;
-export default function CustomerAssistant() {
+
+interface CustomerAssistantProps {
+  onClose: () => void;
+}
+
+export default function CustomerAssistant({ onClose }: CustomerAssistantProps) {
   const [loading, setLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [assistantStatus, setAssistantStatus] = useState("idle");
   const [vapi, setVapi] = useState<Vapi | null>(null);
 
   // ✅ Initialize Vapi once
@@ -26,10 +32,12 @@ export default function CustomerAssistant() {
     instance.on("error", (err: any) => showErrorToast("⚠️ Vapi error:", err));
     instance.on("call-start", () => {
       setIsSpeaking(true);
+      setAssistantStatus("speaking");
       setLoading(false);
     });
 
     instance.on("call-end", () => {
+      setAssistantStatus("idle");
       setIsSpeaking(false);
     });
 
@@ -41,6 +49,7 @@ export default function CustomerAssistant() {
   const handleStart = useCallback(async () => {
     if (!vapi) return;
     setLoading(true);
+    setAssistantStatus("connecting");
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
       const sessionRes = await startCustomerSession({
@@ -54,6 +63,7 @@ export default function CustomerAssistant() {
       showErrorToast("❌ Failed to start assistant:", e);
       setLoading(false);
       setIsSpeaking(false);
+      setAssistantStatus("idle");
     }
   }, [vapi]);
 
@@ -65,38 +75,66 @@ export default function CustomerAssistant() {
       showErrorToast("Error stopping assistant:", err);
     }
     setIsSpeaking(false);
+    setAssistantStatus("idle");
   }, [vapi]);
 
   return (
-    <div className="p-6 space-y-4">
-      <h2 className="text-xl font-bold text-gray-900">
-        🧾 Talk to Customer Assistant
-      </h2>
-      <p className="text-gray-600">
-        Speak with the AI to collect lead information. After the session, review
-        and save it.
-      </p>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">
+            Add Customer with AI
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <X className="h-5 w-5 text-gray-500" />
+          </button>
+        </div>
 
-      <div className="flex items-center space-x-4">
-        <button
-          onClick={isSpeaking ? handleStop : handleStart}
-          disabled={loading}
-          className={`w-12 h-12 flex items-center justify-center rounded-full text-white transition-all ${
-            loading
-              ? "bg-gray-400"
-              : isSpeaking
-              ? "bg-red-600 hover:bg-red-700"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {loading ? (
-            <Loader2 className="h-6 w-6 animate-spin" />
-          ) : isSpeaking ? (
-            <StopCircleIcon className="h-7 w-7" />
-          ) : (
-            <MicrophoneIcon className="h-7 w-7" />
-          )}
-        </button>
+        {/* Body */}
+        <div className="p-6 text-center">
+          <p className="text-gray-600 mb-8">
+            Simply talk to our AI assistant. It will ask for the customer&apos;s
+            details and handle the data entry for you.
+          </p>
+
+          <div className="flex flex-col items-center justify-center space-y-4 min-h-[150px]">
+            <div className="relative">
+              <button
+                onClick={isSpeaking ? handleStop : handleStart}
+                disabled={loading}
+                className={`relative w-20 h-20 flex items-center justify-center rounded-full text-white transition-all duration-300 z-10 shadow-lg ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : isSpeaking
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
+                aria-label={isSpeaking ? "Stop assistant" : "Start assistant"}
+              >
+                {loading ? (
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                ) : isSpeaking ? (
+                  <StopCircleIcon className="h-10 w-10" />
+                ) : (
+                  <MicrophoneIcon className="h-10 w-10" />
+                )}
+              </button>
+              {isSpeaking && (
+                <div className="absolute inset-0 rounded-full bg-blue-500/50 animate-pulse z-0"></div>
+              )}
+            </div>
+            <p className="text-gray-600 text-sm h-10">
+              {assistantStatus === "connecting" && "Connecting..."}
+              {assistantStatus === "speaking" &&
+                "Listening... Feel free to speak."}
+              {assistantStatus === "idle" && "Click the microphone to start."}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
