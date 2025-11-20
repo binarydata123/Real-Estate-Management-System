@@ -3,69 +3,91 @@ import { Notification } from "../../models/Common/NotificationModel.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
 
+// Utility: Convert invalid numbers to null
+const cleanNumber = (value) => {
+  if (value === "" || value === null || value === undefined) return null;
+  if (value === "NaN") return null;
+  if (typeof value === "number" && Number.isNaN(value)) return null;
+  if (typeof value === "string" && isNaN(Number(value))) return null;
+  return Number(value);
+};
+
+// Clean payload numbers dynamically
+const cleanPayloadNumbers = (payload) => {
+  const numberFields = [
+    "price",
+    "built_up_area",
+    "carpet_area",
+    "plot_front_area",
+    "plot_depth_area",
+    "washrooms",
+    "cabins",
+    "conference_rooms",
+    "floor_number",
+    "total_floors",
+    "bedrooms",
+    "bathrooms",
+    "balconies",
+  ];
+
+  numberFields.forEach((field) => {
+    if (payload[field] !== undefined) {
+      payload[field] = cleanNumber(payload[field]);
+    }
+  });
+
+  return payload;
+};
+
+// Convert form-data arrays
+const ensureArray = (value) => {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+};
+
 export const createProperty = async (req, res) => {
   try {
-    const { body } = req;
+    const payload = cleanPayloadNumbers({ ...req.body });
+
     const files = req.files || [];
-    let imageEntries;
-    if (files) {
-      imageEntries = files.map((file, index) => ({
-        url: file.filename,
-        alt: file.originalname,
-        isPrimary: index === 0, // Set the first image as primary by default
-      }));
+
+    const imageEntries = files.map((file, index) => ({
+      url: file.filename,
+      alt: file.originalname,
+      isPrimary: index === 0,
+    }));
+
+    // Clean arrays
+    payload.water_source = ensureArray(payload.water_source);
+    payload.amenities = ensureArray(payload.amenities);
+    payload.features = ensureArray(payload.features);
+
+    // Use agencyId from authenticated user if not supplied
+    if (Array.isArray(payload.agencyId)) {
+      payload.agencyId = payload.agencyId[0];
     }
 
-    // Prepare property data, converting types where necessary from multipart/form-data
+    if (!payload.agencyId && req.user?.agencyId?._id) {
+      payload.agencyId = req.user.agencyId._id;
+    }
+
+    if (!payload.agencyId) {
+      return res.status(400).json({
+        success: false,
+        message: "Agency information is missing.",
+      });
+    }
+
     const propertyData = {
-      ...body,
-      price: Number(body.price),
-      built_up_area: body.built_up_area
-        ? Number(body.built_up_area)
-        : undefined,
-      carpet_area: body.carpet_area ? Number(body.carpet_area) : undefined,
-      bedrooms: body.bedrooms ? Number(body.bedrooms) : undefined,
-      bathrooms: body.bathrooms ? Number(body.bathrooms) : undefined,
-      washrooms: body.washrooms ? Number(body.washrooms) : undefined,
-      balconies: body.balconies ? Number(body.balconies) : undefined,
-      cabins: body.cabins ? Number(body.cabins) : undefined,
-      conference_rooms: body.conference_rooms
-        ? Number(body.conference_rooms)
-        : undefined,
-      floor_number: body.floor_number ? Number(body.floor_number) : undefined,
-      total_floors: body.total_floors ? Number(body.total_floors) : undefined,
-
-      // Convert string boolean to actual boolean
-      //gated_community: body.gated_community === "true",
-      gated_community: body.gated_community,
-
-      // Add processed image info
+      ...payload,
       images: imageEntries,
       property_code:
-        body.property_code ||
+        payload.property_code ||
         `PROP-${Date.now()}-${Math.random()
           .toString(36)
           .substring(2, 7)
           .toUpperCase()}`,
     };
-
-    // Handle case where multipart/form-data sends a field as an array.
-    // This can happen if the client-side form accidentally appends the same field multiple times.
-    if (Array.isArray(propertyData.agencyId)) {
-      propertyData.agencyId = propertyData.agencyId[0];
-    }
-
-    // Get agencyId from the authenticated user if not provided in the request
-    if (!propertyData.agencyId && req.user && req.user.agencyId._id) {
-      propertyData.agencyId = req.user.agencyId._id;
-    }
-
-    // The 'agency' field is expected to be in the body from the frontend or from authenticated user
-    if (!propertyData.agencyId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Agency information is missing." });
-    }
 
     const property = new Property(propertyData);
     const savedProperty = await property.save();
@@ -73,23 +95,23 @@ export const createProperty = async (req, res) => {
     const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
     });
-    // Create a notification for the agency
-     if (agencySettings?.notifications?.propertyUpdates ) {
-    await Notification.create({
-      userId: req.user._id,
-      agencyId: savedProperty.agencyId,
-      message: `New property "${savedProperty.title}" was added.`,
-      type: "property_added",
-      link: `/agent/properties/view/${savedProperty._id}`, // A potential link to view the property
-    });
-}
+
+    if (agencySettings?.notifications?.propertyUpdates) {
+      await Notification.create({
+        userId: req.user._id,
+        agencyId: savedProperty.agencyId,
+        message: `New property "${savedProperty.title}" was added.`,
+        type: "property_added",
+        link: `/agent/properties/view/${savedProperty._id}`,
+      });
+    }
+
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
         userId: req.user._id,
         title: "New Property Added",
         message: `A new property "${savedProperty.title}" has been successfully added.`,
         urlPath: `/agent/properties/view/${savedProperty._id}`,
-        // No actions needed for this informational notification
       });
 
     return res.status(201).json({
@@ -115,11 +137,11 @@ export const createProperty = async (req, res) => {
 
 export const updateProperty = async (req, res) => {
   try {
-    const { body } = req;
+    const payload = cleanPayloadNumbers({ ...req.body });
+
     const files = req.files || [];
     const { id: propertyId } = req.params;
 
-    // 1. Find the existing property
     const property = await Property.findById(propertyId);
     if (!property) {
       return res
@@ -127,116 +149,76 @@ export const updateProperty = async (req, res) => {
         .json({ success: false, message: "Property not found." });
     }
 
-    const updateData = { ...body };
+    // Convert repeating fields
+    payload.water_source = ensureArray(payload.water_source);
+    payload.amenities = ensureArray(payload.amenities);
+    payload.features = ensureArray(payload.features);
 
-    if (Array.isArray(updateData.agencyId)) {
-      updateData.agencyId = updateData.agencyId[0];
+    if (Array.isArray(payload.agencyId)) {
+      payload.agencyId = payload.agencyId[0];
     }
 
-    // Convert string values from multipart/form-data to their correct types
-    const numericFields = [
-      "price",
-      "built_up_area",
-      "carpet_area",
-      "bedrooms",
-      "bathrooms",
-      "washrooms",
-      "balconies",
-      "cabins",
-      "conference_rooms",
-      "floor_number",
-      "total_floors",
-    ];
-    numericFields.forEach((field) => {
-      if (body[field] !== null && body[field] !== "") {
-        updateData[field] = Number(body[field]);
-      } else if (body[field] === "") {
-        // Allow unsetting numeric fields by sending an empty string
-        updateData[field] = undefined;
-      }
-    });
-
-    // const booleanFields = ["gated_community"]; // Add other boolean fields if any
-    // booleanFields.forEach((field) => {
-    //   if (body[field] != null) {
-    //     updateData[field] = body[field] === "true";
-    //   }
-    // });
-
-    // New images from the upload
+    // Handle new images
     const newImageEntries = files.map((file) => ({
       url: file.filename,
       alt: file.originalname,
       isPrimary: false,
     }));
 
-    // Filenames of existing images to keep, sent from the frontend
-    let existingImageFilenames = [];
-    if (body.existingImages) {
-      // Ensure it's an array, as single values might not be sent as an array
-      existingImageFilenames = Array.isArray(body.existingImages)
-        ? body.existingImages
-        : [body.existingImages];
-    }
+    // Existing images to keep
+    const existingImageFilenames = ensureArray(payload.existingImages);
 
-    // Filter the old images array to keep only the ones sent from the client
     const keptImages = property.images.filter((img) =>
       existingImageFilenames.includes(img.url)
     );
 
     const allImages = [...keptImages, ...newImageEntries];
 
-    const primaryImageIdentifier = body.primaryImageIdentifier;
+    // Primary image logic
     let primarySet = false;
-    if (allImages.length > 0) {
-      if (primaryImageIdentifier) {
-        allImages.forEach((img) => {
-          if (
-            !primarySet &&
-            (img.url === primaryImageIdentifier ||
-              img.alt === primaryImageIdentifier)
-          ) {
-            img.isPrimary = true;
-            primarySet = true;
-          } else {
-            img.isPrimary = false;
-          }
-        });
-      }
 
-      if (!primarySet) {
-        allImages[0].isPrimary = true;
-      }
+    if (allImages.length > 0) {
+      const primaryId = payload.primaryImageIdentifier;
+
+      allImages.forEach((img) => {
+        if (
+          !primarySet &&
+          primaryId &&
+          (img.url === primaryId || img.alt === primaryId)
+        ) {
+          img.isPrimary = true;
+          primarySet = true;
+        } else {
+          img.isPrimary = false;
+        }
+      });
+
+      if (!primarySet) allImages[0].isPrimary = true;
     }
 
-    updateData.images = allImages;
+    payload.images = allImages;
 
-    // Clean up body fields that are not part of the schema
-    delete updateData.existingImages;
-    delete updateData.primaryImageIdentifier;
+    delete payload.existingImages;
+    delete payload.primaryImageIdentifier;
 
-    // 5. Perform the update
     const updatedProperty = await Property.findByIdAndUpdate(
       propertyId,
-      updateData,
-      {
-        new: true,
-        runValidators: true,
-      }
+      payload,
+      { new: true, runValidators: true }
     );
 
     const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
     });
-    // 6. Post-update actions (notifications)
-     if (agencySettings?.notifications?.propertyUpdates)
-    await Notification.create({
-      userId: req.user._id,
-      agencyId: updatedProperty.agencyId,
-      message: `Property "${updatedProperty.title}" was updated.`,
-      type: "property_updated",
-      link: `/agent/properties/view/${updatedProperty._id}`,
-    });
+
+    if (agencySettings?.notifications?.propertyUpdates)
+      await Notification.create({
+        userId: req.user._id,
+        agencyId: updatedProperty.agencyId,
+        message: `Property "${updatedProperty.title}" was updated.`,
+        type: "property_updated",
+        link: `/agent/properties/view/${updatedProperty._id}`,
+      });
 
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
@@ -246,7 +228,6 @@ export const updateProperty = async (req, res) => {
         urlPath: `/agent/properties/view/${updatedProperty._id}`,
       });
 
-    // 7. Send response
     return res.status(200).json({
       success: true,
       message: "Property updated successfully.",
@@ -311,7 +292,7 @@ export const getProperties = async (req, res) => {
     const skip = (pageNumber - 1) * pageSize;
 
     // 🔹 Build filter
-    const filter = {};
+    const filter = { agencyId: req.user.agencyId._id };
 
     // 🔹 Flexible search (title, description, location, etc.)
     if (title && title.trim() !== "") {
@@ -387,14 +368,14 @@ export const deleteProperty = async (req, res) => {
     const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
     });
-         if (agencySettings?.notifications?.propertyUpdates)
-    await Notification.create({
-      userId: req.user._id,
-      agencyId: property.agencyId,
-      message: `Property "${property.title}" was deleted.`,
-      type: "property_deleted",
-      link: `/agent/properties/view/${property._id}`,
-    });
+    if (agencySettings?.notifications?.propertyUpdates)
+      await Notification.create({
+        userId: req.user._id,
+        agencyId: property.agencyId,
+        message: `Property "${property.title}" was deleted.`,
+        type: "property_deleted",
+        link: `/agent/properties/view/${property._id}`,
+      });
 
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
