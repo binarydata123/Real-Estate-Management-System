@@ -115,7 +115,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         showErrorToast("Session check failed, signing out.", error);
         clearSession();
       } finally {
-        // setLoading(false);
+        setLoading(false);
       }
     };
     checkSession();
@@ -123,13 +123,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const authRoutes = ["/auth/login", "/auth/signup"];
-    setLoading(true);
     const isUserLogIn = authRoutes.some((route) => pathname.startsWith(route));
     if (!loading && user && isUserLogIn) {
       router.push(`/${user.role}/dashboard`);
-    setLoading(false);
     }
-    setLoading(false)
   }, [user, loading, router, pathname]);
 
   const roles: Record<string, string[]> = {
@@ -147,14 +144,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const isProtectedRoute = protectedRoutes.some((route) => {
       return pathname.startsWith(route);
     });
-    if (isProtectedRoute && !isAllowed) {
+    if (!loading&& user&&isProtectedRoute && !isAllowed) {
       router.push(`/${user?.role}/dashboard`);
     }
   }, [user, loading, router, pathname]);
 
   useEffect(() => {
     const protectedRoutes = ["/admin", "/agent"];
-    setLoading(true);
     const isProtectedRoute = protectedRoutes.some((route) =>
       pathname.startsWith(route)
     );
@@ -162,7 +158,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (!loading && !user && isProtectedRoute) {
       router.push("/auth/login");
     }
-    
   }, [user, loading, router, pathname]);
 
   const signIn = async (response: AxiosResponse): Promise<AuthResponse> => {
