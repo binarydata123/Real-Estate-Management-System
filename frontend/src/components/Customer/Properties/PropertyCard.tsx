@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  MapPinIcon,
-  //ShareIcon,
-  EyeIcon,
-} from "@heroicons/react/24/outline";
+import { MapPinIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import {
   Armchair,
@@ -70,33 +66,37 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
       {/* Image */}
-      <div className="relative md:aspect-[4/3] aspect-[17/9]  overflow-hidden">
-        <Image
-          width={400}
-          height={200}
-          src={primaryImage}
-          alt={property.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onError={handleImageError}
-        />
-        <div className="absolute top-3 left-3">
-          <span
-            className={`inline-flex capitalize items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-              property.status
-            )}`}
-          >
-            {property.status}
-          </span>
+      <Link href={`/customer/properties/${property._id}`}>
+        <div className="relative md:aspect-[4/3] aspect-[17/9]  overflow-hidden">
+          <Image
+            width={400}
+            height={200}
+            src={primaryImage}
+            alt={property.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={handleImageError}
+          />
+          <div className="absolute top-3 left-3">
+            <span
+              className={`inline-flex capitalize items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                property.status
+              )}`}
+            >
+              {property.status}
+            </span>
+          </div>
         </div>
-      </div>
+      </Link>
 
       {/* Content */}
       <div className="md:p-4 p-2 flex flex-col flex-grow">
         <div className="">
           <div className="flex items-start justify-between mb-1">
-            <h3 className="font-semibold text-gray-800 text-base md:text-lg leading-tight group-hover:text-blue-600 transition-colors">
-              {property.title}
-            </h3>
+            <Link href={`/customer/properties/${property._id}`}>
+              <h3 className="font-semibold text-gray-800 text-base md:text-lg leading-tight group-hover:text-blue-600 transition-colors">
+                {property.title}
+              </h3>
+            </Link>
             <p className="text-xl md:text-2xl font-bold text-blue-700">
               {formatPrice(property.price as number)}
             </p>
@@ -145,7 +145,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           )}
         </div>
 
-        <div className="mt-auto pt-3 border-t border-gray-100">
+        {/* <div className="mt-auto pt-3 border-t border-gray-100">
           <div className="flex space-x-2">
             <Link
               href={`/customer/properties/${property._id}`}
@@ -158,7 +158,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
               </button>
             </Link>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

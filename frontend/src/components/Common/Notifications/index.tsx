@@ -18,7 +18,7 @@ import {
   NotificationType,
 } from "@/lib/Common/Notifications";
 import { useAuth } from "@/context/AuthContext";
-import { Pagination } from "@/components/Common/Pagination";
+import ScrollPagination from "@/components/Common/ScrollPagination";
 import { showErrorToast } from "@/utils/toastHandler";
 
 const typeConfig: Record<
@@ -58,7 +58,8 @@ const typeConfig: Record<
 };
 
 type NotificationFilter =
-"all"  | "welcome"
+  | "all"
+  | "welcome"
   | "new_lead"
   | "task_assigned"
   | "meeting_scheduled"
@@ -70,7 +71,7 @@ type TabType = NotificationFilter | "all";
 
 const NotificationsPage: React.FC = () => {
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(true);
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,27 +87,33 @@ const NotificationsPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    fetchNotifications();
+    setNotifications([]); // Clear notifications when tab changes
+    setCurrentPage(1);
+    fetchNotifications(1);
     fetchUnreadCount();
   }, [activeTab]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (page = 1, append = false) => {
+    setIsFetching(true);
     try {
       if (!user?._id) return;
       const typeParam: NotificationFilter = activeTab;
 
       const res = await getNotifications(user?._id, {
         type: typeParam,
-        page: currentPage,
+        page: page,
         limit: 10,
       });
 
-      setNotifications(res.data.data || []);
+      setNotifications((prev) =>
+        append ? [...prev, ...(res.data.data || [])] : res.data.data || []
+      );
       setTotalPages(res.data.pagination.totalPages);
+      setCurrentPage(res.data.pagination.page);
     } catch (err) {
-    showErrorToast("Error",err);
+      showErrorToast("Error", err);
     } finally {
-      setLoading(false);
+      setIsFetching(false);
     }
   };
 
@@ -116,19 +123,19 @@ const NotificationsPage: React.FC = () => {
       const res = await getUnreadNotificationsCount();
       setUnreadCount(res.data);
     } catch (err) {
-       showErrorToast("Error",err);
+      showErrorToast("Error", err);
     }
   };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    fetchNotifications();
+    if (page > totalPages || isFetching) return;
+    fetchNotifications(page, true);
   };
 
- const handleReadNotification = async (id: string) => {
+  const handleReadNotification = async (id: string) => {
     const result = await markAsRead(id);
     if (result.data.success) {
-      fetchNotifications();
+      fetchNotifications(1); // Refetch from page 1
       fetchUnreadCount();
     }
   };
@@ -137,18 +144,10 @@ const NotificationsPage: React.FC = () => {
     if (unreadCount === 0) return;
     const result = await markAllAsRead();
     if (result.data.success) {
-      fetchNotifications();
+      fetchNotifications(1); // Refetch from page 1
       fetchUnreadCount();
     }
   };
-
-  if (loading) {
-    return (
-      <div className="max-w-3xl mx-auto p-6 text-center text-gray-500">
-        Loading notifications...
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-2 w-full md:w-3/5 mx-auto">
@@ -191,9 +190,18 @@ const NotificationsPage: React.FC = () => {
       </div>
 
       {/* Notifications */}
-      {notifications.length === 0 ? (
-        <div className="p-6 text-center text-gray-500">
-          No notifications for this tab
+      {isFetching && notifications.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+          <p className="text-gray-600">Loading notifications...</p>
+        </div>
+      ) : notifications.length === 0 ? (
+        <div className="text-center py-12">
+          <Bell className="h-24 w-24 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No notifications yet
+          </h3>
+          <p className="text-gray-500">Important updates will appear here.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -202,11 +210,9 @@ const NotificationsPage: React.FC = () => {
             return (
               <div
                 key={notification._id}
-                onClick={() => {
-                  if (!notification.read) {
-                    handleReadNotification(notification._id);
-                  }
-                }}
+                onClick={() =>
+                  !notification.read && handleReadNotification(notification._id)
+                }
                 className={`flex items-start p-4 border rounded-xl shadow-sm ${config?.color}`}
               >
                 <div className="flex-shrink-0 mr-3">{config?.icon}</div>
@@ -217,7 +223,7 @@ const NotificationsPage: React.FC = () => {
                   <p className="text-xs text-gray-500 mt-1">
                     {format(
                       new Date(notification.createdAt),
-                      "MMM dd, yyyy hh:mm a",
+                      "MMM dd, yyyy hh:mm a"
                     )}
                   </p>
                 </div>
@@ -229,13 +235,23 @@ const NotificationsPage: React.FC = () => {
           })}
         </div>
       )}
-      <Pagination
+
+      <ScrollPagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
-        siblingCount={1}
-        showFirstLast={true}
-        showPrevNext={true}
+        isLoading={isFetching}
+        hasMore={currentPage < totalPages}
+        loader={
+          <div className="text-center py-4">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        }
+        endMessage={
+          <div className="text-center py-8 text-green-600 font-medium">
+            🎉 All caught up!
+          </div>
+        }
       />
     </div>
   );

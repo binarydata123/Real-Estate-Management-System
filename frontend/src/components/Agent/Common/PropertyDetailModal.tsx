@@ -77,9 +77,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
               </div>
             </div>
             <div className="flex items-center space-x-1 md:space-x-3">
-              <PropertyVoiceAgent
-                propertyId={property._id as string}
-              />
+              <PropertyVoiceAgent propertyId={property._id as string} />
               <span
                 onClick={onClose}
                 className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors"

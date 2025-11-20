@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useForm ,SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SparklesIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
-import { MapPin, Mic, MicOff } from "lucide-react";
+import { MapPin } from "lucide-react";
 import BackButton from "@/components/Common/BackButton";
 import Image from "next/image";
 import {
@@ -40,7 +40,6 @@ import IconCheckbox from "./IconCheckbox";
 import IconRadio from "./IconRadio";
 import IconBooleanRadio from "./IconBooleanRadio";
 import StepIndicator from "./StepIndicator";
-import { useVoiceForm } from "@/hooks/useVoiceForm";
 import { showErrorToast } from "@/utils/toastHandler";
 
 const Field: React.FC<{
@@ -134,8 +133,6 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
   const [images, setImages] = useState<string[]>([]);
   const { showToast, showPromiseToast } = useToast();
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  //const [voiceReady, setVoiceReady] = useState(false);
-  const [micOn, setMicOn] = useState(false);
 
   const {
     register,
@@ -193,11 +190,6 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           if (res.success) {
             const propertyData = res.data;
 
-            // The backend sends images as an array of objects, but the Zod schema
-            // expects an array of strings. The actual image data (new files and
-            // existing URLs) is managed by component state (`imageFiles` and `images`),
-            // not react-hook-form's state. We reset the form's `images` field to an
-            // empty array to prevent validation errors.
             const dataForReset = { ...propertyData, images: [] };
             reset(dataForReset);
 
@@ -317,7 +309,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
           showErrorToast("Error", err);
           // Fallback for non-registered fields (like custom IconRadio)
           const element = document.querySelector<HTMLElement>(
-            `[name="${firstErrorField}"]`,
+            `[name="${firstErrorField}"]`
           );
           if (element) {
             // Find the parent Field component to scroll to
@@ -407,16 +399,9 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
 
     setValue(
       "description",
-      desc.trim().replace(/\s\s+/g, " ").replace(/\.\./g, "."),
+      desc.trim().replace(/\s\s+/g, " ").replace(/\.\./g, ".")
     );
-  }, [
-    watch,
-    isBuiltStructure,
-    isResidentialBuilt,
-    isCommercialBuilt,
-    isPlotOrLand,
-    setValue,
-  ]);
+  }, [watch, isBuiltStructure, isResidentialBuilt, setValue]);
 
   const [
     power_backup,
@@ -554,21 +539,21 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       return featuresOptions.filter((opt) => opt.value === "vaastu compliant");
     }
     return featuresOptions.filter(
-      (opt) => !opt.categories || opt.categories.includes(watchedCategory),
+      (opt) => !opt.categories || opt.categories.includes(watchedCategory)
     );
   }, [watchedCategory, isPlotOrLand]);
 
   const filteredAmenities = useMemo(() => {
     if (!watchedCategory) return [];
     return amenitiesOptions.filter(
-      (opt) => !opt.categories || opt.categories.includes(watchedCategory),
+      (opt) => !opt.categories || opt.categories.includes(watchedCategory)
     );
   }, [watchedCategory]);
 
   const filteredOverlookingOptions = useMemo(() => {
     if (!watchedCategory) return [];
     return overlookingOptions.filter(
-      (opt) => !opt.categories || opt.categories.includes(watchedCategory),
+      (opt) => !opt.categories || opt.categories.includes(watchedCategory)
     );
   }, [watchedCategory]);
 
@@ -577,41 +562,12 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     if (!isEditMode && watchedType && watchedCategory) {
       const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
       const generatedTitle = `${capitalize(watchedType)} ${capitalize(
-        watchedCategory,
+        watchedCategory
       )}`;
       setValue("title", generatedTitle, { shouldValidate: true });
       generateDescription();
     }
   }, [watchedType, watchedCategory, isEditMode, setValue, generateDescription]);
-
-  // When property category changes, check if the current area unit is still valid
-  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     if (e.target.files) {
-  //         const files = Array.from(e.target.files);
-  //         setImageFiles(prev => [...prev, ...files]);
-
-  //         const newImagePreviews = files.map(file => URL.createObjectURL(file));
-  //         setImages(prev => [...prev, ...newImagePreviews]);
-  //     }
-  // };
-
-  const speakWithOpenAI = async (text: string) => {
-    const response = await fetch("https://api.openai.com/v1/audio/speech", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini-tts",
-        voice: "alloy",
-        input: text,
-      }),
-    });
-
-    const audio = new Audio(URL.createObjectURL(await response.blob()));
-    await audio.play();
-  };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -630,11 +586,6 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     // setValue("images", [...(getValues("images") || []), ...newImagePreviews] as string[]); // if using string URLs
 
     await trigger("images");
-
-    // ✅ AI Voice confirmation
-    await speakWithOpenAI(
-      `Image uploaded successfully. All Step ${step} fields are completed. You can continue to the next step.`,
-    );
   };
 
   const removeImage = (index: number) => {
@@ -645,7 +596,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       const blobIndex = blobImages.indexOf(imageUrl);
       if (blobIndex > -1) {
         setImageFiles((prevFiles) =>
-          prevFiles.filter((_, i) => i !== blobIndex),
+          prevFiles.filter((_, i) => i !== blobIndex)
         );
       }
       URL.revokeObjectURL(imageUrl);
@@ -713,7 +664,6 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
   const onValidationError = () => {
     const errorFields = Object.keys(errors) as (keyof PropertyFormData)[];
 
-
     if (errorFields.length > 0) {
       const firstErrorField = errorFields[0];
       const stepWithError = fieldStepMapping[firstErrorField];
@@ -721,7 +671,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
         setStep(stepWithError);
         showToast(
           `Please fix the errors on Step ${stepWithError} before submitting.`,
-          "error",
+          "error"
         );
         setTimeout(() => {
           setFocus(firstErrorField, { shouldSelect: true });
@@ -729,14 +679,14 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       } else {
         showToast(
           "An unknown validation error occurred. Please check all fields.",
-          "error",
+          "error"
         );
       }
     }
   };
 
   const onSubmit: SubmitHandler<PropertyFormData> = async (
-    data: PropertyFormData,
+    data: PropertyFormData
   ) => {
     if (!user) {
       showToast("You must be logged in to add a property.", "error");
@@ -745,7 +695,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     if (!isEditMode || !propertyId) {
       showToast(
         "Cannot update property without an ID. Please start over.",
-        "error",
+        "error"
       );
       router.push("/agent/add-property");
       return;
@@ -1172,23 +1122,6 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
       : []),
   ];
 
-  const { toggleVoiceListening } = useVoiceForm(
-    [...StepOneFields, ...StepTwoFields, ...StepThreeFields],
-    setValue,
-    trigger,
-    getValues,
-    step,
-    filteredOverlookingOptions,
-    filteredFeatures,
-    filteredAmenities,
-  );
-  //useVoiceForm(StepOneFields, setValue, trigger, getValues, () => handleSubmit(onSubmit)());
-
-  const handleMicClick = () => {
-    const newMicState = !micOn;
-    setMicOn(newMicState);
-    toggleVoiceListening(newMicState); // Start or stop listening based on mic state
-  };
   return (
     <div className="max-w-7xl mx-auto">
       <div className="flex justify-between items-center md:mb-2">
@@ -1207,119 +1140,107 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
         onSubmit={handleSubmit(onSubmit, onValidationError)}
         className="md:p-6 pt-0 md:space-y-6 space-y-2"
       >
-        <div className="voice-btn-section" style={{ textAlign: "right" }}>
-          <button
-            type="button"
-            className="text-blue-600"
-            id="voice-btn"
-            onClick={handleMicClick}
-          >
-            {micOn ? <Mic /> : <MicOff />}
-          </button>
-        </div>
         {step === 1 && (
           <div className="space-y-3 md:space-y-6">
             <FormSection title="Basic Information">
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                {StepOneFields.map((f) => (
-                  <div key={f.name}>
-                    {isEditMode && f.name === "title" && (
-                      <div className="col-span-2">
-                        <Field label={f.label} required error={errors.title}>
-                          <input
-                            {...register(f.name)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="e.g., Beautiful 3BHK Apartment"
-                          />
-                        </Field>
-                      </div>
-                    )}
-                    {f.name === "type" && (
-                      <div className="col-span-2">
-                        <Field label={f.label} required error={errors.type}>
-                          <IconRadio
-                            name="type"
-                            options={propertyTypeOptions}
-                            watch={watch}
-                            setValue={setValue}
-                          />
-                        </Field>
-                      </div>
-                    )}
-                    {f.name === "category" && (
-                      <div className="col-span-2 lg:col-span-3">
-                        <Field label={f.label} required error={errors.category}>
-                          <IconRadio
-                            name="category"
-                            options={
-                              watchedType === "commercial"
-                                ? commercialCategoryOptions
-                                : residentialCategoryOptions
-                            }
-                            watch={watch}
-                            setValue={setValue}
-                          />
-                        </Field>
-                      </div>
-                    )}
-                    {f.name === "location" && (
-                      <div className="">
-                        <Field label={f.label} error={errors.location}>
-                          <div className="relative">
-                            <input
-                              {...register(f.name)}
-                              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="e.g., Bandra West, Mumbai"
-                            />
-                            <button
-                              type="button"
-                              onClick={handleGetCurrentLocation}
-                              disabled={isFetchingLocation}
-                              className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
-                              aria-label="Get current location"
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+                {StepOneFields.filter(
+                  (f) => f.name === "title" && isEditMode
+                ).map((f) => (
+                  <div key={f.name} className="col-span-2">
+                    <Field label={f.label} required error={errors.title}>
+                      <input
+                        {...register(f.name)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., Beautiful 3BHK Apartment"
+                      />
+                    </Field>
+                  </div>
+                ))}
+                {StepOneFields.filter((f) => f.name === "type").map((f) => (
+                  <div key={f.name} className="col-span-2">
+                    <Field label={f.label} required error={errors.type}>
+                      <IconRadio
+                        name="type"
+                        options={propertyTypeOptions}
+                        watch={watch}
+                        setValue={setValue}
+                      />
+                    </Field>
+                  </div>
+                ))}
+                {StepOneFields.filter((f) => f.name === "category").map((f) => (
+                  <div key={f.name} className="col-span-2 lg:col-span-3">
+                    <Field label={f.label} required error={errors.category}>
+                      <IconRadio
+                        name="category"
+                        options={
+                          watchedType === "commercial"
+                            ? commercialCategoryOptions
+                            : residentialCategoryOptions
+                        }
+                        watch={watch}
+                        setValue={setValue}
+                      />
+                    </Field>
+                  </div>
+                ))}
+                {StepOneFields.filter((f) => f.name === "location").map((f) => (
+                  <div key={f.name} className="col-span-2">
+                    <Field label={f.label} error={errors.location}>
+                      <div className="relative">
+                        <input
+                          {...register(f.name)}
+                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="e.g., Bandra West, Mumbai"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleGetCurrentLocation}
+                          disabled={isFetchingLocation}
+                          className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+                          aria-label="Get current location"
+                        >
+                          {isFetchingLocation ? (
+                            <svg
+                              className="animate-spin h-5 w-5 text-blue-600"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
                             >
-                              {isFetchingLocation ? (
-                                <svg
-                                  className="animate-spin h-5 w-5 text-blue-600"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                  ></circle>
-                                  <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                  ></path>
-                                </svg>
-                              ) : (
-                                <MapPin className="h-5 w-5" />
-                              )}
-                            </button>
-                          </div>
-                        </Field>
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                          ) : (
+                            <MapPin className="h-5 w-5" />
+                          )}
+                        </button>
                       </div>
-                    )}
-                    {f.name === "price" && (
-                      <div className="md:col-span-2">
-                        <Field label={`${f.label} (₹)`} error={errors.price}>
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="e.g., 5000000"
-                            maxLength={15}
-                          />
-                        </Field>
-                      </div>
-                    )}
+                    </Field>
+                  </div>
+                ))}
+                {StepOneFields.filter((f) => f.name === "price").map((f) => (
+                  <div key={f.name} className="col-span-2">
+                    <Field label={`${f.label} (₹)`} error={errors.price}>
+                      <input
+                        type="number"
+                        {...register(f.name, { valueAsNumber: true })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., 5000000"
+                        maxLength={15}
+                      />
+                    </Field>
                   </div>
                 ))}
               </div>
@@ -1329,114 +1250,107 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
               <div className="md:space-y-6 space-y-3">
                 <FormSection title="Area & Configuration">
                   <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    {StepOneFields.map((f) => (
-                      <div key={f.name}>
-                        {f.name === "built_up_area" && (
-                          <div className="md:col-span-2">
-                            <Field label={f.label} error={errors.built_up_area}>
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="e.g., 1500"
-                              />
-                            </Field>
-                          </div>
-                        )}
-                        {isBuiltStructure && f.name === "carpet_area" && (
-                          <div className="md:col-span-2">
-                            <Field label={f.label} error={errors.carpet_area}>
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="e.g., 1200"
-                              />
-                            </Field>
-                          </div>
-                        )}
+                    {StepOneConditionFields.filter(
+                      (f) => f.name === "built_up_area"
+                    ).map((f) => (
+                      <div key={f.name} className="md:col-span-2">
+                        <Field label={f.label} error={errors.built_up_area}>
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="e.g., 1500"
+                          />
+                        </Field>
+                      </div>
+                    ))}
+                    {StepOneConditionFields.filter(
+                      (f) => isBuiltStructure && f.name === "carpet_area"
+                    ).map((f) => (
+                      <div key={f.name} className="md:col-span-2">
+                        <Field label={f.label} error={errors.carpet_area}>
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="e.g., 1200"
+                          />
+                        </Field>
                       </div>
                     ))}
                   </div>
-                  {StepOneFields.map((f) => (
-                    <div key={f.name}>
-                      {f.name === "unit_area_type" && (
-                        <div className="pt-4">
-                          <Field label={f.label} error={errors.unit_area_type}>
+                  {StepOneConditionFields.filter(
+                    (f) => f.name === "unit_area_type"
+                  ).map((f) => (
+                    <div key={f.name} className="pt-4">
+                      <Field label={f.label} error={errors.unit_area_type}>
+                        <IconRadio
+                          name={f.name}
+                          options={unitAreaTypeOptions}
+                          watch={watch}
+                          setValue={setValue}
+                        />
+                      </Field>
+                    </div>
+                  ))}
+                  <div className="border-t border-gray-200 pt-4 mt-4">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "plot_front_area"
+                      ).map((f) => (
+                        <div key={f.name} className="md:col-span-1">
+                          <Field label={f.label} error={errors.plot_front_area}>
+                            <input
+                              type="number"
+                              {...register(f.name, { valueAsNumber: true })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              placeholder="e.g., 40"
+                            />
+                          </Field>
+                        </div>
+                      ))}
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "plot_depth_area"
+                      ).map((f) => (
+                        <div key={f.name} className="md:col-span-1">
+                          <Field label={f.label} error={errors.plot_depth_area}>
+                            <input
+                              type="number"
+                              {...register(f.name, { valueAsNumber: true })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              placeholder="e.g., 60"
+                            />
+                          </Field>
+                        </div>
+                      ))}
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "plot_dimension_unit"
+                      ).map((f) => (
+                        <div key={f.name} className="md:col-span-2">
+                          <Field
+                            label={f.label}
+                            error={errors.plot_dimension_unit}
+                          >
                             <IconRadio
                               name={f.name}
-                              options={unitAreaTypeOptions}
+                              options={plotDimensionUnitOptions}
                               watch={watch}
                               setValue={setValue}
                             />
                           </Field>
                         </div>
-                      )}
-                    </div>
-                  ))}
-                  <div className="border-t border-gray-200 pt-4 mt-4">
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                      {StepOneFields.map((f) => (
-                        <div key={f.name}>
-                          {f.name === "plot_front_area" && (
-                            <div className="md:col-span-1">
-                              <Field
-                                label={f.label}
-                                error={errors.plot_front_area}
-                              >
-                                <input
-                                  type="number"
-                                  {...register(f.name, { valueAsNumber: true })}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                  placeholder="e.g., 40"
-                                />
-                              </Field>
-                            </div>
-                          )}
-                          {f.name === "plot_depth_area" && (
-                            <div className="md:col-span-1">
-                              <Field
-                                label={f.label}
-                                error={errors.plot_depth_area}
-                              >
-                                <input
-                                  type="number"
-                                  {...register(f.name, { valueAsNumber: true })}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                  placeholder="e.g., 60"
-                                />
-                              </Field>
-                            </div>
-                          )}
-                          {f.name === "plot_dimension_unit" && (
-                            <div className="md:col-span-2">
-                              <Field
-                                label={f.label}
-                                error={errors.plot_dimension_unit}
-                              >
-                                <IconRadio
-                                  name={f.name}
-                                  options={plotDimensionUnitOptions}
-                                  watch={watch}
-                                  setValue={setValue}
-                                />
-                              </Field>
-                            </div>
-                          )}
-                          {f.name === "is_corner_plot" && (
-                            <div className="md:col-span-2">
-                              <Field
-                                label={f.label}
-                                error={errors.is_corner_plot}
-                              >
-                                <IconBooleanRadio
-                                  name={f.name}
-                                  watch={watch}
-                                  setValue={setValue}
-                                />
-                              </Field>
-                            </div>
-                          )}
+                      ))}
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "is_corner_plot"
+                      ).map((f) => (
+                        <div key={f.name} className="md:col-span-2">
+                          <Field label={f.label} error={errors.is_corner_plot}>
+                            <IconBooleanRadio
+                              name={f.name}
+                              watch={watch}
+                              setValue={setValue}
+                            />
+                          </Field>
                         </div>
                       ))}
                     </div>
@@ -1447,39 +1361,53 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                 {watchedType === "residential" && !isPlotOrLand && (
                   <FormSection title="Residential Details">
                     <div className="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-6">
-                      {StepOneFields.map((f) => (
-                        <div key={f.name}>
-                          {f.name === "bedrooms" && (
-                            <Field label={f.label} error={errors.bedrooms}>
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="3"
-                              />
-                            </Field>
-                          )}
-                          {f.name === "bathrooms" && (
-                            <Field label={f.label} error={errors.bathrooms}>
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="2"
-                              />
-                            </Field>
-                          )}
-                          {f.name === "balconies" && (
-                            <Field label={f.label} error={errors.balconies}>
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="1"
-                              />
-                            </Field>
-                          )}
-                        </div>
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "bedrooms"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label={f.label}
+                          error={errors.bedrooms}
+                        >
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="3"
+                          />
+                        </Field>
+                      ))}
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "bathrooms"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label={f.label}
+                          error={errors.bathrooms}
+                        >
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="2"
+                          />
+                        </Field>
+                      ))}
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "balconies"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label={f.label}
+                          error={errors.balconies}
+                        >
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="1"
+                          />
+                        </Field>
                       ))}
                     </div>
                   </FormSection>
@@ -1489,39 +1417,50 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                 {watchedType === "commercial" && !isPlotOrLand && (
                   <FormSection title="Commercial Details">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-                      {StepOneFields.map((f) => (
-                        <div key={f.name}>
-                          {f.name === "washrooms" && (
-                            <Field label={f.label} error={errors.washrooms}>
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </Field>
-                          )}
-                          {f.name === "cabins" && (
-                            <Field label={f.label} error={errors.cabins}>
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </Field>
-                          )}
-                          {f.name === "conference_rooms" && (
-                            <Field
-                              label={f.label}
-                              error={errors.conference_rooms}
-                            >
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </Field>
-                          )}
-                        </div>
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "washrooms"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label={f.label}
+                          error={errors.washrooms}
+                        >
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </Field>
+                      ))}
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "cabins"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label={f.label}
+                          error={errors.cabins}
+                        >
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </Field>
+                      ))}
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "conference_rooms"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label={f.label}
+                          error={errors.conference_rooms}
+                        >
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </Field>
                       ))}
                     </div>
                   </FormSection>
@@ -1531,165 +1470,192 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                 {isBuiltStructure && (
                   <FormSection title="Floor Information">
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                      {StepOneFields.map((f) => (
-                        <div key={f.name}>
-                          {f.name === "floor_number" && (
-                            <Field label={f.label} error={errors.floor_number}>
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="e.g., 5"
-                              />
-                            </Field>
-                          )}
-                          {f.name === "total_floors" && (
-                            <Field label={f.label} error={errors.total_floors}>
-                              <input
-                                type="number"
-                                {...register(f.name, { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="e.g., 12"
-                              />
-                            </Field>
-                          )}
-                        </div>
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "floor_number"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label={f.label}
+                          error={errors.floor_number}
+                        >
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="e.g., 5"
+                          />
+                        </Field>
+                      ))}
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "total_floors"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label={f.label}
+                          error={errors.total_floors}
+                        >
+                          <input
+                            type="number"
+                            {...register(f.name, { valueAsNumber: true })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="e.g., 12"
+                          />
+                        </Field>
                       ))}
                     </div>
                   </FormSection>
                 )}
 
                 <FormSection title="Property Details">
-                  <div className="md:space-y-6 space-y-3">
-                    {StepOneFields.map((f) => (
+                  <div className="space-y-3 md:space-y-6">
+                    {StepOneConditionFields.filter(
+                      (f) => f.name === "facing"
+                    ).map((f) => (
                       <div key={f.name}>
-                        {f.name === "facing" && (
-                          <Field label={f.label} error={errors.facing}>
-                            <IconRadio
-                              name="facing"
-                              options={facingOptions}
-                              watch={watch}
-                              setValue={setValue}
-                            />
-                          </Field>
-                        )}
+                        <Field label={f.label} error={errors.facing}>
+                          <IconRadio
+                            name="facing"
+                            options={facingOptions}
+                            watch={watch}
+                            setValue={setValue}
+                          />
+                        </Field>
                       </div>
                     ))}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                      {StepOneFields.map((f) => (
-                        <div key={f.name}>
-                          {isBuiltStructure && f.name === "property_age" && (
-                            <Field label={f.label} error={errors.property_age}>
-                              <IconRadio
-                                name={f.name}
-                                options={propertyAgeOptions}
-                                watch={watch}
-                                setValue={setValue}
-                              />
-                            </Field>
-                          )}
-                          {f.name === "transaction_type" && (
-                            <Field
-                              label="Transaction Type"
-                              error={errors.transaction_type}
-                            >
-                              <IconRadio
-                                name="transaction_type"
-                                options={transactionTypeOptions}
-                                watch={watch}
-                                setValue={setValue}
-                              />
-                            </Field>
-                          )}
-                          {isBuiltStructure && (
-                            <div>
-                              {f.name === "furnishing" && (
-                                <Field
-                                  label="Furnishing"
-                                  error={errors.furnishing}
-                                >
-                                  <IconRadio
-                                    name="furnishing"
-                                    options={furnishingOptions}
-                                    watch={watch}
-                                    setValue={setValue}
-                                  />
-                                </Field>
-                              )}
-                              {f.name === "power_backup" && (
-                                <Field
-                                  label="Power Backup"
-                                  error={errors.power_backup}
-                                >
-                                  <IconRadio
-                                    name="power_backup"
-                                    options={powerBackupOptions}
-                                    watch={watch}
-                                    setValue={setValue}
-                                  />
-                                </Field>
-                              )}
-                              {f.name === "gated_community" && (
-                                <Field
-                                  label="Gated Community"
-                                  error={errors.gated_community}
-                                >
-                                  <IconBooleanRadio
-                                    name="gated_community"
-                                    watch={watch}
-                                    setValue={setValue}
-                                  />
-                                </Field>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                      {StepOneConditionFields.filter(
+                        (f) => isBuiltStructure && f.name === "property_age"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label={f.label}
+                          error={errors.property_age}
+                        >
+                          <IconRadio
+                            name={f.name}
+                            options={propertyAgeOptions}
+                            watch={watch}
+                            setValue={setValue}
+                          />
+                        </Field>
                       ))}
+                      {StepOneConditionFields.filter(
+                        (f) => f.name === "transaction_type"
+                      ).map((f) => (
+                        <Field
+                          key={f.name}
+                          label="Transaction Type"
+                          error={errors.transaction_type}
+                        >
+                          <IconRadio
+                            name="transaction_type"
+                            options={transactionTypeOptions}
+                            watch={watch}
+                            setValue={setValue}
+                          />
+                        </Field>
+                      ))}
+                      {isBuiltStructure &&
+                        StepOneConditionFields.filter(
+                          (f) =>
+                            f.name === "furnishing" ||
+                            f.name === "power_backup" ||
+                            f.name === "gated_community"
+                        ).map((f) => (
+                          <div key={f.name}>
+                            {f.name === "furnishing" && (
+                              <Field
+                                label="Furnishing"
+                                error={errors.furnishing}
+                              >
+                                <IconRadio
+                                  name="furnishing"
+                                  options={furnishingOptions}
+                                  watch={watch}
+                                  setValue={setValue}
+                                />
+                              </Field>
+                            )}
+                            {f.name === "power_backup" && (
+                              <Field
+                                label="Power Backup"
+                                error={errors.power_backup}
+                              >
+                                <IconRadio
+                                  name="power_backup"
+                                  options={powerBackupOptions}
+                                  watch={watch}
+                                  setValue={setValue}
+                                />
+                              </Field>
+                            )}
+                            {f.name === "gated_community" && (
+                              <Field
+                                label="Gated Community"
+                                error={errors.gated_community}
+                              >
+                                <IconBooleanRadio
+                                  name="gated_community"
+                                  watch={watch}
+                                  setValue={setValue}
+                                />
+                              </Field>
+                            )}
+                          </div>
+                        ))}
                     </div>
                   </div>
                 </FormSection>
 
                 <FormSection title="RERA & Status">
-                  {StepOneFields.map((f) => (
+                  {StepOneConditionFields.filter(
+                    (f) => f.name === "rera_status"
+                  ).map((f) => (
                     <div key={f.name}>
-                      {f.name === "rera_status" && (
-                        <Field label={f.label} error={errors.rera_status}>
-                          <IconRadio
-                            name={f.name}
-                            options={reraStatusOptions}
-                            watch={watch}
-                            setValue={setValue}
-                          />
-                        </Field>
-                      )}
+                      <Field label={f.label} error={errors.rera_status}>
+                        <IconRadio
+                          name={f.name}
+                          options={reraStatusOptions}
+                          watch={watch}
+                          setValue={setValue}
+                        />
+                      </Field>
                     </div>
                   ))}
                 </FormSection>
 
                 <FormSection title="Owner Details (Private)">
-                  <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-6">
-                    {StepOneFields.map((f) => (
-                      <div key={f.name}>
-                        {f.name === "owner_name" && (
-                          <Field label={f.label} error={errors.owner_name}>
-                            <input
-                              {...register(f.name)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                              placeholder="Property owner name"
-                            />
-                          </Field>
-                        )}
-                        {f.name === "owner_contact" && (
-                          <Field label={f.label} error={errors.owner_contact}>
-                            <input
-                              {...register(f.name)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                              placeholder="Phone number"
-                              maxLength={20}
-                            />
-                          </Field>
-                        )}
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    {StepOneConditionFields.filter(
+                      (f) => f.name === "owner_name"
+                    ).map((f) => (
+                      <Field
+                        key={f.name}
+                        label={f.label}
+                        error={errors.owner_name}
+                      >
+                        <input
+                          {...register(f.name)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          placeholder="Property owner name"
+                        />
+                      </Field>
+                    ))}
+                    {StepOneConditionFields.filter(
+                      (f) => f.name === "owner_contact"
+                    ).map((f) => (
+                      <Field
+                        key={f.name}
+                        label={f.label}
+                        error={errors.owner_contact}
+                      >
+                        <input
+                          {...register(f.name)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          placeholder="Phone number"
+                          maxLength={20}
+                        />
+                      </Field>
                     ))}
                   </div>
                 </FormSection>
@@ -1705,21 +1671,19 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         Auto-Generate Description
                       </span>
                     </div>
-                    {StepOneFields.map((f) => (
-                      <div key={f.name}>
-                        {f.name === "description" && (
-                          <Field label="" error={errors.description}>
-                            <textarea
-                              {...register(f.name)}
-                              id={f.name}
-                              rows={4}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                              placeholder="A detailed description of the property..."
-                              onChange={(e) => setValue(f.name, e.target.value)}
-                            />
-                          </Field>
-                        )}
-                      </div>
+                    {StepOneConditionFields.filter(
+                      (f) => f.name === "description"
+                    ).map((f) => (
+                      <Field key={f.name} label="" error={errors.description}>
+                        <textarea
+                          {...register(f.name)}
+                          id={f.name}
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          placeholder="A detailed description of the property..."
+                          onChange={(e) => setValue(f.name, e.target.value)}
+                        />
+                      </Field>
                     ))}
                   </FormSection>
                 )}
@@ -1858,7 +1822,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     let isVideo = false;
                     if (url.startsWith("blob:")) {
                       const blobImages = images.filter((img) =>
-                        img.startsWith("blob:"),
+                        img.startsWith("blob:")
                       );
                       const blobIndex = blobImages.indexOf(url);
                       if (blobIndex > -1 && imageFiles[blobIndex]) {
@@ -1868,7 +1832,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     } else {
                       const videoExtensions = [".mp4", ".webm", ".ogg"];
                       isVideo = videoExtensions.some((ext) =>
-                        url.toLowerCase().endsWith(ext),
+                        url.toLowerCase().endsWith(ext)
                       );
                     }
 
@@ -1898,7 +1862,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         </button>
                       </div>
                     );
-                  })(),
+                  })()
                 )}
               </div>
             )}

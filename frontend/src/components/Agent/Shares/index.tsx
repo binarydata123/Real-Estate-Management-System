@@ -54,7 +54,7 @@ export const Shares: React.FC = () => {
   const filteredShares = useMemo(() => {
     if (!searchTerm) return sharedData;
     return sharedData.filter((share) => {
-      const propertyTitle = share.propertyId.title.toLowerCase();
+      const propertyTitle = share.propertyId?.title.toLowerCase();
       const sharedByName = share.sharedByUserId.name.toLowerCase();
       const sharedWithName = share.sharedWithUserId.fullName.toLowerCase();
       const term = searchTerm.toLowerCase();
@@ -96,17 +96,17 @@ export const Shares: React.FC = () => {
                       className="p-2 rounded-lg"
                       onClick={() =>
                         setPreviewImage(
-                          `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share?.propertyId?.images[0]?.url}`,
+                          `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share?.propertyId?.images[0]?.url}`
                         )
                       }
                     >
                       <Image
                         src={
                           share?.propertyId?.images?.length
-                            ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share.propertyId.images[0].url}`
+                            ? `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share.propertyId?.images[0].url}`
                             : "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
                         }
-                        alt={share.propertyId.title}
+                        alt={share.propertyId?.title || "N/A"}
                         width={60}
                         height={60}
                         className="rounded-lg object-cover"
@@ -114,7 +114,7 @@ export const Shares: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {share.propertyId.title}
+                        {share.propertyId?.title}
                       </h3>
                       <div className="flex flex-col space-y-1 text-sm text-gray-600">
                         <div className="flex items-center">
@@ -156,7 +156,7 @@ export const Shares: React.FC = () => {
                 <div className="flex md:flex-col justify-between md:justify-start items-center md:items-end space-y-2 w-full md:w-auto">
                   <span
                     className={`inline-flex items-center px-2 py-1 capitalize rounded-full text-xs font-medium ${getStatusColor(
-                      share.status,
+                      share.status
                     )}`}
                   >
                     {share.status}
@@ -230,7 +230,7 @@ export const Shares: React.FC = () => {
         <SharePropertyModal
           property={propertyToShare}
           sharedCustomers={sharedData
-            .filter((s) => s.propertyId._id === propertyToShare._id)
+            .filter((s) => s.propertyId?._id === propertyToShare?._id)
             .map((s) => s.sharedWithUserId)}
           onClose={() => {
             setShowShareModal(false);

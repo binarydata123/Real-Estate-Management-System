@@ -6,16 +6,19 @@ import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
 import { useAuth } from "@/context/AuthContext";
 import CustomerModal from "./CustomerModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
-import { Pagination } from "@/components/Common/Pagination";
+import ScrollPagination from "@/components/Common/ScrollPagination";
 import SearchInput from "@/components/Common/SearchInput";
 import Link from "next/link";
+import CustomerAssistant from "./CustomerAssistant";
+import { AddCustomerSelectionModal } from "./AddCustomerSelectionModal";
 import { showErrorToast } from "@/utils/toastHandler";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
-  const [showAddForm, setShowAddForm] = useState(false);
   const [customers, setCustomers] = useState<CustomerFormData[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [addMode, setAddMode] = useState<"manual" | "ai" | null>(null);
+  const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [editingCustomer, setEditingCustomer] =
     useState<CustomerFormData | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
@@ -35,6 +38,7 @@ export const Customers: React.FC = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
+      setCustomers([]); // Clear customers when search term changes
       setCurrentPage(1);
     }, 400);
     return () => clearTimeout(handler);
@@ -57,32 +61,35 @@ export const Customers: React.FC = () => {
   };
 
   const getAllCustomers = useCallback(
-    async (page = 1, search = "") => {
+    async (page = 1, search = "", append = false) => {
       if (!user?._id) return;
       try {
-        setLoading(true);
+        setIsFetching(true);
         const res = await getCustomers(user?._id, page, limit, search);
         if (res.success) {
-          setCustomers(res.data);
+          setCustomers((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
         }
       } catch (error) {
         showErrorToast("Failed to fetch customers:", error);
       } finally {
-        setLoading(false);
+        setIsFetching(false);
       }
     },
     [user?._id]
   );
 
   useEffect(() => {
-    getAllCustomers(currentPage, debouncedSearchTerm);
-  }, [getAllCustomers, currentPage, debouncedSearchTerm]);
+    // This useEffect is now solely for triggering the initial fetch or refetch on search/filter change
+    getAllCustomers(1, debouncedSearchTerm); // Always fetch page 1 when debouncedSearchTerm changes
+  }, [debouncedSearchTerm, getAllCustomers]); // Removed currentPage from dependencies here
 
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+    if (page >= 1 && page <= totalPages && !isFetching) {
+      // Add !loading check to prevent multiple fetches of the same page
+      setCurrentPage(page); // Update currentPage immediately
+      getAllCustomers(page, debouncedSearchTerm, true); // Fetch new data and append
     }
   };
 
@@ -114,6 +121,11 @@ export const Customers: React.FC = () => {
     return `${formatPrice(min)} - ${formatPrice(max)}`;
   };
 
+  const handleSelectMode = (mode: "manual" | "ai") => {
+    setAddMode(mode);
+    setShowSelectionModal(false);
+  };
+
   return (
     <div className="space-y-2">
       {/* Header */}
@@ -133,7 +145,7 @@ export const Customers: React.FC = () => {
             className="flex-1 sm:max-w-md "
           />
           <button
-            onClick={() => setShowAddForm(true)}
+            onClick={() => setShowSelectionModal(true)}
             className="flex items-center justify-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
@@ -143,7 +155,7 @@ export const Customers: React.FC = () => {
       </div>
 
       {/* Loading Placeholder */}
-      {loading ? (
+      {isFetching && customers.length === 0 ? (
         <div className="text-center py-12">
           <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
           <p className="text-gray-600">Loading customers...</p>
@@ -262,7 +274,9 @@ export const Customers: React.FC = () => {
                           </Link>
                         </span>
                         <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                          <Link href={`/agent/messages?customerId=${customer._id}`}>
+                          <Link
+                            href={`/agent/messages?customerId=${customer._id}`}
+                          >
                             Message
                           </Link>
                         </span>
@@ -284,7 +298,7 @@ export const Customers: React.FC = () => {
               {!debouncedSearchTerm && (
                 <div className="flex justify-center mt-4">
                   <button
-                    onClick={() => setShowAddForm(true)}
+                    onClick={() => setShowSelectionModal(true)}
                     className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <PlusIcon className="h-5 w-5 mr-2" />
@@ -296,16 +310,33 @@ export const Customers: React.FC = () => {
           )}
         </>
       )}
+      {/* Add Customer Selection Modal */}
+      <AddCustomerSelectionModal
+        isOpen={showSelectionModal}
+        onClose={() => setShowSelectionModal(false)}
+        onSelectMode={handleSelectMode}
+      />
+
+      {/* AI Assistant Modal */}
+      {addMode === "ai" && (
+        <CustomerAssistant
+          onClose={() => {
+            setAddMode(null);
+            getAllCustomers();
+          }}
+        />
+      )}
+
       {/* Add Customer & Edit Modal */}
-      {(showAddForm || editingCustomer) && (
+      {(addMode === "manual" || editingCustomer) && (
         <AddCustomerForm
           onClose={() => {
-            setShowAddForm(false);
+            setAddMode(null);
             setEditingCustomer(null);
             getAllCustomers();
           }}
           onSuccess={() => {
-            setShowAddForm(false);
+            setAddMode(null);
             setEditingCustomer(null);
             getAllCustomers();
           }}
@@ -352,13 +383,22 @@ export const Customers: React.FC = () => {
         customer={viewCustomer}
       />
 
-      <Pagination
+      <ScrollPagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
-        siblingCount={1}
-        showFirstLast={true}
-        showPrevNext={true}
+        isLoading={isFetching} // Pass the loading state to ScrollPagination
+        hasMore={currentPage < totalPages}
+        loader={
+          <div className="text-center py-4">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        }
+        endMessage={
+          <div className="text-center py-8 text-green-600 font-medium">
+            🎉 All caught up!
+          </div>
+        }
       />
     </div>
   );
