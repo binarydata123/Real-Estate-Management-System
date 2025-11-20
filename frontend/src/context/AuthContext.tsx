@@ -122,6 +122,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [clearSession]);
 
   useEffect(() => {
+    const authRoutes = ["/auth/login", "/auth/signup"];
+    const isUserLogIn = authRoutes.some((route) => pathname.startsWith(route));
+    if (!loading && user && isUserLogIn) {
+      router.push(`/${user.role}/dashboard`);
+    }
+  }, [user, loading, router, pathname]);
+
+  const roles: Record<string, string[]> = {
+    admin: ["/admin"],
+    agent: ["/agent"],
+    customer: ["/customer"],
+  };
+  useEffect(() => {
+    if (loading || !user) return;
+    const allowedRouted = roles[user.role] || [];
+    const isAllowed = allowedRouted.some((route: string) => {
+      return pathname.startsWith(route);
+    });
+    const protectedRoutes = Object.values(roles).flat();
+    const isProtectedRoute = protectedRoutes.some((route) => {
+      return pathname.startsWith(route);
+    });
+    if (!loading&& user&&isProtectedRoute && !isAllowed) {
+      router.push(`/${user?.role}/dashboard`);
+    }
+  }, [user, loading, router, pathname]);
+
+  useEffect(() => {
     const protectedRoutes = ["/admin", "/agent"];
     const isProtectedRoute = protectedRoutes.some((route) =>
       pathname.startsWith(route)
