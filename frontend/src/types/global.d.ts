@@ -458,7 +458,7 @@ interface TeamMember {
   phone?: string;
 }
 interface brandColor {
-  primaryColor:string;
+  primaryColor:string|null;
   secondaryColor:string;
 
 }

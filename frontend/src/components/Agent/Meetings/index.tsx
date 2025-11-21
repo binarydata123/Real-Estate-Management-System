@@ -112,7 +112,7 @@ export const Meetings: React.FC = () => {
         </div>
         <button
           onClick={() => setShowSelectionModal(true)}
-          className="flex items-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           Schedule Meeting

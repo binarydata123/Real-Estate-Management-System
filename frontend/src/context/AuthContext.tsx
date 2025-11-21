@@ -14,8 +14,8 @@ import Cookies from "js-cookie";
 import { checkSession as checkSessionApi } from "@/lib/Authentication/AuthenticationAPI";
 import { AxiosError, AxiosResponse } from "axios";
 import { showErrorToast } from "@/utils/toastHandler";
-import { getAgencySettings } from "@/lib/Agent/SettingsAPI";
 import { brandColor } from "@/types/global";
+import { getAgencySettings } from "@/lib/Agent/SettingsAPI";
 
 export const AUTH_SESSION_KEY = "auth-session";
 export const ROLE_FOR_MIDDELEWARE = "role-for-middleware";
@@ -74,11 +74,12 @@ export const useAuth = () => {
 interface AuthProviderProps {
   children: React.ReactNode;
 }
-
+ 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [brandColors,setBrandingColor]=useState<brandColor>()
   const router = useRouter();
 
 
@@ -168,6 +169,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     Cookies.set(ROLE_FOR_MIDDELEWARE, userData.role);
     router.push(`/${userData.role}/dashboard`);
   };
+  const getSettings=async()=>{
+    try {
+      const res =await getAgencySettings();
+      setBrandingColor(res.branding);
+    } catch (error) {
+      showErrorToast("Error",error);
+    }
+  }
+
+  useEffect(()=>{
+getSettings();
+  },[])
+    useEffect(() => {
+    document.documentElement.style.setProperty("--primary", brandColors?.primaryColor||"#1e41f1");
+     document.documentElement.style.setProperty("--secondary", brandColors?.secondaryColor||"#1e41f1");
+  }, [brandColors]);
 
   const signOut = async () => {
     clearSession();
@@ -185,7 +202,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       router,
       setBrandingColor
     }),
-    [user, session, loading, router, signIn, completeSignIn,setBrandingColor]
+    [user, session, loading, router, signIn, completeSignIn]
   );
 
   if (loading) {
