@@ -41,6 +41,7 @@ import IconRadio from "./IconRadio";
 import IconBooleanRadio from "./IconBooleanRadio";
 import StepIndicator from "./StepIndicator";
 import { showErrorToast } from "@/utils/toastHandler";
+import { FormattedNumberInput } from "./FormattedNumberInput";
 
 const Field: React.FC<{
   label: string;
@@ -149,21 +150,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     resolver: zodResolver(propertySchema) as any,
     defaultValues: {
       unit_area_type: "square feet",
-      built_up_area: 0,
-      carpet_area: 0,
-      plot_front_area: 0,
-      plot_depth_area: 0,
       plot_dimension_unit: "feet",
       is_corner_plot: "no",
-      bedrooms: 0,
-      bathrooms: 0,
-      balconies: 0,
-      washrooms: 0,
-      cabins: 0,
-      price: 0,
-      conference_rooms: 0,
-      floor_number: 0,
-      total_floors: 0,
       property_age: "new",
       transaction_type: "new",
       furnishing: "semi furnished", // Changed to auto-select Modular Kitchen
@@ -1152,7 +1140,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       <input
                         {...register(f.name)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Beautiful 3BHK Apartment"
+                        placeholder="Spacious 3BHK Flat in Koramangala"
                       />
                     </Field>
                   </div>
@@ -1192,7 +1180,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                         <input
                           {...register(f.name)}
                           className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="e.g., Bandra West, Mumbai"
+                          placeholder="Bandra West, Mumbai"
                         />
                         <button
                           type="button"
@@ -1200,6 +1188,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           disabled={isFetchingLocation}
                           className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
                           aria-label="Get current location"
+                          title="Get current location using GPS"
                         >
                           {isFetchingLocation ? (
                             <svg
@@ -1233,12 +1222,16 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                 {StepOneFields.filter((f) => f.name === "price").map((f) => (
                   <div key={f.name} className="col-span-2">
                     <Field label={`${f.label} (₹)`} error={errors.price}>
-                      <input
-                        type="number"
-                        {...register(f.name, { valueAsNumber: true })}
+                      <FormattedNumberInput
+                        value={watch("price")?.toString() || ""}
+                        onChange={(value) =>
+                          setValue("price", value ? Number(value) : undefined, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          })
+                        }
+                        placeholder="50,00,000"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., 5000000"
-                        maxLength={15}
                       />
                     </Field>
                   </div>
@@ -1255,11 +1248,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     ).map((f) => (
                       <div key={f.name} className="md:col-span-2">
                         <Field label={f.label} error={errors.built_up_area}>
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            placeholder="e.g., 1500"
+                          <FormattedNumberInput
+                            value={watch("built_up_area")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "built_up_area",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="Enter area in sq.ft, sq.m, etc."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       </div>
@@ -1269,11 +1271,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     ).map((f) => (
                       <div key={f.name} className="md:col-span-2">
                         <Field label={f.label} error={errors.carpet_area}>
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            placeholder="e.g., 1200"
+                          <FormattedNumberInput
+                            value={watch("carpet_area")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "carpet_area",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="Enter area in sq.ft, sq.m, etc."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       </div>
@@ -1300,11 +1311,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       ).map((f) => (
                         <div key={f.name} className="md:col-span-1">
                           <Field label={f.label} error={errors.plot_front_area}>
-                            <input
-                              type="number"
-                              {...register(f.name, { valueAsNumber: true })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                              placeholder="e.g., 40"
+                            <FormattedNumberInput
+                              value={watch("plot_front_area")?.toString() || ""}
+                              onChange={(value) =>
+                                setValue(
+                                  "plot_front_area",
+                                  value ? Number(value) : undefined,
+                                  {
+                                    shouldValidate: true,
+                                    shouldDirty: true,
+                                  }
+                                )
+                              }
+                              placeholder="Enter frontage in ft, m, etc."
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                             />
                           </Field>
                         </div>
@@ -1314,11 +1334,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       ).map((f) => (
                         <div key={f.name} className="md:col-span-1">
                           <Field label={f.label} error={errors.plot_depth_area}>
-                            <input
-                              type="number"
-                              {...register(f.name, { valueAsNumber: true })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                              placeholder="e.g., 60"
+                            <FormattedNumberInput
+                              value={watch("plot_depth_area")?.toString() || ""}
+                              onChange={(value) =>
+                                setValue(
+                                  "plot_depth_area",
+                                  value ? Number(value) : undefined,
+                                  {
+                                    shouldValidate: true,
+                                    shouldDirty: true,
+                                  }
+                                )
+                              }
+                              placeholder="Enter depth in ft, m, etc."
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                             />
                           </Field>
                         </div>
@@ -1369,11 +1398,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           label={f.label}
                           error={errors.bedrooms}
                         >
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            placeholder="3"
+                          <FormattedNumberInput
+                            value={watch("bedrooms")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "bedrooms",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="e.g., 3"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       ))}
@@ -1385,11 +1423,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           label={f.label}
                           error={errors.bathrooms}
                         >
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            placeholder="2"
+                          <FormattedNumberInput
+                            value={watch("bathrooms")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "bathrooms",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="e.g., 2"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       ))}
@@ -1401,11 +1448,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           label={f.label}
                           error={errors.balconies}
                         >
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            placeholder="1"
+                          <FormattedNumberInput
+                            value={watch("balconies")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "balconies",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="1,500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       ))}
@@ -1425,10 +1481,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           label={f.label}
                           error={errors.washrooms}
                         >
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          <FormattedNumberInput
+                            value={watch("washrooms")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "washrooms",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="1,200"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       ))}
@@ -1440,10 +1506,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           label={f.label}
                           error={errors.cabins}
                         >
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          <FormattedNumberInput
+                            value={watch("cabins")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "cabins",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="40"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       ))}
@@ -1455,10 +1531,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           label={f.label}
                           error={errors.conference_rooms}
                         >
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          <FormattedNumberInput
+                            value={watch("conference_rooms")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "conference_rooms",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="60"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       ))}
@@ -1478,11 +1564,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           label={f.label}
                           error={errors.floor_number}
                         >
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            placeholder="e.g., 5"
+                          <FormattedNumberInput
+                            value={watch("floor_number")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "floor_number",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="5"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       ))}
@@ -1494,11 +1589,20 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           label={f.label}
                           error={errors.total_floors}
                         >
-                          <input
-                            type="number"
-                            {...register(f.name, { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            placeholder="e.g., 12"
+                          <FormattedNumberInput
+                            value={watch("total_floors")?.toString() || ""}
+                            onChange={(value) =>
+                              setValue(
+                                "total_floors",
+                                value ? Number(value) : undefined,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              )
+                            }
+                            placeholder="12"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
                       ))}
@@ -1636,8 +1740,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       >
                         <input
                           {...register(f.name)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                          placeholder="Property owner name"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Enter owner's full name"
                         />
                       </Field>
                     ))}
@@ -1651,8 +1755,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       >
                         <input
                           {...register(f.name)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                          placeholder="Phone number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Enter owner's contact number"
                           maxLength={20}
                         />
                       </Field>
@@ -1679,8 +1783,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           {...register(f.name)}
                           id={f.name}
                           rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                          placeholder="A detailed description of the property..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Describe the property, its features, and nearby landmarks..."
                           onChange={(e) => setValue(f.name, e.target.value)}
                         />
                       </Field>
@@ -1900,7 +2004,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Updating..." : "Update Property"}
               </button>

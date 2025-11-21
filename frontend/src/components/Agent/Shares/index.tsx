@@ -5,6 +5,9 @@ import {
   CalendarIcon,
   UserIcon,
   XMarkIcon,
+  LinkIcon,
+  ArrowPathIcon,
+  NoSymbolIcon,
 } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { getSharedProperties } from "@/lib/Agent/SharePropertyAPI";
@@ -67,12 +70,14 @@ export const Shares: React.FC = () => {
   }, [searchTerm, sharedData]);
 
   return (
-    <div className="space-y-2">
+    <div className="bg-gray-50 p-2 sm:p-6 lg:p-8 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-row items-start sm:items-center justify-between mb-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Property Shares</h1>
-          <p className="text-gray-600 md:mt-1">Manage property sharing </p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Property Shares
+          </h1>
+          <p className="text-gray-600">Manage property sharing </p>
         </div>
         <SearchInput
           value={searchTerm}
@@ -82,10 +87,10 @@ export const Shares: React.FC = () => {
       </div>
 
       {/* Shares List */}
-      <div className="space-y-2 md:space-y-4">
+      <div className="space-y-2">
         {filteredShares.map((share) => {
           return (
-            <div
+            <article
               key={share._id}
               className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
             >
@@ -109,7 +114,7 @@ export const Shares: React.FC = () => {
                         alt={share.propertyId?.title || "N/A"}
                         width={60}
                         height={60}
-                        className="rounded-lg object-cover"
+                        className="rounded-lg object-cover cursor-pointer"
                       />
                     </div>
                     <div>
@@ -153,51 +158,60 @@ export const Shares: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex md:flex-col justify-between md:justify-start items-center md:items-end space-y-2 w-full md:w-auto">
+                <div className="flex md:flex-col justify-between md:justify-start items-end space-y-2 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-gray-100">
                   <span
                     className={`inline-flex items-center px-2 py-1 capitalize rounded-full text-xs font-medium ${getStatusColor(
                       share.status
                     )}`}
                   >
+                    <div
+                      className={`h-2 w-2 rounded-full mr-2 ${
+                        share.status === "active"
+                          ? "bg-green-500"
+                          : share.status === "expired"
+                          ? "bg-red-500"
+                          : "bg-gray-500"
+                      }`}
+                    ></div>
                     {share.status}
                   </span>
 
-                  <div className="flex md:space-x-2">
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                      View Link
+                  <div className="flex items-center space-x-2 md:space-x-0 md:flex-col md:items-end md:space-y-2 mt-2">
+                    <button className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
+                      <LinkIcon className="h-4 w-4 mr-1" /> View Link
                     </button>
                     <button
-                      className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                      className="flex items-center text-orange-600 hover:text-orange-800 text-sm font-medium transition-colors"
                       onClick={() => {
                         setPropertyToShare(share?.propertyId);
                         setShowShareModal(true);
                       }}
                     >
-                      Re-share
+                      <ArrowPathIcon className="h-4 w-4 mr-1" /> Re-share
                     </button>
                     {share.status === "active" && (
-                      <button className="text-red-600 hover:text-red-700 text-sm font-medium">
-                        Revoke
+                      <button className="flex items-center text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                        <NoSymbolIcon className="h-4 w-4 mr-1" /> Revoke
                       </button>
                     )}
                   </div>
                 </div>
               </div>
-            </div>
+            </article>
           );
         })}
       </div>
 
       {sharedData.length === 0 && (
-        <div className="text-center py-12">
-          <ShareIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <div className="text-center py-16 px-4 bg-white rounded-lg shadow-sm">
+          <ShareIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-medium text-gray-900 mb-2">
             No shares yet
           </h3>
           <p className="text-gray-500 mb-6">
             Start sharing properties with customers and colleagues
           </p>
-          <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
             <ShareIcon className="h-5 w-5 mr-2" />
             Share Your First Property
           </button>
@@ -207,12 +221,12 @@ export const Shares: React.FC = () => {
       {/* Image Preview Modal */}
       {previewImage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="relative bg-white rounded-lg p-2">
+          <div className="relative bg-white rounded-lg p-2 max-w-3xl w-full">
             <button
-              className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 rounded-full p-1.5"
+              className="absolute -top-4 -right-4 bg-white text-gray-600 hover:text-red-600 rounded-full p-1.5 shadow-lg"
               onClick={() => setPreviewImage(null)}
             >
-              <XMarkIcon className="h-6 w-6 text-red-600 hover:text-red-800" />
+              <XMarkIcon className="h-6 w-6" />
             </button>
 
             <Image
