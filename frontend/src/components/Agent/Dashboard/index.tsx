@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import DashboardStats from "./DashboardStats";
 import TodaysReminders, { Reminder } from "./TodaysReminders";
 import PropertyCardForDashboard from "./PropertyCardForDashboard";
-import PropertyDetailModal from "../Common/PropertyDetailModal";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import Link from "next/link";
 import { useNotificationPermission } from "@/components/Common/pushNotification";
@@ -28,9 +27,6 @@ interface DashboardData {
 }
 
 export const AgentDashboard = () => {
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null
-  );
   const [showShareModal, setShowShareModal] = useState(false);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
@@ -100,10 +96,6 @@ export const AgentDashboard = () => {
   ];
   const [propertyToShare, setPropertyToShare] = useState<Property | null>(null);
 
-  const handleViewProperty = (property: Property) => {
-    setSelectedProperty(property);
-  };
-
   const handleShareProperty = (property: Property) => {
     setPropertyToShare(property);
     setShowShareModal(true);
@@ -170,24 +162,11 @@ export const AgentDashboard = () => {
             <PropertyCardForDashboard
               key={property.id}
               property={property}
-              onView={handleViewProperty}
               onShare={handleShareProperty}
             />
           ))}
         </div>
       </div>
-
-      {/* Property Detail Modal */}
-      {selectedProperty && (
-        <PropertyDetailModal
-          property={selectedProperty}
-          onClose={() => setSelectedProperty(null)}
-          onShare={(property) => {
-            setSelectedProperty(null);
-            handleShareProperty(property);
-          }}
-        />
-      )}
 
       {/* Share Property Modal */}
       {showShareModal && propertyToShare && (

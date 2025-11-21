@@ -18,11 +18,11 @@ import {
   handleImageError,
 } from "@/lib/imageUtils";
 import { showErrorToast } from "@/utils/toastHandler";
+import { formatPrice } from "@/utils/helperFunction";
 
 interface PropertyCardProps {
   property: Property;
   onShare?: (property: Property) => void;
-  onView?: (property: Property) => void;
   onToggleFavorite?: (property: Property) => void;
   onRefresh?: () => void;
 }
@@ -32,27 +32,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   onShare,
   onRefresh,
 }) => {
-  const formatPrice = (price: number | null | undefined) => {
-    // Handle null, undefined, empty string, NaN, invalid numbers
-    if (price === null || price === undefined || isNaN(Number(price))) {
-      return "Price not available";
-    }
-
-    const value = Number(price);
-
-    // Handle zero
-    if (value === 0) {
-      return "₹0";
-    }
-
-    if (value >= 10000000) {
-      return `₹${(value / 10000000).toFixed(1)}Cr`;
-    } else if (value >= 100000) {
-      return `₹${(value / 100000).toFixed(1)}L`;
-    }
-    return `₹${value.toLocaleString()}`;
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "available":

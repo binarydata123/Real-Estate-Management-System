@@ -4,6 +4,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Vapi from "@vapi-ai/web"; // Ensure Vapi is imported
 import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { startMeetingSession } from "@/lib/AI";
 import { useAuth } from "@/context/AuthContext";
@@ -21,6 +22,7 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [vapi, setVapi] = useState<Vapi | null>(null);
   const { user } = useAuth();
+  const router = useRouter();
   const [assistantMessage, setAssistantMessage] = useState(
     "Click the mic to start scheduling."
   );
@@ -47,6 +49,8 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
     instance.on("call-end", () => {
       setAssistantMessage("Call ended. Review the details below if available.");
       setIsSpeaking(false);
+      onClose();
+      router.push("/agent/meetings");
     });
 
     // 👂 Listen for structured output events for ScheduleMeeting
@@ -74,7 +78,7 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
     return () => {
       instance.stop().catch(() => {});
     };
-  }, []);
+  }, [onClose, router]);
 
   // 🎤 Start assistant session
   const handleStart = useCallback(async () => {

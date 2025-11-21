@@ -3,6 +3,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import Vapi from "@vapi-ai/web";
+import { useRouter } from "next/navigation";
 import { startPropertySession } from "@/lib/AI"; // reuse your session starter
 import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
 import { Loader2 } from "lucide-react";
@@ -14,6 +15,7 @@ export default function PropertyAssistant() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [assistantStatus, setAssistantStatus] = useState("idle");
   const [vapi, setVapi] = useState<Vapi | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_VAPI_API_KEY;
@@ -34,6 +36,7 @@ export default function PropertyAssistant() {
     instance.on("call-end", () => {
       setIsSpeaking(false);
       setAssistantStatus("idle");
+      router.push("/agent/properties");
     });
 
     instance.on("error", (err: any) => {
@@ -46,7 +49,7 @@ export default function PropertyAssistant() {
     return () => {
       instance.stop().catch(() => {});
     };
-  }, []);
+  }, [router]);
 
   // 🎤 Start assistant session
   const handleStart = useCallback(async () => {
