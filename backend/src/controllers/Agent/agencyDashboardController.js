@@ -23,6 +23,7 @@ export const agencyDashboardData = async (req, res) => {
       totalMeetings,
       todayMeetings,
       topCustomers,
+      recentProperties,
     ] = await Promise.all([
       Property.countDocuments({ agencyId }),
       Customer.countDocuments({ agencyId }),
@@ -36,7 +37,7 @@ export const agencyDashboardData = async (req, res) => {
         { $sort: { maximumBudget: -1 } },
         { $limit: 3 },
       ]),
-
+      Property.find({agencyId}).sort({createdAt:-1}).limit(2),
     ]);
 
     const data = {
@@ -45,6 +46,7 @@ export const agencyDashboardData = async (req, res) => {
       totalMeetings,
       todayMeetings,
       topCustomers,
+      recentProperties
     };
 
     return res.status(200).json({
