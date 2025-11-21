@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { BuildingOfficeIcon } from "@heroicons/react/24/outline";
 import { PropertyFilters } from "./PropertyFilters";
-import PropertyDetailModal from "../Common/PropertyDetailModal";
 import { PropertyCard } from "./PropertyCard";
 import { getProperties } from "@/lib/Customer/PropertyAPI";
 import { useDebounce } from "@/components/Common/UseDebounce";
@@ -43,9 +42,6 @@ const PropertyCardSkeleton = () => (
 );
 
 export const Properties: React.FC = () => {
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null
-  );
   const [properties, setProperties] = useState<Property[]>([]);
   const [filters, setFilters] = useState<Partial<PropertyListFilters>>({});
   const [isFetching, setIsFetching] = useState(true);
@@ -107,10 +103,6 @@ export const Properties: React.FC = () => {
     }
   };
 
-  const handleViewProperty = (property: Property) => {
-    setSelectedProperty(property);
-  };
-
   return (
     <div className="space-y-2">
       {/* Header */}
@@ -142,7 +134,6 @@ export const Properties: React.FC = () => {
               <PropertyCard
                 key={property._id}
                 property={property}
-                onView={handleViewProperty}
                 onRefresh={getAllProperties}
               />
             ))}
@@ -182,14 +173,6 @@ export const Properties: React.FC = () => {
             Try adjusting your filters or add a new property.
           </p>
         </div>
-      )}
-
-      {/* Property Detail Modal */}
-      {selectedProperty && (
-        <PropertyDetailModal
-          property={selectedProperty}
-          onClose={() => setSelectedProperty(null)}
-        />
       )}
     </div>
   );

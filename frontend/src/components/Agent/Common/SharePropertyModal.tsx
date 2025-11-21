@@ -20,6 +20,7 @@ import { sharePropertySchema } from "@/schemas/Agent/sharePropertySchema";
 import { useToast } from "@/context/ToastContext";
 import axios from "axios";
 import { showErrorToast } from "@/utils/toastHandler";
+import { formatPrice } from "@/utils/helperFunction";
 
 type SharePropertyFormData = z.infer<typeof sharePropertySchema>;
 
@@ -99,12 +100,6 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatPrice = (price: number) => {
-    if (price >= 10000000) return `₹${(price / 10000000).toFixed(1)}Cr`;
-    if (price >= 100000) return `₹${(price / 100000).toFixed(1)}L`;
-    return `₹${price?.toLocaleString()}`;
   };
 
   const getImageUrl = (url: string) => {
