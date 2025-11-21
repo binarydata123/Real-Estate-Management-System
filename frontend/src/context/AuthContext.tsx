@@ -184,7 +184,7 @@ getSettings();
     useEffect(() => {
     document.documentElement.style.setProperty("--primary", brandColors?.primaryColor||"#1e41f1");
      document.documentElement.style.setProperty("--secondary", brandColors?.secondaryColor||"#1e41f1");
-  }, [brandColors]);
+  }, [brandColors,user]);
 
   const signOut = async () => {
     clearSession();

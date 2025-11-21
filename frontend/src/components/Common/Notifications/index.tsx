@@ -218,17 +218,17 @@ const NotificationsPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-4 h-[60vh] overflow-auto">
+            <div className="space-y-4 ">
               {notifications.map((notification) => {
                 const config = typeConfig[notification.type];
                 return (
                   <div
-                    key={notification._id}
+                    key={notification?._id}
                     onClick={() =>
                       !notification.read &&
-                      handleReadNotification(notification._id)
+                      handleReadNotification(notification?._id)
                     }
-                    className={`relative flex items-start p-4 border-l-4 rounded-lg  bg-white hover:bg-gray-50 transition-colors cursor-pointer ${
+                    className={`relative flex items-start p-4 border-l-4 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer ${
                       notification.read
                         ? "border-transparent"
                         : "border-blue-500"
