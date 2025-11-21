@@ -183,9 +183,9 @@ export const Customers: React.FC = () => {
           </div>
 
           <div className="divide-y divide-gray-200">
-            {customers.map((customer: CustomerFormData) => (
+            {customers.map((customer: CustomerFormData,index) => (
               <div
-                key={customer?._id}
+                key={`${customer._id}-${index}`}
                 className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors"
               >
                 {/* Customer Info */}
