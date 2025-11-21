@@ -5,6 +5,7 @@ import meetingRoutes from "./Meetings/index.js";
 import settingRoutes from "./Settings/index.js";
 import messagesRoutes from "./Messages/index.js";
 
+import dahsboardRoutes from "./Dahsborad/index.js";
 const router = express.Router();
 
 router.use("/properties", propertyRoutes);
@@ -13,5 +14,6 @@ router.use("/customer-settings", settingRoutes);
 router.use("/messages", messagesRoutes);
 router.use("/properties", propertyRoutes);
 router.use("/profile", profileRoutes);
+router.use("/dashboard", dahsboardRoutes);
 
 export default router;

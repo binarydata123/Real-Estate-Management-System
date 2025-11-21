@@ -123,7 +123,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                       property.status
                     )}`}
                   >
-                    {property.status}
+                    {property?.status }
                   </span>
                 </h3>
                 <div className="md:space-y-3 grid grid-cols-2 gap-2">

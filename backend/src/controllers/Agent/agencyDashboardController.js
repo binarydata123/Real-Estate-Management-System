@@ -27,7 +27,7 @@ export const agencyDashboardData = async (req, res) => {
     ] = await Promise.all([
       Property.countDocuments({ agencyId }),
       Customer.countDocuments({ agencyId }),
-      Meetings.countDocuments({ agencyId }),
+      Meetings.countDocuments({ agencyId ,date:{ $gte:startOfDay} }),
       Meetings.find({
         agencyId,
         date: { $gte: startOfDay, $lte: endOfDay },
@@ -39,7 +39,9 @@ export const agencyDashboardData = async (req, res) => {
       ]),
       Property.find({agencyId}).sort({createdAt:-1}).limit(2),
     ]);
-
+const properties = await Property.find({ agencyId })
+  .sort({ createdAt: -1 })
+  .limit(2);
     const data = {
       totalProperties,
       totalCustomers,

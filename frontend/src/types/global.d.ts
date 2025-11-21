@@ -447,7 +447,21 @@ declare global {
     reraStatus: string[];
   }
 }
+interface TeamMember {
+  _id: string;
+  name: string;
+  email: string;
+  role:"agent" | "agency_admin";
+  status: string;
+  joinedAt: string;
+  createdAt: string;
+  phone?: string;
+}
+interface brandColor {
+  primaryColor:string|null;
+  secondaryColor:string;
 
+}
 export {
   RegistrationData,
   LoginData,
@@ -462,4 +476,6 @@ export {
   SharePropertyFormData,
   AgencyResponse,
   AgencyFormData,
+  TeamMember,
+  brandColor
 };
