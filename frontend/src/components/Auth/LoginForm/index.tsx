@@ -14,7 +14,6 @@ import {
   ChevronRightIcon,
   LockClosedIcon,
   PhoneIcon,
-  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -234,21 +233,6 @@ export const LoginForm = () => {
                   </p>
                 </div>
                 <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-purple-600 transition-transform duration-300 transform group-hover:translate-x-1" />
-              </button>
-              <button
-                onClick={() => handleRoleSelect("admin")}
-                className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-red-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1"
-              >
-                <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-red-100 rounded-lg">
-                  <ShieldCheckIcon className="h-6 w-6 text-red-600" />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="font-semibold text-gray-800 text-left">Admin</p>
-                  <p className="text-sm text-gray-600 text-left">
-                    Manage the system.
-                  </p>
-                </div>
-                <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-red-600 transition-transform duration-300 transform group-hover:translate-x-1" />
               </button>
             </div>
             <div className="text-center pt-2">
