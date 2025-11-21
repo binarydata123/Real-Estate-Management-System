@@ -124,7 +124,7 @@ export const Meetings: React.FC = () => {
             onClick={() => setActiveTab("upcoming")}
             className={`px-3 py-2 font-medium text-sm rounded-t-md ${
               activeTab === "upcoming"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
@@ -134,7 +134,7 @@ export const Meetings: React.FC = () => {
             onClick={() => setActiveTab("past")}
             className={`px-3 py-2 font-medium text-sm rounded-t-md ${
               activeTab === "past"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >
@@ -144,7 +144,7 @@ export const Meetings: React.FC = () => {
             onClick={() => setActiveTab("cancelled")}
             className={`px-3 py-2 font-medium text-sm rounded-t-md ${
               activeTab === "cancelled"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
             }`}
           >

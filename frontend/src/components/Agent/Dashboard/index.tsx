@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useNotificationPermission } from "@/components/Common/pushNotification";
 import { usePushSubscription } from "@/components/Common/SubscribeUserForNotification";
 import { useAuth } from "@/context/AuthContext";
-import { getDashboardData } from "@/lib/Dashboard/DashboarAPI";
+import { getDashboardData } from "@/lib/Agent/DashboarAPI";
 import { showErrorToast } from "@/utils/toastHandler";
 import HotCustomers from "./HotCustomers";
 
@@ -36,7 +36,6 @@ export const AgentDashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
-
   const getData = async () => {
     try {
       const res = await getDashboardData();

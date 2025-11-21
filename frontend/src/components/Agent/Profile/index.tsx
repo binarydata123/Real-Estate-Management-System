@@ -186,8 +186,8 @@ useEffect(() => {
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl shadow-sm
-            hover:bg-blue-700 transition-colors duration-150 font-medium disabled:opacity-60"
+            className="px-5 py-2.5 bg-primary text-white rounded-xl shadow-sm
+            hover:bg-primary/80 transition-colors duration-150 font-medium disabled:opacity-60"
           >
             {loading ? "Saving..." : "Save Changes"}
           </button>

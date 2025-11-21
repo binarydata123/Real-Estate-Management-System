@@ -148,7 +148,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
         <div className="md:flex hidden space-x-2 md:mt-4 mt-1 p-1 md:pt-3 border-t border-gray-100">
           <button
             onClick={() => onView?.(property)}
-            className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            className="flex-1 flex items-center justify-center px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors text-sm"
           >
             <EyeIcon className="h-4 w-4 mr-2" />
             View

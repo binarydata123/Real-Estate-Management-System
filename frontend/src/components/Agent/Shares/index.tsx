@@ -127,7 +127,7 @@ export const Shares: React.FC = () => {
                           <span>
                             Shared by{" "}
                             <span className="font-medium text-gray-900">
-                              {share.sharedByUserId.name}
+                              {share?.sharedByUserId.name}
                             </span>
                           </span>
                         </div>

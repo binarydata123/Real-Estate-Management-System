@@ -19,7 +19,7 @@ export default function Profile() {
     formState: { errors },
     setValue,
   } = useForm<ProfileFormData>({
-    resolver:zodResolver(customerProfileSchema),
+    resolver: zodResolver(customerProfileSchema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -48,12 +48,12 @@ export default function Profile() {
         showSuccessToast(res.message);
       }
     } catch (error: unknown) {
-  if (error instanceof Error) {
-    showErrorToast(error.message);
-  } else {
-    showErrorToast("An unexpected error occurred.");
-  }
-}finally {
+      if (error instanceof Error) {
+        showErrorToast(error.message);
+      } else {
+        showErrorToast("An unexpected error occurred.");
+      }
+    } finally {
       setLoading(false);
     }
   };

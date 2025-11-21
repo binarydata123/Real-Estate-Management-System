@@ -100,7 +100,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
                             peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full
                             peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
                             after:left-[2px] after:bg-white after:border-gray-300 after:border
-                            after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                            after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
             ></div>
           </label>
         </div>
@@ -122,7 +122,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div>
             <h4 className="font-medium text-gray-900 flex items-center">
-              <ClockIcon className="h-5 w-5 mr-2 text-blue-600" />
+              <ClockIcon className="h-5 w-5 mr-2 text-primary" />
               Session Timeout
             </h4>
             <p className="text-sm text-gray-600">
@@ -140,7 +140,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               }
               className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
                 security?.sessionTimeout === duration
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-primary text-white border-primary"
                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
               }`}
             >
@@ -177,7 +177,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
                             peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full
                             peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
                             after:left-[2px] after:bg-white after:border-gray-300 after:border
-                            after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                            after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
             ></div>
           </label>
         </div>
