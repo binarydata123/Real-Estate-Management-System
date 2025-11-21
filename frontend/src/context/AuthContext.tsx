@@ -8,7 +8,7 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
 import Cookies from "js-cookie";
 import { checkSession as checkSessionApi } from "@/lib/Authentication/AuthenticationAPI";
@@ -16,6 +16,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import { showErrorToast } from "@/utils/toastHandler";
 
 export const AUTH_SESSION_KEY = "auth-session";
+export const ROLE_FOR_MIDDELEWARE = "role-for-middleware";
 
 export interface Agency {
   _id: string;
@@ -76,13 +77,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
 
   // Centralized function to clear session state and storage
   const clearSession = useCallback(() => {
     setUser(null);
     setSession(null);
     Cookies.remove(AUTH_SESSION_KEY);
+    Cookies.remove(ROLE_FOR_MIDDELEWARE);
   }, []);
 
   useEffect(() => {
@@ -107,6 +108,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             expires: 365, // Keep user logged in for 1 year
             secure: process.env.NODE_ENV === "production",
           });
+          Cookies.set(ROLE_FOR_MIDDELEWARE, freshUser.role);
         } else {
           // If no session is in storage, ensure state is cleared.
           clearSession();
@@ -120,46 +122,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
     checkSession();
   }, [clearSession]);
-
-  useEffect(() => {
-    const authRoutes = ["/auth/login", "/auth/signup"];
-    const isUserLogIn = authRoutes.some((route) => pathname.startsWith(route));
-    if (!loading && user && isUserLogIn) {
-      router.push(`/${user.role}/dashboard`);
-    }
-  }, [user, loading, router, pathname]);
-
-  const roles: Record<string, string[]> = {
-    admin: ["/admin"],
-    agent: ["/agent"],
-    customer: ["/customer"],
-  };
-  useEffect(() => {
-    if (loading || !user) return;
-    const allowedRouted = roles[user.role] || [];
-    const isAllowed = allowedRouted.some((route: string) => {
-      return pathname.startsWith(route);
-    });
-    const protectedRoutes = Object.values(roles).flat();
-    const isProtectedRoute = protectedRoutes.some((route) => {
-      return pathname.startsWith(route);
-    });
-    if (!loading&& user&&isProtectedRoute && !isAllowed) {
-      router.push(`/${user?.role}/dashboard`);
-    }
-  }, [user, loading, router, pathname]);
-
-  useEffect(() => {
-    const protectedRoutes = ["/admin", "/agent"];
-    const isProtectedRoute = protectedRoutes.some((route) =>
-      pathname.startsWith(route)
-    );
-
-    if (!loading && !user && isProtectedRoute) {
-      router.push("/auth/login");
-    }
-  }, [user, loading, router, pathname]);
-
   const signIn = async (response: AxiosResponse): Promise<AuthResponse> => {
     try {
       const { token, user: userData } = response.data;
@@ -174,7 +136,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         expires: 365, // Keep user logged in for 1 year
         secure: process.env.NODE_ENV === "production",
       });
-
+      Cookies.set(ROLE_FOR_MIDDELEWARE, userData.role);
       return { data: { user: userData, session: newSession }, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
@@ -199,7 +161,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       expires: 365,
       secure: process.env.NODE_ENV === "production",
     });
-
+    Cookies.set(ROLE_FOR_MIDDELEWARE, userData.role);
     router.push(`/${userData.role}/dashboard`);
   };
 

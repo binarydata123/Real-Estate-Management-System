@@ -32,10 +32,15 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   onShare,
   onRefresh,
 }) => {
-  const formatPrice = (price: number | null | undefined) => {
-    // Handle null, undefined, empty string, NaN, invalid numbers
-    if (price === null || price === undefined || isNaN(Number(price))) {
-      return "Price not available";
+  const formatPrice = (price: number) => {
+    if (price >= 10000000) {
+      // 1 crore
+      return `₹${(price / 10000000).toFixed(1)}Cr`;
+    } else if (price >= 100000) {
+      // 1 lakh
+      return `₹${(price / 100000).toFixed(1)}L`;
+    } else if (price < 100000) {
+      return `₹${price?.toLocaleString()}`;
     }
 
     const value = Number(price);
