@@ -15,6 +15,7 @@ export interface HotCustomersProps {
 }
 
 const HotCustomers: React.FC<HotCustomersProps> = ({ customers }) => {
+  console.log(customers);
   const formatBudgetRange = (min?: number, max?: number): string => {
 const formatValue = (value: number): string => {
   if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;

@@ -39,7 +39,6 @@ export const Customers: React.FC = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-      setCustomers([]); // Clear customers when search term changes
       setCurrentPage(1);
     }, 400);
     return () => clearTimeout(handler);
@@ -82,15 +81,12 @@ export const Customers: React.FC = () => {
   );
 
   useEffect(() => {
-    // This useEffect is now solely for triggering the initial fetch or refetch on search/filter change
-    getAllCustomers(1, debouncedSearchTerm); // Always fetch page 1 when debouncedSearchTerm changes
-  }, [debouncedSearchTerm, getAllCustomers]); // Removed currentPage from dependencies here
+    getAllCustomers(1, debouncedSearchTerm);
+  }, [debouncedSearchTerm, getAllCustomers]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages && !isFetching) {
-      // Add !loading check to prevent multiple fetches of the same page
-      setCurrentPage(page); // Update currentPage immediately
-      getAllCustomers(page, debouncedSearchTerm, true); // Fetch new data and append
+      getAllCustomers(page, debouncedSearchTerm, true);
     }
   };
 
@@ -126,13 +122,11 @@ export const Customers: React.FC = () => {
     <div className="space-y-2">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        {/* Title */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
           <p className="text-gray-600 md:mt-1">Manage your customer</p>
         </div>
 
-        {/* Search + Button */}
         <div className="flex  flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
           <SearchInput
             placeholder="Search by name, email, or phone"
@@ -150,174 +144,192 @@ export const Customers: React.FC = () => {
         </div>
       </div>
 
-      {/* Loading Placeholder */}
-      {isFetching && customers.length === 0 ? (
+      {/* ----------- EMPTY STATE ----------- */}
+      {customers.length === 0 && !isFetching && (
         <div className="text-center py-12">
-          <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
-          <p className="text-gray-600">Loading customers...</p>
+          <UserIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" />
+          {debouncedSearchTerm ? (
+            <>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No customers found
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Your search for &ldquo;{debouncedSearchTerm}&ldquo; did not
+                return any results.
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No customers yet
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Start building your customer base by adding your first customer.
+              </p>
+            </>
+          )}
         </div>
-      ) : (
-        <>
-          {/* Customers List */}
-          {customers.length > 0 ? (
-            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="hidden md:grid md:grid-cols-6 gap-4 text-sm font-medium text-gray-600 px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div className="col-span-2">Customer</div>
-                <div>Contact</div>
-                <div>Budget Range</div>
-                <div>Status</div>
-                <div>Actions</div>
-              </div>
+      )}
 
-              <div className="divide-y divide-gray-200">
-                {customers.map((customer: CustomerFormData) => (
-                  <div
-                    key={customer?._id}
-                    className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors"
-                  >
-                    {/* Customer Info */}
-                    <div className="md:col-span-2 flex justify-between items-start">
-                      <div className="flex items-center space-x-3">
-                        <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <UserIcon className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {customer?.fullName}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Assigned to {customer?.assigned_agent}
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`md:hidden capitalize inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          customer?.status
-                        )}`}
-                      >
-                        {customer?.status}
-                      </span>
+      {/* ----------- MAIN CUSTOMER LIST (UI unchanged) ----------- */}
+      {customers.length > 0 && (
+        <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="hidden md:grid md:grid-cols-6 gap-4 text-sm font-medium text-gray-600 px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div className="col-span-2">Customer</div>
+            <div>Contact</div>
+            <div>Budget Range</div>
+            <div>Status</div>
+            <div>Actions</div>
+          </div>
+
+          <div className="divide-y divide-gray-200">
+            {customers.map((customer: CustomerFormData) => (
+              <div
+                key={customer?._id}
+                className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors"
+              >
+                {/* Customer Info */}
+                <div className="md:col-span-2 flex justify-between items-start">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <UserIcon className="h-6 w-6 text-blue-600" />
                     </div>
-
-                    <div className="grid grid-cols-2 gap-2 md:gap-4 mt-2 md:mt-4 md:contents">
-                      {/* Contact */}
-                      <div>
-                        <div className="md:space-y-1">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <PhoneIcon className="h-4 w-4 hidden md:block mr-2 flex-shrink-0" />
-                            <span>{customer?.whatsAppNumber}</span>
-                          </div>
-                          <p className="text-sm text-gray-600 truncate">
-                            {customer?.email}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Budget */}
-                      {/* {(customer?.minimumBudget || customer?.maximumBudget) && ( */}
-                      <div>
-                        <p className="text-xs text-gray-500 md:hidden md:mb-1">
-                          Budget
-                        </p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatBudget(
-                            customer?.minimumBudget,
-                            customer?.maximumBudget
-                          )}
-                        </p>
-                      </div>
-                      {/* )} */}
-
-                      {/* Status (desktop) */}
-                      <div className="hidden md:block">
-                        <span
-                          className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            customer?.status
-                          )}`}
-                        >
-                          {customer?.status}
-                        </span>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="col-span-2 md:col-auto flex justify-end md:justify-start space-x-2 md:space-x-4">
-                        <span
-                          onClick={() => setEditingCustomer(customer)}
-                          className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium"
-                        >
-                          Edit
-                        </span>
-                        <span
-                          onClick={() => handleDeleteClick(customer)}
-                          className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
-                        >
-                          Delete
-                        </span>
-                        <span
-                          onClick={() => {
-                            setViewCustomer(customer);
-                            setOpen(true);
-                          }}
-                          className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                        >
-                          View
-                        </span>
-                        <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                          <Link
-                            href={`/agent/preference?customerId=${customer._id}`}
-                          >
-                            Preference
-                          </Link>
-                        </span>
-                        <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                          <Link
-                            href={`/agent/messages?customerId=${customer._id}`}
-                          >
-                            Message
-                          </Link>
-                        </span>
-                      </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {customer?.fullName}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Assigned to {customer?.assigned_agent}
+                      </p>
                     </div>
                   </div>
-                ))}
+                  <span
+                    className={`md:hidden capitalize inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                      customer?.status
+                    )}`}
+                  >
+                    {customer?.status}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 md:gap-4 mt-2 md:mt-4 md:contents">
+                  {/* Contact */}
+                  <div>
+                    <div className="md:space-y-1">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <PhoneIcon className="h-4 w-4 hidden md:block mr-2 flex-shrink-0" />
+                        <span>{customer?.whatsAppNumber}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 truncate">
+                        {customer?.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Budget */}
+                  <div>
+                    <p className="text-xs text-gray-500 md:hidden md:mb-1">
+                      Budget
+                    </p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {formatBudget(
+                        customer?.minimumBudget,
+                        customer?.maximumBudget
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Status (desktop) */}
+                  <div className="hidden md:block">
+                    <span
+                      className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        customer?.status
+                      )}`}
+                    >
+                      {customer?.status}
+                    </span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="col-span-2 md:col-auto flex justify-end md:justify-start space-x-2 md:space-x-4">
+                    <span
+                      onClick={() => setEditingCustomer(customer)}
+                      className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium"
+                    >
+                      Edit
+                    </span>
+                    <span
+                      onClick={() => handleDeleteClick(customer)}
+                      className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
+                    >
+                      Delete
+                    </span>
+                    <span
+                      onClick={() => {
+                        setViewCustomer(customer);
+                        setOpen(true);
+                      }}
+                      className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
+                    >
+                      View
+                    </span>
+                    <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                      <Link
+                        href={`/agent/preference?customerId=${customer._id}`}
+                      >
+                        Preference
+                      </Link>
+                    </span>
+                    <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                      <Link
+                        href={`/agent/messages?customerId=${customer._id}`}
+                      >
+                        Message
+                      </Link>
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <UserIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" />
-              {debouncedSearchTerm ? (
-                <>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No customers found
-                  </h3>
-                  <p className="text-gray-500 mb-6">
-                    Your search for &ldquo;{debouncedSearchTerm}&ldquo; did not
-                    return any results.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No customers yet
-                  </h3>
-                  <p className="text-gray-500 mb-6">
-                    Start building your customer base by adding your first
-                    customer.
-                  </p>
-                </>
-              )}
-            </div>
-          )}
-        </>
+            ))}
+          </div>
+        </div>
       )}
-      {/* Add Customer Selection Modal */}
+
+      {/* --- SMALL INLINE LOADER (NO FLICKER) --- */}
+      {isFetching && customers.length > 0 && (
+        <div className="text-center py-4">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {customers.length > 0 && (
+        <ScrollPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isFetching}
+          hasMore={currentPage < totalPages}
+          loader={
+            <div className="text-center py-4">
+                <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+            </div>
+          }
+          endMessage={
+            <div className="text-center py-8 text-green-600 font-medium">
+              🎉 All caught up!
+            </div>
+          }
+        />
+      )}
+
+      {/* Modals */}
       <AddCustomerSelectionModal
         isOpen={showSelectionModal}
         onClose={() => setShowSelectionModal(false)}
         onSelectMode={handleSelectMode}
       />
 
-      {/* AI Assistant Modal */}
       {addMode === "ai" && (
         <CustomerAssistant
           onClose={() => {
@@ -327,7 +339,6 @@ export const Customers: React.FC = () => {
         />
       )}
 
-      {/* Add Customer & Edit Modal */}
       {(addMode === "manual" || editingCustomer) && (
         <AddCustomerForm
           onClose={() => {
@@ -359,7 +370,7 @@ export const Customers: React.FC = () => {
           customerId={editingCustomer?._id}
         />
       )}
-      {/* Confirm Delete Dialog */}
+
       <ConfirmDialog
         open={showConfirmDialog}
         onCancel={() => setShowConfirmDialog(false)}
@@ -376,32 +387,12 @@ export const Customers: React.FC = () => {
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"
       />
-      {/* Customer Modal */}
+
       <CustomerModal
         open={open}
         onClose={() => setOpen(false)}
         customer={viewCustomer}
       />
-
-      {customers.length > 0 && (
-        <ScrollPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          isLoading={isFetching} // Pass the loading state to ScrollPagination
-          hasMore={currentPage < totalPages}
-          loader={
-            <div className="text-center py-4">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          }
-          endMessage={
-            <div className="text-center py-8 text-green-600 font-medium">
-              🎉 All caught up!
-            </div>
-          }
-        />
-      )}
     </div>
   );
 };
