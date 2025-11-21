@@ -170,7 +170,7 @@ const NotificationsPage: React.FC = () => {
                   handleMarkAllRead();
                 }
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary/80 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all"
             >
               <CheckCheck className="h-5 w-5" />
               <span>Mark All Read</span>
@@ -191,7 +191,7 @@ const NotificationsPage: React.FC = () => {
                   onClick={() => setActiveTab(tab.key)}
                   className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === tab.key
-                      ? "border-blue-600 text-blue-700"
+                      ? "border-primary text-primary"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
@@ -218,15 +218,15 @@ const NotificationsPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 ">
               {notifications.map((notification) => {
                 const config = typeConfig[notification.type];
                 return (
                   <div
-                    key={notification._id}
+                    key={notification?._id}
                     onClick={() =>
                       !notification.read &&
-                      handleReadNotification(notification._id)
+                      handleReadNotification(notification?._id)
                     }
                     className={`relative flex items-start p-4 border-l-4 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer ${
                       notification.read

@@ -34,7 +34,7 @@ export const NoData: React.FC<EmptyStateProps> = ({
       {buttonText && onButtonClick && (
         <button
           onClick={onButtonClick}
-          className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
+          className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors text-sm sm:text-base"
         >
           {/* Only show icon if icon is passed for button */}
           {buttonIcon && (

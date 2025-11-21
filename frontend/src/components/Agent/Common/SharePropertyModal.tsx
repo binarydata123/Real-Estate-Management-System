@@ -125,7 +125,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
             <div className="bg-blue-100 text-blue-600 p-2 rounded-lg">
               <ShareIcon className="h-5 w-5" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-xl font-semibold  text-gray-800">
               Share Property
             </h2>
           </div>
@@ -307,7 +307,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                className="flex items-center px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
                 {!loading && <ShareIcon className="h-5 w-5 mr-2" />}
                 {loading ? "Sharing..." : "Share Property"}
