@@ -2,6 +2,7 @@
 "use client";
 import { useState, useCallback, useEffect } from "react";
 import Vapi from "@vapi-ai/web";
+import { useRouter } from "next/navigation";
 import { startCustomerSession } from "@/lib/AI";
 import { MicrophoneIcon, StopCircleIcon } from "@heroicons/react/24/solid";
 import { Loader2, X } from "lucide-react";
@@ -17,6 +18,7 @@ export default function CustomerAssistant({ onClose }: CustomerAssistantProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [assistantStatus, setAssistantStatus] = useState("idle");
   const [vapi, setVapi] = useState<Vapi | null>(null);
+  const router = useRouter();
 
   // ✅ Initialize Vapi once
   useEffect(() => {
@@ -39,12 +41,14 @@ export default function CustomerAssistant({ onClose }: CustomerAssistantProps) {
     instance.on("call-end", () => {
       setAssistantStatus("idle");
       setIsSpeaking(false);
+      onClose();
+      router.push("/agent/customers");
     });
 
     return () => {
       instance.stop().catch(() => {});
     };
-  }, []);
+  }, [onClose, router]);
 
   const handleStart = useCallback(async () => {
     if (!vapi) return;

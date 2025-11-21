@@ -1,9 +1,51 @@
+/* eslint-disable space-before-function-paren */
 import { Customer } from "../../../models/Agent/CustomerModel.js";
 import { createNotification } from "../../../utils/apiFunctions/Notifications/index.js";
 import { VapiClient } from "@vapi-ai/server-sdk";
-
 import { sendPushNotification } from "../../../utils/pushService.js";
 const vapi = new VapiClient({ token: process.env.VAPI_SERVER_API_KEY });
+
+// eslint-disable-next-line space-before-function-paren
+function cleanValue(value) {
+  if (value === "" || value === undefined || value === null) return null;
+  if (typeof value === "string") return value.trim();
+  return value;
+}
+
+function cleanPhone(value) {
+  if (!value || value === "" || value === undefined) return null;
+  const v = value.trim();
+  const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+  return phoneRegex.test(v) ? v : null;
+}
+
+function normalizeLeadSource(source) {
+  if (!source) return null;
+  const map = {
+    website: "website",
+    referral: "referral",
+    referal: "referral",
+    social: "social_media",
+    social_media: "social_media",
+    facebook: "social_media",
+    instagram: "social_media",
+    ad: "advertisement",
+    advertisement: "advertisement",
+    walkin: "walk_in",
+    "walk-in": "walk_in",
+    cold: "cold_call",
+    cold_call: "cold_call",
+    other: "other",
+  };
+
+  const key = source.toLowerCase().replace(/\s/g, "_");
+  return map[key] || "other";
+}
+
+function cleanBudget(value) {
+  if (!value || value === "" || isNaN(value)) return null;
+  return parseFloat(value);
+}
 
 export const createCustomerAssistant = async (req, res) => {
   try {
@@ -104,17 +146,21 @@ export const createCustomerRecord = async (req, res) => {
 
     // ✅ Prepare customer data
     const customerData = {
-      fullName,
-      phoneNumber,
-      email: structuredOutput.email || null,
-      whatsAppNumber: structuredOutput.whatsAppNumber || null,
-      minimumBudget: structuredOutput.minimumBudget || null,
-      maximumBudget: structuredOutput.maximumBudget || null,
-      leadSource: structuredOutput.leadSource || null,
-      initialNotes: structuredOutput.initialNotes || null,
+      fullName: cleanValue(structuredOutput.fullName),
+      phoneNumber: cleanPhone(structuredOutput.phoneNumber),
+
+      email: cleanValue(structuredOutput.email),
+      whatsAppNumber: cleanPhone(structuredOutput.whatsAppNumber),
+
+      minimumBudget: cleanBudget(structuredOutput.minimumBudget),
+      maximumBudget: cleanBudget(structuredOutput.maximumBudget),
+
+      leadSource: normalizeLeadSource(structuredOutput.leadSource),
+      initialNotes: cleanValue(structuredOutput.initialNotes),
+
       status: "new",
       role: "customer",
-      agencyId: "68c55d7c2df74062c8341bf7",
+      agencyId: req.user.agencyId._id,
     };
 
     if (!customerData.agencyId) {

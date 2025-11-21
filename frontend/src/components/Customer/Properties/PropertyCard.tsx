@@ -15,28 +15,16 @@ import {
   handleImageError,
 } from "@/lib/imageUtils";
 import Link from "next/link";
+import { formatPrice } from "@/utils/helperFunction";
 
 interface PropertyCardProps {
   property: Property;
   onShare?: (property: Property) => void;
-  onView?: (property: Property) => void;
   onToggleFavorite?: (property: Property) => void;
   onRefresh?: () => void;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
-  const formatPrice = (price: number) => {
-    if (price >= 10000000) {
-      // 1 crore
-      return `₹${(price / 10000000).toFixed(1)}Cr`;
-    } else if (price >= 100000) {
-      // 1 lakh
-      return `₹${(price / 100000).toFixed(1)}L`;
-    } else if (price < 100000) {
-      return `₹${price.toLocaleString()}`;
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "available":

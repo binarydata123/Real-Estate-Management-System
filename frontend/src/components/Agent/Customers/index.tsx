@@ -12,6 +12,7 @@ import Link from "next/link";
 import CustomerAssistant from "./CustomerAssistant";
 import { AddCustomerSelectionModal } from "./AddCustomerSelectionModal";
 import { showErrorToast } from "@/utils/toastHandler";
+import { formatPrice } from "@/utils/helperFunction";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -113,11 +114,6 @@ export const Customers: React.FC = () => {
   };
 
   const formatBudget = (min?: number, max?: number) => {
-    const formatPrice = (price = 0) => {
-      if (price >= 10000000) return `₹${(price / 10000000).toFixed(1)}Cr`;
-      else if (price >= 100000) return `₹${(price / 100000).toFixed(1)}L`;
-      else if (price < 100000) return `₹${price?.toLocaleString()}`;
-    };
     return `${formatPrice(min)} - ${formatPrice(max)}`;
   };
 
