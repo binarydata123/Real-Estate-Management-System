@@ -56,4 +56,12 @@ export function middleware(req: NextRequest) {
 
   return NextResponse.next();
 }
-export const config = {}
+export const config = {
+  matcher: [
+    "/admin/:path*",
+    "/agent/:path*",
+    "/customer/:path*",
+    "/auth/login",
+    "/auth/signup",
+  ],
+};

@@ -120,7 +120,7 @@ export const AgentDashboard = () => {
           </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-6">
-          {dashboardData?.recentProperties?.map((property) => (
+          {dashboardData?.recentProperties?.map((property:Property) => (
             <PropertyCardForDashboard
               key={property._id}
               property={property}
