@@ -37,7 +37,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
     } else if (price >= 100000) {
       return `₹${(price / 100000).toFixed(1)}L`;
     } else if (price < 100000) {
-      return `₹${price.toLocaleString()}`;
+      return `₹${price?.toLocaleString()}`;
     }
   };
 

@@ -37,7 +37,7 @@ export const agencyDashboardData = async (req, res) => {
         { $sort: { maximumBudget: -1 } },
         { $limit: 3 },
       ]),
-      Property.find({owner:req.user.id}).sort({createdAt:-1}).limit(2),
+      Property.find({agencyId}).sort({createdAt:-1}).limit(2),
     ]);
 
     const data = {

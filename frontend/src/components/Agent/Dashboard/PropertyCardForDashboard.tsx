@@ -37,7 +37,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
       // 1 lakh
       return `₹${(price / 100000).toFixed(1)}L`;
     } else if (price < 100000) {
-      return `₹${price.toLocaleString()}`;
+      return `₹${price?.toLocaleString()}`;
     }
   };
 
