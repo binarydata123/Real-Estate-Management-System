@@ -18,11 +18,11 @@ import {
   handleImageError,
 } from "@/lib/imageUtils";
 import { showErrorToast } from "@/utils/toastHandler";
+import { formatPrice } from "@/utils/helperFunction";
 
 interface PropertyCardProps {
   property: Property;
   onShare?: (property: Property) => void;
-  onView?: (property: Property) => void;
   onToggleFavorite?: (property: Property) => void;
   onRefresh?: () => void;
 }
@@ -32,27 +32,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   onShare,
   onRefresh,
 }) => {
-  const formatPrice = (price: number | null | undefined) => {
-    // Handle null, undefined, empty string, NaN, invalid numbers
-    if (price === null || price === undefined || isNaN(Number(price))) {
-      return "Price not available";
-    }
-
-    const value = Number(price);
-
-    // Handle zero
-    if (value === 0) {
-      return "₹0";
-    }
-
-    if (value >= 10000000) {
-      return `₹${(value / 10000000).toFixed(1)}Cr`;
-    } else if (value >= 100000) {
-      return `₹${(value / 100000).toFixed(1)}L`;
-    }
-    return `₹${value.toLocaleString()}`;
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "available":
@@ -184,7 +163,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className="mt-auto pt-3 border-t border-gray-100">
           <div className="flex space-x-2">
             <Link href={`/agent/properties/${property._id}`}>
-              <button className="flex-1 flex items-center justify-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+              <button className="flex-1 flex items-center justify-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors text-sm">
                 <EyeIcon className="h-4 w-4 mr-2" />
                 <span className="hidden md:inline">View Details</span>
                 <span className="md:hidden">View</span>

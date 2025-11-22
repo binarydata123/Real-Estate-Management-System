@@ -20,6 +20,7 @@ import { sharePropertySchema } from "@/schemas/Agent/sharePropertySchema";
 import { useToast } from "@/context/ToastContext";
 import axios from "axios";
 import { showErrorToast } from "@/utils/toastHandler";
+import { formatPrice } from "@/utils/helperFunction";
 
 type SharePropertyFormData = z.infer<typeof sharePropertySchema>;
 
@@ -101,12 +102,6 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
     }
   };
 
-  const formatPrice = (price: number) => {
-    if (price >= 10000000) return `₹${(price / 10000000).toFixed(1)}Cr`;
-    if (price >= 100000) return `₹${(price / 100000).toFixed(1)}L`;
-    return `₹${price?.toLocaleString()}`;
-  };
-
   const getImageUrl = (url: string) => {
     if (url.startsWith("http")) return url;
     return `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${url}`;
@@ -130,7 +125,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
             <div className="bg-blue-100 text-blue-600 p-2 rounded-lg">
               <ShareIcon className="h-5 w-5" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-xl font-semibold  text-gray-800">
               Share Property
             </h2>
           </div>
@@ -312,7 +307,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                className="flex items-center px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
                 {!loading && <ShareIcon className="h-5 w-5 mr-2" />}
                 {loading ? "Sharing..." : "Share Property"}

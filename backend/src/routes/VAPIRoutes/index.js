@@ -8,7 +8,7 @@ import {
 } from "../../controllers/AI/propertyAssistant/index.js";
 import { createMeetingRecord } from "../../controllers/AI/meetingAssistant/index.js";
 
-router.post("/save-lead", createCustomerRecord);
+router.post("/save-lead", protect(["agent", "admin"]), createCustomerRecord);
 router.post(
   "/save-property",
   protect(["agent", "admin"]),

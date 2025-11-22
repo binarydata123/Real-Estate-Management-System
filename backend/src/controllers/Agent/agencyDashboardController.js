@@ -16,27 +16,47 @@ export const agencyDashboardData = async (req, res) => {
 
     const endOfDay = new Date();
     endOfDay.setUTCHours(23, 59, 59, 999);
-
+const minValue = 500;
     const [
       totalProperties,
       totalCustomers,
       totalMeetings,
       todayMeetings,
       topCustomers,
+      recentProperties,
     ] = await Promise.all([
       Property.countDocuments({ agencyId }),
       Customer.countDocuments({ agencyId }),
-      Meetings.countDocuments({ agencyId }),
+      Meetings.countDocuments({ agencyId ,date:{ $gte:startOfDay} }),
       Meetings.find({
         agencyId,
         date: { $gte: startOfDay, $lte: endOfDay },
       }).limit(3).populate("customerId propertyId"),
 
-      Customer.aggregate([
-        { $sort: { maximumBudget: -1 } },
-        { $limit: 3 },
-      ]),
-
+  Customer.aggregate([
+  {
+    $match: {
+      agencyId,
+    },
+  },
+  {
+    $addFields: {
+      maxBudgetNum: { $toDouble: "$maximumBudget" },
+    },
+  },
+  {
+    $match: {
+      maxBudgetNum: { $gt: minValue },
+    },
+  },
+  {
+    $sort: { maxBudgetNum: -1 },
+  },
+  { $limit: 3 },
+]),
+   Property.find({ agencyId })
+  .sort({ createdAt: -1 })
+  .limit(2)
     ]);
 
     const data = {
@@ -45,6 +65,7 @@ export const agencyDashboardData = async (req, res) => {
       totalMeetings,
       todayMeetings,
       topCustomers,
+      recentProperties
     };
 
     return res.status(200).json({

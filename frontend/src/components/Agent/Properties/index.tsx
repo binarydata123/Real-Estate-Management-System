@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { BuildingOfficeIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { PropertyFilters } from "./PropertyFilters";
-import PropertyDetailModal from "../Common/PropertyDetailModal";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import { PropertyCard } from "./PropertyCard";
 import { getProperties } from "@/lib/Agent/PropertyAPI";
@@ -44,9 +43,6 @@ const PropertyCardSkeleton = () => (
 );
 
 export const Properties: React.FC = () => {
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null
-  );
   const [showShareModal, setShowShareModal] = useState(false);
   const [propertyToShare, setPropertyToShare] = useState<Property | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -98,10 +94,6 @@ export const Properties: React.FC = () => {
     }
   };
 
-  const handleViewProperty = (property: Property) => {
-    setSelectedProperty(property);
-  };
-
   const handleShareProperty = (property: Property) => {
     setPropertyToShare(property);
     setShowShareModal(true);
@@ -118,7 +110,7 @@ export const Properties: React.FC = () => {
           </p>
         </div>
         <Link href="/agent/add-property">
-          <span className="flex items-center md:px-4 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer">
+          <span className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors cursor-pointer">
             <PlusIcon className="h-5 w-5 mr-2" />
             Add Property
           </span>
@@ -146,7 +138,6 @@ export const Properties: React.FC = () => {
               <PropertyCard
                 key={property._id}
                 property={property}
-                onView={handleViewProperty}
                 onShare={handleShareProperty}
                 onRefresh={getAllProperties}
               />
@@ -188,18 +179,6 @@ export const Properties: React.FC = () => {
             Try adjusting your filters or add a new property.
           </p>
         </div>
-      )}
-
-      {/* Property Detail Modal */}
-      {selectedProperty && (
-        <PropertyDetailModal
-          property={selectedProperty}
-          onClose={() => setSelectedProperty(null)}
-          onShare={(property) => {
-            setSelectedProperty(null);
-            handleShareProperty(property);
-          }}
-        />
       )}
 
       {/* Share Property Modal */}

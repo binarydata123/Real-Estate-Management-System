@@ -8,9 +8,9 @@ import axios from "axios";
 import { useToast } from "@/context/ToastContext";
 import { CustomerFormDataSchema } from "@/schemas/Agent/customerSchema";
 import { z } from "zod";
-import { inviteAgent } from "@/lib/Agent/InviteAPI ";
 import { useAuth } from "@/context/AuthContext";
 import { showErrorToast } from "@/utils/toastHandler";
+import { inviteAgent, updateAgent } from "@/lib/Agent/InviteAPI ";
 
 // Zod schema for the invite form
 const inviteSchema = z.object({
@@ -24,18 +24,35 @@ const inviteSchema = z.object({
 
 type InviteFormData = z.infer<typeof inviteSchema>;
 
+
+
+ export interface AgentMember {
+  _id?: string;
+  agencyId?: string;
+  memberId?: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  whatsapp?: string;
+  role?: "agent" | "agency_admin";
+  message?: string;
+}
+
 interface InviteAgentModalProps {
   onClose: () => void;
   onSuccess?: () => void;
+  member?: AgentMember | null;
 }
 
 export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
   onClose,
   onSuccess,
+  member,
 }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const { showPromiseToast } = useToast();
+const isEdit = !!member?._id;
 
   const {
     register,
@@ -44,39 +61,46 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
   } = useForm<InviteFormData>({
     resolver: zodResolver(inviteSchema),
     defaultValues: {
-      role: "agent",
+      name: member?.name || "",
+      phone: member?.phone || "",
+      email: member?.email || "",
+      role: member?.role || "agent",
+      message: member?.message || "",
     },
   });
 
   const onSubmit = async (data: InviteFormData) => {
     setLoading(true);
-    const dataWithAgency = {
+    const payload = {
       ...data,
       agencyId: user?.agency?._id,
+       memberId:member?._id
+
     };
-    const apiCall = () =>
-      inviteAgent(dataWithAgency as unknown as CustomerFormDataSchema);
+    const apiCall = () => {
+       if (isEdit) return updateAgent(payload);
+      return inviteAgent(payload as unknown as CustomerFormDataSchema);
+    };
 
     try {
       await showPromiseToast(apiCall(), {
-        loading: "Sending invitation...",
+        loading: isEdit ? "Updating agent..." : "Sending invitation...",
         success: (response: { data?: { message?: string } }) =>
-          response.data?.message || `Invitation sent to ${data.name}!`,
+          response.data?.message ||
+          (isEdit ? "Agent updated successfully!" : `Invitation sent to ${data.name}!`),
         error: (err: unknown) => {
           if (axios.isAxiosError(err) && err.response) {
-            return err.response.data.message || "Failed to send invitation.";
+            return err.response.data.message || "Request failed.";
           }
-          if (err instanceof Error) {
-            return err.message || "An unexpected error occurred.";
-          }
-          return "An unexpected error occurred.";
+          if (err instanceof Error) return err.message;
+          return "Unexpected error.";
         },
       });
 
       onSuccess?.();
       onClose();
     } catch (error) {
-      showErrorToast("Invitation failed:", error);
+      showErrorToast("Action failed:", error);
     } finally {
       setLoading(false);
     }
@@ -89,7 +113,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
         <div className="border-b border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
-              Invite Agent
+              {isEdit ? "Update Agent" : "Invite Agent"}
             </h2>
             <span
               onClick={onClose}
@@ -121,7 +145,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
             )}
           </div>
 
-          {/* Phone Number */}
+          {/* Phone */}
           <div>
             <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
               Phone Number *
@@ -133,9 +157,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
               placeholder="+91 9876543210"
             />
             {errors.phone && (
-              <p className="text-red-600 text-sm mt-1">
-                {errors.phone.message}
-              </p>
+              <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>
             )}
           </div>
 
@@ -151,9 +173,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
               placeholder="agent@example.com"
             />
             {errors.email && (
-              <p className="text-red-600 text-sm mt-1">
-                {errors.email.message}
-              </p>
+              <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
             )}
           </div>
 
@@ -193,13 +213,20 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
             >
               Cancel
             </button>
+
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <UserPlusIcon className="h-4 w-4 mr-2" />
-              {loading ? "Sending..." : "Send Invitation"}
+              {loading
+                ? isEdit
+                  ? "Updating..."
+                  : "Sending..."
+                : isEdit
+                ? "Update Agent"
+                : "Send Invitation"}
             </button>
           </div>
         </form>

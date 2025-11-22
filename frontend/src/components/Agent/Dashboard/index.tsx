@@ -4,13 +4,12 @@ import React, { useEffect, useState } from "react";
 import DashboardStats from "./DashboardStats";
 import TodaysReminders, { Reminder } from "./TodaysReminders";
 import PropertyCardForDashboard from "./PropertyCardForDashboard";
-import PropertyDetailModal from "../Common/PropertyDetailModal";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import Link from "next/link";
 import { useNotificationPermission } from "@/components/Common/pushNotification";
 import { usePushSubscription } from "@/components/Common/SubscribeUserForNotification";
 import { useAuth } from "@/context/AuthContext";
-import { getDashboardData } from "@/lib/Dashboard/DashboarAPI";
+import { getDashboardData } from "@/lib/Agent/DashboarAPI";
 import { showErrorToast } from "@/utils/toastHandler";
 import HotCustomers from "./HotCustomers";
 
@@ -25,17 +24,14 @@ interface DashboardData {
   totalMeetings: number;
   todayMeetings: Reminder[];
   topCustomers: customer[]; // object
+  recentProperties:[]
 }
 
 export const AgentDashboard = () => {
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null
-  );
   const [showShareModal, setShowShareModal] = useState(false);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
-
   const getData = async () => {
     try {
       const res = await getDashboardData();
@@ -50,59 +46,8 @@ export const AgentDashboard = () => {
   useEffect(() => {
     getData();
   }, []);
-  const recentProperties: any[] = [
-    {
-      id: "1",
-      title: "Luxury 3BHK Apartment",
-      type: "residential",
-      category: "flat",
-      location: "Bandra West,Auto Market, New Mumbai",
-      price: 7500000,
-      size: 1200,
-      size_unit: "sq ft",
-      bedrooms: 3,
-      bathrooms: 2,
-      status: "available",
-      images: [
-        {
-          _id: "",
-          url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
-          alt: "Luxury 3BHK Apartment",
-          isPrimary: true,
-        },
-      ],
-      created_at: "2025-01-09T10:00:00Z",
-      description:
-        "Beautiful 3BHK apartment with modern amenities, spacious rooms, and excellent connectivity.",
-    },
-    {
-      id: "2",
-      title: "Premium Commercial Office",
-      type: "commercial",
-      category: "office",
-      location: "Andheri East, Mumbai",
-      price: 12000000,
-      size: 800,
-      size_unit: "sq ft",
-      status: "available",
-      images: [
-        {
-          _id: "",
-          url: "https://images.pexels.com/photos/373912/pexels-photo-373912.jpeg",
-          alt: "Premium Commercial Office",
-          isPrimary: true,
-        },
-      ],
-      created_at: "2025-01-08T14:30:00Z",
-      description:
-        "Premium commercial office space in prime location with modern infrastructure.",
-    },
-  ];
+  
   const [propertyToShare, setPropertyToShare] = useState<Property | null>(null);
-
-  const handleViewProperty = (property: Property) => {
-    setSelectedProperty(property);
-  };
 
   const handleShareProperty = (property: Property) => {
     setPropertyToShare(property);
@@ -166,28 +111,15 @@ export const AgentDashboard = () => {
           </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-6">
-          {recentProperties.map((property) => (
+          {dashboardData?.recentProperties?.map((property:Property) => (
             <PropertyCardForDashboard
-              key={property.id}
+              key={property._id}
               property={property}
-              onView={handleViewProperty}
               onShare={handleShareProperty}
             />
           ))}
         </div>
       </div>
-
-      {/* Property Detail Modal */}
-      {selectedProperty && (
-        <PropertyDetailModal
-          property={selectedProperty}
-          onClose={() => setSelectedProperty(null)}
-          onShare={(property) => {
-            setSelectedProperty(null);
-            handleShareProperty(property);
-          }}
-        />
-      )}
 
       {/* Share Property Modal */}
       {showShareModal && propertyToShare && (

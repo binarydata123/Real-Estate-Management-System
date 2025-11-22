@@ -62,9 +62,9 @@ export const Shares: React.FC = () => {
       const sharedWithName = share.sharedWithUserId.fullName.toLowerCase();
       const term = searchTerm.toLowerCase();
       return (
-        propertyTitle.includes(term) ||
-        sharedByName.includes(term) ||
-        sharedWithName.includes(term)
+        propertyTitle?.includes(term) ||
+        sharedByName?.includes(term) ||
+        sharedWithName?.includes(term)
       );
     });
   }, [searchTerm, sharedData]);
@@ -127,7 +127,7 @@ export const Shares: React.FC = () => {
                           <span>
                             Shared by{" "}
                             <span className="font-medium text-gray-900">
-                              {share.sharedByUserId.name}
+                              {share?.sharedByUserId.name}
                             </span>
                           </span>
                         </div>
@@ -211,7 +211,7 @@ export const Shares: React.FC = () => {
           <p className="text-gray-500 mb-6">
             Start sharing properties with customers and colleagues
           </p>
-          <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+          <button className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
             <ShareIcon className="h-5 w-5 mr-2" />
             Share Your First Property
           </button>
