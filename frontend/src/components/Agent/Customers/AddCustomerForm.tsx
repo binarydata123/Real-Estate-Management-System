@@ -42,8 +42,6 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
     resolver: zodResolver(customerSchema),
     defaultValues: {
       leadSource: "website",
-      minimumBudget: 0,
-      maximumBudget: 0,
       ...initialData,
     },
   });

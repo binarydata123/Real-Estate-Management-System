@@ -8,25 +8,35 @@ import {
   BuildingOfficeIcon,
   UsersIcon,
   CalendarIcon,
+  ChatBubbleLeftRightIcon,
+  ShareIcon,
   ChartBarIcon,
+  BellIcon,
   Cog6ToothIcon,
   XMarkIcon,
-  ArrowRightOnRectangleIcon,
+  ArrowRightOnRectangleIcon
 } from "@heroicons/react/24/outline";
-import { useAuth } from "@/context/AuthContext";
-import { Bell } from "lucide-react";
 
+import { useAuth } from "@/context/AuthContext";
 const navigation = [
   { name: "Dashboard", href: "/agent/dashboard", icon: HomeIcon },
+
   { name: "Properties", href: "/agent/properties", icon: BuildingOfficeIcon },
+
   { name: "Customers", href: "/agent/customers", icon: UsersIcon },
+
   { name: "Meetings", href: "/agent/meetings", icon: CalendarIcon },
-  { name: "Messages", href: "/agent/messages", icon: CalendarIcon },
-  { name: "Shares", href: "/agent/shares", icon: ChartBarIcon },
+
+  { name: "Messages", href: "/agent/messages", icon: ChatBubbleLeftRightIcon },
+
+  { name: "Shares", href: "/agent/shares", icon: ShareIcon },
+
   { name: "Analytics", href: "/agent/analytics", icon: ChartBarIcon },
-  { name: "Notifications", href: "/agent/notifications", icon: Bell },
+
+  { name: "Notifications", href: "/agent/notifications", icon: BellIcon },
+
   { name: "Settings", href: "/agent/settings", icon: Cog6ToothIcon },
-  // { name: "Profile", href: "/agent/profile", icon: UsersIcon },
+
   { name: "Team Management", href: "/agent/team-members", icon: UsersIcon },
 ];
 
@@ -45,8 +55,7 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         lg:relative lg:translate-x-0 lg:flex
-      `}
-    >
+      `}>
       <div className="flex justify-between items-center border-b border-gray-200">
         {/* Agency Branding */}
         <div className="md:p-5 p-2">
@@ -61,9 +70,7 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   height={40}
                 />
               ) : (
-                <div
-                  className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold bg-primary"
-                >
+                <div className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold bg-primary">
                   {user.agency?.name.charAt(0)}
                 </div>
               )}
@@ -86,8 +93,7 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <button
             type="button"
             className="-m-2.5 p-2.5 rounded-md text-gray-700 lg:hidden"
-            onClick={onClose}
-          >
+            onClick={onClose}>
             <span className="sr-only">Close sidebar</span>
             <XMarkIcon className="h-6 w-6" aria-hidden="true" />
           </button>
@@ -108,8 +114,7 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 isActive
                   ? "border-r-2 bg-primary/10 border-primary text-primary"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
+              }`}>
               <Icon className="mr-3 h-5 w-5" aria-hidden="true" />
               {item.name}
             </Link>
@@ -121,8 +126,7 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <div className="md:px-3 md:py-4 border-t border-gray-200 text-center mx-auto w-full">
         <button
           onClick={() => signOut()}
-          className="flex w-full justify-center text-red-500 items-center px-2 py-2 text-sm font-medium rounded-lg  hover:bg-red-50 hover:text-red-700 transition-colors"
-        >
+          className="flex w-full justify-center text-red-500 items-center px-2 py-2 text-sm font-medium rounded-lg  hover:bg-red-50 hover:text-red-700 transition-colors">
           <ArrowRightOnRectangleIcon
             className="mr-1 h-5 w-5"
             aria-hidden="true"

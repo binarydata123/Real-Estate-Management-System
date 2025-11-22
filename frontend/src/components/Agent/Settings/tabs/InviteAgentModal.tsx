@@ -24,9 +24,7 @@ const inviteSchema = z.object({
 
 type InviteFormData = z.infer<typeof inviteSchema>;
 
-
-
- export interface AgentMember {
+export interface AgentMember {
   _id?: string;
   agencyId?: string;
   memberId?: string;
@@ -52,7 +50,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const { showPromiseToast } = useToast();
-const isEdit = !!member?._id;
+  const isEdit = !!member?._id;
 
   const {
     register,
@@ -64,7 +62,7 @@ const isEdit = !!member?._id;
       name: member?.name || "",
       phone: member?.phone || "",
       email: member?.email || "",
-      role: member?.role || "agent",
+      role: "agent",
       message: member?.message || "",
     },
   });
@@ -74,11 +72,10 @@ const isEdit = !!member?._id;
     const payload = {
       ...data,
       agencyId: user?.agency?._id,
-       memberId:member?._id
-
+      memberId: member?._id,
     };
     const apiCall = () => {
-       if (isEdit) return updateAgent(payload);
+      if (isEdit) return updateAgent(payload);
       return inviteAgent(payload as unknown as CustomerFormDataSchema);
     };
 
@@ -87,7 +84,9 @@ const isEdit = !!member?._id;
         loading: isEdit ? "Updating agent..." : "Sending invitation...",
         success: (response: { data?: { message?: string } }) =>
           response.data?.message ||
-          (isEdit ? "Agent updated successfully!" : `Invitation sent to ${data.name}!`),
+          (isEdit
+            ? "Agent updated successfully!"
+            : `Invitation sent to ${data.name}!`),
         error: (err: unknown) => {
           if (axios.isAxiosError(err) && err.response) {
             return err.response.data.message || "Request failed.";
@@ -117,8 +116,7 @@ const isEdit = !!member?._id;
             </h2>
             <span
               onClick={onClose}
-              className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-            >
+              className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
               <XMarkIcon className="h-5 w-5 text-gray-500" />
             </span>
           </div>
@@ -127,8 +125,7 @@ const isEdit = !!member?._id;
         {/* Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="md:p-6 p-2 md:space-y-6 space-y-2"
-        >
+          className="md:p-6 p-2 md:space-y-6 space-y-2">
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
@@ -157,7 +154,9 @@ const isEdit = !!member?._id;
               placeholder="+91 9876543210"
             />
             {errors.phone && (
-              <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>
+              <p className="text-red-600 text-sm mt-1">
+                {errors.phone.message}
+              </p>
             )}
           </div>
 
@@ -173,22 +172,10 @@ const isEdit = !!member?._id;
               placeholder="agent@example.com"
             />
             {errors.email && (
-              <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+              <p className="text-red-600 text-sm mt-1">
+                {errors.email.message}
+              </p>
             )}
-          </div>
-
-          {/* Role */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-              Role
-            </label>
-            <select
-              {...register("role")}
-              className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="agent">Agent</option>
-              <option value="agency_admin">Agency Admin</option>
-            </select>
           </div>
 
           {/* Personal Message */}
@@ -209,16 +196,14 @@ const isEdit = !!member?._id;
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
               Cancel
             </button>
 
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+              className="flex items-center px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               <UserPlusIcon className="h-4 w-4 mr-2" />
               {loading
                 ? isEdit

@@ -13,6 +13,8 @@ import CustomerAssistant from "./CustomerAssistant";
 import { AddCustomerSelectionModal } from "./AddCustomerSelectionModal";
 import { showErrorToast } from "@/utils/toastHandler";
 import { formatPrice } from "@/utils/helperFunction";
+import { NoData } from "@/components/Common/NoData";
+import { Users } from "lucide-react";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -136,8 +138,7 @@ export const Customers: React.FC = () => {
           />
           <button
             onClick={() => setShowSelectionModal(true)}
-            className="flex items-center justify-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
-          >
+            className="flex items-center justify-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors">
             <PlusIcon className="h-5 w-5 mr-2" />
             Add Customer
           </button>
@@ -146,31 +147,14 @@ export const Customers: React.FC = () => {
 
       {/* ----------- EMPTY STATE ----------- */}
       {customers.length === 0 && !isFetching && (
-        <div className="text-center py-12">
-          <UserIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" />
-          {debouncedSearchTerm ? (
-            <>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No customers found
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Your search for &ldquo;{debouncedSearchTerm}&ldquo; did not
-                return any results.
-              </p>
-            </>
-          ) : (
-            <>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No customers yet
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Start building your customer base by adding your first customer.
-              </p>
-            </>
-          )}
-        </div>
+        <NoData
+          icon={<Users size={40}/>}
+          heading="No Customer(s) Found"
+          description={`Your search for ${debouncedSearchTerm} did not
+                return any results.`}
+        />
       )}
-
+      {/*  */}
       {/* ----------- MAIN CUSTOMER LIST (UI unchanged) ----------- */}
       {customers.length > 0 && (
         <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -183,11 +167,10 @@ export const Customers: React.FC = () => {
           </div>
 
           <div className="divide-y divide-gray-200">
-            {customers.map((customer: CustomerFormData,index) => (
+            {customers.map((customer: CustomerFormData, index) => (
               <div
                 key={`${customer._id}-${index}`}
-                className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors"
-              >
+                className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors">
                 {/* Customer Info */}
                 <div className="md:col-span-2 flex justify-between items-start">
                   <div className="flex items-center space-x-3">
@@ -206,8 +189,7 @@ export const Customers: React.FC = () => {
                   <span
                     className={`md:hidden capitalize inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
                       customer?.status
-                    )}`}
-                  >
+                    )}`}>
                     {customer?.status}
                   </span>
                 </div>
@@ -244,8 +226,7 @@ export const Customers: React.FC = () => {
                     <span
                       className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
                         customer?.status
-                      )}`}
-                    >
+                      )}`}>
                       {customer?.status}
                     </span>
                   </div>
@@ -254,14 +235,12 @@ export const Customers: React.FC = () => {
                   <div className="col-span-2 md:col-auto flex justify-end md:justify-start space-x-2 md:space-x-4">
                     <span
                       onClick={() => setEditingCustomer(customer)}
-                      className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium"
-                    >
+                      className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium">
                       Edit
                     </span>
                     <span
                       onClick={() => handleDeleteClick(customer)}
-                      className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
-                    >
+                      className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium">
                       Delete
                     </span>
                     <span
@@ -269,21 +248,17 @@ export const Customers: React.FC = () => {
                         setViewCustomer(customer);
                         setOpen(true);
                       }}
-                      className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                    >
+                      className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium">
                       View
                     </span>
                     <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
                       <Link
-                        href={`/agent/preference?customerId=${customer._id}`}
-                      >
+                        href={`/agent/preference?customerId=${customer._id}`}>
                         Preference
                       </Link>
                     </span>
                     <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                      <Link
-                        href={`/agent/messages?customerId=${customer._id}`}
-                      >
+                      <Link href={`/agent/messages?customerId=${customer._id}`}>
                         Message
                       </Link>
                     </span>
@@ -312,7 +287,7 @@ export const Customers: React.FC = () => {
           hasMore={currentPage < totalPages}
           loader={
             <div className="text-center py-4">
-                <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+              <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
             </div>
           }
           endMessage={

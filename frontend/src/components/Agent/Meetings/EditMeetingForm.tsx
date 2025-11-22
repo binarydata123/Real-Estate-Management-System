@@ -11,7 +11,8 @@ import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
 import { updateMeeting, getMeetingById } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
 import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { getProperties } from "@/lib/Agent/PropertyAPI";
 
 interface EditMeetingFormProps {
   meetingId: string | null;
@@ -30,15 +31,9 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   const [initialData, setInitialData] = useState<MeetingFormData | null>(null);
   const { user } = useAuth();
   const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
-    [],
+    []
   );
-
-  const mockProperties = [
-    { id: "64f0c2b2f1e2a4b123456780", title: "Luxury 3BHK Apartment" },
-    { id: "64f0c2b2f1e2a4b123456781", title: "Premium Commercial Office" },
-    { id: "64f0c2b2f1e2a4b123456782", title: "Spacious 4BHK Villa" },
-  ];
-
+  const [properties, setProperties] = useState<Property[]>([]);
   const {
     register,
     handleSubmit,
@@ -60,10 +55,10 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         const formattedDate = meeting.date
           ? new Date(meeting.date).toISOString().split("T")[0]
           : "";
-
+        console.log(meeting);
         // Prefill form
         setValue("customerId", meeting.customerId);
-        setValue("propertyId", meeting.propertyId || null);
+        setValue("propertyId", meeting.propertyId || "");
         setValue("agencyId", meeting.agencyId);
         setValue("date", formattedDate);
         setValue("time", meeting.time || "");
@@ -77,6 +72,17 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
 
     fetchData();
   }, [meetingId, setValue, onClose]);
+
+  useEffect(() => {
+    const loadProps = async () => {
+      if (!user?.agency?._id) return;
+
+      const { data } = await getProperties({ agencyId: user.agency._id });
+      setProperties(data);
+    };
+
+    loadProps();
+  }, [user?.agency?._id]);
 
   useEffect(() => {
     const init = async () => {
@@ -105,7 +111,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         agencyId: user?.agency?._id,
       };
       if (meetingId) await updateMeeting(meetingId, payload);
-      alert("Meeting updated successfully!");
+      showSuccessToast("Meeting updated successfully!");
       onSuccess?.();
       onClose();
     } catch (error: unknown) {
@@ -114,7 +120,6 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         alert(error.message);
       } else {
         showErrorToast("Failed to update meeting:", error);
-        alert("Failed to update meeting");
       }
     } finally {
       setLoading(false);
@@ -142,8 +147,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
             </h2>
             <span
               onClick={onClose}
-              className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-            >
+              className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
               <XMarkIcon className="h-5 w-5 text-gray-500" />
             </span>
           </div>
@@ -152,8 +156,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         {/* Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="md:p-6 p-2 md:space-y-6 space-y-2"
-        >
+          className="md:p-6 p-2 md:space-y-6 space-y-2">
           {/* Customer & Property */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
             <div>
@@ -162,8 +165,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
               </label>
               <select
                 {...register("customerId")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              >
+                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
                 <option value="">Select a customer</option>
                 {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
@@ -184,11 +186,10 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
               </label>
               <select
                 {...register("propertyId")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Select a property</option>
-                {mockProperties.map((property) => (
-                  <option key={property.id} value={property.id}>
+                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Select a Property</option>
+                {properties.map((property) => (
+                  <option key={property._id} value={property._id}>
                     {property.title}
                   </option>
                 ))}
@@ -247,15 +248,13 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               {loading ? "Updating..." : "Update Meeting"}
             </button>
           </div>

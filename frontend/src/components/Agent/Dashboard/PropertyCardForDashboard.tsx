@@ -1,12 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  MapPinIcon,
-  ShareIcon,
-  EyeIcon,
-  HeartIcon,
-} from "@heroicons/react/24/outline";
+import { MapPinIcon, EyeIcon, HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import {
@@ -25,7 +20,6 @@ interface PropertyCardProps {
 
 const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
   property,
-  onShare,
   onFavorite,
   isFavorited = false,
 }) => {
@@ -50,9 +44,9 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
     return getPropertyImageUrlWithFallback(url);
   };
   return (
-    <Link href={`/agent/properties/${property._id}`}>
-      <div className="bg-white rounded-lg md:rounded-xl  shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
-        {/* Image */}
+    <div className="bg-white rounded-lg md:rounded-xl  shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
+      {/* Image */}
+      <Link href={`/agent/properties/${property._id}`}>
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
             width={400}
@@ -66,8 +60,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
             <span
               className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
                 property.status
-              )}`}
-            >
+              )}`}>
               {property.status}
             </span>
           </div>
@@ -77,8 +70,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
                 e.stopPropagation();
                 onFavorite?.(property);
               }}
-              className="p-1.5 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
-            >
+              className="p-1.5 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
               {isFavorited ? (
                 <HeartSolid className="h-5 w-5 text-red-500" />
               ) : (
@@ -92,62 +84,63 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
             )}
           </div>
         </div>
+      </Link>
 
-        {/* Content */}
-        <div className="p-1 md:p-4 flex flex-col flex-1">
-          <div className="flex-1">
-            <div className="flex justify-between items-start mb-1 md:mb-2">
-              <h3 className="font-semibold text-gray-900 text-base md:text-lg leading-tight pr-2 flex-1 truncate">
+      {/* Content */}
+      <div className="p-1 md:p-4 flex flex-col flex-1">
+        <div className="flex-1">
+          <div className="flex justify-between items-start mb-1 md:mb-2">
+            <h3 className="font-semibold text-gray-900 text-base md:text-lg leading-tight pr-2 flex-1 truncate">
+              <Link href={`/agent/properties/${property._id}`}>
                 {property.title}
-              </h3>
-              <p className="text-lg md:text-xl font-bold text-blue-600 flex-shrink-0">
-                {formatPrice(property.price as number)}
-              </p>
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span className="line-clamp-1">{property.location}</span>
-            </div>
-
-            {/* Property Details */}
-            <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs md:text-sm text-gray-600 md:mt-1">
-              <span className="bg-gray-100 px-2 py-0.5 rounded capitalize">
-                {property.category}
-              </span>
-              {property.size && (
-                <span className="flex items-center">
-                  {property.size} {property.size_unit}
-                </span>
-              )}
-              {property.bedrooms && (
-                <span className="flex items-center">
-                  {property.bedrooms} BHK
-                </span>
-              )}
-              {property.bathrooms && (
-                <span className="flex items-center">
-                  {property.bathrooms} Bath
-                </span>
-              )}
-            </div>
+              </Link>
+            </h3>
+            <p className="text-lg md:text-xl font-bold text-blue-600 flex-shrink-0">
+              {formatPrice(property.price as number)}
+            </p>
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+            <span className="line-clamp-1">{property.location}</span>
           </div>
 
-          {/* Actions */}
-          <div className="md:flex hidden space-x-2 md:mt-4 mt-1 p-1 md:pt-3 border-t border-gray-100">
-            <button className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+          {/* Property Details */}
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs md:text-sm text-gray-600 md:mt-1">
+            <span className="bg-gray-100 px-2 py-0.5 rounded capitalize">
+              {property.category}
+            </span>
+            {property.size && (
+              <span className="flex items-center">
+                {property.size} {property.size_unit}
+              </span>
+            )}
+            {property.bedrooms && (
+              <span className="flex items-center">{property.bedrooms} BHK</span>
+            )}
+            {property.bathrooms && (
+              <span className="flex items-center">
+                {property.bathrooms} Bath
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="md:flex hidden space-x-2 md:mt-4 mt-1 p-1 md:pt-3 border-t border-gray-100">
+          <Link
+            href={`/agent/properties/${property._id}`}
+            className="flex flex-1 item-center justify-center">
+            <button className="flex-1 flex items-center justify-center px-3 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
               <EyeIcon className="h-4 w-4 mr-2" />
               View
             </button>
-            <button
-              onClick={() => onShare?.(property)}
-              className="flex items-center justify-center px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <ShareIcon className="h-4 w-4" />
-            </button>
-          </div>
+          </Link>
+          {/* <button className="flex-1 flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+       Contact Us
+          </button> */}
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
