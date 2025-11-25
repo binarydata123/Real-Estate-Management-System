@@ -18,11 +18,6 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
 
   const notificationOptions = [
     {
-      key: "emailNotifications",
-      title: "Email Notifications",
-      description: "Receive notifications via email",
-    },
-    {
       key: "pushNotifications",
       title: "Push Notifications",
       description: "Receive browser push notifications",
@@ -41,11 +36,6 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
       key: "customerActivity",
       title: "Customer Activity",
       description: "Notifications about customer interactions",
-    },
-    {
-      key: "systemUpdates",
-      title: "System Updates",
-      description: "Notifications about platform updates",
     },
   ];
 
