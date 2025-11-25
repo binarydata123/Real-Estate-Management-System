@@ -49,41 +49,6 @@ export const AgencyBranding: React.FC<Props> = ({
             />
           </div>
         </div>
-
-        {/* Secondary Color */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Secondary Color
-          </label>
-          <div className="flex items-center space-x-3">
-            <input
-              type="color"
-              value={branding?.secondaryColor || "#64748b"}
-              onChange={(e) =>
-                updateAgencySetting(
-                  "branding",
-                  "secondaryColor",
-                  e.target.value
-                )
-              }
-              className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
-            />
-            <input
-              type="text"
-              value={branding?.secondaryColor || "#64748b"}
-              onChange={(e) =>
-                updateAgencySetting(
-                  "branding",
-                  "secondaryColor",
-                  e.target.value
-                )
-              }
-              className="flex-1 px-3 md:px-4 py-2 border border-gray-300 rounded-lg
-                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                         text-gray-900 placeholder-gray-400 transition-all duration-150"
-            />
-          </div>
-        </div>
       </div>
     </div>
   );

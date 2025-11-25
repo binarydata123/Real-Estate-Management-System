@@ -38,10 +38,6 @@ const agencySchema = new mongoose.Schema(
     type:String,
     trim:true
     },
-    timezone:{
-      type:String,
-      trim:true
-    },
     address: String,
     logoUrl: String, // Consolidated from `logo` and `branding.logoUrl`
     status: {

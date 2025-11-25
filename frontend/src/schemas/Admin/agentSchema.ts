@@ -31,9 +31,9 @@ export const agentProfileSchema = z.object({
     .regex(/^[0-9]+$/, "WhatsApp number must contain only digits")
     .length(10, "WhatsApp number must be exactly 10 digits"),
 
-  timezone: z
+  agencyName: z
     .string()
-    .nonempty("Timezone is required"),
+    .nonempty("Agency name is required"),
 });
 
 export type AgentProfileUpdate = z.infer<typeof agentProfileSchema>;

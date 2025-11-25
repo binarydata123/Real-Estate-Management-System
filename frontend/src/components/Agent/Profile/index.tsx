@@ -12,7 +12,7 @@ import { agentProfileSchema } from "@/schemas/Admin/agentSchema";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 export default function Profile() {
 
-  const [user, setUser] = useState<AgentProfile | null>(null);
+  const [agent, setAgent] = useState<AgentProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const {
@@ -26,7 +26,7 @@ export default function Profile() {
       fullName: "",
       email: "",
       whatsapp: "",
-      timezone: "",
+      agencyName: "",
     },
   });
 
@@ -35,7 +35,7 @@ export default function Profile() {
     try {
       const res = await getAgentProfile();
       if (res.success && res.data) {
-     setUser(res.data);
+     setAgent(res.data);
 }
 
     } catch (err) {
@@ -71,13 +71,13 @@ export default function Profile() {
   }, []);
 
 useEffect(() => {
-    if (user) {
-      setValue("email", user.owner?.email);
-      setValue("fullName", user.owner?.name);
-      setValue("timezone", user.timezone);
-      setValue("whatsapp", user.whatsAppNumber);
+    if (agent) {
+      setValue("email", agent.owner?.email);
+      setValue("fullName", agent.owner?.name);
+      setValue("agencyName", agent.name  );
+      setValue("whatsapp", agent  .whatsAppNumber);
     }
-  }, [user, setValue]);
+  }, [agent, setValue]);
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8">
       {/* Header */}
@@ -160,26 +160,27 @@ useEffect(() => {
         </div>
 
         {/* Timezone */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 mb-1">
-            Timezone <span className="text-red-500">*</span>
-          </label>
-          <select
-            {...register("timezone")}
-            className={`w-full px-4 py-2.5 border ${
-              errors.timezone ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-            text-gray-900 bg-white transition-all duration-150`}
-          >
-            <option value="Asia/Kolkata">India Standard Time (IST)</option>
-            <option value="UTC">Coordinated Universal Time (UTC)</option>
-          </select>
-          {errors.timezone && (
-            <span className="text-red-500 text-sm mt-1">
-              {errors.timezone.message}
-            </span>
-          )}
-        </div>
+ <div className="flex flex-col">
+  <label className="text-sm font-medium text-gray-700 mb-1">
+    Agency Name <span className="text-red-500">*</span>
+  </label>
+
+  <input
+    type="text"
+    {...register("agencyName", { required: "Agency name is required" })}
+    className={`w-full px-4 py-2.5 border ${
+      errors.agencyName ? "border-red-500" : "border-gray-200"
+    } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+    text-gray-900 bg-white transition-all duration-150`}
+    placeholder="Enter agency name"
+  />
+
+  {errors.agencyName && (
+    <span className="text-red-500 text-sm mt-1">
+      {errors.agencyName.message}
+    </span>
+  )}
+</div>
 
         {/* Save Button */}
         <div className="md:col-span-2 flex justify-end mt-4">

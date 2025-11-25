@@ -1,5 +1,4 @@
 import { AgencyBranding } from "../tabs/AgencyBranding";
-import { AgencySettings } from "../tabs/AgencySettings";
 import { NotificationSettings } from "../tabs/NotificationSettings";
 import { SecuritySettings } from "../tabs/SecuritySettings";
 
@@ -13,9 +12,9 @@ export const renderTabContent = (
   ) => void,
 ) => {
   switch (activeTab) {
-    case "agency":
+    case "security":
       return (
-        <AgencySettings
+        <SecuritySettings
           agencySettings={agencySettings}
           updateAgencySetting={updateAgencySetting}
         />
@@ -23,13 +22,6 @@ export const renderTabContent = (
     case "notifications":
       return (
         <NotificationSettings
-          agencySettings={agencySettings}
-          updateAgencySetting={updateAgencySetting}
-        />
-      );
-    case "security":
-      return (
-        <SecuritySettings
           agencySettings={agencySettings}
           updateAgencySetting={updateAgencySetting}
         />
@@ -43,7 +35,7 @@ export const renderTabContent = (
       );
     default:
       return (
-        <AgencySettings
+         <SecuritySettings
           agencySettings={agencySettings}
           updateAgencySetting={updateAgencySetting}
         />
