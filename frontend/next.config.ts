@@ -10,30 +10,21 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 //   register: true,
 //   skipWaiting: true,
 //   disable: process.env.NODE_ENV === "development",
+//   swSrc: "public/sw.js",
 // });
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
+    domains: ["localhost", "images.unsplash.com"],
     remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "5001",
-        pathname: "/images/**",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-        pathname: "/**",
-      },
       {
         protocol: "https",
         hostname: "images.pexels.com",
+        port: "",
         pathname: "/**",
       },
     ],
-    domains: ["localhost"],
   },
 };
 

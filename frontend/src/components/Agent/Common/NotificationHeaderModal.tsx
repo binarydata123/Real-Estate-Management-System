@@ -16,11 +16,11 @@ interface Notification {
   title: string;
   message: string;
   type:
-  | "meeting_reminder"
-  | "property_shared"
-  | "customer_activity"
-  | "system_update"
-  | string;
+    | "meeting_reminder"
+    | "property_shared"
+    | "customer_activity"
+    | "system_update"
+    | string;
   read_at: string | null;
   created_at: string;
 }
@@ -73,21 +73,21 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
   };
 
-  const handleMarkAsRead =async (notificationId: string) => {
+  const handleMarkAsRead = async (notificationId: string) => {
     setNotifications((prev) =>
       prev.map((notification) =>
         notification._id === notificationId
           ? { ...notification, read_at: new Date().toISOString() }
-          : notification,
-      ),
+          : notification
+      )
     );
-  try {
-   await markAsRead(notificationId);
-   fetchNotifications();
+    try {
+      await markAsRead(notificationId);
+      fetchNotifications();
       fetchUnreadCount();
-  } catch (error) {
-    showErrorToast("Error",error);
-  }
+    } catch (error) {
+      showErrorToast("Error", error);
+    }
   };
 
   const handleMarkAllRead = async () => {
@@ -114,10 +114,12 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
   };
 
-
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         onClose(); // Close if clicked outside modal
       }
     }
@@ -131,14 +133,14 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     };
   }, [isOpen, onClose]);
 
-
-
-
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-start justify-end pt-16 p-4 z-50">
-      <div ref={modalRef} className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden  md:mr-12">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden  md:mr-12"
+      >
         {/* Header */}
         <div className="border-b border-gray-200 p-2 md:p-4">
           <div className="flex items-center justify-between">
@@ -184,8 +186,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               {notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!notification.read ? "bg-blue-50" : ""
-                    }`}
+                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
+                    !notification.read ? "bg-blue-50" : ""
+                  }`}
                   onClick={() => handleMarkAsRead(notification._id)}
                 >
                   <div className="flex items-start space-x-3">
@@ -195,10 +198,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <p
-                          className={`text-sm font-medium ${!notification.read
-                            ? "text-gray-900"
-                            : "text-gray-700"
-                            }`}
+                          className={`text-sm font-medium ${
+                            !notification.read
+                              ? "text-gray-900"
+                              : "text-gray-700"
+                          }`}
                         >
                           {notification.type}
                         </p>
@@ -212,7 +216,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                       <p className="text-xs text-gray-500 mt-2">
                         {format(
                           new Date(notification.createdAt),
-                          "MMM dd, hh:mm a",
+                          "MMM dd, hh:mm a"
                         )}
                       </p>
                     </div>

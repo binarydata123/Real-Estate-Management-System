@@ -23,35 +23,41 @@ import { showErrorToast } from "@/utils/toastHandler";
 
 const typeConfig: Record<
   NotificationType["type"],
-  { icon: React.ReactNode; color: string; label: string }
+  { icon: React.ReactNode; color: string; label: string; border: string }
 > = {
   welcome: {
     icon: <Bell className="w-5 h-5 text-white" />,
-    color: "bg-blue-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Welcome",
   },
   new_lead: {
     icon: <UserPlus className="w-5 h-5 text-white" />,
     color: "bg-green-500",
+    border: "border-green-500",
     label: "New Lead",
   },
   task_assigned: {
     icon: <ClipboardList className="w-5 h-5 text-white" />,
     color: "bg-purple-500",
+    border: "border-purple-500",
     label: "Task Assigned",
   },
   meeting_scheduled: {
     icon: <Calendar className="w-5 h-5 text-white" />,
+    border: "border-orange-500",
     color: "bg-orange-500",
     label: "Meeting Scheduled",
   },
   property_updated: {
     icon: <Home className="w-5 h-5 text-white" />,
+    border: "border-indigo-500",
     color: "bg-indigo-500",
     label: "Property Updated",
   },
   property_added: {
     icon: <PlusCircle className="w-5 h-5 text-white" />,
+    border: "border-pink-500",
     color: "bg-pink-500",
     label: "Property Added",
   },
@@ -228,11 +234,7 @@ const NotificationsPage: React.FC = () => {
                       !notification.read &&
                       handleReadNotification(notification?._id)
                     }
-                    className={`relative flex items-start p-4 border-l-4 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer ${
-                      notification.read
-                        ? "border-transparent"
-                        : "border-blue-500"
-                    }`}
+                    className={`relative flex items-start p-4 border-l-4 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer ${config.border}`}
                   >
                     {config && (
                       <div
