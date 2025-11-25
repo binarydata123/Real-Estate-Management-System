@@ -12,7 +12,7 @@ import { createMeeting } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
 import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
 import { getProperties } from "@/lib/Agent/PropertyAPI";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 
 interface AddMeetingFormProps {
   onClose: () => void;
@@ -83,7 +83,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
         status: data.status,
       };
       await createMeeting(payload);
-      alert("Meeting scheduled successfully!");
+      showSuccessToast("Meeting scheduled successfully.");
       onSuccess?.();
       onClose();
     } catch (error: unknown) {
@@ -203,6 +203,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
                 <input
                   type="date"
                   {...register("date")}
+                   min={new Date().toISOString().split("T")[0]}
                   className="w-full pl-8 md:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>

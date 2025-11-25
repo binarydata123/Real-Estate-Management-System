@@ -101,7 +101,6 @@ export const Meetings: React.FC = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
-
   return (
     <div className="space-y-2">
       {/* Header */}
@@ -112,8 +111,7 @@ export const Meetings: React.FC = () => {
         </div>
         <button
           onClick={() => setShowSelectionModal(true)}
-          className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors"
-        >
+          className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors">
           <PlusIcon className="h-5 w-5 mr-2" />
           Schedule Meeting
         </button>
@@ -126,8 +124,7 @@ export const Meetings: React.FC = () => {
               activeTab === "upcoming"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
-            }`}
-          >
+            }`}>
             Upcoming Meetings
           </button>
           <button
@@ -136,8 +133,7 @@ export const Meetings: React.FC = () => {
               activeTab === "past"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
-            }`}
-          >
+            }`}>
             Past Meetings
           </button>
           <button
@@ -146,8 +142,7 @@ export const Meetings: React.FC = () => {
               activeTab === "cancelled"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
-            }`}
-          >
+            }`}>
             Cancelled
           </button>
         </nav>
@@ -163,8 +158,7 @@ export const Meetings: React.FC = () => {
           {meetings.map((meeting, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
-            >
+              className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow">
               <div className="flex flex-col md:flex-row items-start justify-between">
                 {/* Left: meeting info */}
                 <div className="flex-1 w-full md:w-auto">
@@ -204,9 +198,9 @@ export const Meetings: React.FC = () => {
                     <div>
                       <p className="text-gray-600 mb-1">Property</p>
                       <p className="font-medium text-gray-900 break-words">
-                        {typeof meeting.property === "string"
-                          ? meeting.property
-                          : meeting.property?.title || "No property info"}
+                        {meeting.propertyId
+                          ? meeting.propertyId?.title
+                          : "No property info"}
                       </p>
                     </div>
                   </div>
@@ -218,30 +212,21 @@ export const Meetings: React.FC = () => {
                     <span
                       className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl  text-xs font-medium ${getStatusColor(
                         meeting.status
-                      )}`}
-                    >
+                      )}`}>
                       {meeting.status}
                     </span>
                   )}
 
                   {meeting.status !== "cancelled" && !meeting.isPast && (
-                    <div className="flex md:flex-col flex-row gap-2">
-                      <button
-                        // onClick={() => onJoin?.(meeting)}
-                        className="text-green-600 hover:text-green-700 text-sm font-medium"
-                      >
-                        Join
-                      </button>
+                    <div className="flex items-start md:flex-col flex-row gap-2">
                       <button
                         onClick={() => onEdit?.(meeting._id)}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      >
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                         Edit
                       </button>
                       <button
                         onClick={() => onCancel?.(meeting._id)}
-                        className="text-red-600 hover:text-red-700 text-sm font-medium"
-                      >
+                        className="text-red-600 hover:text-red-700 text-sm font-medium">
                         Cancel
                       </button>
                     </div>
@@ -252,8 +237,7 @@ export const Meetings: React.FC = () => {
                         onClick={() => {
                           onEdit?.(meeting._id, "rescheduled");
                         }}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      >
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                         Reschedule
                       </button>
                     </div>

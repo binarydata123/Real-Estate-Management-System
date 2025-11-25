@@ -33,7 +33,6 @@ export const updateAgencySettings = async (req, res) => {
     delete sanitizedUpdateData.__v;
     delete sanitizedUpdateData.createdAt;
     delete sanitizedUpdateData.updatedAt;
-console.log(sanitizedUpdateData);
     // Use findOneAndUpdate with upsert for atomic operation
     const agency = await AgencySettings.findOneAndUpdate(
       { userId },

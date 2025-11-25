@@ -96,10 +96,10 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
 
       {/* Password Management */}
       <div className="p-3 border border-gray-200 rounded-lg">
-        <div className="flex items-center justify-between mb-4"></div>
+        <div className="flex items-center justify-between mb-4 font-semibold">Change Password</div>
         <form
           onSubmit={handlePasswordChange}
-          className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
+          className="space-y-4 mt-4  bg-gray-50 rounded-lg">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Current Password

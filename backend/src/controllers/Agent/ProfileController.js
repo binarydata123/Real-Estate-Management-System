@@ -37,7 +37,7 @@ export const updateAgentProfile = async (req, res) => {
       });
     }
 
-    const { fullName, email, whatsapp, timezone } = req.body;
+    const { fullName, email, whatsapp, agencyName } = req.body;
 
     if (!fullName || !email) {
       return res.status(400).json({
@@ -62,7 +62,7 @@ export const updateAgentProfile = async (req, res) => {
 
     // Update agency-specific fields
     if (whatsapp) agency.whatsAppNumber = whatsapp;
-    if (timezone) agency.timezone = timezone;
+    if (agencyName) agency.name = agencyName;
     await agency.save();
 
     return res.status(200).json({
