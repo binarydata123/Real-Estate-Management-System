@@ -37,15 +37,12 @@ const AgencySettings = new mongoose.Schema(
     },
 
     notifications: {
-      emailNotifications: {
-        type: Boolean,
-        default: true,
-      },
+
       pushNotifications: {
         type: Boolean,
         default: true,
       },
-      V: {
+      customerActivity: {
         type: Boolean,
         default: true,
       },
@@ -53,10 +50,11 @@ const AgencySettings = new mongoose.Schema(
         type: Boolean,
         default: true,
       },
-      systemUpdates: {
+      meetingReminders: {
         type: Boolean,
         default: true,
       },
+
     },
 
     security: {

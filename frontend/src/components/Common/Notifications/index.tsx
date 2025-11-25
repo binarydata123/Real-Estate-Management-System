@@ -9,6 +9,11 @@ import {
   Home,
   PlusCircle,
   CheckCheck,
+  UserCog,
+  Trash2,
+  Settings2,
+  Share2,
+  MessageSquare,
 } from "lucide-react";
 import {
   getNotifications,
@@ -37,6 +42,11 @@ const typeConfig: Record<
     border: "border-green-500",
     label: "New Lead",
   },
+  lead_updated: {
+    icon: <UserCog className="w-5 h-5 text-white" />,
+    color: "bg-teal-500",
+    label: "Lead Updated",
+  },
   task_assigned: {
     icon: <ClipboardList className="w-5 h-5 text-white" />,
     color: "bg-purple-500",
@@ -61,16 +71,51 @@ const typeConfig: Record<
     color: "bg-pink-500",
     label: "Property Added",
   },
+  property_deleted: {
+    icon: <Trash2 className="w-5 h-5 text-white" />,
+    color: "bg-red-500",
+    label: "Property Deleted",
+  },
+  preference_request: {
+    icon: <Settings2 className="w-5 h-5 text-white" />,
+    color: "bg-cyan-500",
+    label: "Preference Request",
+  },
+  property_share: {
+    icon: <Share2 className="w-5 h-5 text-white" />,
+    color: "bg-lime-500",
+    label: "Property Share",
+  },
+  property_feedback: {
+    icon: <MessageSquare className="w-5 h-5 text-white" />,
+    color: "bg-yellow-500",
+    label: "Property Feedback",
+  },
+  all: {
+    icon: undefined,
+    color: "",
+    label: "",
+  },
+  unread: {
+    icon: undefined,
+    color: "",
+    label: "",
+  },
 };
 
 type NotificationFilter =
   | "all"
   | "welcome"
   | "new_lead"
+  | "lead_updated"
   | "task_assigned"
   | "meeting_scheduled"
   | "property_updated"
   | "property_added"
+  | "property_deleted"
+  | "preference_request"
+  | "property_share"
+  | "property_feedback"
   | "unread";
 
 type TabType = NotificationFilter | "all";
@@ -156,10 +201,10 @@ const NotificationsPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen p-4 sm:p-6 lg:p-8">
+    <div className="bg-gray-50 min-h-screen p-2 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <div className="p-3 md:p-6 border-b border-gray-200 flex items-center justify-between">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               Notifications
@@ -184,18 +229,18 @@ const NotificationsPage: React.FC = () => {
           )}
         </div>
 
-        <div className="p-6">
+        <div className="p-3 md:p-6">
           {/* Tabs */}
-          <div className="border-b border-gray-200 mb-6 overflow-x-auto scrollbar-hide">
+          <div className="border-b border-gray-200 mb-6">
             <nav
-              className="flex space-x-6 whitespace-nowrap px-1 min-w-max"
+              className="flex flex-wrap justify-start sm:justify-start -mb-px gap-y-2"
               aria-label="Tabs"
             >
               {tabs.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === tab.key
                       ? "border-primary text-primary"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"

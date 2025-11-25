@@ -8,26 +8,32 @@ import {
   BuildingOfficeIcon,
   UsersIcon,
   CalendarIcon,
+  ShareIcon,
   ChartBarIcon,
   Cog6ToothIcon,
   XMarkIcon,
   ArrowRightOnRectangleIcon,
+  EnvelopeIcon,
+  UserGroupIcon,
+  BellIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "@/context/AuthContext";
-import { Bell } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/agent/dashboard", icon: HomeIcon },
+
   { name: "Properties", href: "/agent/properties", icon: BuildingOfficeIcon },
+
   { name: "Customers", href: "/agent/customers", icon: UsersIcon },
+
   { name: "Meetings", href: "/agent/meetings", icon: CalendarIcon },
-  { name: "Messages", href: "/agent/messages", icon: CalendarIcon },
-  { name: "Shares", href: "/agent/shares", icon: ChartBarIcon },
+  { name: "Messages", href: "/agent/messages", icon: EnvelopeIcon },
+  { name: "Shares", href: "/agent/shares", icon: ShareIcon },
   { name: "Analytics", href: "/agent/analytics", icon: ChartBarIcon },
-  { name: "Notifications", href: "/agent/notifications", icon: Bell },
+  { name: "Notifications", href: "/agent/notifications", icon: BellIcon },
   { name: "Settings", href: "/agent/settings", icon: Cog6ToothIcon },
   // { name: "Profile", href: "/agent/profile", icon: UsersIcon },
-  { name: "Team Management", href: "/agent/team-members", icon: UsersIcon },
+  { name: "Team Management", href: "/agent/team-members", icon: UserGroupIcon },
 ];
 
 interface SidebarProps {
@@ -61,9 +67,7 @@ export const AgentSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   height={40}
                 />
               ) : (
-                <div
-                  className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold bg-primary"
-                >
+                <div className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold bg-primary">
                   {user.agency?.name.charAt(0)}
                 </div>
               )}

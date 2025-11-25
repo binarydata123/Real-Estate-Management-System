@@ -7,12 +7,19 @@ export type NotificationType = {
   agencyId: string;
   message: string;
   type:
+    | "all"
     | "welcome"
     | "new_lead"
+    | "lead_updated"
     | "task_assigned"
     | "meeting_scheduled"
     | "property_updated"
-    | "property_added";
+    | "property_added"
+    | "property_deleted"
+    | "preference_request"
+    | "property_share"
+    | "property_feedback"
+    | "unread";
   read: boolean;
   link: string;
   createdAt: string;
@@ -23,17 +30,22 @@ export const getNotifications = async (
   userId: string,
   options?: {
     type:
-    "all"
+      | "all"
       | "welcome"
       | "new_lead"
+      | "lead_updated"
       | "task_assigned"
       | "meeting_scheduled"
       | "property_updated"
       | "property_added"
-      | "unread"
+      | "property_deleted"
+      | "preference_request"
+      | "property_share"
+      | "property_feedback"
+      | "unread";
     page?: number;
     limit?: number;
-  },
+  }
 ): Promise<
   AxiosResponse<{
     success: boolean;
@@ -73,7 +85,7 @@ export const markAllAsRead = async (): Promise<AxiosResponse> => {
 
 // Delete a notification
 export const deleteNotification = async (
-  id: string,
+  id: string
 ): Promise<AxiosResponse> => {
   return api.delete(`/common/notification/delete/${id}`);
 };

@@ -226,8 +226,15 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             </div>
           ) : (
             <div className="p-8 text-center">
-              <BellIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No notifications yet</p>
+              <div className="flex flex-col items-center text-center py-8">
+                <BellIcon className="h-12 w-12 text-gray-300" />
+                <h3 className="mt-4 text-lg font-semibold text-gray-800">
+                  You&apos;re all caught up!
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  New notifications will appear here.
+                </p>
+              </div>
             </div>
           )}
         </div>

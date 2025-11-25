@@ -12,30 +12,14 @@ import { protect } from "../../../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Create
-router.post(
-  "/create",
-  protect(["admin", "agent"]),
-  createMeeting
-);
+router.post("/create", protect(["admin", "agent"]), createMeeting);
 
 // Read
-router.get(
-  "/get-all",
-  protect(["admin", "agent"]),
-  getMeetingsByAgency
-);
-router.get(
-  "/getById/:id",
-  protect(["admin", "agent"]),
-  getMeetingById
-);
+router.get("/get-all", protect(["admin", "agent"]), getMeetingsByAgency);
+router.get("/getById/:id", protect(["admin", "agent"]), getMeetingById);
 
 // Update
-router.put(
-  "/update/:id",
-  protect(["admin", "agent"]),
-  updateMeeting
-);
+router.put("/update/:id", protect(["admin", "agent"]), updateMeeting);
 router.put(
   "/update-status/:id",
   protect(["admin", "agent"]),
