@@ -46,8 +46,8 @@ io.on("connection", (socket) => {
 app.use(express.json());
 app.use(
   cors({
-    origin: "*", // or "https://dashboard.vapi.ai" for stricter setup
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   })
 );
 app.use(morgan("dev"));
