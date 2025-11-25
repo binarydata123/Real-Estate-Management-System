@@ -1728,7 +1728,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                   ))}
                 </FormSection>
 
-                <FormSection title="Owner Details (Private)">
+                {/* <FormSection title="Owner Details (Private)">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {StepOneConditionFields.filter(
                       (f) => f.name === "owner_name"
@@ -1762,7 +1762,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       </Field>
                     ))}
                   </div>
-                </FormSection>
+                </FormSection> */}
 
                 {isEditMode && (
                   <FormSection title="Description">
@@ -1897,8 +1897,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
                             <span className="font-semibold">
                               Click to upload
-                            </span>{" "}
-                            or drag and drop
+                            </span>
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             Images (JPG, PNG) or Videos (MP4, WEBM)

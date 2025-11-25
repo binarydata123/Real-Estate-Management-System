@@ -1,8 +1,8 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
@@ -13,6 +13,7 @@ import {
 import { createCustomer, updateCustomer } from "@/lib/Agent/CustomerAPI";
 import { useToast } from "@/context/ToastContext";
 import { showErrorToast } from "@/utils/toastHandler";
+import { FormattedNumberInput } from "../Properties/FormattedNumberInput";
 
 interface AddCustomerFormProps {
   onClose: () => void;
@@ -36,19 +37,23 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
-    watch,
+    reset,
   } = useForm<CustomerFormDataSchema>({
     resolver: zodResolver(customerSchema),
-    defaultValues: {
-      leadSource: "website",
-      ...initialData,
-    },
   });
 
-  const budgetMin = watch("minimumBudget");
+  useEffect(() => {
+    if (initialData) {
+      reset(initialData);
+      setShowMoreInfo(true); // Open more info section when editing
+    } else {
+      reset({ leadSource: "website" });
+    }
+  }, [initialData, reset]);
 
-  const onSubmit = async (data: CustomerFormDataSchema) => {
+  const onSubmit: SubmitHandler<CustomerFormDataSchema> = async (data) => {
     if (!user || !session) {
       showToast("You must be logged in to manage customers.", "error");
       return;
@@ -65,7 +70,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
         if (customerId) {
           const response = await updateCustomer(customerId, dataWithAgency);
           return { data: { message: response.data?.message } };
-        // eslint-disable-next-line no-else-return
+          // eslint-disable-next-line no-else-return
         } else {
           const response = await createCustomer(dataWithAgency);
           return { data: { message: response.data?.message } };
@@ -100,7 +105,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
     } catch (error) {
       showErrorToast(
         `Customer ${customerId ? "update" : "creation"} failed:`,
-        error,
+        error
       );
     } finally {
       setLoading(false);
@@ -160,7 +165,12 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
               </label>
               <input
                 type="tel"
-                {...register("phoneNumber")}
+                {...register("phoneNumber", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/[^\d+]/g, "");
+                  },
+                })}
+                maxLength={13}
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="+91 98765 43210"
               />
@@ -198,10 +208,20 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   </label>
                   <input
                     type="tel"
-                    {...register("whatsAppNumber")}
+                    {...register("whatsAppNumber", {
+                      onChange: (e) => {
+                        e.target.value = e.target.value.replace(/[^\d+]/g, "");
+                      },
+                    })}
+                    maxLength={13}
                     className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="+91 98765 43210"
                   />
+                  {errors.whatsAppNumber && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.whatsAppNumber.message}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-500 mt-1">
                     Used for deduplication and communication
                   </p>
@@ -214,11 +234,24 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
                     Minimum Budget (₹)
                   </label>
-                  <input
-                    type="number"
-                    {...register("minimumBudget", { valueAsNumber: true })}
-                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="5000000"
+                  <Controller
+                    name="minimumBudget"
+                    control={control}
+                    render={({ field }) => (
+                      <FormattedNumberInput
+                        value={field.value?.toString() || ""}
+                        onChange={(value) =>
+                          field.onChange(value ? Number(value) : undefined)
+                        }
+                        onBlur={field.onBlur}
+                        placeholder={field.value ? undefined : "50,00,000"}
+                        className={`w-full md:px-4 px-2 py-2 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                          errors.minimumBudget
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                      />
+                    )}
                   />
                   {errors.minimumBudget && (
                     <p className="text-red-600 text-sm mt-1">
@@ -231,19 +264,24 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
                     Maximum Budget (₹)
                   </label>
-                  <input
-                    type="number"
-                    {...register("maximumBudget", {
-                      valueAsNumber: true,
-                      validate: (value) => {
-                        if (value && budgetMin && value < budgetMin) {
-                          return "Maximum budget must be greater than minimum budget";
+                  <Controller
+                    name="maximumBudget"
+                    control={control}
+                    render={({ field }) => (
+                      <FormattedNumberInput
+                        value={field.value?.toString() || ""}
+                        onChange={(value) =>
+                          field.onChange(value ? Number(value) : undefined)
                         }
-                        return true;
-                      },
-                    })}
-                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="7500000"
+                        onBlur={field.onBlur}
+                        placeholder={field.value ? undefined : "75,00,000"}
+                        className={`w-full md:px-4 px-2 py-2 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                          errors.maximumBudget
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                      />
+                    )}
                   />
                   {errors.maximumBudget && (
                     <p className="text-red-600 text-sm mt-1">
@@ -300,7 +338,9 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors"></div>
                   <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
                 </div>
-                <span className="ml-2 text-sm text-gray-700">Show More Info</span>
+                <span className="ml-2 text-sm text-gray-700">
+                  Show More Info
+                </span>
               </label>
             </div>
           )}
@@ -324,8 +364,8 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   ? "Updating..."
                   : "Creating..."
                 : customerId
-                  ? "Update Customer"
-                  : "Add Customer"}
+                ? "Update Customer"
+                : "Add Customer"}
             </button>
           </div>
         </form>

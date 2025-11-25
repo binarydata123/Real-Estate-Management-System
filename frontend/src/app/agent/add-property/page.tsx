@@ -2,13 +2,14 @@
 import { AddPropertyForm } from "@/components/Agent/Properties/AddPropertyForm";
 import { AddPropertySelectionModal } from "@/components/Agent/Properties/AddPropertySelectionModal";
 import PropertyAssistant from "@/components/Agent/Properties/PropertyAssistant";
+import { useRouter } from "next/navigation";
 // Import the new modal component
 import React, { useState } from "react"; // Keep React and useState
 
 export default function Page() {
   const [addMode, setAddMode] = useState<"manual" | "ai" | null>(null); // Initially null, no mode selected
   const [showSelectionModal, setShowSelectionModal] = useState(true); // Show modal on page load
-
+  const router = useRouter();
   const handleSelectMode = (mode: "manual" | "ai") => {
     setAddMode(mode);
     setShowSelectionModal(false); // Close modal after selection
@@ -20,6 +21,9 @@ export default function Page() {
       <AddPropertySelectionModal
         isOpen={showSelectionModal}
         onSelectMode={handleSelectMode}
+        onClose={() => {
+          router.back();
+        }}
       />
 
       {/* Conditionally render the form or assistant based on selected mode */}

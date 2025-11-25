@@ -116,11 +116,11 @@ export const Meetings: React.FC = () => {
           Schedule Meeting
         </button>
       </div>
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
         <nav className="flex space-x-4" aria-label="Tabs">
           <button
             onClick={() => setActiveTab("upcoming")}
-            className={`px-3 py-2 font-medium text-sm rounded-t-md ${
+            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${
               activeTab === "upcoming"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
@@ -129,7 +129,7 @@ export const Meetings: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("past")}
-            className={`px-3 py-2 font-medium text-sm rounded-t-md ${
+            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${
               activeTab === "past"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
@@ -138,7 +138,7 @@ export const Meetings: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("cancelled")}
-            className={`px-3 py-2 font-medium text-sm rounded-t-md ${
+            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${
               activeTab === "cancelled"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"

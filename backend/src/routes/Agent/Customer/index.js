@@ -18,7 +18,7 @@ router.post("/create", protect(["admin", "agent"]), createCustomer);
 router.get("/get-all", protect(["admin", "agent"]), getCustomers);
 router.get(
   "/get-all-for-dropDown",
-  // protect(["admin", "agent"]),
+  protect(["admin", "agent"]),
   getCustomersForDropDown
 );
 

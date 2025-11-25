@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useForm ,SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   XMarkIcon,
@@ -26,9 +26,11 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
-    [],
+    []
   );
-  const [properties, setProperties] = useState<{ id: string; title: string }[]>([]);
+  const [properties, setProperties] = useState<{ id: string; title: string }[]>(
+    []
+  );
 
   useEffect(() => {
     const init = async () => {
@@ -58,7 +60,6 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
     init();
   }, [user?._id]);
 
-
   const {
     register,
     handleSubmit,
@@ -83,7 +84,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
         status: data.status,
       };
       await createMeeting(payload);
-      showSuccessToast("Meeting scheduled successfully.");
+      showSuccessToast("Meeting scheduled successfully!");
       onSuccess?.();
       onClose();
     } catch (error: unknown) {
