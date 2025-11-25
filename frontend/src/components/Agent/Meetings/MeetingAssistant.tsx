@@ -12,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 const AssistantId = process.env.NEXT_PUBLIC_VAPI_MEETING_SCHEDULE_ASSISTANT_ID; // ✅ new assistant ID for ScheduleMeeting
 import { XMarkIcon } from "@heroicons/react/24/outline"; // Import XMarkIcon for closing
 import { showErrorToast } from "@/utils/toastHandler";
-
+const token = localStorage.getItem("token");
 interface MeetingAssistantProps {
   onClose: () => void;
   onSuccess?: () => void;
@@ -98,7 +98,7 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
       if (!sessionData?.sessionId) throw new Error("Session creation failed");
 
       await vapi.start(AssistantId, {
-        metadata: { userId: user?._id },
+        metadata: { userId: user?._id, token: token },
       });
     } catch (err) {
       showErrorToast("❌ Failed to start meeting assistant:", err);

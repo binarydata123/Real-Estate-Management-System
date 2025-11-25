@@ -183,7 +183,7 @@ export const Customers: React.FC = () => {
           </div>
 
           <div className="divide-y divide-gray-200">
-            {customers.map((customer: CustomerFormData,index) => (
+            {customers.map((customer: CustomerFormData, index) => (
               <div
                 key={`${customer._id}-${index}`}
                 className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors"
@@ -281,9 +281,7 @@ export const Customers: React.FC = () => {
                       </Link>
                     </span>
                     <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                      <Link
-                        href={`/agent/messages?customerId=${customer._id}`}
-                      >
+                      <Link href={`/agent/messages?customerId=${customer._id}`}>
                         Message
                       </Link>
                     </span>
@@ -312,7 +310,7 @@ export const Customers: React.FC = () => {
           hasMore={currentPage < totalPages}
           loader={
             <div className="text-center py-4">
-                <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+              <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
             </div>
           }
           endMessage={
@@ -358,8 +356,8 @@ export const Customers: React.FC = () => {
                   phoneNumber: editingCustomer.phoneNumber ?? "",
                   email: editingCustomer.email ?? "",
                   whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
-                  minimumBudget: editingCustomer.minimumBudget ?? 0,
-                  maximumBudget: editingCustomer.maximumBudget ?? 0,
+                  minimumBudget: editingCustomer.minimumBudget ?? undefined,
+                  maximumBudget: editingCustomer.maximumBudget ?? undefined,
                   leadSource: editingCustomer.leadSource ?? "website",
                   initialNotes: editingCustomer.initialNotes ?? "",
                   showAllProperty: editingCustomer.showAllProperty ?? false,

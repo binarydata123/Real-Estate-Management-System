@@ -1,12 +1,18 @@
-import {  z } from "zod";
+import { z } from "zod";
 
 const phoneRegex = /^(?:\+91)?[6-9]\d{9}$/;
+const optionalNumber = z
+  .union([z.string(), z.number()])
+  .transform((val) => {
+    if (val === "" || val === null || val === undefined) return undefined;
+    const num = Number(val);
+    return isNaN(num) ? undefined : num;
+  })
+  .optional();
 
 export const customerSchema = z
   .object({
-    fullName: z
-      .string()
-      .min(1, "Full Name is required."),
+    fullName: z.string().min(1, "Full Name is required."),
 
     name: z.string().optional(),
 
@@ -27,9 +33,9 @@ export const customerSchema = z
       .optional()
       .or(z.literal("")),
 
-    minimumBudget: z.number().min(0, "Budget must be positive").optional(),
+    minimumBudget: optionalNumber,
 
-    maximumBudget: z.number().min(0, "Budget must be positive").optional(),
+    maximumBudget: optionalNumber,
 
     leadSource: z
       .enum([
@@ -61,10 +67,7 @@ export const customerSchema = z
     {
       message: "Maximum budget must be greater than or equal to minimum budget",
       path: ["maximumBudget"],
-    },
+    }
   );
 
 export type CustomerFormDataSchema = z.infer<typeof customerSchema>;
-
-
-
