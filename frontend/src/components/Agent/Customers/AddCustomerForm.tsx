@@ -1,8 +1,8 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
@@ -39,15 +39,21 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
     handleSubmit,
     control,
     formState: { errors },
+    reset,
   } = useForm<CustomerFormDataSchema>({
     resolver: zodResolver(customerSchema),
-    defaultValues: {
-      leadSource: "website",
-      ...initialData,
-    },
   });
 
-  const onSubmit = async (data: CustomerFormDataSchema) => {
+  useEffect(() => {
+    if (initialData) {
+      reset(initialData);
+      setShowMoreInfo(true); // Open more info section when editing
+    } else {
+      reset({ leadSource: "website" });
+    }
+  }, [initialData, reset]);
+
+  const onSubmit: SubmitHandler<CustomerFormDataSchema> = async (data) => {
     if (!user || !session) {
       showToast("You must be logged in to manage customers.", "error");
       return;
@@ -159,7 +165,12 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
               </label>
               <input
                 type="tel"
-                {...register("phoneNumber")}
+                {...register("phoneNumber", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/[^\d+]/g, "");
+                  },
+                })}
+                maxLength={13}
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="+91 98765 43210"
               />
@@ -197,10 +208,20 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   </label>
                   <input
                     type="tel"
-                    {...register("whatsAppNumber")}
+                    {...register("whatsAppNumber", {
+                      onChange: (e) => {
+                        e.target.value = e.target.value.replace(/[^\d+]/g, "");
+                      },
+                    })}
+                    maxLength={13}
                     className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="+91 98765 43210"
                   />
+                  {errors.whatsAppNumber && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.whatsAppNumber.message}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-500 mt-1">
                     Used for deduplication and communication
                   </p>

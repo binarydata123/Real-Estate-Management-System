@@ -11,7 +11,8 @@ import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
 import { updateMeeting, getMeetingById } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
 import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { getProperties } from "@/lib/Agent/PropertyAPI";
 
 interface EditMeetingFormProps {
   meetingId: string | null;
@@ -30,15 +31,9 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   const [initialData, setInitialData] = useState<MeetingFormData | null>(null);
   const { user } = useAuth();
   const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
-    [],
+    []
   );
-
-  const mockProperties = [
-    { id: "64f0c2b2f1e2a4b123456780", title: "Luxury 3BHK Apartment" },
-    { id: "64f0c2b2f1e2a4b123456781", title: "Premium Commercial Office" },
-    { id: "64f0c2b2f1e2a4b123456782", title: "Spacious 4BHK Villa" },
-  ];
-
+  const [properties, setProperties] = useState<Property[]>([]);
   const {
     register,
     handleSubmit,
@@ -60,10 +55,10 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         const formattedDate = meeting.date
           ? new Date(meeting.date).toISOString().split("T")[0]
           : "";
-
+        console.log(meeting);
         // Prefill form
         setValue("customerId", meeting.customerId);
-        setValue("propertyId", meeting.propertyId || null);
+        setValue("propertyId", meeting.propertyId || "");
         setValue("agencyId", meeting.agencyId);
         setValue("date", formattedDate);
         setValue("time", meeting.time || "");
@@ -77,6 +72,17 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
 
     fetchData();
   }, [meetingId, setValue, onClose]);
+
+  useEffect(() => {
+    const loadProps = async () => {
+      if (!user?.agency?._id) return;
+
+      const { data } = await getProperties({ agencyId: user.agency._id });
+      setProperties(data);
+    };
+
+    loadProps();
+  }, [user?.agency?._id]);
 
   useEffect(() => {
     const init = async () => {
@@ -105,7 +111,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         agencyId: user?.agency?._id,
       };
       if (meetingId) await updateMeeting(meetingId, payload);
-      alert("Meeting updated successfully!");
+      showSuccessToast("Meeting updated successfully!");
       onSuccess?.();
       onClose();
     } catch (error: unknown) {
@@ -114,7 +120,6 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         alert(error.message);
       } else {
         showErrorToast("Failed to update meeting:", error);
-        alert("Failed to update meeting");
       }
     } finally {
       setLoading(false);
@@ -124,8 +129,43 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   if (!initialData) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-lg shadow-xl p-6">
-          <p>Loading meeting details...</p>
+        <div className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          {/* Header Skeleton */}
+          <div className="sticky top-0 bg-white border-b border-gray-200 md:p-6 p-2">
+            <div className="flex items-center justify-between">
+              <div className="h-6 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+              <div className="h-5 w-5 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+          {/* Form Skeleton */}
+          <div className="md:p-6 p-2 md:space-y-6 space-y-2 animate-pulse">
+            {/* Inputs Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+              </div>
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 md:gap-6">
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+              </div>
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+              </div>
+            </div>
+            {/* Actions Skeleton */}
+            <div className="flex justify-end space-x-2 md:space-x-4 md:pt-6 pt-2 border-t border-gray-200">
+              <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
+              <div className="h-10 bg-gray-300 rounded-lg w-36"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -186,9 +226,9 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
                 {...register("propertyId")}
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="">Select a property</option>
-                {mockProperties.map((property) => (
-                  <option key={property.id} value={property.id}>
+                <option value="">Select a Property</option>
+                {properties.map((property) => (
+                  <option key={property._id} value={property._id}>
                     {property.title}
                   </option>
                 ))}

@@ -1,14 +1,6 @@
 import { z } from "zod";
 
 const phoneRegex = /^(?:\+91)?[6-9]\d{9}$/;
-const optionalNumber = z
-  .union([z.string(), z.number()])
-  .transform((val) => {
-    if (val === "" || val === null || val === undefined) return undefined;
-    const num = Number(val);
-    return isNaN(num) ? undefined : num;
-  })
-  .optional();
 
 export const customerSchema = z
   .object({
@@ -33,9 +25,9 @@ export const customerSchema = z
       .optional()
       .or(z.literal("")),
 
-    minimumBudget: optionalNumber,
+    minimumBudget: z.number().min(0, "Budget must be positive").optional(),
 
-    maximumBudget: optionalNumber,
+    maximumBudget: z.number().min(0, "Budget must be positive").optional(),
 
     leadSource: z
       .enum([

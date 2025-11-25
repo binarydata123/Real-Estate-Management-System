@@ -5,7 +5,6 @@ import {
   BuildingOfficeIcon,
   UsersIcon,
   CalendarIcon,
-  CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
 
 interface StatCardProps {
@@ -13,7 +12,7 @@ interface StatCardProps {
   value: React.ReactNode;
   icon: React.ElementType;
   color: string;
-  trend?: string;
+  bgColor: string;
 }
 
 const StatCard: React.FC<StatCardProps> = ({
@@ -21,36 +20,22 @@ const StatCard: React.FC<StatCardProps> = ({
   value,
   icon: Icon,
   color,
-  trend,
+  bgColor,
 }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-1 px-1 md:p-4 hover:shadow-md transition-shadow w-full max-w-xs mx-auto">
-    <div className="flex-row items-center justify-between gap-1">
-      {/* Left Section */}
-      <div className="flex flex-col flex-1 items-center">
-        <p className="text-[11px] md:text-sm font-medium text-gray-600">
-          {title}
-        </p>
-        {trend && (
-          <p className={`text-[10px] md:text-xs mt-0.5 font-semibold ${color}`}>
-            {trend}
-          </p>
-        )}
-      </div>
-
-      {/* Icon */}
+  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 hover:shadow-lg transition-shadow duration-300">
+    <div className="flex flex-row-reverse justify-between">
       <div className="flex-shrink-0">
-        <div
-          className={`p-1 md:p-3 rounded-lg flex items-start justify-between `}
-        >
-          <Icon className={`h-4 w-4 md:h-5 md:w-5 ${color}`} />
-          <p className="text-xl md:text-2xl font-bold text-gray-900 leading-tight">
-            {value}
-          </p>
+        <div className={`p-2 rounded-full ${bgColor}`}>
+          <Icon className={`h-6 w-6 ${color}`} />
         </div>
       </div>
+      <div className="">
+        <p className="text-sm font-medium text-gray-500 truncate">{title}</p>
+        <p className="text-2xl font-bold text-gray-900">
+          {value !== undefined && value !== null ? value : 0}
+        </p>
+      </div>
     </div>
-
-    {/* Value */}
   </div>
 );
 
@@ -66,36 +51,29 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ value }) => {
   const stats = [
     {
       title: "Active",
-      value: value?.totalProperties,
+      value: value?.totalProperties ?? 0,
       icon: BuildingOfficeIcon,
       color: "text-blue-600",
-      // trend: '+2 this week',
+      bgColor: "bg-blue-100",
     },
     {
       title: "Customers",
-      value: value?.totalCustomers,
+      value: value?.totalCustomers ?? 0,
       icon: UsersIcon,
       color: "text-green-600",
-      // trend: '+5 this month',
+      bgColor: "bg-green-100",
     },
     {
       title: "Meetings",
-      value: value?.totalMeetings,
+      value: value?.totalMeetings ?? 0,
       icon: CalendarIcon,
       color: "text-purple-600",
-      // trend: '3 today',
-    },
-    {
-      title: "Revenue",
-      value: "₹NA",
-      icon: CurrencyDollarIcon,
-      color: "text-emerald-600",
-      // trend: '+12% vs last month',
+      bgColor: "bg-purple-100",
     },
   ];
 
   return (
-    <div className="grid grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6 mb-2 md:mb-8">
+    <div className="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-2 md:mb-8">
       {stats.map((stat, index) => (
         <StatCard key={index} {...stat} />
       ))}

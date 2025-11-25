@@ -8,12 +8,12 @@ import {
   BuildingOfficeIcon,
   UsersIcon,
   CalendarIcon,
+  ShareIcon,
   ChartBarIcon,
   Cog6ToothIcon,
   XMarkIcon,
   ArrowRightOnRectangleIcon,
   EnvelopeIcon,
-  ShareIcon,
   UserGroupIcon,
   BellIcon,
 } from "@heroicons/react/24/outline";
@@ -21,8 +21,11 @@ import { useAuth } from "@/context/AuthContext";
 
 const navigation = [
   { name: "Dashboard", href: "/agent/dashboard", icon: HomeIcon },
+
   { name: "Properties", href: "/agent/properties", icon: BuildingOfficeIcon },
+
   { name: "Customers", href: "/agent/customers", icon: UsersIcon },
+
   { name: "Meetings", href: "/agent/meetings", icon: CalendarIcon },
   { name: "Messages", href: "/agent/messages", icon: EnvelopeIcon },
   { name: "Shares", href: "/agent/shares", icon: ShareIcon },
