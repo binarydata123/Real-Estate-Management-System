@@ -25,7 +25,22 @@ export const meetingSchema = z.object({
     .min(1, "Date is required")
     .refine((val) => !isNaN(Date.parse(val)), {
       message: "Date must be a valid ISO date string",
-    }),
+    })
+    .refine(
+      (val) => {
+        const selected = new Date(val);
+        const today = new Date();
+
+        // Remove time — compare only YYYY-MM-DD
+        selected.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        return selected >= today;
+      },
+      {
+        message: "Date cannot be in the past",
+      }
+    ),
   time: z
     .string()
     .min(1, "Time is required")

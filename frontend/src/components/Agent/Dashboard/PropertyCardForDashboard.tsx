@@ -39,7 +39,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
   const primaryImage =
     property.images?.[0]?.url ||
     "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
-
+ console.log('property in card for dashboard',property);
   const getImageUrl = (url: string) => {
     return getPropertyImageUrlWithFallback(url);
   };
@@ -109,15 +109,15 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
             <span className="bg-gray-100 px-2 py-0.5 rounded capitalize">
               {property.category}
             </span>
-            {property.size && (
+            {property?.size && (
               <span className="flex items-center">
                 {property.size} {property.size_unit}
               </span>
             )}
-            {property.bedrooms && (
+            {(property.bedrooms ?? 0) > 0 && (
               <span className="flex items-center">{property.bedrooms} BHK</span>
             )}
-            {property.bathrooms && (
+            {(property.bathrooms ?? 0) > 0 && (
               <span className="flex items-center">
                 {property.bathrooms} Bath
               </span>

@@ -76,14 +76,23 @@ await sendPushNotification({
 
 export const getAllSharedProperties = async (req, res) => {
   try {
-    const { agencyId } = req.query;
+    const { agencyId, page = 1, limit = 10 } = req.query;
 
     if (!agencyId) {
       return res.status(400).json({ error: "Agency ID is required" });
     }
 
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // 🔥 Count total documents
+    const total = await PropertyShare.countDocuments({ agencyId });
+
     const shares = await PropertyShare.find({ agencyId })
       .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limitNumber)
       .populate("sharedWithUserId", "fullName email phone")
       .populate("sharedByUserId", "name email phone createdAt")
       .populate("propertyId", "title images price");
@@ -91,6 +100,12 @@ export const getAllSharedProperties = async (req, res) => {
     return res.status(200).json({
       success: true,
       data: shares,
+      pagination: {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
+      },
       message: "Shared properties fetched successfully",
     });
   } catch (err) {

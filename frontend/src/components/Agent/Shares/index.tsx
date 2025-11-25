@@ -5,9 +5,7 @@ import {
   CalendarIcon,
   UserIcon,
   XMarkIcon,
-  LinkIcon,
   ArrowPathIcon,
-  NoSymbolIcon,
 } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { getSharedProperties } from "@/lib/Agent/SharePropertyAPI";
@@ -16,6 +14,7 @@ import Image from "next/image";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import SearchInput from "@/components/Common/SearchInput";
 import { showErrorToast } from "@/utils/toastHandler";
+import { capitalizeFirstLetter } from "@/helper/capitalizeFirstLetter";
 
 export const Shares: React.FC = () => {
   const { user } = useAuth();
@@ -41,18 +40,7 @@ export const Shares: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "expired":
-        return "bg-red-100 text-red-800";
-      case "revoked":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+ 
 
   const filteredShares = useMemo(() => {
     if (!searchTerm) return sharedData;
@@ -92,8 +80,7 @@ export const Shares: React.FC = () => {
           return (
             <article
               key={share._id}
-              className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
-            >
+              className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow">
               <div className="flex md:flex-row flex-col space-y-2 md:space-y-0 items-start justify-between">
                 <div className="flex-1 w-full md:w-auto">
                   <div className="flex items-center space-x-3 md:mb-3 mb-2">
@@ -103,8 +90,7 @@ export const Shares: React.FC = () => {
                         setPreviewImage(
                           `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${share?.propertyId?.images[0]?.url}`
                         )
-                      }
-                    >
+                      }>
                       <Image
                         src={
                           share?.propertyId?.images?.length
@@ -127,7 +113,7 @@ export const Shares: React.FC = () => {
                           <span>
                             Shared by{" "}
                             <span className="font-medium text-gray-900">
-                              {share?.sharedByUserId.name}
+                              {capitalizeFirstLetter(share?.sharedByUserId.name)}
                             </span>
                           </span>
                         </div>
@@ -137,7 +123,7 @@ export const Shares: React.FC = () => {
                           <span>
                             Shared with{" "}
                             <span className="font-medium text-gray-900">
-                              {share.sharedWithUserId?.fullName}
+                              {capitalizeFirstLetter(share.sharedWithUserId?.fullName)}
                             </span>
                           </span>
                         </div>
@@ -145,7 +131,7 @@ export const Shares: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 text-sm">
+                  <div className="flex justify-between items-center text-sm">
                     <div>
                       <p className="text-gray-600 mb-1">Shared On</p>
                       <div className="flex items-center">
@@ -155,47 +141,20 @@ export const Shares: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex md:flex-col justify-between md:justify-start items-end space-y-2 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-gray-100">
-                  <span
-                    className={`inline-flex items-center px-2 py-1 capitalize rounded-full text-xs font-medium ${getStatusColor(
-                      share.status
-                    )}`}
-                  >
-                    <div
-                      className={`h-2 w-2 rounded-full mr-2 ${
-                        share.status === "active"
-                          ? "bg-green-500"
-                          : share.status === "expired"
-                          ? "bg-red-500"
-                          : "bg-gray-500"
-                      }`}
-                    ></div>
-                    {share.status}
-                  </span>
-
-                  <div className="flex items-center space-x-2 md:space-x-0 md:flex-col md:items-end md:space-y-2 mt-2">
-                    <button className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
-                      <LinkIcon className="h-4 w-4 mr-1" /> View Link
-                    </button>
-                    <button
+               <div >
+                <button
                       className="flex items-center text-orange-600 hover:text-orange-800 text-sm font-medium transition-colors"
                       onClick={() => {
                         setPropertyToShare(share?.propertyId);
                         setShowShareModal(true);
-                      }}
-                    >
+                      }}>
                       <ArrowPathIcon className="h-4 w-4 mr-1" /> Re-share
                     </button>
-                    {share.status === "active" && (
-                      <button className="flex items-center text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
-                        <NoSymbolIcon className="h-4 w-4 mr-1" /> Revoke
-                      </button>
-                    )}
+               </div>
                   </div>
                 </div>
+
+              
               </div>
             </article>
           );
@@ -220,8 +179,7 @@ export const Shares: React.FC = () => {
           <div className="relative bg-white rounded-lg p-2 max-w-3xl w-full">
             <button
               className="absolute -top-4 -right-4 bg-white text-gray-600 hover:text-red-600 rounded-full p-1.5 shadow-lg"
-              onClick={() => setPreviewImage(null)}
-            >
+              onClick={() => setPreviewImage(null)}>
               <XMarkIcon className="h-6 w-6" />
             </button>
 

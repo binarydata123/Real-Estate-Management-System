@@ -100,9 +100,9 @@ declare global {
     is_corner_plot?: boolean;
 
     // Residential specific
-    bedrooms?: number;
-    bathrooms?: number;
-    balconies?: number;
+    bedrooms: number;
+    bathrooms: number;
+    balconies: number;
 
     // Commercial specific
     washrooms?: number;
@@ -195,7 +195,7 @@ declare global {
       status: string;
       _id: string;
     };
-    role?:string;
+    role?: string;
     showAllProperty?: boolean;
   }
 
@@ -210,6 +210,7 @@ declare global {
     isPast?: boolean;
     customer?: Partial<CustomerFormData>;
     property?: string | Partial<Property>;
+    propertyId?: { _id: string; title: string };
     agency?: Partial<Agency>;
     date?: string;
     time?: string;
@@ -451,16 +452,14 @@ interface TeamMember {
   _id: string;
   name: string;
   email: string;
-  role:"agent" | "agency_admin";
+  role: "agent" | "agency_admin";
   status: string;
   joinedAt: string;
   createdAt: string;
   phone?: string;
 }
 interface brandColor {
-  primaryColor:string|null;
-  secondaryColor:string;
-
+  primaryColor: string | null;
 }
 export {
   RegistrationData,
@@ -477,5 +476,5 @@ export {
   AgencyResponse,
   AgencyFormData,
   TeamMember,
-  brandColor
+  brandColor,
 };

@@ -36,12 +36,12 @@ export const createMeeting = async (req, res) => {
     }
     console.log(customerSettings);
     if (customerSettings?.notifications?.meetingReminders) {
-    await createNotification({
-      userId: customer._id,
-      message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
-      type: "meeting_scheduled",
-    });
-  }
+      await createNotification({
+        userId: customer._id,
+        message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+        type: "meeting_scheduled",
+      });
+    }
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
         userId: user._id,
@@ -141,6 +141,7 @@ export const getMeetingsByAgency = async (req, res) => {
 
     const meetings = await Meetings.find(query)
       .populate("customerId", "fullName")
+      .populate("propertyId", "title")
       .skip(skip)
       .limit(limit)
       .sort({ date: status === "past" ? -1 : 1 })

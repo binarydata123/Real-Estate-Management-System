@@ -126,7 +126,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
               <ShareIcon className="h-5 w-5" />
             </div>
             <h2 className="text-xl font-semibold  text-gray-800">
-              Share Property
+              Share Property he
             </h2>
           </div>
           <button

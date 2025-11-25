@@ -45,6 +45,7 @@ const typeConfig: Record<
   lead_updated: {
     icon: <UserCog className="w-5 h-5 text-white" />,
     color: "bg-teal-500",
+    border: "border-teal-500",
     label: "Lead Updated",
   },
   task_assigned: {
@@ -74,31 +75,37 @@ const typeConfig: Record<
   property_deleted: {
     icon: <Trash2 className="w-5 h-5 text-white" />,
     color: "bg-red-500",
+    border: "border-red-500",
     label: "Property Deleted",
   },
   preference_request: {
     icon: <Settings2 className="w-5 h-5 text-white" />,
     color: "bg-cyan-500",
+    border: "border-cyan-500",
     label: "Preference Request",
   },
   property_share: {
     icon: <Share2 className="w-5 h-5 text-white" />,
     color: "bg-lime-500",
+    border: "border-lime-500",
     label: "Property Share",
   },
   property_feedback: {
     icon: <MessageSquare className="w-5 h-5 text-white" />,
     color: "bg-yellow-500",
+    border: "border-yellow-500",
     label: "Property Feedback",
   },
   all: {
     icon: undefined,
     color: "",
+    border: "",
     label: "",
   },
   unread: {
     icon: undefined,
     color: "",
+    border: "",
     label: "",
   },
 };
