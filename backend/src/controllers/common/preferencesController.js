@@ -108,7 +108,7 @@ export const sendRequestToCustomer = async (req, res) => {
     const customerSettings = await CustomerSettings.findOne({
       userId: customerId,
     });
-    let result;
+    let result = { success: false, sent: 0 };
     if (customerSettings?.notifications?.pushNotifications) {
       result = await sendPushNotification({
         userId: customerId,
@@ -117,6 +117,7 @@ export const sendRequestToCustomer = async (req, res) => {
         urlPath: "/preferences",
       });
     }
+
     // push notification to agency
     const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
@@ -128,9 +129,11 @@ export const sendRequestToCustomer = async (req, res) => {
         message: `A new preference request has been sent to your customer ${customer.fullName}.`,
         urlPath: "/preferences",
       });
+
     let customerPushNotificationResult;
-    if (!result.success && result.sent === 0) {
-      customerPushNotificationResult = `Notification could not be sent — customer is not subscribed to push notifications.`;
+    if (result && result.success === false && result.sent === 0) {
+      customerPushNotificationResult =
+        "Notification could not be sent — customer is not subscribed to push notifications.";
     }
 
     return res.status(200).json({

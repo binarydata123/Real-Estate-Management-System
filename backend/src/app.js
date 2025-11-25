@@ -47,7 +47,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: "*", // or "https://dashboard.vapi.ai" for stricter setup
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
 );
 app.use(morgan("dev"));

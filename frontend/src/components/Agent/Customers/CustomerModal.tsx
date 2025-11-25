@@ -1,19 +1,41 @@
-import { Dialog } from "@headlessui/react";
+import { Dialog, Transition } from "@headlessui/react";
 import {
-  User,
   Phone,
   Mail,
   DollarSign,
   Globe,
   StickyNote,
   X,
+  Building,
 } from "lucide-react";
+import React from "react";
 
 interface CustomerModalProps {
   open: boolean;
   onClose: () => void;
   customer: CustomerFormData | null;
 }
+
+const DetailItem = ({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: React.ReactNode;
+}) => {
+  if (!value) return null;
+  return (
+    <div className="flex items-start gap-3">
+      <Icon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+      <div>
+        <p className="text-sm text-gray-500">{label}</p>
+        <p className="font-semibold text-gray-800 break-words">{value}</p>
+      </div>
+    </div>
+  );
+};
 
 export default function CustomerModal({
   open,
@@ -23,7 +45,7 @@ export default function CustomerModal({
   if (!customer) return null;
 
   const formatINR = (amount?: number | string) => {
-    if (!amount) return "₹0";
+    if (amount === undefined || amount === null || amount === "") return null;
     const number = typeof amount === "string" ? parseFloat(amount) : amount;
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -33,116 +55,117 @@ export default function CustomerModal({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} className="relative z-50">
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+    <Transition.Root show={open} as={React.Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition.Child
+          as={React.Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+        </Transition.Child>
 
-      {/* Modal content */}
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <div className="relative max-w-lg w-full rounded-2xl shadow-2xl p-6 bg-gradient-to-br from-white to-gray-50">
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          {/* Header */}
-          <h2 className="text-2xl font-bold text-gray-800 tracking-tight mb-4">
-            ✨ Customer Details
-          </h2>
-
-          {/* Customer Details */}
-          <div className="space-y-5">
-            {/* Full Name */}
-            <div className="flex items-center justify-between border border-gray-300 rounded-xl p-3 bg-white shadow-sm">
-              <div className="flex items-center gap-2">
-                <User className="w-5 h-5 text-blue-500" />
-                <span className="font-medium text-gray-600">Full Name</span>
-              </div>
-              <span className="text-gray-800">{customer.fullName}</span>
-            </div>
-
-            {/* WhatsApp */}
-            <div className="flex items-center justify-between border border-gray-300 rounded-xl p-3 bg-white shadow-sm">
-              <div className="flex items-center gap-2">
-                <Phone className="w-5 h-5 text-green-500" />
-                <span className="font-medium text-gray-600">WhatsApp</span>
-              </div>
-              <span className="text-gray-800">{customer.whatsAppNumber}</span>
-            </div>
-
-            {/* Email */}
-            <div className="flex items-center justify-between border border-gray-300 rounded-xl p-3 bg-white shadow-sm">
-              <div className="flex items-center gap-2">
-                <Mail className="w-5 h-5 text-red-500" />
-                <span className="font-medium text-gray-600">Email</span>
-              </div>
-              <span className="text-gray-800">{customer.email}</span>
-            </div>
-
-            {/* Phone */}
-            <div className="flex items-center justify-between border border-gray-300 rounded-xl p-3 bg-white shadow-sm">
-              <div className="flex items-center gap-2">
-                <Phone className="w-5 h-5 text-purple-500" />
-                <span className="font-medium text-gray-600">Phone</span>
-              </div>
-              <span className="text-gray-800">{customer.phoneNumber}</span>
-            </div>
-
-            {/* Budget */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center justify-between border border-gray-300 rounded-xl p-3 bg-white shadow-sm">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-yellow-500" />
-                  <span className="font-medium text-gray-600">Min Budget</span>
-                </div>
-                <span className="text-gray-800">
-                  {formatINR(customer.minimumBudget)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between border border-gray-300 rounded-xl p-3 bg-white shadow-sm">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-yellow-500" />
-                  <span className="font-medium text-gray-600">Max Budget</span>
-                </div>
-                <span className="text-gray-800">
-                  {formatINR(customer.maximumBudget)}
-                </span>
-              </div>
-            </div>
-
-            {/* Lead Source */}
-            <div className="flex items-center justify-between border border-gray-300 rounded-xl p-3 bg-white shadow-sm">
-              <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-indigo-500" />
-                <span className="font-medium text-gray-600">Lead Source</span>
-              </div>
-              <span className="text-gray-800">{customer.leadSource}</span>
-            </div>
-
-            {/* Notes */}
-            <div className="flex flex-col border border-gray-300 rounded-xl p-3 bg-white shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <StickyNote className="w-5 h-5 text-pink-500" />
-                <span className="font-medium text-gray-600">Notes</span>
-              </div>
-              <span className="text-gray-800">{customer.initialNotes}</span>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="flex justify-end mt-6">
-            <button
-              onClick={onClose}
-              className="rounded-full px-6 py-2 shadow-sm hover:bg-gray-100 border border-gray-300"
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={React.Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
             >
-              Close
-            </button>
+              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <div className="absolute top-4 right-4">
+                  <button
+                    type="button"
+                    className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                    onClick={onClose}
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* Header */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex-shrink-0 h-14 w-14 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-blue-600">
+                      {customer.fullName.charAt(0)}
+                    </span>
+                  </div>
+                  <div>
+                    <Dialog.Title
+                      as="h3"
+                      className="text-xl font-bold leading-6 text-gray-900"
+                    >
+                      {customer.fullName}
+                    </Dialog.Title>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Customer Details
+                    </p>
+                  </div>
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 border-t border-gray-200 pt-5">
+                  <DetailItem
+                    icon={Phone}
+                    label="Phone Number"
+                    value={customer.phoneNumber}
+                  />
+                  <DetailItem
+                    icon={Mail}
+                    label="Email Address"
+                    value={customer.email}
+                  />
+                  <DetailItem
+                    icon={Phone}
+                    label="WhatsApp Number"
+                    value={customer.whatsAppNumber}
+                  />
+                  <DetailItem
+                    icon={DollarSign}
+                    label="Budget Range"
+                    value={`${formatINR(customer.minimumBudget) ?? "N/A"} - ${
+                      formatINR(customer.maximumBudget) ?? "N/A"
+                    }`}
+                  />
+                  <DetailItem
+                    icon={Globe}
+                    label="Lead Source"
+                    value={customer.leadSource}
+                  />
+                  <DetailItem
+                    icon={Building}
+                    label="Agency"
+                    value={customer.agencyId?.name}
+                  />
+                </div>
+
+                {/* Notes Section */}
+                {customer.initialNotes && (
+                  <div className="mt-6 border-t border-gray-200 pt-5">
+                    <DetailItem
+                      icon={StickyNote}
+                      label="Initial Notes"
+                      value={
+                        <p className="text-gray-700 font-normal whitespace-pre-wrap">
+                          {customer.initialNotes}
+                        </p>
+                      }
+                    />
+                  </div>
+                )}
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
         </div>
-      </div>
-    </Dialog>
+      </Dialog>
+    </Transition.Root>
   );
 }

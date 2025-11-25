@@ -129,8 +129,43 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   if (!initialData) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-lg shadow-xl p-6">
-          <p>Loading meeting details...</p>
+        <div className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          {/* Header Skeleton */}
+          <div className="sticky top-0 bg-white border-b border-gray-200 md:p-6 p-2">
+            <div className="flex items-center justify-between">
+              <div className="h-6 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+              <div className="h-5 w-5 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+          {/* Form Skeleton */}
+          <div className="md:p-6 p-2 md:space-y-6 space-y-2 animate-pulse">
+            {/* Inputs Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+              </div>
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 md:gap-6">
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+              </div>
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+              </div>
+            </div>
+            {/* Actions Skeleton */}
+            <div className="flex justify-end space-x-2 md:space-x-4 md:pt-6 pt-2 border-t border-gray-200">
+              <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
+              <div className="h-10 bg-gray-300 rounded-lg w-36"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -147,7 +182,8 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
             </h2>
             <span
               onClick={onClose}
-              className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+              className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            >
               <XMarkIcon className="h-5 w-5 text-gray-500" />
             </span>
           </div>
@@ -156,7 +192,8 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         {/* Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="md:p-6 p-2 md:space-y-6 space-y-2">
+          className="md:p-6 p-2 md:space-y-6 space-y-2"
+        >
           {/* Customer & Property */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
             <div>
@@ -165,7 +202,8 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
               </label>
               <select
                 {...register("customerId")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              >
                 <option value="">Select a customer</option>
                 {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
@@ -186,7 +224,8 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
               </label>
               <select
                 {...register("propertyId")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              >
                 <option value="">Select a Property</option>
                 {properties.map((property) => (
                   <option key={property._id} value={property._id}>
@@ -248,13 +287,15 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               {loading ? "Updating..." : "Update Meeting"}
             </button>
           </div>

@@ -24,6 +24,16 @@ import {
   CalendarIcon,
   UserIcon,
   PhoneIcon,
+  Building,
+  Armchair,
+  Handshake,
+  Layers,
+  Compass,
+  Eye,
+  Droplets,
+  Zap,
+  Gavel,
+  Shield,
 } from "lucide-react";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
@@ -415,7 +425,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         <InfoCard title="Property Details">
           <div className="space-y-1">
             <DetailItem
-              icon={HomeIcon}
+              icon={Building}
               label="Property Type"
               value={propertyData.type}
             />
@@ -435,12 +445,12 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
               value={`${propertyData.carpet_area} ${propertyData.unit_area_type}`}
             />
             <DetailItem
-              icon={HomeIcon}
+              icon={Armchair}
               label="Furnishing"
               value={propertyData.furnishing}
             />
             <DetailItem
-              icon={HomeIcon}
+              icon={Handshake}
               label="Transaction Type"
               value={propertyData.transaction_type}
             />
@@ -451,12 +461,12 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         <InfoCard title="Floor & Configuration">
           <div className="space-y-1">
             <DetailItem
-              icon={HomeIcon}
+              icon={Layers}
               label="Floor Number"
               value={propertyData.floor_number}
             />
             <DetailItem
-              icon={HomeIcon}
+              icon={Building}
               label="Total Floors"
               value={propertyData.total_floors}
             />
@@ -471,7 +481,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
               value={propertyData.bathrooms}
             />
             <DetailItem
-              icon={HomeIcon}
+              icon={Building}
               label="Balconies"
               value={propertyData.balconies}
             />
@@ -484,7 +494,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             <div className="space-y-1">
               {propertyData.facing && (
                 <DetailItem
-                  icon={HomeIcon}
+                  icon={Compass}
                   label="Facing"
                   value={propertyData.facing}
                 />
@@ -493,7 +503,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                 propertyData.overlooking?.length > 0 && (
                   <div className="flex items-center gap-3 py-2">
                     <div className="bg-blue-50 p-2 rounded-lg">
-                      <HomeIcon className="h-4 w-4 text-blue-600" />
+                      <Eye className="h-4 w-4 text-blue-600" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-gray-600">Overlooking</p>
@@ -581,7 +591,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
               propertyData.water_source?.length > 0 && (
                 <div className="flex items-center gap-3 py-2">
                   <div className="bg-blue-50 p-2 rounded-lg">
-                    <HomeIcon className="h-4 w-4 text-blue-600" />
+                    <Droplets className="h-4 w-4 text-blue-600" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-600">Water Source</p>
@@ -599,17 +609,17 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                 </div>
               )}
             <DetailItem
-              icon={HomeIcon}
+              icon={Zap}
               label="Power Backup"
               value={propertyData.power_backup}
             />
             <DetailItem
-              icon={HomeIcon}
+              icon={Gavel}
               label="RERA Status"
               value={propertyData.rera_status}
             />
             <DetailItem
-              icon={HomeIcon}
+              icon={Shield}
               label="Gated Community"
               value={propertyData.gated_community ? "Yes" : "No"}
             />
