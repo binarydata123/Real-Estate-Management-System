@@ -8,12 +8,17 @@ export const shareProperty = async (data: sharePropertySchema) => {
   );
 };
 
-export const getSharedProperties = async (agencyId: string) => {
+export const getSharedProperties = async (
+  agencyId: string,
+  page: number,
+  limit: number
+) => {
   const response = await api.get<sharePropertyResponse>(
     `/agent/shareProperties/getAllSharedProperties`,
     {
-      params: { agencyId },
-    },
+      params: { agencyId, page, limit },
+    }
   );
+
   return response.data;
 };
