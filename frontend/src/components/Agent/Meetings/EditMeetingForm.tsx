@@ -65,7 +65,6 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         setValue("status", meetingStatus || meeting.status);
       } catch (err) {
         showErrorToast("Failed to load meeting:", err);
-        alert("Failed to load meeting details");
         onClose();
       }
     };
@@ -117,7 +116,6 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
     } catch (error: unknown) {
       if (error instanceof Error) {
         showErrorToast("Failed to update meeting:", error);
-        alert(error.message);
       } else {
         showErrorToast("Failed to update meeting:", error);
       }
