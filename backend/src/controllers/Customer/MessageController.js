@@ -3,12 +3,11 @@ import { validationResult } from "express-validator";
 import sendFirstMessageEmail from "../../helpers/EmailFunctions/SendFirstMessageEmail/index.js";
 import SendMessageEmailNotPlanPurchase from "../../helpers/EmailFunctions/SendMessageEmailNotPlanPurchase/index.js";
 import useTokensForAction from "../../utils/useTokens.js";
-import {Rewind} from "lucide-react";
-import {Conversation} from "../../models/Agent/ConversationsModel.js";
-import {User} from "../../models/Common/UserModel.js";
-import {Customer} from "../../models/Agent/CustomerModel.js";
-import {Message} from "../../models/Agent/MessagesModel.js";
-
+import { Rewind } from "lucide-react";
+import { Conversation } from "../../models/Agent/ConversationsModel.js";
+import { User } from "../../models/Common/UserModel.js";
+import { Customer } from "../../models/Agent/CustomerModel.js";
+import { Message } from "../../models/Agent/MessagesModel.js";
 
 // Helper function to create a notification
 export const createNotification = async (db, data) => {
@@ -54,8 +53,7 @@ export const getConversations = async (req, res) => {
     }
 
     // Get conversations matching filter
-    const conversations = await Conversation
-      .find(filter)
+    const conversations = await Conversation.find(filter)
       .sort({ lastMessageAt: -1 })
       .lean()
       .exec();
@@ -83,8 +81,11 @@ export const getConversations = async (req, res) => {
       conv.participants.filter((id) => id.toString() !== userId.toString())
     );
 
-    const participants = await User
-      .find({ _id: { $in: participantIds } }, { password: 0 })
+    const participants = await User.find(
+      { _id: { $in: participantIds } },
+      { password: 0 }
+    )
+      .populate("agencyId", "name")
       .lean()
       .exec();
 
@@ -96,33 +97,14 @@ export const getConversations = async (req, res) => {
       .filter((p) => p.role === "agent")
       .map((p) => p._id);
 
-    const customerProfiles = await Customer
-      .find({ userId: { $in: customerIds } })
+    const customerProfiles = await Customer.find({
+      userId: { $in: customerIds },
+    })
       .lean()
       .exec();
-    const agentProfiles = await User
-      .find({ userId: { $in: agentIds } })
+    const agentProfiles = await User.find({ userId: { $in: agentIds } })
       .lean()
       .exec();
-    // const [customerProfiles, agentProfiles] =
-    //   await Promise.all([
-    //       Customer
-    //       .find({ userId: { $in: customerIds } })
-    //       .toArray(),
-    //       User
-    //       .find({ userId: { $in: agentIds } })
-    //       .toArray(),
-    //   ]);
-
-    // After fetching applications, extract their jobIds
-    //const jobIds = applications.map((app) => app.jobId).filter((id) => id);
-
-    // Fetch jobs once for all applications
-    // const jobs = await req.db
-    //   .collection("jobs")
-    //   .find({ _id: { $in: jobIds } })
-    //   .project({ title: 1 })
-    //   .toArray();
 
     const conversationsWithDetails = await Promise.all(
       conversations.map(async (conv) => {
@@ -182,13 +164,12 @@ export const getConversations = async (req, res) => {
           return result;
         }
 
-
         return {
           ...conv,
           otherParticipant: otherParticipant
             ? {
                 _id: otherParticipant._id,
-                name: `${otherParticipant.name}`,
+                name: `${otherParticipant.agencyId?.name}`,
                 email: encryptOneTwo(otherParticipant.email),
                 phone: encryptOneTwo(otherParticipant.phone),
                 role: otherParticipant.role,
@@ -202,23 +183,10 @@ export const getConversations = async (req, res) => {
         };
       })
     );
-    // const userSettings = await req.db
-    //   .collection("userSettings")
-    //   .findOne({ userId: new ObjectId(req.user._id) });
-    // let allowMessages = null;
-
-    // if (userSettings?.privacy) {
-    //   if (typeof userSettings.privacy.allowRecruiterContact === "boolean") {
-    //     allowMessages = userSettings.privacy.allowRecruiterContact;
-    //   } else if (typeof userSettings.privacy.allowDirectContact === "boolean") {
-    //     allowMessages = userSettings.privacy.allowDirectContact;
-    //   }
-    // }
 
     res.json({
       success: true,
       conversations: conversationsWithDetails,
-      //allowMessages,
       archiveCount,
       deletedCount,
       blockedCount,
@@ -236,79 +204,15 @@ export const getConversations = async (req, res) => {
 // GET /api/messages/conversations/:id - Get messages for a conversation
 export const getConversationMessages = async (req, res) => {
   try {
-    const userId = req.user._id;
     const conversationId = req.params.id;
 
-    // Check if conversation exists and user is a participant
-    const conversation = await Conversation.findOne({
-      _id: new ObjectId(conversationId),
-      participants: userId,
-    });
-
-    // const anotherParticipantId = conversation.participants.find(
-    //   (id) => !id.equals(userId)
-    // );
-
-   
-    let allowMessages = null;
-    let showProfile = true;
-
-    // if (userSettings?.privacy) {
-    //   // ------------------- allow messages -------------------
-    //   if (typeof userSettings.privacy.allowRecruiterContact === "boolean") {
-    //     allowMessages = userSettings.privacy.allowRecruiterContact;
-    //   } else if (typeof userSettings.privacy.allowDirectContact === "boolean") {
-    //     allowMessages = userSettings.privacy.allowDirectContact;
-    //   }
-
-    //   // ------------------- show profile based on req.user.role -------------------
-    //   const role = req.user.role; // 'company', 'admin', 'mentor', 'candidate'
-
-    //   if (userSettings?.privacy) {
-    //     if (role === "company") {
-    //       // Company can see candidate profiles
-    //       showProfile =
-    //         userSettings.privacy.profileVisibility === "public" ||
-    //         userSettings.privacy.profileVisibility === "recruiters";
-    //     } else if (role === "mentor") {
-    //       // Mentor can see both candidate profiles and company profiles
-    //       showProfile =
-    //         userSettings.privacy.profileVisibility === "public" ||
-    //         userSettings.privacy.profileVisibility === "mentors" ||
-    //         userSettings.privacy.companyVisibility === "public" ||
-    //         userSettings.privacy.companyVisibility === "mentors";
-    //     } else if (role === "admin") {
-    //       showProfile =
-    //         userSettings.privacy.profileVisibility === "public" ||
-    //         userSettings.privacy.companyVisibility === "public";
-    //     } else if (role === "candidate") {
-    //       showProfile =
-    //         userSettings.privacy.companyVisibility === "public" ||
-    //         userSettings.privacy.companyVisibility === "candidates" ||
-    //         userSettings.privacy.profileVisibility === "public" ||
-    //         userSettings.privacy.profileVisibility === "candidates";
-    //     }
-    //   }
-
-    //   // Optional: mentor role viewing company profile
-    //   if (role === "mentor") {
-    //     showProfile =
-    //       showProfile ||
-    //       userSettings.privacy.companyVisibility === "public" ||
-    //       userSettings.privacy.companyVisibility === "mentors";
-    //   }
-    // }
-
-    // if (!conversation) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: "Conversation not found or you do not have permission",
-    //   });
-    // }
+    const allowMessages = null;
+    const showProfile = true;
 
     // Get messages
-    const messages = await Message.find({ conversationId: new ObjectId(conversationId) })
-      .sort({ createdAt: 1 });
+    const messages = await Message.find({
+      conversationId: new ObjectId(conversationId),
+    }).sort({ createdAt: 1 });
 
     res.json({
       success: true,
@@ -341,13 +245,11 @@ export const sendMessage = async (req, res) => {
     const senderId = req.user._id;
     const conversationId = req.params.id;
     const { content, attachments } = req.body;
-    
 
     const conversation = await Conversation.findOne({
       _id: new ObjectId(conversationId),
       participants: senderId,
     });
-
 
     if (!conversation) {
       return res.status(404).json({
@@ -357,10 +259,9 @@ export const sendMessage = async (req, res) => {
     }
 
     const receiverId = conversation.participants.find(
-        (id) => id.toString() !== senderId.toString()
+      (id) => id.toString() !== senderId.toString()
     );
 
-    
     // ✅ Fetch receiver details first (required for both email + plan check)
     const receiver = await User.findOne({ _id: new ObjectId(receiverId) });
 
@@ -409,15 +310,10 @@ export const sendMessage = async (req, res) => {
         email: user.email,
         lastName: user.lastName,
       };
-      
+
       const sender = req.user.firstName + " " + req.user.lastName;
       const messageUrl = `${user.role}/messages`;
-      sendFirstMessageEmail(
-        userData,
-        message.content,
-        sender,
-        messageUrl
-      );
+      sendFirstMessageEmail(userData, message.content, sender, messageUrl);
     }
 
     // // ✅ Send “Purchase Plan” email if receiver has no active plan
@@ -618,12 +514,7 @@ export const startConversation = async (req, res) => {
       };
       const sender = req.user.firstName + " " + req.user.lastName;
       const messageUrl = `${receiver.role}/messages`;
-      sendFirstMessageEmail(
-        userData,
-        content,
-        sender,
-        messageUrl
-      );
+      sendFirstMessageEmail(userData, content, sender, messageUrl);
     }
     res.status(201).json({
       success: true,
@@ -973,37 +864,36 @@ export const getLatestMessages = async (req, res) => {
     const userId = req.user._id;
 
     const messages = await Message.aggregate([
-        {
-          $match: {
-            $or: [{ receiverId: userId }],
-          },
+      {
+        $match: {
+          $or: [{ receiverId: userId }],
         },
-        { $sort: { createdAt: -1 } },
-        { $limit: 5 },
-        // join with users collection to get sender info
-        {
-          $lookup: {
-            from: "users",
-            localField: "senderId",
-            foreignField: "_id",
-            as: "sender",
-          },
+      },
+      { $sort: { createdAt: -1 } },
+      { $limit: 5 },
+      // join with users collection to get sender info
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "sender",
         },
-        { $unwind: "$sender" },
-        {
-          $project: {
-            _id: 1,
-            text: 1,
-            createdAt: 1,
-            senderId: 1,
-            receiverId: 1,
-            isRead: 1,
-            conversationId: 1,
-            senderName: "$sender.firstName",
-          },
+      },
+      { $unwind: "$sender" },
+      {
+        $project: {
+          _id: 1,
+          text: 1,
+          createdAt: 1,
+          senderId: 1,
+          receiverId: 1,
+          isRead: 1,
+          conversationId: 1,
+          senderName: "$sender.firstName",
         },
-      ])
-      .toArray();
+      },
+    ]).toArray();
 
     res.status(200).json({
       success: true,
@@ -1023,7 +913,10 @@ export const getLatestMessages = async (req, res) => {
 export const getCustomers = async (req, res) => {
   try {
     const userId = req.user._id;
-    const customers = await Customer.find({ agencyId: new ObjectId(userId), role: "Customer" });
+    const customers = await Customer.find({
+      agencyId: new ObjectId(userId),
+      role: "Customer",
+    });
 
     res.status(200).json({
       success: true,

@@ -6,6 +6,7 @@ import { User } from "../../models/Common/UserModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import generateToken from "../../utils/generateToken.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
+import AgencySettings from "../../models/Agent/settingsModel.js";
 
 const registrationController = {
   registerAgency: async (req, res) => {
@@ -79,7 +80,12 @@ const registrationController = {
       // 6. Commit the transaction
       await session.commitTransaction();
 
-      // 7. Respond with success and token
+      //7. Create default settings
+      await AgencySettings.create({
+        userId: createdUser._id,
+      });
+
+      // 8. Respond with success and token
       return res.status(201).json({
         success: true,
         message: "Agency registered successfully!",
@@ -372,6 +378,7 @@ const registrationController = {
         .json({ message: "Server error during session check." });
     }
   },
+
   changePassword: async (req, res) => {
     try {
       const { oldPassword, newPassword, confirmPassword, email, phone } =
