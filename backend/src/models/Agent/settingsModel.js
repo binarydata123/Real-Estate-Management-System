@@ -9,26 +9,10 @@ const AgencySettings = new mongoose.Schema(
       unique: true, // Ensures one settings document per user
     },
 
-    agencySettings: {
-      agencyName: {
-        type: String,
-        default: "",
-      },
-      workspaceUrl: {
-        type: String,
-        lowercase: true,
-        default: "",
-      },
-    },
-
     branding: {
       primaryColor: {
         type: String,
-        default: "#000000",
-      },
-      secondaryColor: {
-        type: String,
-        default: "#ffffff",
+        default: "#2563EB",
       },
       agencyLogoUrl: {
         type: String,
@@ -37,7 +21,6 @@ const AgencySettings = new mongoose.Schema(
     },
 
     notifications: {
-
       pushNotifications: {
         type: Boolean,
         default: true,
@@ -54,7 +37,6 @@ const AgencySettings = new mongoose.Schema(
         type: Boolean,
         default: true,
       },
-
     },
 
     security: {

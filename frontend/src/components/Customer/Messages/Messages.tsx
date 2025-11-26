@@ -1,7 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 //import { useSearchParams } from "react-router-dom";
-import { useParams } from "next/navigation";
 import MessageThread from "./MessageThread/MessageThread";
 import { Conversation, Message } from "./types/messageTypes";
 import { useAuth } from "@/context/AuthContext";
@@ -14,7 +13,6 @@ import {
   markConversationAsRead,
   restoreConversation,
   sendMessage,
-  startConversation,
   unArchiveConversation,
   unblockConversation,
   uploadFile,
@@ -31,20 +29,12 @@ const Messages: React.FC = () => {
   const [anotherUserAllowMessage, setAnotherUserAllowMessage] = useState(true);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-
-  const hasStartedConversation = useRef(false);
-
   const [showProfile, setShowProfile] = useState(true);
-  const [showConversationList, setShowConversationList] = useState(true);
 
-  const params = useParams();
-  const applicantId = params.applicant as string;
-  const applicationId = params.applicationId as string;
-  const isType = params.type as string;
   const socket = useMemo(() => {
     return io(process.env.NEXT_PUBLIC_BACKEND_URL, {
       withCredentials: true,
@@ -65,6 +55,7 @@ const Messages: React.FC = () => {
       socket.off("messages_update");
     };
   }, [selectedConversation]);
+
   // Fetch conversations on component mount
   useEffect(() => {
     fetchConversations();
@@ -77,42 +68,7 @@ const Messages: React.FC = () => {
     markAsRead(selectedConversation);
   }, [selectedConversation]);
 
-  useEffect(() => {
-    if (applicantId && !hasStartedConversation.current) {
-      hasStartedConversation.current = true;
-      startNewConversation(applicantId, applicationId || undefined);
-    }
-  }, [applicantId, applicationId]);
-
-
-  const startNewConversation = async (
-    // eslint-disable-next-line no-shadow
-    applicantId: string,
-    // eslint-disable-next-line no-shadow
-    applicationId?: string
-  ) => {
-    try {
-      const attachments = selectedFile ? [selectedFile] : [];
-      const bodyData = {
-        content: isType
-          ? "Hey! I saw your profile on this platform and wanted to connect."
-          : "",
-        attachments,
-        applicationId,
-      };
-      const data = await startConversation(applicantId, bodyData);
-      if (data.success) {
-        const newConversationId = data.data.data.conversationId;
-        setSelectedConversation(newConversationId);
-        fetchConversations(newConversationId);
-      }
-    } catch (error) {
-      showErrorToast("Error starting new conversation:", error);
-    }
-  };
-
   const fetchConversations = async (priorityConversationId?: string) => {
-
     try {
       // eslint-disable-next-line no-shadow
       const { conversations } = await getConversations();
@@ -130,7 +86,6 @@ const Messages: React.FC = () => {
   };
 
   const fetchConversationMessages = async (conversationId: string) => {
-    setIsLoadingMessages(true);
     try {
       const data = await getConversationMessages(conversationId);
       setMessages((prev) => ({
@@ -245,7 +200,9 @@ const Messages: React.FC = () => {
           );
           setSelectedConversation(nextConversation?._id || null);
         }
-        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+        return prevConversations.filter(
+          (conversation: Conversation) => conversation._id !== conversationId
+        );
       });
     } catch (error) {
       showErrorToast("Error archiving conversation:", error);
@@ -262,7 +219,9 @@ const Messages: React.FC = () => {
           );
           setSelectedConversation(nextConversation?._id || null);
         }
-        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+        return prevConversations.filter(
+          (conversation: Conversation) => conversation._id !== conversationId
+        );
       });
     } catch (error) {
       showErrorToast("Error unarchiving conversation:", error);
@@ -279,7 +238,9 @@ const Messages: React.FC = () => {
           );
           setSelectedConversation(nextConversation?._id || null);
         }
-        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+        return prevConversations.filter(
+          (conversation: Conversation) => conversation._id !== conversationId
+        );
       });
     } catch (err) {
       showErrorToast("Error restoring conversation: ", err);
@@ -296,7 +257,9 @@ const Messages: React.FC = () => {
           );
           setSelectedConversation(nextConversation?._id || null);
         }
-        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+        return prevConversations.filter(
+          (conversation: Conversation) => conversation._id !== conversationId
+        );
       });
     } catch (error) {
       showErrorToast("Error unblocking conversation:", error);
@@ -313,7 +276,9 @@ const Messages: React.FC = () => {
           );
           setSelectedConversation(nextConversation?._id || null);
         }
-        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+        return prevConversations.filter(
+          (conversation: Conversation) => conversation._id !== conversationId
+        );
       });
     } catch (error) {
       showErrorToast("Error blocking conversation:", error);
@@ -330,7 +295,9 @@ const Messages: React.FC = () => {
           );
           setSelectedConversation(nextConversation?._id || null);
         }
-        return prevConversations.filter((conversation: Conversation) => conversation._id !== conversationId);
+        return prevConversations.filter(
+          (conversation: Conversation) => conversation._id !== conversationId
+        );
       });
     } catch (error) {
       showErrorToast("Error deleting conversation:", error);
@@ -369,29 +336,6 @@ const Messages: React.FC = () => {
     setFilePreview(null);
   };
 
-
-
-
-  // if (selectedCompany) {
-  //   return (
-  //     <>
-  //       <CompanyDetailPage
-  //         companyId={selectedCompany}
-  //         onBack={() => setSelectedCompany(null)}
-  //         onJobClick={handleJobClick}
-  //       />
-  //       <JobDetailModal
-  //         job={selectedJob}
-  //         isOpen={showJobModal}
-  //         onClose={() => setShowJobModal(false)}
-  //         onApply={handleApply}
-  //         onCompanyView={handleCompanyClick}
-  //         onToggleSave={() => {}}
-  //       />
-  //     </>
-  //   );
-  // }
-
   const selectedConv = Array.isArray(conversations)
     ? conversations.find((c) => c._id === selectedConversation)
     : undefined;
@@ -399,34 +343,11 @@ const Messages: React.FC = () => {
   return (
     <div className="max-w-full mx-auto lg:p-6" style={{ overflow: "hidden" }}>
       <div className="bg-white lg:rounded-xl shadow-sm border border-gray-100 flex h-[94vh] lg:h-[85vh]">
-        {/* <ConversationsList
-            conversations={conversations}
-            selectedConversation={selectedConversation}
-            searchTerm={searchTerm}
-            isLoading={isLoadingConversations}
-            error={error}
-            isArchiveMode={isArchiveMode}
-            isTrashMode={isTrashMode}
-            isBlockMode={isBlockMode}
-            archiveCount={archiveCount}
-            deletedCount={deletedCount}
-            blockedCount={blockedCount}
-            showConversationList={showConversationList}
-            onSearchChange={setSearchTerm}
-            onConversationSelect={handleConversationSelect} // Use the updated handler
-            onFetchConversations={fetchConversations}
-            onFetchArchived={fetchArchivedConversations}
-            onFetchDeleted={fetchDeletedConversations}
-            onFetchBlocked={fetchBlockedConversations}
-            onSetArchiveMode={setIsArchiveMode}
-            onSetTrashMode={setIsTrashMode}
-            onSetBlockMode={setIsBlockMode}
-            onSetShowConversationList={setShowConversationList}
-          /> */}
-
         <MessageThread
           selectedConversation={selectedConv}
-          messages={selectedConversation ? messages[selectedConversation] || [] : []}
+          messages={
+            selectedConversation ? messages[selectedConversation] || [] : []
+          }
           newMessage={newMessage}
           selectedFile={selectedFile}
           filePreview={filePreview}
@@ -434,20 +355,21 @@ const Messages: React.FC = () => {
           isSendingMessage={isSendingMessage}
           anotherUserAllowMessage={anotherUserAllowMessage}
           showProfile={showProfile}
-          showConversationList={showConversationList}
           onMessageChange={setNewMessage}
           onFileSelected={handleFileSelected}
           onSendMessage={handleSendMessage}
-          onSetShowConversationList={setShowConversationList}
           onArchiveConversation={handleArchiveConversation}
           onUnarchiveConversation={handleUnarchiveConversation}
           onBlockConversation={handleBlockConversation}
           onUnblockConversation={handleUnblockConversation}
           onDeleteConversation={handleDeleteConversation}
           onRestoreConversation={handleRestoreConversation}
-          onRemoveFile={handleRemoveFile} isArchiveMode={false} isTrashMode={false} isBlockMode={false} allowMessage={false} onViewCompany={function (): void {
-            throw new Error("Function not implemented.");
-          } }        />
+          onRemoveFile={handleRemoveFile}
+          isArchiveMode={false}
+          isTrashMode={false}
+          isBlockMode={false}
+          allowMessage={false}
+        />
       </div>
     </div>
   );

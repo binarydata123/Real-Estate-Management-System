@@ -1,11 +1,11 @@
 "use client";
-import React, { useRef, useEffect } from 'react';
-import MessageItem from './MessageItem';
+import React, { useRef, useEffect } from "react";
+import MessageItem from "./MessageItem";
 
-import { MessageSquare } from 'lucide-react';
-import { Message } from '../types/messageTypes';
-import LoadingSpinner from '../UI/LoadingSpinner';
-import EmptyState from '../UI/EmptyState';
+import { MessageSquare } from "lucide-react";
+import { Message } from "../types/messageTypes";
+import LoadingSpinner from "../UI/LoadingSpinner";
+import EmptyState from "../UI/EmptyState";
 
 interface MessagesListProps {
   messages: Message[];
@@ -18,7 +18,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
   messages,
   isLoadingMessages,
   currentUserId,
-  firstUnreadIndex
+  firstUnreadIndex,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -49,21 +49,21 @@ const MessagesList: React.FC<MessagesListProps> = ({
   return (
     <div className="flex-1 overflow-y-auto p-2 md:p-4 space-y-4">
       {messages.map((message, idx) => {
-        const isUnread = !message.isRead && message.receiverId === currentUserId;
+        const isUnread =
+          !message.isRead && message.receiverId === currentUserId;
         const isOwnMessage = message.senderId === currentUserId;
 
         return (
           <React.Fragment key={message._id}>
-            {idx === firstUnreadIndex &&
-              firstUnreadIndex !== -1 && (
-                <div className="flex items-center my-4">
-                  <div className="flex-grow border-t border-gray-300" />
-                  <span className="px-4 text-sm text-gray-500">
-                    Unread Messages
-                  </span>
-                  <div className="flex-grow border-t border-gray-300" />
-                </div>
-              )}
+            {idx === firstUnreadIndex && firstUnreadIndex !== -1 && (
+              <div key="unread-divider" className="flex items-center my-4">
+                <div className="flex-grow border-t border-gray-300" />
+                <span className="px-4 text-sm text-gray-500">
+                  Unread Messages
+                </span>
+                <div className="flex-grow border-t border-gray-300" />
+              </div>
+            )}
 
             <MessageItem
               message={message}
