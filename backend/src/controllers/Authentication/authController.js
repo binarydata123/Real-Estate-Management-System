@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import { Agency } from "../../models/Agent/AgencyModel.js";
+import AgencySettings from "../../models/Agent/settingsModel.js";
 import { User } from "../../models/Common/UserModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import generateToken from "../../utils/generateToken.js";
@@ -203,14 +204,20 @@ const registrationController = {
           .status(400)
           .json({ message: "Invalid login type specified." });
       }
-      const notification = new Notification({
+      const userSettings = await AgencySettings.findOne({
         userId: user._id,
-        // agencyId: createdAgency._id,
-        message: `You have logged in successfully!`,
-        type: "welcome",
-        link: "/dashboard", // Optional: link to the dashboard
       });
-      await notification.save();
+
+      if (userSettings?.security?.loginNotifications) {
+        const notification = new Notification({
+          userId: user._id,
+          // agencyId: createdAgency._id,
+          message: `You have logged in successfully!`,
+          type: "welcome",
+          link: "/dashboard", // Optional: link to the dashboard
+        });
+        await notification.save();
+      }
       return res.json({
         success: true,
         message: "Login successful!",

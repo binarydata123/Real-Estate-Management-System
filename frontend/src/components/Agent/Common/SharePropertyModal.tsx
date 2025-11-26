@@ -126,7 +126,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
               <ShareIcon className="h-5 w-5" />
             </div>
             <h2 className="text-xl font-semibold  text-gray-800">
-              Share Property he
+              Share Property
             </h2>
           </div>
           <button
@@ -170,110 +170,44 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                 Select Customer
               </label>
               <Controller
-                control={control}
-                name="sharedWithUserId"
-                render={({ field }) => {
-                  const selectedUser =
-                    options.find((opt) => opt._id === field.value) || null;
+  control={control}
+  name="sharedWithUserId"
+  render={({ field }) => (
+    <div>
+      <select
+        {...field}
+        className={`w-full pl-3 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+          errors.sharedWithUserId ? "border-red-600" : "border-gray-300"
+        }`}
+      >
+        <option value="">Select customer...</option>
 
-                  return (
-                    <Combobox
-                      value={selectedUser}
-                      onChange={(customer) => field.onChange(customer?._id)}
-                    >
-                      <div className="relative">
-                        <Combobox.Input
-                          className={`w-full pl-10 pr-10 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                            errors.sharedWithUserId
-                              ? "border-red-600"
-                              : "border-gray-300"
-                          }`}
-                          displayValue={(customer: CustomerFormData | null) =>
-                            customer?.fullName || ""
-                          }
-                          onChange={(e) => setQuery(e.target.value)}
-                          placeholder="Search customer..."
-                          autoComplete="off"
-                        />
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                          <UserIcon className="h-5 w-5 text-gray-400" />
-                        </div>
-                        <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-3">
-                          <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
-                        </Combobox.Button>
+        {options.map((option) => {
+          const isAlreadyShared = sharedCustomers.some(
+            (shared) => shared._id === option._id
+          );
 
-                        {(query === "" || filteredOptions.length > 0) && (
-                          <Combobox.Options className="absolute mt-1 w-full max-h-56 overflow-auto rounded-xl border bg-white shadow-lg z-50 focus:outline-none">
-                            {filteredOptions.length === 0 ? (
-                              <div className="px-4 py-2 text-gray-500">
-                                No customers found
-                              </div>
-                            ) : (
-                              filteredOptions.map((option) => {
-                                /** ✅ Disable if already shared */
-                                const isAlreadyShared = sharedCustomers.some(
-                                  (shared) => shared._id === option._id
-                                );
+          return (
+            <option
+              key={option._id}
+              value={option._id}
+              disabled={isAlreadyShared}
+            >
+              {option.fullName}
+              {isAlreadyShared ? " (Already Shared)" : ""}
+            </option>
+          );
+        })}
+      </select>
 
-                                return (
-                                  <Combobox.Option
-                                    key={option._id}
-                                    value={option}
-                                    disabled={isAlreadyShared}
-                                    className={({ active, disabled }) =>
-                                      `flex items-center justify-between px-4 py-2.5 cursor-pointer ${
-                                        disabled
-                                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                          : active
-                                          ? "bg-blue-600 text-white"
-                                          : "text-gray-700"
-                                      }`
-                                    }
-                                  >
-                                    {({ selected, active }) => (
-                                      <>
-                                        <div className="flex items-center gap-3">
-                                          <div
-                                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                                              active || selected
-                                                ? "bg-white text-blue-600"
-                                                : "bg-gray-200 text-gray-600"
-                                            }`}
-                                          >
-                                            {option.fullName.charAt(0)}
-                                          </div>
-                                          <div>
-                                            <p className="font-medium">
-                                              {option.fullName}
-                                            </p>
-                                            {isAlreadyShared && (
-                                              <span className="text-xs text-gray-500">
-                                                Already Shared
-                                              </span>
-                                            )}
-                                          </div>
-                                        </div>
-                                        {selected && !isAlreadyShared && (
-                                          <CheckIcon className="h-4 w-4" />
-                                        )}
-                                      </>
-                                    )}
-                                  </Combobox.Option>
-                                );
-                              })
-                            )}
-                          </Combobox.Options>
-                        )}
-                      </div>
-                    </Combobox>
-                  );
-                }}
-              />
-              {errors.sharedWithUserId && (
-                <p className="text-red-600 text-sm mt-1">
-                  {errors.sharedWithUserId.message}
-                </p>
-              )}
+      {errors.sharedWithUserId && (
+        <p className="text-red-600 text-sm mt-1">
+          {errors.sharedWithUserId.message}
+        </p>
+      )}
+    </div>
+  )}
+/>
             </div>
 
             {/* Custom Message */}

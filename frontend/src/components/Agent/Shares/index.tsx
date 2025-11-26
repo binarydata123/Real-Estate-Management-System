@@ -47,7 +47,7 @@ export const Shares: React.FC = () => {
     return sharedData.filter((share) => {
       const propertyTitle = share.propertyId?.title.toLowerCase();
       const sharedByName = share.sharedByUserId.name.toLowerCase();
-      const sharedWithName = share.sharedWithUserId.fullName.toLowerCase();
+      const sharedWithName = share.sharedWithUserId?.fullName.toLowerCase();
       const term = searchTerm.toLowerCase();
       return (
         propertyTitle?.includes(term) ||
@@ -168,8 +168,12 @@ export const Shares: React.FC = () => {
             No shares yet
           </h3>
           <p className="text-gray-500 mb-6">
-            Start sharing properties with customers
+            Start sharing properties with customers and colleagues
           </p>
+          <button className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+            <ShareIcon className="h-5 w-5 mr-2" />
+            Share Your First Property
+          </button>
         </div>
       )}
 
