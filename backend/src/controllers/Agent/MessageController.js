@@ -3,13 +3,12 @@ import { validationResult } from "express-validator";
 import sendFirstMessageEmail from "../../helpers/EmailFunctions/SendFirstMessageEmail/index.js";
 import SendMessageEmailNotPlanPurchase from "../../helpers/EmailFunctions/SendMessageEmailNotPlanPurchase/index.js";
 import useTokensForAction from "../../utils/useTokens.js";
-import {Rewind} from "lucide-react";
-import {Conversation} from "../../models/Agent/ConversationsModel.js";
-import {User} from "../../models/Common/UserModel.js";
-import {Customer} from "../../models/Agent/CustomerModel.js";
-import {Message} from "../../models/Agent/MessagesModel.js";
-import {Notifications} from "../../models/Agent/NotificationModel.js";
-
+import { Rewind } from "lucide-react";
+import { Conversation } from "../../models/Agent/ConversationsModel.js";
+import { User } from "../../models/Common/UserModel.js";
+import { Customer } from "../../models/Agent/CustomerModel.js";
+import { Message } from "../../models/Agent/MessagesModel.js";
+import { Notifications } from "../../models/Agent/NotificationModel.js";
 
 // Helper function to create a notification
 export const createNotification = async (db, data) => {
@@ -55,8 +54,7 @@ export const getConversations = async (req, res) => {
     }
 
     // Get conversations matching filter
-    const conversations = await Conversation
-      .find(filter)
+    const conversations = await Conversation.find(filter)
       .sort({ lastMessageAt: -1 })
       .lean()
       .exec();
@@ -84,11 +82,12 @@ export const getConversations = async (req, res) => {
       conv.participants.filter((id) => id.toString() !== userId.toString())
     );
 
-    const participants = await Customer
-      .find({ _id: { $in: participantIds } }, { password: 0 })
+    const participants = await Customer.find(
+      { _id: { $in: participantIds } },
+      { password: 0 }
+    )
       .lean()
       .exec();
-
 
     const customerIds = participants
       .filter((p) => p.role === "customer")
@@ -98,33 +97,14 @@ export const getConversations = async (req, res) => {
       .filter((p) => p.role === "agent")
       .map((p) => p._id);
 
-    const customerProfiles = await Customer
-      .find({ userId: { $in: customerIds } })
+    const customerProfiles = await Customer.find({
+      userId: { $in: customerIds },
+    })
       .lean()
       .exec();
-    const agentProfiles = await User
-      .find({ userId: { $in: agentIds } })
+    const agentProfiles = await User.find({ userId: { $in: agentIds } })
       .lean()
       .exec();
-    // const [customerProfiles, agentProfiles] =
-    //   await Promise.all([
-    //       Customer
-    //       .find({ userId: { $in: customerIds } })
-    //       .toArray(),
-    //       User
-    //       .find({ userId: { $in: agentIds } })
-    //       .toArray(),
-    //   ]);
-
-    // After fetching applications, extract their jobIds
-    //const jobIds = applications.map((app) => app.jobId).filter((id) => id);
-
-    // Fetch jobs once for all applications
-    // const jobs = await req.db
-    //   .collection("jobs")
-    //   .find({ _id: { $in: jobIds } })
-    //   .project({ title: 1 })
-    //   .toArray();
 
     const conversationsWithDetails = await Promise.all(
       conversations.map(async (conv) => {
@@ -144,8 +124,8 @@ export const getConversations = async (req, res) => {
         );
 
         let profile = null;
-        let status = null;
-        let applicationInfo = null;
+        const status = null;
+        const applicationInfo = null;
 
         if (otherParticipant?.role === "customer") {
           profile = customerProfiles.find(
@@ -184,7 +164,6 @@ export const getConversations = async (req, res) => {
           return result;
         }
 
-
         return {
           ...conv,
           otherParticipant: otherParticipant
@@ -204,18 +183,6 @@ export const getConversations = async (req, res) => {
         };
       })
     );
-    // const userSettings = await req.db
-    //   .collection("userSettings")
-    //   .findOne({ userId: new ObjectId(req.user._id) });
-    // let allowMessages = null;
-
-    // if (userSettings?.privacy) {
-    //   if (typeof userSettings.privacy.allowRecruiterContact === "boolean") {
-    //     allowMessages = userSettings.privacy.allowRecruiterContact;
-    //   } else if (typeof userSettings.privacy.allowDirectContact === "boolean") {
-    //     allowMessages = userSettings.privacy.allowDirectContact;
-    //   }
-    // }
 
     res.json({
       success: true,
@@ -251,7 +218,6 @@ export const getConversationMessages = async (req, res) => {
     //   (id) => !id.equals(userId)
     // );
 
-   
     let allowMessages = null;
     let showProfile = true;
 
@@ -309,8 +275,9 @@ export const getConversationMessages = async (req, res) => {
     // }
 
     // Get messages
-    const messages = await Message.find({ conversationId: new ObjectId(conversationId) })
-      .sort({ createdAt: 1 });
+    const messages = await Message.find({
+      conversationId: new ObjectId(conversationId),
+    }).sort({ createdAt: 1 });
 
     res.json({
       success: true,
@@ -343,7 +310,6 @@ export const sendMessage = async (req, res) => {
     const senderId = req.user._id;
     const conversationId = req.params.id;
     const { content, attachments } = req.body;
-    
 
     const conversation = await Conversation.findOne({
       _id: new ObjectId(conversationId),
@@ -363,7 +329,6 @@ export const sendMessage = async (req, res) => {
       receiverId = conversationId;
     }
 
-    
     // ✅ Fetch receiver details first (required for both email + plan check)
     const receiver = await Customer.findOne({ _id: new ObjectId(receiverId) });
 
@@ -412,15 +377,10 @@ export const sendMessage = async (req, res) => {
         email: user.email,
         lastName: user.lastName,
       };
-      
+
       const sender = req.user.firstName + " " + req.user.lastName;
       const messageUrl = `${user.role}/messages`;
-      sendFirstMessageEmail(
-        userData,
-        message.content,
-        sender,
-        messageUrl
-      );
+      sendFirstMessageEmail(userData, message.content, sender, messageUrl);
     }
 
     // // ✅ Send “Purchase Plan” email if receiver has no active plan
@@ -476,7 +436,7 @@ export const startConversation = async (req, res) => {
     }
 
     const userId = req.user._id;
-    const { receiverId, content, attachments, applicationId } = req.body;
+    const { receiverId, content, attachments } = req.body;
 
     // Check if receiver exists
     const receiver = await Customer.findOne({
@@ -497,11 +457,6 @@ export const startConversation = async (req, res) => {
       },
     };
     console.log(conversationFilter);
-    // if (applicationId) {
-    //   conversationFilter.applicationId = new ObjectId(applicationId);
-    // } else {
-    //   conversationFilter.applicationId = { $exists: false };
-    // }
 
     // Check if conversation already exists (with or without applicationId)
     const existingConversation = await Conversation.findOne(conversationFilter);
@@ -516,13 +471,12 @@ export const startConversation = async (req, res) => {
         conversationId: new ObjectId(conversationId),
         senderId: userId,
         receiverId,
-        content,
         attachments: attachments || [],
         isRead: false,
         createdAt: new Date(),
       };
 
-      const result = await Message.insertOne(message);
+      await Message.insertOne(message);
 
       const lastMessage =
         content?.trim() !== ""
@@ -546,7 +500,6 @@ export const startConversation = async (req, res) => {
       // Create new conversation
       const conversation = {
         participants: [userId, new ObjectId(receiverId)],
-        //...(applicationId && { applicationId: new ObjectId(applicationId) }),
         lastMessage: content,
         lastMessageAt: new Date(),
         unreadCount: {
@@ -590,39 +543,15 @@ export const startConversation = async (req, res) => {
             : "user"
         }/messages?conversationId=${conversationId}`,
       });
-      // ✅ If receiver does NOT have plan → Send “Purchase Plan” email
     }
-    // if (req.user.role !== "admin") {
-    //   try {
-    //     await useTokensForAction({
-    //       req,
-    //       userId: req.user._id,
-    //       action:
-    //         req.user.role === "customer" ? "contact_mentee" : "contact_candidate",
-    //       metadata: req.tokenMeta || {},
-    //     });
-    //   } catch (tokenErr) {
-    //     console.error("Token deduction failed:", tokenErr);
-    //     return res.status(402).json({
-    //       success: false,
-    //       message:
-    //         "Not enough tokens to message. Please upgrade your plan or purchase additional tokens to continue",
-    //     });
-    //   }
-    // }
-    if (req.user.role == "admin") {
+    if (req.user.role === "admin") {
       const userData = {
         name: receiver.name,
         email: receiver.email,
       };
       const sender = req.user.name;
       const messageUrl = `${receiver.role}/messages`;
-      sendFirstMessageEmail(
-        userData,
-        content,
-        sender,
-        messageUrl
-      );
+      sendFirstMessageEmail(userData, content, sender, messageUrl);
     }
     res.status(201).json({
       success: true,
@@ -972,37 +901,36 @@ export const getLatestMessages = async (req, res) => {
     const userId = req.user._id;
 
     const messages = await Message.aggregate([
-        {
-          $match: {
-            $or: [{ receiverId: userId }],
-          },
+      {
+        $match: {
+          $or: [{ receiverId: userId }],
         },
-        { $sort: { createdAt: -1 } },
-        { $limit: 5 },
-        // join with users collection to get sender info
-        {
-          $lookup: {
-            from: "users",
-            localField: "senderId",
-            foreignField: "_id",
-            as: "sender",
-          },
+      },
+      { $sort: { createdAt: -1 } },
+      { $limit: 5 },
+      // join with users collection to get sender info
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "sender",
         },
-        { $unwind: "$sender" },
-        {
-          $project: {
-            _id: 1,
-            text: 1,
-            createdAt: 1,
-            senderId: 1,
-            receiverId: 1,
-            isRead: 1,
-            conversationId: 1,
-            senderName: "$sender.firstName",
-          },
+      },
+      { $unwind: "$sender" },
+      {
+        $project: {
+          _id: 1,
+          text: 1,
+          createdAt: 1,
+          senderId: 1,
+          receiverId: 1,
+          isRead: 1,
+          conversationId: 1,
+          senderName: "$sender.firstName",
         },
-      ])
-      .toArray();
+      },
+    ]).toArray();
 
     res.status(200).json({
       success: true,
@@ -1022,7 +950,10 @@ export const getLatestMessages = async (req, res) => {
 export const getCustomers = async (req, res) => {
   try {
     const userId = req.user._id;
-    const customers = await Customer.find({ agencyId: new ObjectId(userId), role: "Customer" });
+    const customers = await Customer.find({
+      agencyId: new ObjectId(userId),
+      role: "Customer",
+    });
 
     res.status(200).json({
       success: true,
