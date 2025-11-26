@@ -2,14 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import {
-  XMarkIcon,
-  ShareIcon,
-  ChevronUpDownIcon,
-  CheckIcon,
-  UserIcon,
-} from "@heroicons/react/24/outline";
-import { Combobox } from "@headlessui/react";
+import { XMarkIcon, ShareIcon } from "@heroicons/react/24/outline";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -39,7 +32,6 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
 }) => {
   const { user } = useAuth();
   const [options, setOptions] = useState<CustomerFormData[]>([]);
-  const [query, setQuery] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { showPromiseToast } = useToast();
 
@@ -111,11 +103,6 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
     property.images?.find((img) => img.isPrimary)?.url ||
     property.images?.[0]?.url;
 
-  const filteredOptions = !query
-    ? options
-    : options.filter((option) =>
-        option.fullName.toLowerCase().includes(query.toLowerCase())
-      );
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 text-black">
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col">
@@ -131,8 +118,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
-          >
+            className="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
             <XMarkIcon className="h-5 w-5 text-gray-500" />
           </button>
         </div>
@@ -170,44 +156,44 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                 Select Customer
               </label>
               <Controller
-  control={control}
-  name="sharedWithUserId"
-  render={({ field }) => (
-    <div>
-      <select
-        {...field}
-        className={`w-full pl-3 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-          errors.sharedWithUserId ? "border-red-600" : "border-gray-300"
-        }`}
-      >
-        <option value="">Select customer...</option>
+                control={control}
+                name="sharedWithUserId"
+                render={({ field }) => (
+                  <div>
+                    <select
+                      {...field}
+                      className={`w-full pl-3 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                        errors.sharedWithUserId
+                          ? "border-red-600"
+                          : "border-gray-300"
+                      }`}>
+                      <option value="">Select customer...</option>
 
-        {options.map((option) => {
-          const isAlreadyShared = sharedCustomers.some(
-            (shared) => shared._id === option._id
-          );
+                      {options.map((option) => {
+                        const isAlreadyShared = sharedCustomers.some(
+                          (shared) => shared._id === option._id
+                        );
 
-          return (
-            <option
-              key={option._id}
-              value={option._id}
-              disabled={isAlreadyShared}
-            >
-              {option.fullName}
-              {isAlreadyShared ? " (Already Shared)" : ""}
-            </option>
-          );
-        })}
-      </select>
+                        return (
+                          <option
+                            key={option._id}
+                            value={option._id}
+                            disabled={isAlreadyShared}>
+                            {option.fullName}
+                            {isAlreadyShared ? " (Already Shared)" : ""}
+                          </option>
+                        );
+                      })}
+                    </select>
 
-      {errors.sharedWithUserId && (
-        <p className="text-red-600 text-sm mt-1">
-          {errors.sharedWithUserId.message}
-        </p>
-      )}
-    </div>
-  )}
-/>
+                    {errors.sharedWithUserId && (
+                      <p className="text-red-600 text-sm mt-1">
+                        {errors.sharedWithUserId.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
             </div>
 
             {/* Custom Message */}
@@ -234,15 +220,13 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-              >
+                className="px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-              >
+                className="flex items-center px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
                 {!loading && <ShareIcon className="h-5 w-5 mr-2" />}
                 {loading ? "Sharing..." : "Share Property"}
               </button>
