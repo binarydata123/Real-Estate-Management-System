@@ -14,7 +14,11 @@ interface MessagesListProps {
   messagesEndRef: React.Ref<HTMLDivElement>;
 }
 
-const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading, messagesEndRef }) => {
+const MessagesList: React.FC<MessagesListProps> = ({
+  messages,
+  isLoading,
+  messagesEndRef,
+}) => {
   const { user } = useAuth();
 
   const firstUnreadIndex = messages.findIndex(
@@ -43,16 +47,21 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading, messag
   return (
     <div className="flex-1 overflow-y-auto p-2 md:p-4 space-y-4">
       {messages.map((message, idx) => {
-        if (!message.content?.trim() && (!message.attachments || message.attachments.length === 0)) {
+        if (
+          !message.content?.trim() &&
+          (!message.attachments || message.attachments.length === 0)
+        ) {
           return null;
         }
 
         return (
           <React.Fragment key={message._id}>
             {idx === firstUnreadIndex && firstUnreadIndex !== -1 && (
-              <div className="flex items-center my-4">
+              <div key="unread-divider" className="flex items-center my-4">
                 <div className="flex-grow border-t border-gray-300" />
-                <span className="px-4 text-sm text-gray-500">Unread Messages</span>
+                <span className="px-4 text-sm text-gray-500">
+                  Unread Messages
+                </span>
                 <div className="flex-grow border-t border-gray-300" />
               </div>
             )}

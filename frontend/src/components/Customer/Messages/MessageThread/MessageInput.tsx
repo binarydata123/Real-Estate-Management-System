@@ -13,7 +13,7 @@ interface MessageInputProps {
   isArchiveMode: boolean;
   isTrashMode: boolean;
   isBlockMode: boolean;
-  selectedConversation: Conversation;
+  selectedConversation: Conversation | undefined;
   anotherUserAllowMessage: boolean;
   isFirstMessageEmpty: boolean;
   onMessageChange: (message: string) => void;
@@ -47,7 +47,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
   }, [newMessage]);
 
-  const isBlockedByUser = selectedConversation?.blockedBy?.includes(user?._id as string);
+  const isBlockedByUser = selectedConversation?.blockedBy?.includes(
+    user?._id as string
+  );
   const isBlockedByOther = selectedConversation?.blockedBy?.includes(
     selectedConversation.otherParticipant?._id as string
   );
@@ -58,7 +60,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     isBlockMode ||
     isBlockedByUser ||
     isBlockedByOther ||
-    (anotherUserAllowMessage === false);
+    anotherUserAllowMessage === false;
 
   return (
     <div className="p-2 md:p-4 border-t border-gray-200 relative">
@@ -132,7 +134,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                 : isTrashMode
                 ? "This conversation is deleted"
                 : isFirstMessageEmpty
-                ? `You can reply once the ${selectedConversation.otherParticipant?.role} sends the first message.`
+                ? `You can reply once the ${selectedConversation?.otherParticipant?.role} sends the first message.`
                 : "Type your message..."}
             </div>
           )}
@@ -150,13 +152,22 @@ const MessageInput: React.FC<MessageInputProps> = ({
             onPaste={(e) => {
               e.preventDefault();
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const clipboardData = e.clipboardData || (window as any).clipboardData;
+              const clipboardData =
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                e.clipboardData || (window as any).clipboardData;
               const text = clipboardData.getData("text/plain");
               document.execCommand("insertText", false, text);
             }}
-            onInput={(e) => onMessageChange((e.target as HTMLElement).innerHTML)}
+            onInput={(e) =>
+              onMessageChange((e.target as HTMLElement).innerHTML)
+            }
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey && !isDisabled && !isFirstMessageEmpty) {
+              if (
+                e.key === "Enter" &&
+                !e.shiftKey &&
+                !isDisabled &&
+                !isFirstMessageEmpty
+              ) {
                 e.preventDefault();
                 onSendMessage();
               }

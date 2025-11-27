@@ -1,10 +1,9 @@
-import React from 'react';
-import MessageHeader from './MessageHeader';
-import MessagesList from './MessagesList';
-import MessageInput from './MessageInput';
+import React from "react";
+import MessageHeader from "./MessageHeader";
+import MessagesList from "./MessagesList";
+import MessageInput from "./MessageInput";
 //import { Link } from 'react-router-dom';
-import { Conversation, Message } from '../types/messageTypes';
-
+import { Conversation, Message } from "../types/messageTypes";
 interface MessageThreadProps {
   conversation?: Conversation | null;
   messages: Message[];
@@ -68,54 +67,24 @@ const MessageThread: React.FC<MessageThreadProps> = ({
   copyToast,
   onCopyToClipboard,
   firstUnreadIndex,
-  isLoadingMessages
+  isLoadingMessages,
 }) => {
   // Safe null checks for conversation properties - convert to boolean with default false
-  const conversationBlockedByUser = Boolean(conversation?.blockedBy?.includes(currentUserId as string));
-  const conversationBlockedByOther = Boolean(conversation?.blockedBy?.includes(
-    conversation?.otherParticipant?._id as string
-  ));
-
-  // if (!conversation) {
-  //   return (
-  //     <div className="flex-1 flex items-center justify-center">
-  //       <EmptyState
-  //         icon={<MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />}
-  //         title="No conversation selected"
-  //         description="Select a conversation from the list to start messaging"
-  //       />
-  //     </div>
-  //   );
-  // }
+  const conversationBlockedByUser = Boolean(
+    conversation?.blockedBy?.includes(currentUserId as string)
+  );
+  const conversationBlockedByOther = Boolean(
+    conversation?.blockedBy?.includes(
+      conversation?.otherParticipant?._id as string
+    )
+  );
 
   return (
-    <div className={`flex-1 flex flex-col ${
-      !showConversationList ? "flex" : "hidden lg:flex"
-    }`}>
-      {/* {!allowMessage && (
-        <div className="flex items-start space-x-3 p-4 bg-red-100 border border-red-300 rounded-lg shadow-md">
-          <div className="flex-shrink-0">
-            <Ban className="w-7 h-7 text-red-600" />
-          </div>
-          <div className="flex-1">
-            <p className="text-red-800 font-bold text-base">
-              Messaging is Turned Off
-            </p>
-            <p className="text-red-700 text-sm mt-1 leading-relaxed">
-              You've disabled incoming messages, so candidates or
-              mentors can't reach out to you.
-              <Link
-                href={`/${userRole}/settings`}
-                className="font-medium underline hover:text-red-900 ml-1"
-              >
-                Update privacy settings
-              </Link>{" "}
-              to enable messaging again.
-            </p>
-          </div>
-        </div>
-      )} */}
-
+    <div
+      className={`flex-1 flex flex-col ${
+        !showConversationList ? "flex" : "hidden lg:flex"
+      }`}
+    >
       <MessageHeader
         conversation={conversation}
         showConversationList={showConversationList}

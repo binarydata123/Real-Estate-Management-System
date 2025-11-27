@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import SpeakMessage from "@/components/Common/SpeakMessage";
 import { AppToastContainer } from "@/utils/toastHandler";
+import NextTopLoader from "nextjs-toploader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,9 +25,9 @@ export const metadata: Metadata = {
 
 // Configure the font
 const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter', // This creates a CSS variable
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter", // This creates a CSS variable
 });
 
 export default function RootLayout({
@@ -36,15 +37,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable}`}>
-     <body
-  suppressHydrationWarning={true}
-  className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} font-sans antialiased`}
->
+      <body
+        suppressHydrationWarning={true}
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} font-sans antialiased`}
+      >
         <ToastProvider>
           <AuthProvider>
+            <NextTopLoader showSpinner={false} />
             {children}
             <AppToastContainer />
-
           </AuthProvider>
           <SpeakMessage />
         </ToastProvider>

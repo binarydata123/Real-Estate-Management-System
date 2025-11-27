@@ -1,18 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState, useEffect } from 'react';
-import SearchHeader from './SearchHeader';
-import ConversationItem from './ConversationItem';
-import ActionButtons from './ActionButtons';
-import { IoArrowBackSharp } from 'react-icons/io5';
+import React, { useState, useEffect } from "react";
+import SearchHeader from "./SearchHeader";
+import ConversationItem from "./ConversationItem";
+import ActionButtons from "./ActionButtons";
+import { IoArrowBackSharp } from "react-icons/io5";
 import { useAuth } from "@/context/AuthContext";
-import LoadingSpinner from '../UI/LoadingSpinner';
-import EmptyState from '../UI/EmptyState';
-import { ConversationListProps } from '../types/messageTypes';
+import LoadingSpinner from "../UI/LoadingSpinner";
+import EmptyState from "../UI/EmptyState";
+import { ConversationListProps } from "../types/messageTypes";
+import { MessageSquare } from "lucide-react";
 
 interface ConversationsListComponentProps extends ConversationListProps {
   getUnreadCount: (conversation: any) => number;
-  getTruncatedMessage: (html: string | null | undefined, length?: number) => string;
+  getTruncatedMessage: (
+    html: string | null | undefined,
+    length?: number
+  ) => string;
   filteredConversations: any[];
   customers: any[];
 }
@@ -57,10 +61,10 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
     checkScreenSize();
 
     // Add event listener for window resize
-    window.addEventListener('resize', checkScreenSize);
+    window.addEventListener("resize", checkScreenSize);
 
     // Cleanup
-    return () => window.removeEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   const handleBack = () => {
@@ -101,9 +105,11 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
   };
 
   return (
-    <div className={`w-full lg:w-1/3 border-r border-gray-200 flex flex-col ${
-      showConversationList ? "flex" : "hidden lg:flex"
-    }`}>
+    <div
+      className={`w-full lg:w-1/3 border-r border-gray-200 flex flex-col ${
+        showConversationList ? "flex" : "hidden lg:flex"
+      }`}
+    >
       {/* Mobile header with back button - Only shows in mobile */}
       {isMobile && (
         <div className="lg:hidden flex items-center justify-between p-2 border-b border-gray-200">
@@ -169,9 +175,7 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
       ) : error ? (
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="text-center">
-            <EmptyState 
-              title={error}
-            />
+            <EmptyState title={error} />
           </div>
         </div>
       ) : (
@@ -191,33 +195,16 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
               />
             ))
           ) : (
-              <EmptyState 
-                title="No conversations found"
+            <div className="flex-1 flex items-center justify-center">
+              <EmptyState
+                icon={
+                  <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                }
+                title="No conversation selected"
+                description="Select a conversation from the list to start messaging"
               />
+            </div>
           )}
-          {/* 🔹 NEW Customer List Section */}
-          {/* <div className="mt-4 border-t pt-3">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">All Customers</h3>
-            {customers.length > 0 ? (
-              customers.map((customer) => (
-                <CustomerProfileItem
-                  key={customer._id}
-                  customer={customer}
-                  isSelected={false} // Customers are not selectable conversations
-                  unreadCount={0} // No unread count for customers
-                  onSelect={handleSelect} // No action on select
-                  onViewCandidate={handleViewCandidate}
-                  getTruncatedMessage={() => ''} // No message to truncate
-                  currentUserId={user?._id}
-                  isMobile={isMobile}
-                />
-              ))
-            ) : (
-              <EmptyState 
-                title="No customers found"
-              />
-            )}
-          </div> */}
         </div>
       )}
     </div>
