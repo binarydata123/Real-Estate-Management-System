@@ -40,7 +40,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({
     }
   }, [messages, selectedConversation]);
 
-  if (!selectedConversation) {
+  if (!selectedConversation && !isLoadingMessages) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <EmptyState

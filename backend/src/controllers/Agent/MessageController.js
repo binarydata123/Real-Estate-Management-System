@@ -534,13 +534,7 @@ export const startConversation = async (req, res) => {
         message: `You have a new message from ${req.user.name}`,
         priority: "medium",
         actionUrl: `/${
-          receiver.role === "admin"
-            ? "admin"
-            : receiver.role === "agent"
-            ? "company"
-            : receiver.role === "customer"
-            ? "candidate"
-            : "user"
+          receiver.role === "agent" ? "customer" : "agent"
         }/messages?conversationId=${conversationId}`,
       });
     }

