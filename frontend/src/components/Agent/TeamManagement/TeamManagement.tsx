@@ -10,7 +10,7 @@ import {
   AgentMember,
   InviteAgentModal,
 } from "../Settings/tabs/InviteAgentModal";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import { deleteTeamMember, getTeamMember } from "@/lib/Agent/InviteAPI ";
 import { TeamMember } from "@/types/global";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
@@ -39,6 +39,7 @@ export const TeamManagement: React.FC = () => {
       const res = await deleteTeamMember(id);
       if (res.success) {
         setTeamMember(res.data.teamMembers);
+        showSuccessToast(res.message);
       }
     } catch (error) {
       showErrorToast("Error", error);
@@ -60,7 +61,8 @@ export const TeamManagement: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900">Team Management</h3>
         <button
           onClick={() => setShowInviteModal(true)}
-          className="flex items-center px-3 md:px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors whitespace-nowrap">
+          className="flex items-center px-3 md:px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors whitespace-nowrap"
+        >
           <UserPlusIcon className="h-4 w-4 mr-2" />
           Invite Agent
         </button>
@@ -78,7 +80,8 @@ export const TeamManagement: React.FC = () => {
           {teamMember?.map((member) => (
             <div
               key={member._id}
-              className="px-3 md:px-6 py-2 md:py-4 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
+              className="px-3 md:px-6 py-2 md:py-4 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4"
+            >
               {/* Member Info */}
               <div className="flex items-start space-x-3 md:space-x-4">
                 <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
@@ -102,12 +105,14 @@ export const TeamManagement: React.FC = () => {
                 <div className="flex space-x-1">
                   <button
                     onClick={() => handleUpdate(member)}
-                    className="p-1 text-gray-400 hover:text-gray-600">
+                    className="p-1 text-gray-400 hover:text-gray-600"
+                  >
                     <PencilIcon className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(member._id)}
-                    className="p-1 text-gray-400 hover:text-red-600">
+                    className="p-1 text-gray-400 hover:text-red-600"
+                  >
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>

@@ -35,7 +35,6 @@ import { showErrorToast } from "@/utils/toastHandler";
 
 const CompanyMessages: React.FC = () => {
   const { user } = useAuth();
-  //const [searchParams] = useSearchParams();
   const socket = useMemo(() => {
     return io(process.env.NEXT_PUBLIC_BACKEND_URL, {
       withCredentials: true,
@@ -52,7 +51,7 @@ const CompanyMessages: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [error, setError] = useState<any | null>(null);
   const [copyToast, setCopyToast] = useState<string | null>(null);
@@ -73,15 +72,9 @@ const CompanyMessages: React.FC = () => {
   const hasStartedConversation = useRef(false);
   const editableRef = useRef<HTMLDivElement>(null);
 
-  // URL Parameters
-  // const applicantId = searchParams.get("applicant");
-  // const applicationId = searchParams.get("applicationId");
-  // const conversationId = searchParams.get("conversationId");
-
   const params = useParams();
   const searchParams = useSearchParams();
   const customerId = searchParams.get("customerId");
-  //const applicationId = params.applicationId as string;
   const conversationId = params.conversationId as string;
 
   useEffect(() => {
@@ -279,7 +272,6 @@ const CompanyMessages: React.FC = () => {
   };
 
   const fetchConversationMessages = async (conversationId: string) => {
-    setIsLoadingMessages(true);
     try {
       const data = await getConversationMessages(conversationId);
       setMessages((prev) => ({
@@ -432,6 +424,9 @@ const CompanyMessages: React.FC = () => {
           (conv) => conv._id !== conversationId
         );
         setSelectedConversation(nextConversation?._id || null);
+        if (!nextConversation) {
+          setShowConversationList(true);
+        }
       }
     } catch (error) {
       showErrorToast("Error archiving conversation:", error);
@@ -451,6 +446,9 @@ const CompanyMessages: React.FC = () => {
           (conv) => conv._id !== conversationId
         );
         setSelectedConversation(nextConversation?._id || null);
+        if (!nextConversation) {
+          setShowConversationList(true);
+        }
       }
     } catch (error) {
       showErrorToast("Error unarchiving conversation:", error);
@@ -474,6 +472,9 @@ const CompanyMessages: React.FC = () => {
           (conv) => conv._id !== conversationId
         );
         setSelectedConversation(nextConversation?._id || null);
+        if (!nextConversation) {
+          setShowConversationList(true);
+        }
       }
     } catch (error) {
       showErrorToast("Error deleting conversation:", error);
@@ -500,6 +501,9 @@ const CompanyMessages: React.FC = () => {
           (conv) => conv._id !== conversationId
         );
         setSelectedConversation(nextConversation?._id || null);
+        if (!nextConversation) {
+          setShowConversationList(true);
+        }
       }
     } catch (err) {
       showErrorToast("Error restoring conversation: ", err);
@@ -523,6 +527,9 @@ const CompanyMessages: React.FC = () => {
           (conv) => conv._id !== conversationId
         );
         setSelectedConversation(nextConversation?._id || null);
+        if (!nextConversation) {
+          setShowConversationList(true);
+        }
       }
     } catch (error) {
       showErrorToast("Error unblocking conversation:", error);
@@ -546,6 +553,9 @@ const CompanyMessages: React.FC = () => {
           (conv) => conv._id !== conversationId
         );
         setSelectedConversation(nextConversation?._id || null);
+        if (!nextConversation) {
+          setShowConversationList(true);
+        }
       }
     } catch (error) {
       showErrorToast("Error blocking conversation:", error);
@@ -567,7 +577,7 @@ const CompanyMessages: React.FC = () => {
       if (typeof document === "undefined") {
         const plain = html.replace(/<[^>]*>/g, "");
         return plain.length > length
-          ? `${plain.substring(0, length)  }...`
+          ? `${plain.substring(0, length)}...`
           : plain;
       }
 
@@ -575,7 +585,7 @@ const CompanyMessages: React.FC = () => {
       tempDiv.innerHTML = html;
       const plainText = tempDiv.textContent || tempDiv.innerText || "";
       return plainText.length > length
-        ? `${plainText.substring(0, length)  }...`
+        ? `${plainText.substring(0, length)}...`
         : plainText;
     } catch (error) {
       showErrorToast("Error processing HTML for truncation:", error);
@@ -627,15 +637,6 @@ const CompanyMessages: React.FC = () => {
     setFilePreview(null);
   };
 
-  // const handleViewCandidate = (customerId: string) => {
-  //   setSelectedCustomer(customerId);
-  // };
-
-  // const handleViewJob = (jobId: string) => {
-  //   setSelectedJobId(jobId);
-  //   setShowJobDetail(true);
-  // };
-
   // Derived Values
   const filteredConversations = Array.isArray(conversations)
     ? conversations.filter((conv) => {
@@ -666,9 +667,6 @@ const CompanyMessages: React.FC = () => {
   return (
     <div className="max-w-full mx-auto lg:p-6" style={{ overflow: "hidden" }}>
       {error && <ErrorDisplay error={error} />}
-      {/* <div className="flex flex-col lg:flex-row gap-4">
-          customers: {customers.length}
-        </div> */}
       <div className="bg-white lg:rounded-xl shadow-sm border border-gray-100 flex h-[94vh] lg:h-[85vh]">
         <ConversationsList
           conversations={conversations}
@@ -693,7 +691,7 @@ const CompanyMessages: React.FC = () => {
           fetchBlockedConversations={fetchBlockedConversations}
           showConversationList={showConversationList}
           setShowConversationList={setShowConversationList}
-          handleViewCandidate={()=>{}}
+          handleViewCandidate={() => {}}
           getUnreadCount={getUnreadCount}
           getTruncatedMessage={getTruncatedMessage}
           filteredConversations={filteredConversations}
@@ -715,8 +713,8 @@ const CompanyMessages: React.FC = () => {
           anotherUserAllowMessage={anotherUserAllowMessage}
           showConversationList={showConversationList}
           setShowConversationList={setShowConversationList}
-          onViewCandidate={()=>{}}
-          onViewJob={()=>{}}
+          onViewCandidate={() => {}}
+          onViewJob={() => {}}
           onArchive={handleArchiveConversation}
           onUnarchive={handleUnarchiveConversation}
           onBlock={handleBlockConversation}

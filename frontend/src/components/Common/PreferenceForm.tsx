@@ -314,15 +314,19 @@ const RangeSlider: React.FC<{
 
 export default function PreferenceForm() {
   const searchParams = useSearchParams();
-  const customerId = useMemo(() => {
-    return searchParams.get("customerId");
+  const customerId: string | undefined = useMemo(() => {
+    return searchParams.get("customerId") ?? undefined;
   }, [searchParams]);
+
 
   const { showToast } = useToast();
   const { user } = useAuth();
   const isReadOnly = user?.role === "admin";
   const [loading, setLoading] = React.useState(false);
   const [requestSent, setRequestSent] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [initialType, setInitialType] = useState<string | null>(null);
+  
 
   const {
     register,
@@ -355,8 +359,12 @@ export default function PreferenceForm() {
   const watchedCategories = watch("category") || [];
 
   useEffect(() => {
-    setValue("category", []);
-  }, [watchedType, setValue]);
+    if (isInitialLoad) return;
+    if (initialType && watchedType !== initialType) {
+      setValue("category", []);
+    }
+    
+  }, [watchedType, initialType, isInitialLoad, setValue]);
 
   const showConfiguration = useMemo(() => {
     if (watchedType !== "residential") return false;
@@ -401,33 +409,52 @@ export default function PreferenceForm() {
     );
   }, [watchedCategories, containsOnlyPlotOrLand]);
 
-  useEffect(() => {
-    if (customerId) {
-      const fetchDetail = async () => {
-        try {
-          const res = await getPreferenceDetail(customerId);
-          if (res.success && res.data) {
-            reset(res.data);
-            setRequestSent(res.requestSent);
-          }
-        } catch (error) {
-          // Don't show an error toast if it's just a 404, which is expected
-          if (axios.isAxiosError(error) && error.response?.status === 404) {
-            // Preferences not found, do nothing, form will have default values.
-            return;
-          }
-          showErrorToast("Failed to fetch preferences:", error);
+
+
+
+useEffect(() => {
+  if (customerId) {
+    const fetchDetail = async () => {
+      try {
+        const res = await getPreferenceDetail(customerId);
+        console.log(res)
+        if (res.success && res.data) {
+          reset(res.data);
+          setInitialType(res.data.type);
+          setRequestSent(res.requestSent);
+
+          setIsInitialLoad(false); // allow future type changes to reset categories
         }
-      };
-      fetchDetail();
-    }
-  }, [customerId, reset, showToast]);
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          setIsInitialLoad(false);
+          return;
+        }
+        showErrorToast("Failed to fetch preferences:", error);
+      }
+    };
+    fetchDetail();
+  }
+}, [customerId, reset, showToast]);
+
+
+
+
+
 
   const onSubmit = async (data: UserPreferenceFormData) => {
+
+    const finalData = {
+      ...data,
+      customerId:customerId
+    }
+
     if (isReadOnly) return;
     setLoading(true);
+
     try {
-      const res = await createPreference(data);
+      const res = await createPreference(finalData);
+      console.log("This is my response: ",res)
       if (res.success) {
         showToast(res.message, "success");
       }

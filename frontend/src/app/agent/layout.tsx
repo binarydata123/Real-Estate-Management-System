@@ -64,7 +64,7 @@ export default function AgentLayout({ children }: LayoutProps) {
   const isPropertyDetailPage =
     pathname.startsWith("/agent/properties/") && pathname.split("/").length > 3;
 
-  const isMessagesPage = pathname.startsWith("/messages");
+  const isMessagesPage = pathname.includes("/messages");
 
   const isConditionalPage = isPropertyDetailPage || isMessagesPage;
 
@@ -95,9 +95,13 @@ export default function AgentLayout({ children }: LayoutProps) {
       />
 
       <div className="flex-1 flex flex-col">
-        <AgentHeader onMenuButtonClick={() => setIsSidebarOpen(true)} />
+        {!isMessagesPage && (
+          <AgentHeader onMenuButtonClick={() => setIsSidebarOpen(true)} />
+        )}
         <main
-          className={`flex-1 ${!isConditionalPage ? "p-2" : ""} md:p-6 mb-12`}
+          className={`flex-1 ${!isConditionalPage ? "p-2" : ""} md:p-6 ${
+            !isMessagesPage && "mb-12"
+          }`}
         >
           {children}
         </main>

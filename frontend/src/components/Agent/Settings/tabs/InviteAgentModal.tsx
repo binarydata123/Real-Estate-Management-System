@@ -82,11 +82,12 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
     try {
       await showPromiseToast(apiCall(), {
         loading: isEdit ? "Updating agent..." : "Sending invitation...",
-        success: (response: { data?: { message?: string } }) =>
-          response.data?.message ||
+        success: (response) =>
+          // console.log(response);
+          response.message ||
           (isEdit
-            ? "Agent updated successfully!"
-            : `Invitation sent to ${data.name}!`),
+            ? "Member's details updated successfully!"
+            : `Invitation sent to ${response.data.user.name}!`),
         error: (err: unknown) => {
           if (axios.isAxiosError(err) && err.response) {
             return err.response.data.message || "Request failed.";
@@ -116,7 +117,8 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
             </h2>
             <span
               onClick={onClose}
-              className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+              className="md:p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            >
               <XMarkIcon className="h-5 w-5 text-gray-500" />
             </span>
           </div>
@@ -125,7 +127,8 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
         {/* Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="md:p-6 p-2 md:space-y-6 space-y-2">
+          className="md:p-6 p-2 md:space-y-6 space-y-2"
+        >
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
@@ -196,14 +199,16 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
               Cancel
             </button>
 
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              className="flex items-center px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <UserPlusIcon className="h-4 w-4 mr-2" />
               {loading
                 ? isEdit

@@ -1,8 +1,8 @@
 "use client";
-import React, { useRef, useEffect } from 'react';
-import { Paperclip, Send, Loader } from 'lucide-react';
-import { FiFile } from 'react-icons/fi';
-import Image from 'next/image';
+import React, { useRef, useEffect } from "react";
+import { Paperclip, Send, Loader } from "lucide-react";
+import { FiFile } from "react-icons/fi";
+import Image from "next/image";
 
 interface MessageInputProps {
   newMessage: string;
@@ -34,7 +34,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   conversationBlockedByOther,
   onFileSelected,
   onRemoveFile,
-  onSendMessage
+  onSendMessage,
 }) => {
   const editableRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +48,13 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
   }, [newMessage]);
 
-  const isDisabled = 
+  useEffect(() => {
+    if (editableRef.current) {
+      editableRef.current.focus();
+    }
+  }, []);
+
+  const isDisabled =
     isArchiveMode ||
     isTrashMode ||
     conversationBlockedByUser ||
@@ -122,7 +128,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           />
         </label>
 
-        <div className="relative md:w-full w-[275px] min-h-[35px] max-h-[100px] border border-gray-300 rounded-lg overflow-auto focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+        <div className="relative w-full min-h-[35px] max-h-[100px] border border-gray-300 rounded-lg overflow-auto focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
           {newMessage === "" && (
             <div className="absolute top-0 left-0 px-4 py-2 text-gray-400 pointer-events-none select-none">
               {getPlaceholderText()}
@@ -134,7 +140,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               isDisabled ? "pointer-events-none opacity-50" : ""
             }`}
             contentEditable={
-              !isSendingMessage && 
+              !isSendingMessage &&
               !isDisabled &&
               (anotherUserAllowMessage || anotherUserAllowMessage === null)
             }

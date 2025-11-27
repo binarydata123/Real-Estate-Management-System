@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 export const inviteAgent = async (req, res) => {
   try {
-    const { name, phone, email, code, agencyId } = req.body;
+    const { name, phone, email, code, message, agencyId } = req.body;
     if (!name || !phone) {
       return res.status(400).json({ message: "Name and phone are required" });
     }
@@ -26,6 +26,7 @@ export const inviteAgent = async (req, res) => {
       name,
       phone,
       email,
+      message,
       code,
       role: "agent",
       password: hashedPassword,
@@ -137,7 +138,7 @@ export const deleteTeamMember = async (req, res) => {
 
 export const updateAgent = async (req, res) => {
   try {
-    const { name, phone, email, role, status, memberId } = req.body;
+    const { name, phone, email, role, status, message, memberId } = req.body;
     const agencyId = req.user.agencyId._id;
 
     // 1. Find the agent
@@ -174,7 +175,8 @@ export const updateAgent = async (req, res) => {
     agent.name = name ?? agent.name;
     agent.phone = phone ?? agent.phone;
     agent.email = email ?? agent.email;
-    agent.role = role ?? agent.role;
+    agent.email = email ?? agent.email;
+    agent.message = message ?? agent.message;
     agent.status = status ?? agent.status;
 
     const updatedAgent = await agent.save();

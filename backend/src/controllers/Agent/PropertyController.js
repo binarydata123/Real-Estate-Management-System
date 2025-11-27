@@ -1,5 +1,5 @@
 import { Property } from "../../models/Agent/PropertyModel.js";
-import { Notification } from "../../models/Common/NotificationModel.js";
+import { Notification } from "../../models/Common/NotificationModel.js"; // Assuming this is the correct path
 import { sendPushNotification } from "../../utils/pushService.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
 
@@ -10,6 +10,68 @@ const cleanNumber = (value) => {
   if (typeof value === "number" && Number.isNaN(value)) return null;
   if (typeof value === "string" && isNaN(Number(value))) return null;
   return Number(value);
+};
+
+const handlePostCreationNotifications = async (user, property) => {
+  try {
+    const agencySettings = await AgencySettings.findOne({ userId: user._id });
+
+    if (!agencySettings) return;
+
+    const notificationPromises = [];
+
+    if (agencySettings.notifications?.propertyUpdates) {
+      notificationPromises.push(
+        Notification.create({
+          userId: user._id,
+          agencyId: property.agencyId,
+          message: `New property "${property.title}" was added.`,
+          type: "property_added",
+          link: `/agent/properties/view/${property._id}`,
+        })
+      );
+    }
+
+    if (agencySettings.notifications?.pushNotifications) {
+      notificationPromises.push(
+        sendPushNotification({
+          userId: user._id,
+          title: "New Property Added",
+          message: `A new property "${property.title}" has been successfully added.`,
+          urlPath: `/agent/properties/view/${property._id}`,
+        })
+      );
+    }
+    await Promise.all(notificationPromises);
+  } catch (error) {
+    console.error("Error handling post-creation notifications:", error);
+  }
+};
+
+const handlePostUpdateNotifications = async (user, property) => {
+  try {
+    const agencySettings = await AgencySettings.findOne({ userId: user._id });
+
+    if (!agencySettings) return;
+
+    const notificationPromises = [];
+
+    if (agencySettings.notifications?.propertyUpdates) {
+      notificationPromises.push(
+        Notification.create({
+          userId: user._id,
+          agencyId: property.agencyId,
+          message: `Property "${property.title}" was updated.`,
+          type: "property_updated",
+          link: `/agent/properties/view/${property._id}`,
+        })
+      );
+    }
+
+    await Promise.all(notificationPromises);
+  } catch (error) {
+    console.error("Error handling post-update notifications:", error);
+  }
 };
 
 // Clean payload numbers dynamically
@@ -92,33 +154,16 @@ export const createProperty = async (req, res) => {
     const property = new Property(propertyData);
     const savedProperty = await property.save();
 
-    const agencySettings = await AgencySettings.findOne({
-      userId: req.user._id,
-    });
-
-    if (agencySettings?.notifications?.propertyUpdates) {
-      await Notification.create({
-        userId: req.user._id,
-        agencyId: savedProperty.agencyId,
-        message: `New property "${savedProperty.title}" was added.`,
-        type: "property_added",
-        link: `/agent/properties/view/${savedProperty._id}`,
-      });
-    }
-
-    if (agencySettings?.notifications?.pushNotifications)
-      await sendPushNotification({
-        userId: req.user._id,
-        title: "New Property Added",
-        message: `A new property "${savedProperty.title}" has been successfully added.`,
-        urlPath: `/agent/properties/view/${savedProperty._id}`,
-      });
-
-    return res.status(201).json({
+    // Respond to the client immediately after the property is saved
+    res.status(201).json({
       success: true,
       message: "Property created successfully.",
       data: savedProperty,
     });
+
+    // Handle notifications in the background
+    // This is a "fire-and-forget" call
+    handlePostCreationNotifications(req.user, savedProperty);
   } catch (error) {
     console.error("Error creating property:", error);
     if (error.name === "ValidationError") {
@@ -166,10 +211,11 @@ export const updateProperty = async (req, res) => {
     }));
 
     // Existing images to keep
-    const existingImageFilenames = ensureArray(payload.existingImages);
+    // Use a Set for faster lookups (O(1) vs. O(n) for Array.includes())
+    const existingImageFilenames = new Set(ensureArray(payload.existingImages));
 
     const keptImages = property.images.filter((img) =>
-      existingImageFilenames.includes(img.url)
+      existingImageFilenames.has(img.url)
     );
 
     const allImages = [...keptImages, ...newImageEntries];
@@ -207,32 +253,16 @@ export const updateProperty = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    const agencySettings = await AgencySettings.findOne({
-      userId: req.user._id,
-    });
-
-    if (agencySettings?.notifications?.propertyUpdates)
-      await Notification.create({
-        userId: req.user._id,
-        agencyId: updatedProperty.agencyId,
-        message: `Property "${updatedProperty.title}" was updated.`,
-        type: "property_updated",
-        link: `/agent/properties/view/${updatedProperty._id}`,
-      });
-
-    if (agencySettings?.notifications?.pushNotifications)
-      await sendPushNotification({
-        userId: req.user._id,
-        title: "Property Updated",
-        message: `The property "${updatedProperty.title}" has been successfully updated.`,
-        urlPath: `/agent/properties/view/${updatedProperty._id}`,
-      });
-
-    return res.status(200).json({
+    // Send response to the client immediately
+    res.status(200).json({
       success: true,
       message: "Property updated successfully.",
       data: updatedProperty,
     });
+
+    // Perform notification tasks in the background after responding
+    // This is a "fire-and-forget" approach
+    handlePostUpdateNotifications(req.user, updatedProperty);
   } catch (error) {
     console.error("Error updating property:", error);
     if (error.name === "ValidationError") {

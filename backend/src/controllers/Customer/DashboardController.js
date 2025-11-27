@@ -14,47 +14,54 @@ export const customerDashboardData = async (req, res) => {
     const [
       totalMeeting,
       totalSharedProperties,
+      latestSharedProperties,
       totalNotifications,
-      recentActivity
+      recentActivity,
     ] = await Promise.all([
       // Today's meetings count
       Meetings.countDocuments({
         customerId,
         date: { $gte: startOfDay },
-        status: { $ne: "cancelled" } // Exclude cancelled meetings (assuming status is a field)
+        status: { $ne: "cancelled" }
       }),
+      // Get total count of shared properties
       PropertyShare.countDocuments({ sharedWithUserId: customerId }),
+      // Get 2 latest shared properties
+      PropertyShare.find({ sharedWithUserId: customerId })
+        .sort({ createdAt: -1 })
+        .limit(2)
+        .populate("propertyId", "title images price location"),
       Notification.countDocuments({
         userId: customerId,
-        read: false
+        isRead: false,
       }),
       Notification.find({
         userId: customerId,
-        type: { $ne: "welcome" }
+        type: { $ne: "welcome" },
       })
         .sort({ createdAt: -1 })
-        .limit(4)
+        .limit(4),
     ]);
 
     const data = {
       totalMeeting,
       totalSharedProperties,
+      latestSharedProperties,
       totalNotifications,
-      recentActivity
+      recentActivity,
     };
 
     return res.status(200).json({
       success: true,
       message: "Customer dashboard data fetched successfully",
-      data
+      data,
     });
-
   } catch (error) {
     console.error("Error in customerDashboardData:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to fetch dashboard data",
-      error: error.message
+      error: error.message,
     });
   }
 };

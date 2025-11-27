@@ -15,14 +15,13 @@ export interface HotCustomersProps {
 }
 
 const HotCustomers: React.FC<HotCustomersProps> = ({ customers }) => {
-  console.log(customers);
   const formatBudgetRange = (min?: number, max?: number): string => {
-const formatValue = (value: number): string => {
-  if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
-  if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${value}`; // ✅ final guaranteed return
-};
+    const formatValue = (value: number): string => {
+      if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
+      if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+      if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
+      return `₹${value}`; // ✅ final guaranteed return
+    };
 
     // Handle missing or invalid budgets
     if (!min && !max) return "Budget not specified";
@@ -54,9 +53,14 @@ const formatValue = (value: number): string => {
                     <UserIcon className="h-6 w-6 text-gray-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{customer.fullName}</p>
+                    <p className="font-medium text-gray-900">
+                      {customer.fullName}
+                    </p>
                     <p className="text-sm text-gray-600">
-                      {formatBudgetRange(customer.minimumBudget, customer.maximumBudget)}
+                      {formatBudgetRange(
+                        customer.minimumBudget,
+                        customer.maximumBudget
+                      )}
                     </p>
                   </div>
                 </div>

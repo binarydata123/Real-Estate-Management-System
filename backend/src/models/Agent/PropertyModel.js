@@ -45,7 +45,7 @@ const propertySchema = new mongoose.Schema(
     plot_front_area: { type: Number, min: 0 },
     plot_depth_area: { type: Number, min: 0 },
     plot_dimension_unit: { type: String, enum: ["feet", "meter"] },
-    is_corner_plot: { type: String, default: 'no' },
+    is_corner_plot: { type: String, default: "no" },
 
     bedrooms: { type: Number, min: 0 },
     bathrooms: { type: Number, min: 0 },
@@ -81,7 +81,7 @@ const propertySchema = new mongoose.Schema(
       enum: ["", "new", "1-5 years", "5-10 years", "10+ years"],
     },
     transaction_type: { type: String, enum: ["new", "resale"], default: "new" },
-    gated_community: { type: String, default: 'no' },
+    gated_community: { type: String, default: "no" },
 
     // Parking & Utilities
     water_source: [{ type: String }],

@@ -10,6 +10,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 
 interface LayoutProps {
@@ -19,7 +20,9 @@ interface LayoutProps {
 export default function CustomerLayout({ children }: LayoutProps) {
   const { loading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const pathname = usePathname();
 
+  const isMessagesPage = pathname.includes("/messages");
   const footerLinks = [
     {
       id: "dashboard",
@@ -85,8 +88,12 @@ export default function CustomerLayout({ children }: LayoutProps) {
       />
 
       <div className="flex-1 flex flex-col">
-        <CustomerHeader onMenuButtonClick={() => setIsSidebarOpen(true)} />
-        <main className="flex-1 p-2 md:p-6 mb-12">{children}</main>
+        {!isMessagesPage && (
+          <CustomerHeader onMenuButtonClick={() => setIsSidebarOpen(true)} />
+        )}
+        <main className={`flex-1 md:p-6 ${!isMessagesPage && "mb-12 p-2"}`}>
+          {children}
+        </main>
         {/* Footer Links */}
         <div
           className="fixed bottom-0 left-0 w-full   py-2 md:hidden"
