@@ -39,7 +39,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
   const primaryImage =
     property.images?.[0]?.url ||
     "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
- console.log('property in card for dashboard',property);
+
   const getImageUrl = (url: string) => {
     return getPropertyImageUrlWithFallback(url);
   };
@@ -60,7 +60,8 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
             <span
               className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
                 property.status
-              )}`}>
+              )}`}
+            >
               {property.status}
             </span>
           </div>
@@ -70,7 +71,8 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
                 e.stopPropagation();
                 onFavorite?.(property);
               }}
-              className="p-1.5 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+              className="p-1.5 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+            >
               {isFavorited ? (
                 <HeartSolid className="h-5 w-5 text-red-500" />
               ) : (
@@ -129,7 +131,8 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
         <div className="md:flex hidden space-x-2 md:mt-4 mt-1 p-1 md:pt-3 border-t border-gray-100">
           <Link
             href={`/agent/properties/${property._id}`}
-            className="flex flex-1 item-center justify-center">
+            className="flex flex-1 item-center justify-center"
+          >
             <button className="flex-1 flex items-center justify-center px-3 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
               <EyeIcon className="h-4 w-4 mr-2" />
               View

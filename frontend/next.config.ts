@@ -16,13 +16,23 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["localhost", "images.unsplash.com"],
+    domains: [
+      "localhost",
+      "images.unsplash.com",
+      "api.real-estate.ai-developer.site",
+    ],
     remotePatterns: [
       {
         protocol: "https",
         hostname: "images.pexels.com",
         port: "",
         pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.real-estate.ai-developer.site",
+        port: "",
+        pathname: "/images/Properties/original/**",
       },
     ],
   },

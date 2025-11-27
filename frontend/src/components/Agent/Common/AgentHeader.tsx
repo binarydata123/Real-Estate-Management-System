@@ -32,9 +32,14 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
       const res = await getUnreadNotificationsCount();
       setUnreadCount(res.data);
     } catch (err) {
-      showErrorToast("Error",err);
+      showErrorToast("Error", err);
     }
   };
+  const getInitial = (name?: string) => {
+    if (!name) return "U";
+    return name.charAt(0).toUpperCase();
+  };
+
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200">
@@ -61,43 +66,6 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
 
             {/* Right Side */}
             <div className="flex items-center space-x-1 md:space-x-4">
-              {/* Agency Switcher */}
-              {/* {agencies.length > 1 && (
-                                <Menu as="div" className="relative">
-                                    <Menu.Button className="flex items-center text-sm text-gray-700 hover:text-gray-900 focus:outline-none">
-                                        <span className="mr-2">{currentAgency?.name}</span>
-                                        <ChevronDownIcon className="h-4 w-4" />
-                                    </Menu.Button>
-                                    <Transition
-                                        as={Fragment}
-                                        enter="transition ease-out duration-100"
-                                        enterFrom="transform opacity-0 scale-95"
-                                        enterTo="transform opacity-100 scale-100"
-                                        leave="transition ease-in duration-75"
-                                        leaveFrom="transform opacity-100 scale-100"
-                                        leaveTo="transform opacity-0 scale-95"
-                                    >
-                                        <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                                            <div className="py-1">
-                                                {agencies.map((agency) => (
-                                                    <Menu.Item key={agency.agency.id}>
-                                                        {({ active }) => (
-                                                            <button
-                                                                onClick={() => switchAgency(agency.agency.id)}
-                                                                type="button"
-                                                                className={`${active ? 'bg-gray-100' : ''
-                                                                    } flex w-full items-center md:px-4 px-2 py-2 text-sm text-gray-700`}
-                                                            >
-                                                                {agency.agency.name}
-                                                            </button>
-                                                        )}
-                                                    </Menu.Item>
-                                                ))}
-                                            </div>
-                                        </Menu.Items>
-                                    </Transition>
-                                </Menu>
-                            )} */}
               <InstallButton />
               {/* Notifications */}
               <span
@@ -119,49 +87,58 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
               <Menu as="div" className="relative">
                 <Menu.Button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500">
                   <span className="sr-only">Open user menu</span>
-                  <UserCircleIcon className="md:h-8 md:w-8 w-5 h-5 text-gray-400 header-icon" />
+                  <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+                    {getInitial(user?.name)}
+                  </div>
                 </Menu.Button>
+
                 <Transition
                   as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
+                  enter="transition ease-out duration-150"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="transition ease-in duration-100"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
                 >
-                  <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                  <Menu.Items className="absolute right-0 mt-3 w-64 bg-white shadow-xl rounded-2xl border border-gray-100 overflow-hidden z-50">
+                    {/* User Info Section */}
+                    <div className="px-4 py-4 bg-gray-50 border-b border-gray-100">
+                      <p className="text-base font-semibold text-gray-900 truncate">
+                        {user?.name || "User"}
+                      </p>
+                      <p className="text-sm text-gray-600 truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+
                     <div className="py-1">
-                      <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900">
-                          {user?.email}
-                        </p>
-                      </div>
                       <Menu.Item>
                         {({ active }) => (
                           <Link
                             href="/agent/profile"
                             className={`${
                               active ? "bg-gray-100" : ""
-                            } flex items-center md:px-4 px-2 py-2 text-sm text-gray-700`}
+                            } flex items-center px-4 py-3 text-sm text-gray-700 transition`}
                           >
-                            <UserCircleIcon className="mr-3 h-4 w-4" />
-                            Profile
+                            <UserCircleIcon className="mr-3 h-5 w-5 text-gray-500" />
+                            Account Profile
                           </Link>
                         )}
                       </Menu.Item>
+
                       <Menu.Item>
                         {({ active }) => (
-                          <button
-                            type="button"
+                          <Link
+                            href={"#"}
                             onClick={signOut}
                             className={`${
-                              active ? "bg-gray-100" : ""
-                            } flex w-full items-center md:px-4 px-2 py-2 text-sm text-gray-700`}
+                              active ? "bg-red-50" : ""
+                            } flex  items-center px-4 py-3 text-sm text-red-600 font-medium transition`}
                           >
-                            <ArrowRightOnRectangleIcon className="mr-3 h-4 w-4" />
-                            Sign Out
-                          </button>
+                            <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-red-500" />
+                            Log Out
+                          </Link>
                         )}
                       </Menu.Item>
                     </div>
