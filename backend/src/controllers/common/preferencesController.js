@@ -9,6 +9,14 @@ import CustomerSettings from "../../models/Customer/SettingsModel.js";
 export const createPreference = async (req, res) => {
   try {
     const userId = req.body.customerId;
+    if(!userId){
+      return res.status(400).json({
+        success:false,
+        message:"userId is required",
+
+      })
+    }
+    
     const preferenceData = req.body;
 
     // Use findOneAndUpdate with upsert to create a new preference if one doesn't exist,
@@ -17,12 +25,18 @@ export const createPreference = async (req, res) => {
       { userId: userId }, // find a document with this filter
       { ...preferenceData, userId: userId }, // document to insert when nothing is found
       {
-        new: true,
+        new: true, 
         upsert: true,
         runValidators: true,
         setDefaultsOnInsert: true,
       } // options
     );
+    if(!savedPreference){
+      return res.status(400).json({
+        success:"false",
+        message:"Failed to saved preference"
+      })
+    }
 
     res.status(200).json({
       success: true,
@@ -48,6 +62,7 @@ export const getPreferenceDetail = async (req, res) => {
       sentToUserId: userId,
       sentByUserId: req.user._id,
     });
+
 
     res.status(200).json({
       success: true,

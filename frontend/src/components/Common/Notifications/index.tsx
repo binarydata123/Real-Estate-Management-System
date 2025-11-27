@@ -258,7 +258,6 @@ const NotificationsPage: React.FC = () => {
               ))}
             </nav>
           </div>
-
           {/* Notifications List */}
           {isFetching && notifications.length === 0 ? (
             <div className="text-center py-20">
@@ -311,24 +310,25 @@ const NotificationsPage: React.FC = () => {
               })}
             </div>
           )}
-
-          <ScrollPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            isLoading={isFetching}
-            hasMore={currentPage < totalPages}
-            loader={
-              <div className="text-center py-6">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            }
-            endMessage={
-              <div className="text-center py-8 text-gray-500 font-medium">
-                🎉 You&apos;ve reached the end!
-              </div>
-            }
-          />
+          {notifications.length > 0 && (
+            <ScrollPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              isLoading={isFetching}
+              hasMore={currentPage < totalPages}
+              loader={
+                <div className="text-center py-6">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              }
+              endMessage={
+                <div className="text-center py-8 text-gray-500 font-medium">
+                  🎉 You&apos;ve reached the end!
+                </div>
+              }
+            />
+          )}
         </div>
       </div>
     </div>
