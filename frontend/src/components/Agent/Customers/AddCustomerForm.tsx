@@ -32,7 +32,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const { showToast, showPromiseToast } = useToast();
-  const [showAllProperty, setShowAllProperty] = useState(false);
+  // const [showAllProperty, setShowAllProperty] = useState(false);
 
   const {
     register,
@@ -331,8 +331,8 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   <input
                     type="checkbox"
                     {...register("showAllProperty")}
-                    checked={showAllProperty}
-                    onClick={() => setShowAllProperty((prev) => !prev)}
+                    // checked={showAllProperty}
+                    // onClick={() => setShowAllProperty((prev) => !prev)}
                     className="sr-only peer"
                   />
                   <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors"></div>

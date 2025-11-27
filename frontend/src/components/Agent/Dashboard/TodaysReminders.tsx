@@ -46,7 +46,7 @@ const TodaysReminders: React.FC<TodaysRemindersProps> = ({ reminders }) => {
                         {/* Title and Priority */}
                         <div className="flex items-start justify-between gap-2">
                           <p className="text-gray-900 text-[13px] md:text-sm font-medium leading-snug">
-                            {reminder.propertyId?.title || "Unknown"}
+                            {reminder.propertyId?.title || ""}
                           </p>
                           {/* <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-semibold capitalize shadow-sm ${

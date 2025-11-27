@@ -6,6 +6,7 @@ import {
   UsersIcon,
   CalendarIcon,
 } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 interface StatCardProps {
   title: string;
@@ -13,6 +14,7 @@ interface StatCardProps {
   icon: React.ElementType;
   color: string;
   bgColor: string;
+  link: string;
 }
 
 const StatCard: React.FC<StatCardProps> = ({
@@ -21,23 +23,27 @@ const StatCard: React.FC<StatCardProps> = ({
   icon: Icon,
   color,
   bgColor,
-}) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 hover:shadow-lg transition-shadow duration-300">
-    <div className="flex flex-row-reverse justify-between">
-      <div className="flex-shrink-0">
-        <div className={`p-2 rounded-full ${bgColor}`}>
-          <Icon className={`h-6 w-6 ${color}`} />
+  link
+}) => {
+  const router = useRouter();
+  return (
+    <div onClick={() => router.push(link)} className="cursor-pointer bg-white rounded-xl shadow-sm border border-gray-200 p-2 hover:shadow-lg transition-shadow duration-300">
+      <div className="flex flex-row-reverse justify-between">
+        <div className="flex-shrink-0">
+          <div className={`p-2 rounded-full ${bgColor}`}>
+            <Icon className={`h-6 w-6 ${color}`} />
+          </div>
+        </div>
+        <div className="">
+          <p className="text-sm font-medium text-gray-500 truncate">{title}</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {value !== undefined && value !== null ? value : 0}
+          </p>
         </div>
       </div>
-      <div className="">
-        <p className="text-sm font-medium text-gray-500 truncate">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">
-          {value !== undefined && value !== null ? value : 0}
-        </p>
-      </div>
     </div>
-  </div>
-);
+  )
+}
 
 interface DashboardStatsProps {
   value?: {
@@ -55,6 +61,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ value }) => {
       icon: BuildingOfficeIcon,
       color: "text-blue-600",
       bgColor: "bg-blue-100",
+      link: "/agent/properties"
     },
     {
       title: "Customers",
@@ -62,6 +69,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ value }) => {
       icon: UsersIcon,
       color: "text-green-600",
       bgColor: "bg-green-100",
+      link: "/agent/customers"
     },
     {
       title: "Meetings",
@@ -69,6 +77,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ value }) => {
       icon: CalendarIcon,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
+      link: "/agent/meetings"
     },
   ];
 

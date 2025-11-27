@@ -22,6 +22,7 @@ export const customerDashboardData = async (req, res) => {
       Meetings.countDocuments({
         customerId,
         date: { $gte: startOfDay },
+        status: { $ne: "cancelled" }
       }),
       // Get total count of shared properties
       PropertyShare.countDocuments({ sharedWithUserId: customerId }),

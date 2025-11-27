@@ -9,7 +9,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 
 export const Settings: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("agency");
+  const [activeTab, setActiveTab] = useState("security");
   const { setBrandingColor } = useAuth();
   const [agencySettings, setAgencySettings] = useState<AgencySettingsType>({
     _id: "",
