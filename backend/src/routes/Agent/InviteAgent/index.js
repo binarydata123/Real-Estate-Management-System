@@ -1,5 +1,6 @@
 import express from "express";
 import { protect } from "../../../middleware/authMiddleware.js";
+
 import {
   inviteAgent,
   getAgents,
