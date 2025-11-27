@@ -104,8 +104,8 @@ export default function AgentLayout({ children }: LayoutProps) {
 
         {/* Footer Links */}
         <div
-          className="fixed bottom-0 left-0 w-full   py-2 md:hidden"
-          style={{ backgroundColor: "#2563eb" }}
+          className="fixed bottom-0 left-0 w-full   py-2 md:hidden bg-primary"
+          // style={{ backgroundColor: "#2563eb" }}
         >
           <div className="grid grid-cols-5 gap-2 text-white">
             {footerLinks

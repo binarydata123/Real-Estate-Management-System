@@ -27,10 +27,11 @@ const minValue = 500;
     ] = await Promise.all([
       Property.countDocuments({ agencyId }),
       Customer.countDocuments({ agencyId }),
-      Meetings.countDocuments({ agencyId ,date:{ $gte:startOfDay} }),
+      Meetings.countDocuments({ agencyId ,date:{ $gte:startOfDay}, status: {$ne:"cancelled"} }),
       Meetings.find({
         agencyId,
         date: { $gte: startOfDay, $lte: endOfDay },
+        status :{$ne:"cancelled"}
       }).limit(3).populate("customerId propertyId"),
 
   Customer.aggregate([

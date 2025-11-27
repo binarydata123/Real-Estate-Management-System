@@ -14,11 +14,14 @@ import ScrollPagination from "../../Common/ScrollPagination";
 import { NoData } from "../../Common/NoData";
 import MeetingAssistant from "./MeetingAssistant";
 import { AddMeetingSelectionModal } from "./AddMeetingSelectionModal";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { getCustomers } from "@/lib/Agent/CustomerAPI";
+import { AddCustomerForm } from "./AddCustomerForm";
 
 export const Meetings: React.FC = () => {
   const [addMode, setAddMode] = useState<"manual" | "ai" | null>(null);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
+  const [showAddCustomersModal, setShowAddCustomerModal] = useState(false);
   const [showEditForm, setShowEditForm] = React.useState(false);
   const [meetingId, setMeetingId] = useState<string | null>(null);
   const [meetingStatus, setMeetingStatus] = useState<string | null>(null);
@@ -64,6 +67,7 @@ export const Meetings: React.FC = () => {
     if (meetingId) await updateMeetingStatus(meetingId, status);
     setCurrentPage(1); // Reset to page 1 before refetching
     fetchMeetings(1); // Refetch from page 1 to see the change
+    showSuccessToast("Meeting Cancelled Successfully!")
   };
 
   // page change handler
@@ -101,6 +105,20 @@ export const Meetings: React.FC = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  const handleScheduleMeetingBtn = async () => {
+    if (user?._id) {
+      const res = await getCustomers(user?._id);
+      if (res.success) {
+        if(res?.data?.length === 0){
+          setShowAddCustomerModal(true)
+        }else{
+          setShowSelectionModal(true);
+        }
+      }
+    }
+  }
+
   return (
     <div className="space-y-2">
       {/* Header */}
@@ -110,7 +128,8 @@ export const Meetings: React.FC = () => {
           <p className="text-gray-600 md:mt-1">Manage customer meetings</p>
         </div>
         <button
-          onClick={() => setShowSelectionModal(true)}
+          // onClick={() => setShowSelectionModal(true)}
+          onClick={handleScheduleMeetingBtn}
           className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors">
           <PlusIcon className="h-5 w-5 mr-2" />
           Schedule Meeting
@@ -120,29 +139,26 @@ export const Meetings: React.FC = () => {
         <nav className="flex space-x-4" aria-label="Tabs">
           <button
             onClick={() => setActiveTab("upcoming")}
-            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${
-              activeTab === "upcoming"
-                ? "text-primary border-b-2 border-primary"
-                : "text-gray-600 hover:text-gray-800"
-            }`}>
+            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${activeTab === "upcoming"
+              ? "text-primary border-b-2 border-primary"
+              : "text-gray-600 hover:text-gray-800"
+              }`}>
             Upcoming Meetings
           </button>
           <button
             onClick={() => setActiveTab("past")}
-            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${
-              activeTab === "past"
-                ? "text-primary border-b-2 border-primary"
-                : "text-gray-600 hover:text-gray-800"
-            }`}>
+            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${activeTab === "past"
+              ? "text-primary border-b-2 border-primary"
+              : "text-gray-600 hover:text-gray-800"
+              }`}>
             Past Meetings
           </button>
           <button
             onClick={() => setActiveTab("cancelled")}
-            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${
-              activeTab === "cancelled"
-                ? "text-primary border-b-2 border-primary"
-                : "text-gray-600 hover:text-gray-800"
-            }`}>
+            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${activeTab === "cancelled"
+              ? "text-primary border-b-2 border-primary"
+              : "text-gray-600 hover:text-gray-800"
+              }`}>
             Cancelled
           </button>
         </nav>
@@ -255,15 +271,15 @@ export const Meetings: React.FC = () => {
               activeTab === "upcoming"
                 ? "No meetings scheduled"
                 : activeTab === "past"
-                ? "No past meetings"
-                : "No cancelled meetings"
+                  ? "No past meetings"
+                  : "No cancelled meetings"
             }
             description={
               activeTab === "upcoming"
                 ? "Plan ahead by scheduling new meetings with your customers."
                 : activeTab === "past"
-                ? "Once meetings are completed, they’ll show up here for your records."
-                : "Cancelled meetings will be listed here if any were called off."
+                  ? "Once meetings are completed, they’ll show up here for your records."
+                  : "Cancelled meetings will be listed here if any were called off."
             }
             buttonIcon={
               activeTab === "upcoming" ? (
@@ -289,6 +305,13 @@ export const Meetings: React.FC = () => {
           }}
         />
       )}
+
+      {showAddCustomersModal === true ?
+        <AddCustomerForm
+          onClose={() => setShowAddCustomerModal(false)}
+        />
+        : ""
+      }
 
       {/* Add Meeting Selection Modal */}
       <AddMeetingSelectionModal

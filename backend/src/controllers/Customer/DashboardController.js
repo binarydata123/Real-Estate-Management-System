@@ -20,9 +20,10 @@ export const customerDashboardData = async (req, res) => {
       // Today's meetings count
       Meetings.countDocuments({
         customerId,
-        date: { $gte: startOfDay }
+        date: { $gte: startOfDay },
+        status: { $ne: "cancelled" } // Exclude cancelled meetings (assuming status is a field)
       }),
-      PropertyShare.countDocuments({sharedWithUserId:customerId}),
+      PropertyShare.countDocuments({ sharedWithUserId: customerId }),
       Notification.countDocuments({
         userId: customerId,
         read: false
