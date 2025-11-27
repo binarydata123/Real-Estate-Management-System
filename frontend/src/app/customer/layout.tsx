@@ -91,7 +91,7 @@ export default function CustomerLayout({ children }: LayoutProps) {
         {!isMessagesPage && (
           <CustomerHeader onMenuButtonClick={() => setIsSidebarOpen(true)} />
         )}
-        <main className={`flex-1 p-2 md:p-6 ${!isMessagesPage && "mb-12"}`}>
+        <main className={`flex-1 md:p-6 ${!isMessagesPage && "mb-12 p-2"}`}>
           {children}
         </main>
         {/* Footer Links */}

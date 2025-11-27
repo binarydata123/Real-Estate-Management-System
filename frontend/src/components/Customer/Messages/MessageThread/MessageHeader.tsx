@@ -5,7 +5,7 @@ import { Tooltip } from "react-tooltip";
 import Image from "next/image";
 
 interface MessageHeaderProps {
-  selectedConversation: Conversation;
+  selectedConversation: Conversation | undefined;
   showProfile: boolean;
   onArchiveConversation: (id: string) => void;
   onUnarchiveConversation: (id: string) => void;
@@ -23,16 +23,18 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
     <div className="p-2 md:p-4 border-b border-gray-200 bg-gray-50 flex items-center">
       <div className="flex-1 flex items-center space-x-3 min-w-0 overflow-hidden">
         <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
-          {selectedConversation.otherParticipant?.avatar &&
-          /^https?:\/\//.test(selectedConversation.otherParticipant?.avatar) ? (
+          {selectedConversation?.otherParticipant?.avatar &&
+          /^https?:\/\//.test(
+            selectedConversation?.otherParticipant?.avatar
+          ) ? (
             <Image
-              src={selectedConversation.otherParticipant?.avatar}
-              alt={selectedConversation.otherParticipant?.name}
+              src={selectedConversation?.otherParticipant?.avatar}
+              alt={selectedConversation?.otherParticipant?.name}
               className="w-full h-full object-cover"
             />
           ) : (
             <span className="text-xl">
-              {selectedConversation.otherParticipant?.name?.charAt(0) || "👤"}
+              {selectedConversation?.otherParticipant?.name?.charAt(0) || "👤"}
             </span>
           )}
         </div>
@@ -46,11 +48,11 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
                 opacity: showProfile ? 1 : 0.5,
               }}
             >
-              {selectedConversation.otherParticipant?.name || "Deleted User"}
+              {selectedConversation?.otherParticipant?.name || "Deleted User"}
               <span style={{ fontSize: "13px" }}>
                 (
-                {selectedConversation.otherParticipant?.position ||
-                  selectedConversation.otherParticipant?.role}
+                {selectedConversation?.otherParticipant?.position ||
+                  selectedConversation?.otherParticipant?.role}
                 )
               </span>
             </h3>
@@ -66,8 +68,8 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             />
           </div>
           <p className="text-sm text-gray-600 truncate">
-            {selectedConversation.otherParticipant?.application?.jobTitle
-              ? `Applied for: ${selectedConversation.otherParticipant.application?.jobTitle}`
+            {selectedConversation?.otherParticipant?.application?.jobTitle
+              ? `Applied for: ${selectedConversation?.otherParticipant.application?.jobTitle}`
               : "Direct conversation"}
           </p>
         </div>

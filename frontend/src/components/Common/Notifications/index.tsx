@@ -27,7 +27,7 @@ import ScrollPagination from "@/components/Common/ScrollPagination";
 import { showErrorToast } from "@/utils/toastHandler";
 
 const typeConfig: Record<
-  NotificationType["type"],
+  NotificationType["type"] | "default",
   { icon: React.ReactNode; color: string; label: string; border: string }
 > = {
   welcome: {
@@ -107,6 +107,12 @@ const typeConfig: Record<
     color: "",
     border: "",
     label: "",
+  },
+  default: {
+    icon: <Bell className="w-5 h-5 text-white" />,
+    color: "bg-gray-500",
+    border: "border-gray-500",
+    label: "Notification",
   },
 };
 
@@ -278,7 +284,8 @@ const NotificationsPage: React.FC = () => {
           ) : (
             <div className="space-y-4 ">
               {notifications.map((notification) => {
-                const config = typeConfig[notification.type];
+                const config =
+                  typeConfig[notification.type] || typeConfig.default;
                 return (
                   <div
                     key={notification?._id}

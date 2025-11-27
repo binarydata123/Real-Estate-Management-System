@@ -55,8 +55,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         const formattedDate = meeting.date
           ? new Date(meeting.date).toISOString().split("T")[0]
           : "";
-        console.log(meeting);
-        // Prefill form
+
         setValue("customerId", meeting.customerId);
         setValue("propertyId", meeting.propertyId || "");
         setValue("agencyId", meeting.agencyId);

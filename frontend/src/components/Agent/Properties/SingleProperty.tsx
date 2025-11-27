@@ -30,15 +30,18 @@ import {
   Layers,
   Compass,
   Eye,
-  Droplets,
+  DropletsIcon,
   Zap,
   Gavel,
   Shield,
+  LandPlot,
 } from "lucide-react";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { useToast } from "@/context/ToastContext";
 import { showErrorToast } from "@/utils/toastHandler";
+import { formatPrice } from "@/utils/helperFunction";
+import { capitalizeFirstLetter } from "@/helper/capitalizeFirstLetter";
 
 interface Images {
   _id?: string;
@@ -136,7 +139,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
       </div>
       <div className="flex-1">
         <p className="text-sm text-gray-600">{label}</p>
-        <p className="font-medium text-gray-900">{value || "N/A"}</p>
+        <p className="font-medium text-gray-900 capitalize">{value || "N/A"}</p>
       </div>
     </div>
   );
@@ -156,6 +159,15 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
       </div>
     );
   }
+
+  const isPlotOrLand = ["plot", "land"].includes(
+    propertyData.category as string
+  );
+  const isResidential = propertyData.type === "residential";
+  const isCommercial = propertyData.type === "commercial";
+
+  const hasValue = (val: any) =>
+    val !== null && val !== undefined && val !== "";
 
   return (
     <div className="max-w-6xl mx-auto pb-6">
@@ -353,62 +365,86 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
 
             <div className="flex items-center gap-1 text-gray-600 mb-4">
               <MapPinIcon className="h-4 w-4" />
-              <span className="text-sm">{propertyData.location}</span>
+              <span className="text-sm">{propertyData.location || "N/A"}</span>
             </div>
 
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-              <div className="text-2xl font-bold text-gray-900 mb-1">
-                ₹{propertyData.price?.toLocaleString()}
-              </div>
+              {hasValue(propertyData.price) &&
+                propertyData.price &&
+                propertyData.price > 0 && (
+                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                    {formatPrice(propertyData.price)}
+                  </div>
+                )}
               <div className="flex items-center gap-4 text-sm text-gray-600">
-                <span className="bg-white px-2 py-1 rounded-lg border border-gray-200">
-                  {propertyData.type}
+                <span className="bg-white px-2 py-1 rounded-lg border border-gray-200 capitalize">
+                  {capitalizeFirstLetter(propertyData.type)}
                 </span>
                 <span className="bg-white px-2 py-1 rounded-lg border border-gray-200">
-                  {propertyData.category}
+                  {capitalizeFirstLetter(propertyData.category)}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Key Features Grid */}
-          <div className="grid grid-cols-4 gap-3 py-4 border-y border-gray-100">
-            <div className="text-center">
-              <div className="bg-blue-50 p-2 rounded-xl inline-block mb-1">
-                <BedIcon className="h-5 w-5 text-blue-600" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4 border-y border-gray-100">
+            {isResidential && hasValue(propertyData.bedrooms) && (
+              <div className="text-center">
+                <div className="bg-blue-50 p-2 rounded-xl inline-block mb-1">
+                  <BedIcon className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900">
+                  {propertyData.bedrooms}
+                </div>
+                <div className="text-xs text-gray-500">Beds</div>
               </div>
-              <div className="text-sm font-semibold text-gray-900">
-                {propertyData.bedrooms}
+            )}
+            {isResidential && hasValue(propertyData.bathrooms) && (
+              <div className="text-center">
+                <div className="bg-green-50 p-2 rounded-xl inline-block mb-1">
+                  <BathIcon className="h-5 w-5 text-green-600" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900">
+                  {propertyData.bathrooms}
+                </div>
+                <div className="text-xs text-gray-500">Baths</div>
               </div>
-              <div className="text-xs text-gray-500">Beds</div>
-            </div>
-            <div className="text-center">
-              <div className="bg-green-50 p-2 rounded-xl inline-block mb-1">
-                <BathIcon className="h-5 w-5 text-green-600" />
+            )}
+            {isCommercial && hasValue(propertyData.washrooms) && (
+              <div className="text-center">
+                <div className="bg-green-50 p-2 rounded-xl inline-block mb-1">
+                  <BathIcon className="h-5 w-5 text-green-600" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900">
+                  {propertyData.washrooms}
+                </div>
+                <div className="text-xs text-gray-500">Washrooms</div>
               </div>
-              <div className="text-sm font-semibold text-gray-900">
-                {propertyData.bathrooms}
+            )}
+            {hasValue(propertyData.built_up_area) && (
+              <div className="text-center">
+                <div className="bg-purple-50 p-2 rounded-xl inline-block mb-1">
+                  <SquareIcon className="h-5 w-5 text-purple-600" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900">
+                  {propertyData.built_up_area}{" "}
+                  <span className="text-xs">{propertyData.unit_area_type}</span>
+                </div>
+                <div className="text-xs text-gray-500">Area</div>
               </div>
-              <div className="text-xs text-gray-500">Baths</div>
-            </div>
-            <div className="text-center">
-              <div className="bg-purple-50 p-2 rounded-xl inline-block mb-1">
-                <SquareIcon className="h-5 w-5 text-purple-600" />
+            )}
+            {isResidential && hasValue(propertyData.balconies) && (
+              <div className="text-center">
+                <div className="bg-orange-50 p-2 rounded-xl inline-block mb-1">
+                  <HomeIcon className="h-5 w-5 text-orange-600" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900">
+                  {propertyData.balconies}
+                </div>
+                <div className="text-xs text-gray-500">Balcony</div>
               </div>
-              <div className="text-sm font-semibold text-gray-900">
-                {propertyData.built_up_area}
-              </div>
-              <div className="text-xs text-gray-500">Area</div>
-            </div>
-            <div className="text-center">
-              <div className="bg-orange-50 p-2 rounded-xl inline-block mb-1">
-                <HomeIcon className="h-5 w-5 text-orange-600" />
-              </div>
-              <div className="text-sm font-semibold text-gray-900">
-                {propertyData.balconies}
-              </div>
-              <div className="text-xs text-gray-500">Balcony</div>
-            </div>
+            )}
           </div>
 
           {/* Description */}
@@ -427,28 +463,29 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             <DetailItem
               icon={Building}
               label="Property Type"
-              value={propertyData.type}
+              value={`${propertyData.type}, ${propertyData.category}`}
             />
-            <DetailItem
-              icon={CalendarIcon}
-              label="Property Age"
-              value={propertyData.property_age}
-            />
-            <DetailItem
-              icon={SquareIcon}
-              label="Built-up Area"
-              value={`${propertyData.built_up_area} ${propertyData.unit_area_type}`}
-            />
-            <DetailItem
-              icon={SquareIcon}
-              label="Carpet Area"
-              value={`${propertyData.carpet_area} ${propertyData.unit_area_type}`}
-            />
-            <DetailItem
-              icon={Armchair}
-              label="Furnishing"
-              value={propertyData.furnishing}
-            />
+            {hasValue(propertyData.property_age) && (
+              <DetailItem
+                icon={CalendarIcon}
+                label="Property Age"
+                value={propertyData.property_age}
+              />
+            )}
+            {hasValue(propertyData.furnishing) && (
+              <DetailItem
+                icon={Armchair}
+                label="Furnishing"
+                value={propertyData.furnishing}
+              />
+            )}
+            {hasValue(propertyData.flooring_type) && (
+              <DetailItem
+                icon={Layers}
+                label="Flooring"
+                value={propertyData.flooring_type}
+              />
+            )}
             <DetailItem
               icon={Handshake}
               label="Transaction Type"
@@ -457,36 +494,92 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
           </div>
         </InfoCard>
 
-        {/* Floor & Configuration */}
-        <InfoCard title="Floor & Configuration">
-          <div className="space-y-1">
-            <DetailItem
-              icon={Layers}
-              label="Floor Number"
-              value={propertyData.floor_number}
-            />
-            <DetailItem
-              icon={Building}
-              label="Total Floors"
-              value={propertyData.total_floors}
-            />
-            <DetailItem
-              icon={BedIcon}
-              label="Bedrooms"
-              value={propertyData.bedrooms}
-            />
-            <DetailItem
-              icon={BathIcon}
-              label="Bathrooms"
-              value={propertyData.bathrooms}
-            />
-            <DetailItem
-              icon={Building}
-              label="Balconies"
-              value={propertyData.balconies}
-            />
-          </div>
-        </InfoCard>
+        {/* Area & Dimensions */}
+        {(hasValue(propertyData.built_up_area) ||
+          hasValue(propertyData.plot_front_area)) && (
+          <InfoCard title="Area & Dimensions">
+            <div className="space-y-1">
+              {hasValue(propertyData.built_up_area) && (
+                <DetailItem
+                  icon={SquareIcon}
+                  label={isPlotOrLand ? "Plot Area" : "Built-up Area"}
+                  value={`${propertyData.built_up_area} ${propertyData.unit_area_type}`}
+                />
+              )}
+              {hasValue(propertyData.carpet_area) && !isPlotOrLand && (
+                <DetailItem
+                  icon={SquareIcon}
+                  label="Carpet Area"
+                  value={`${propertyData.carpet_area} ${propertyData.unit_area_type}`}
+                />
+              )}
+              {hasValue(propertyData.plot_front_area) && (
+                <DetailItem
+                  icon={LandPlot}
+                  label="Plot Frontage"
+                  value={`${propertyData.plot_front_area} ${propertyData.plot_dimension_unit}`}
+                />
+              )}
+              {hasValue(propertyData.plot_depth_area) && (
+                <DetailItem
+                  icon={LandPlot}
+                  label="Plot Depth"
+                  value={`${propertyData.plot_depth_area} ${propertyData.plot_dimension_unit}`}
+                />
+              )}
+              {hasValue(propertyData.is_corner_plot) && (
+                <DetailItem
+                  icon={LandPlot}
+                  label="Corner Plot"
+                  value={propertyData.is_corner_plot ? "Yes" : "No"}
+                />
+              )}
+            </div>
+          </InfoCard>
+        )}
+
+        {/* Floor & Configuration (Conditional) */}
+        {isPlotOrLand && (
+          <InfoCard title="Floor & Configuration">
+            <div className="space-y-1">
+              {hasValue(propertyData.floor_number) && (
+                <DetailItem
+                  icon={Layers}
+                  label="Floor Number"
+                  value={propertyData.floor_number}
+                />
+              )}
+              {hasValue(propertyData.total_floors) && (
+                <DetailItem
+                  icon={Building}
+                  label="Total Floors"
+                  value={propertyData.total_floors}
+                />
+              )}
+              {isResidential && hasValue(propertyData.bedrooms) && (
+                <DetailItem
+                  icon={BedIcon}
+                  label="Bedrooms"
+                  value={propertyData.bedrooms}
+                />
+              )}
+              {isResidential && hasValue(propertyData.bathrooms) && (
+                <DetailItem
+                  icon={BathIcon}
+                  label="Bathrooms"
+                  value={propertyData.bathrooms}
+                />
+              )}
+              {isResidential && hasValue(propertyData.balconies) && (
+                <DetailItem
+                  icon={HomeIcon}
+                  label="Balconies"
+                  value={propertyData.balconies}
+                />
+              )}
+            </div>
+          </InfoCard>
+        )}
 
         {/* Facing & Overlooking */}
         {(propertyData.facing || propertyData.overlooking?.length) && (
@@ -498,9 +591,10 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                   label="Facing"
                   value={propertyData.facing}
                 />
-              )}
-              {propertyData.overlooking?.length &&
-                propertyData.overlooking?.length > 0 && (
+              )}{" "}
+              {hasValue(propertyData.overlooking) &&
+                propertyData.overlooking &&
+                propertyData.overlooking.length > 0 && (
                   <div className="flex items-center gap-3 py-2">
                     <div className="bg-blue-50 p-2 rounded-lg">
                       <Eye className="h-4 w-4 text-blue-600" />
@@ -511,7 +605,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                         {propertyData.overlooking.map((item, index) => (
                           <span
                             key={index}
-                            className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs"
+                            className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs capitalize"
                           >
                             {item}
                           </span>
@@ -525,55 +619,64 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         )}
 
         {/* Amenities & Features */}
-        {(propertyData.amenities?.length || propertyData.features?.length) && (
-          <InfoCard title="Amenities & Features">
-            <div className="space-y-3">
-              {propertyData.amenities?.length &&
-                propertyData.amenities?.length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-700 mb-2">
-                      Amenities
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {propertyData.amenities.map((amenity, index) => (
-                        <span
-                          key={index}
-                          className="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-sm border border-green-100"
-                        >
-                          {amenity}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              {propertyData.features?.length &&
-                propertyData.features?.length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-700 mb-2">Features</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {propertyData.features.map((feature, index) => (
-                        <span
-                          key={index}
-                          className="bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-sm border border-purple-100"
-                        >
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-            </div>
-          </InfoCard>
-        )}
+        {(hasValue(propertyData.amenities) &&
+          propertyData.amenities &&
+          propertyData?.amenities?.length > 0) ||
+          (hasValue(propertyData.features) &&
+            propertyData.features &&
+            propertyData.features.length > 0 && (
+              <InfoCard title="Amenities & Features">
+                <div className="space-y-3">
+                  {hasValue(propertyData.amenities) &&
+                    propertyData.amenities &&
+                    propertyData.amenities?.length > 0 && (
+                      <div>
+                        <h4 className="font-medium text-gray-700 mb-2">
+                          Amenities
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {propertyData.amenities.map((amenity, index) => (
+                            <span
+                              key={index}
+                              className="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-sm border border-green-100 capitalize"
+                            >
+                              {capitalizeFirstLetter(amenity)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  {hasValue(propertyData.features) &&
+                    propertyData.features?.length > 0 && (
+                      <div>
+                        <h4 className="font-medium text-gray-700 mb-2">
+                          Features
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {propertyData.features.map((feature, index) => (
+                            <span
+                              key={index}
+                              className="bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-sm border border-purple-100 capitalize"
+                            >
+                              {capitalizeFirstLetter(feature)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                </div>
+              </InfoCard>
+            ))}
 
         {/* Owner Details */}
-        {(propertyData.owner_name || propertyData.owner_contact) && (
+        {(hasValue(propertyData.owner_name) ||
+          hasValue(propertyData.owner_contact)) && (
           <InfoCard title="Owner Details">
             <div className="space-y-1">
               <DetailItem
                 icon={UserIcon}
                 label="Name"
-                value={propertyData.owner_name}
+                value={capitalizeFirstLetter(propertyData.owner_name)}
               />
               <DetailItem
                 icon={PhoneIcon}
@@ -587,11 +690,12 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         {/* Additional Info */}
         <InfoCard title="Additional Information">
           <div className="space-y-1">
-            {propertyData.water_source?.length &&
+            {hasValue(propertyData.water_source) &&
+              propertyData.water_source &&
               propertyData.water_source?.length > 0 && (
                 <div className="flex items-center gap-3 py-2">
                   <div className="bg-blue-50 p-2 rounded-lg">
-                    <Droplets className="h-4 w-4 text-blue-600" />
+                    <DropletsIcon className="h-4 w-4 text-blue-600" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-600">Water Source</p>
@@ -599,7 +703,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                       {propertyData.water_source.map((source, index) => (
                         <span
                           key={index}
-                          className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-xs"
+                          className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-xs capitalize"
                         >
                           {source}
                         </span>
@@ -608,21 +712,27 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                   </div>
                 </div>
               )}
-            <DetailItem
-              icon={Zap}
-              label="Power Backup"
-              value={propertyData.power_backup}
-            />
-            <DetailItem
-              icon={Gavel}
-              label="RERA Status"
-              value={propertyData.rera_status}
-            />
-            <DetailItem
-              icon={Shield}
-              label="Gated Community"
-              value={propertyData.gated_community ? "Yes" : "No"}
-            />
+            {hasValue(propertyData.power_backup) && (
+              <DetailItem
+                icon={Zap}
+                label="Power Backup"
+                value={propertyData.power_backup}
+              />
+            )}
+            {hasValue(propertyData.rera_status) && (
+              <DetailItem
+                icon={Gavel}
+                label="RERA Status"
+                value={propertyData.rera_status}
+              />
+            )}
+            {hasValue(propertyData.gated_community) && (
+              <DetailItem
+                icon={Shield}
+                label="Gated Community"
+                value={propertyData.gated_community}
+              />
+            )}
           </div>
         </InfoCard>
       </div>

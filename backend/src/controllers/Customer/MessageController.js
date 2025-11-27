@@ -467,45 +467,8 @@ export const startConversation = async (req, res) => {
       };
 
       messageResult = await Message.insertOne(message);
-
-      // await createNotification(req.db, {
-      //   userId: new ObjectId(receiverId),
-      //   type: "message",
-      //   title: "New Message",
-      //   message: `You have a new message from ${req.user.firstName} ${req.user.lastName}`,
-      //   priority: "medium",
-      //   actionUrl: `/${
-      //     receiver.role === "admin"
-      //       ? "admin"
-      //       : receiver.role === "company"
-      //       ? "company"
-      //       : receiver.role === "candidate"
-      //       ? "candidate"
-      //       : receiver.role === "mentor"
-      //       ? "mentor"
-      //       : "user"
-      //   }/messages?conversationId=${conversationId}`,
-      // });
-      // ✅ If receiver does NOT have plan → Send “Purchase Plan” email
     }
-    // if (req.user.role !== "admin") {
-    //   try {
-    //     await useTokensForAction({
-    //       req,
-    //       userId: req.user._id,
-    //       action:
-    //         req.user.role === "customer" ? "contact_mentee" : "contact_candidate",
-    //       metadata: req.tokenMeta || {},
-    //     });
-    //   } catch (tokenErr) {
-    //     console.error("Token deduction failed:", tokenErr);
-    //     return res.status(402).json({
-    //       success: false,
-    //       message:
-    //         "Not enough tokens to message. Please upgrade your plan or purchase additional tokens to continue",
-    //     });
-    //   }
-    // }
+
     if (req.user.role == "admin") {
       const userData = {
         firstName: receiver.firstName,

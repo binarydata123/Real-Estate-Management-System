@@ -30,6 +30,7 @@ const Messages: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const [isSelectingConversation, setIsSelectingConversation] = useState(true);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
@@ -82,6 +83,8 @@ const Messages: React.FC = () => {
       }
     } catch (error) {
       showErrorToast("Error fetching conversations:", error);
+    } finally {
+      setIsSelectingConversation(false);
     }
   };
 
@@ -351,7 +354,7 @@ const Messages: React.FC = () => {
           newMessage={newMessage}
           selectedFile={selectedFile}
           filePreview={filePreview}
-          isLoadingMessages={isLoadingMessages}
+          isLoadingMessages={isLoadingMessages || isSelectingConversation}
           isSendingMessage={isSendingMessage}
           anotherUserAllowMessage={anotherUserAllowMessage}
           showProfile={showProfile}
