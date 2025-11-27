@@ -1260,7 +1260,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                 }
                               )
                             }
-                            placeholder="Enter area in sq.ft, sq.m, etc."
+                            placeholder="Enter area"
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>
@@ -1283,7 +1283,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                 }
                               )
                             }
-                            placeholder="Enter area in sq.ft, sq.m, etc."
+                            placeholder="Enter area"
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                           />
                         </Field>

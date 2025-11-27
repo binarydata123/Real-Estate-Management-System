@@ -249,6 +249,7 @@ const SignupForm = () => {
               Sign In
             </Link>
           </p>
+          message
         </div>
       </div>
     </div>

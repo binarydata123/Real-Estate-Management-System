@@ -215,7 +215,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                     })}
                     maxLength={13}
                     className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="+91 98765 43210"
+                    placeholder="Enter you WhatsApp number"
                   />
                   {errors.whatsAppNumber && (
                     <p className="text-red-600 text-sm mt-1">
