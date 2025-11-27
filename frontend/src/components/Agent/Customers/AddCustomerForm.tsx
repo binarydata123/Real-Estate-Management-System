@@ -32,7 +32,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const { showToast, showPromiseToast } = useToast();
-  const [showAllProperty, setShowAllProperty] = useState(false);
+  // const [showAllProperty, setShowAllProperty] = useState(false);
 
   const {
     register,
@@ -215,7 +215,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                     })}
                     maxLength={13}
                     className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="+91 98765 43210"
+                    placeholder="Enter you WhatsApp number"
                   />
                   {errors.whatsAppNumber && (
                     <p className="text-red-600 text-sm mt-1">
@@ -331,8 +331,8 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   <input
                     type="checkbox"
                     {...register("showAllProperty")}
-                    checked={showAllProperty}
-                    onClick={() => setShowAllProperty((prev) => !prev)}
+                    // checked={showAllProperty}
+                    // onClick={() => setShowAllProperty((prev) => !prev)}
                     className="sr-only peer"
                   />
                   <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors"></div>

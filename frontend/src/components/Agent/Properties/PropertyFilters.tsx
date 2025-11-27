@@ -132,7 +132,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
             onChange={(e) =>
               handleFilterChange("unit_area_type", e.target.value)
             }
-            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 hover:bg-green-100 hover:border-green-500"
           >
             <option value="">All Units</option>
             <option value="sqft">Square Feet</option>

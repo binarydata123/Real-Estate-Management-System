@@ -80,11 +80,11 @@ export default function CustomerModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 <div className="absolute top-4 right-4">
                   <button
                     type="button"
-                    className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                    className="rounded-full cursor-pointer p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
                     onClick={onClose}
                   >
                     <X className="h-5 w-5" />

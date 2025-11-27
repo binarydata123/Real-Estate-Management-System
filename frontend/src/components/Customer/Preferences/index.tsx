@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo,useState } from "react";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -307,7 +307,11 @@ export default function PreferenceForm() {
   const isReadOnly = user?.role === "admin";
   const [loading, setLoading] = React.useState(false);
   //const [requestSent, setRequestSent] = useState(false);
+  const [initialType, setInitialType] = useState<string | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   const customerId = user?._id;
+  console.log("This is my Customer ID      ::::: ",customerId)
 
   const {
     register,
@@ -339,9 +343,22 @@ export default function PreferenceForm() {
   const watchedType = watch("type");
   const watchedCategories = watch("category") || [];
 
-  useEffect(() => {
-    setValue("category", []);
-  }, [watchedType, setValue]);
+  // useEffect(() => {
+  //   setValue("category", []);
+  // }, [watchedType, setValue]);
+
+
+// useEffect(() => {
+//   if (isInitialLoad) return; // ⭐ do NOT clear during backend load
+
+//   // ⭐ only clear when user manually changes the type
+//   if (initialType && watchedType !== initialType) {
+//     setValue("category", []);
+//   }
+// }, [watchedType, initialType, isInitialLoad, setValue]);
+
+
+
 
   const showConfiguration = useMemo(() => {
     if (watchedType !== "residential") return false;
@@ -386,27 +403,73 @@ export default function PreferenceForm() {
     );
   }, [watchedCategories, containsOnlyPlotOrLand]);
 
-  useEffect(() => {
-    if (user) {
-      const fetchDetail = async () => {
-        try {
-          const res = await getPreferenceDetail(user._id);
-          if (res.success && res.data) {
-            reset(res.data);
-            //setRequestSent(res.requestSent);
-          }
-        } catch (error) {
-          // Don't show an error toast if it's just a 404, which is expected
-          if (axios.isAxiosError(error) && error.response?.status === 404) {
-            // Preferences not found, do nothing, form will have default values.
-            return;
-          }
-          showErrorToast("Failed to fetch preferences:", error);
+  // useEffect(() => {
+  //   if (user) {
+  //     const fetchDetail = async () => {
+  //       try {
+  //         const res = await getPreferenceDetail(user._id);
+  //         if (res.success && res.data) {
+  //           reset(res.data);
+  //           //setRequestSent(res.requestSent);
+  //         }
+  //       } catch (error) {
+  //         // Don't show an error toast if it's just a 404, which is expected
+  //         if (axios.isAxiosError(error) && error.response?.status === 404) {
+  //           // Preferences not found, do nothing, form will have default values.
+  //           return;
+  //         }
+  //         showErrorToast("Failed to fetch preferences:", error);
+  //       }
+  //     };
+  //     fetchDetail();
+  //   }
+  // }, [customerId, reset, showToast, user]);
+
+
+
+
+
+
+
+useEffect(() => {
+  if (user) {
+    const fetchDetail = async () => {
+      try {
+        const res = await getPreferenceDetail(user._id);
+        if (res.success && res.data) {
+          reset(res.data);
+          setInitialType(res.data.type); 
+          setIsInitialLoad(false); // 
         }
-      };
-      fetchDetail();
-    }
-  }, [customerId, reset, showToast, user]);
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          setIsInitialLoad(false);
+          return;
+        }
+        showErrorToast("Failed to fetch preferences:", error);
+      }
+    };
+    fetchDetail();
+  }
+}, [user, reset]);
+
+
+
+
+useEffect(() => {
+  if (isInitialLoad) return;
+  if (initialType && watchedType !== initialType) {
+    setValue("category", []);
+  }
+}, [watchedType, initialType, isInitialLoad, setValue]);
+
+
+
+
+
+
+
+
 
   const onSubmit = async (data: UserPreferenceFormData) => {
     if (isReadOnly) return;

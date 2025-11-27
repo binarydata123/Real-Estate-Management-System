@@ -2,16 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import {
-  getAgentProfile,
-  updateAgentProfile,
-
-} from "@/lib/Agent/ProfileAPI";
+import { getAgentProfile, updateAgentProfile } from "@/lib/Agent/ProfileAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { agentProfileSchema } from "@/schemas/Admin/agentSchema";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 export default function Profile() {
-
   const [agent, setAgent] = useState<AgentProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -21,7 +16,7 @@ export default function Profile() {
     formState: { errors },
     setValue,
   } = useForm<ProfileFormValues>({
-    resolver:zodResolver(agentProfileSchema),
+    resolver: zodResolver(agentProfileSchema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -30,16 +25,15 @@ export default function Profile() {
     },
   });
 
-// Fetch profile from API
+  // Fetch profile from API
   const getProfile = async (): Promise<void> => {
     try {
       const res = await getAgentProfile();
       if (res.success && res.data) {
-     setAgent(res.data);
-}
-
+        setAgent(res.data);
+      }
     } catch (err) {
-    showErrorToast("Error",err);
+      showErrorToast("Error", err);
     }
   };
 
@@ -52,30 +46,29 @@ export default function Profile() {
       };
       const res = await updateAgentProfile(payload);
       if (res.success && res.message) {
-       showSuccessToast(res.message);
+        showSuccessToast(res.message);
       }
     } catch (error) {
-     if (error instanceof Error) {
-    showErrorToast(error.message);
-    } else {
-     showErrorToast("Profile update failed.");
-    }
+      if (error instanceof Error) {
+        showErrorToast(error.message);
+      } else {
+        showErrorToast("Profile update failed.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-
   useEffect(() => {
     getProfile();
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     if (agent) {
       setValue("email", agent.owner?.email);
       setValue("fullName", agent.owner?.name);
-      setValue("agencyName", agent.name  );
-      setValue("whatsapp", agent  .whatsAppNumber);
+      setValue("agencyName", agent.name);
+      setValue("whatsapp", agent.whatsAppNumber);
     }
   }, [agent, setValue]);
   return (
@@ -122,7 +115,7 @@ useEffect(() => {
             Email Address <span className="text-red-500">*</span>
           </label>
           <input
-           disabled
+            disabled
             type="email"
             {...register("email")}
             placeholder="example@gmail.com"
@@ -146,7 +139,7 @@ useEffect(() => {
           <input
             type="tel"
             {...register("whatsapp")}
-            placeholder="+91 98765 43210"
+            placeholder="Enter your WhatsApp number"
             className={`w-full px-4 py-2.5 border ${
               errors.whatsapp ? "border-red-500" : "border-gray-200"
             } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
@@ -160,27 +153,27 @@ useEffect(() => {
         </div>
 
         {/* Timezone */}
- <div className="flex flex-col">
-  <label className="text-sm font-medium text-gray-700 mb-1">
-    Agency Name <span className="text-red-500">*</span>
-  </label>
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 mb-1">
+            Agency Name <span className="text-red-500">*</span>
+          </label>
 
-  <input
-    type="text"
-    {...register("agencyName", { required: "Agency name is required" })}
-    className={`w-full px-4 py-2.5 border ${
-      errors.agencyName ? "border-red-500" : "border-gray-200"
-    } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+          <input
+            type="text"
+            {...register("agencyName", { required: "Agency name is required" })}
+            className={`w-full px-4 py-2.5 border ${
+              errors.agencyName ? "border-red-500" : "border-gray-200"
+            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
     text-gray-900 bg-white transition-all duration-150`}
-    placeholder="Enter agency name"
-  />
+            placeholder="Enter agency name"
+          />
 
-  {errors.agencyName && (
-    <span className="text-red-500 text-sm mt-1">
-      {errors.agencyName.message}
-    </span>
-  )}
-</div>
+          {errors.agencyName && (
+            <span className="text-red-500 text-sm mt-1">
+              {errors.agencyName.message}
+            </span>
+          )}
+        </div>
 
         {/* Save Button */}
         <div className="md:col-span-2 flex justify-end mt-4">
