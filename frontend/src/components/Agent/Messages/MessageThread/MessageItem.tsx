@@ -35,7 +35,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg
           ${
             isOwnMessage
-              ? "bg-blue-600 text-white"
+              ? "bg-primary text-white"
               : isUnread
               ? "bg-indigo-50 text-gray-900"
               : "bg-gray-100 text-gray-900"
@@ -71,7 +71,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
                       className="flex flex-col items-center space-x-2 p-2 bg-white rounded-md border hover:bg-gray-50 transition"
                     >
                       <FiFile className="w-16 h-16 text-gray-500 flex-shrink-0" />
-                      <span className="text-blue-500 underline break-all">
+                      <span className="text-primary underline break-all">
                         {att.name}
                       </span>
                     </a>

@@ -128,7 +128,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           />
         </label>
 
-        <div className="relative w-full min-h-[35px] max-h-[100px] border border-gray-300 rounded-lg overflow-auto focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+        <div className="relative w-full min-h-[35px] max-h-[100px] border border-gray-300 rounded-lg overflow-auto focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent">
           {newMessage === "" && (
             <div className="absolute top-0 left-0 px-4 py-2 text-gray-400 pointer-events-none select-none">
               {getPlaceholderText()}
@@ -162,7 +162,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             (!newMessage.trim() && !selectedFile) ||
             isSendingMessage
           }
-          className={`p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 ${
+          className={`p-2 bg-primary text-white rounded-lg transition-colors disabled:opacity-50 ${
             isDisabled ? "cursor-not-allowed" : ""
           }`}
         >

@@ -124,7 +124,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
               <button
                 type="button"
                 onClick={() => setShowMoreInfo((prev) => !prev)}
-                className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                className="text-sm font-medium text-primary hover:text-primary"
               >
                 {showMoreInfo ? "Less Information" : "More Information"}
               </button>
@@ -150,7 +150,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
               </label>
               <input
                 {...register("fullName")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                 placeholder="John Doe"
               />
               {errors.fullName && (
@@ -171,7 +171,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   },
                 })}
                 maxLength={13}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                 placeholder="+91 98765 43210"
               />
               {errors.phoneNumber && (
@@ -193,7 +193,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   <input
                     type="email"
                     {...register("email")}
-                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                     placeholder="john@example.com"
                   />
                   {errors.email && (
@@ -214,7 +214,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                       },
                     })}
                     maxLength={13}
-                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                     placeholder="Enter you WhatsApp number"
                   />
                   {errors.whatsAppNumber && (
@@ -245,7 +245,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                         }
                         onBlur={field.onBlur}
                         placeholder={field.value ? undefined : "50,00,000"}
-                        className={`w-full md:px-4 px-2 py-2 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                        className={`w-full md:px-4 px-2 py-2 border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary ${
                           errors.minimumBudget
                             ? "border-red-500"
                             : "border-gray-300"
@@ -275,7 +275,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                         }
                         onBlur={field.onBlur}
                         placeholder={field.value ? undefined : "75,00,000"}
-                        className={`w-full md:px-4 px-2 py-2 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                        className={`w-full md:px-4 px-2 py-2 border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary ${
                           errors.maximumBudget
                             ? "border-red-500"
                             : "border-gray-300"
@@ -298,7 +298,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                 </label>
                 <select
                   {...register("leadSource")}
-                  className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                 >
                   <option value="" disabled>
                     Select lead source...
@@ -321,7 +321,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                 <textarea
                   {...register("initialNotes")}
                   rows={3}
-                  className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                   placeholder="Any initial notes about the customer..."
                 />
               </div>
@@ -335,7 +335,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                     // onClick={() => setShowAllProperty((prev) => !prev)}
                     className="sr-only peer"
                   />
-                  <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors"></div>
+                  <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors"></div>
                   <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
                 </div>
                 <span className="ml-2 text-sm text-gray-700">
@@ -357,7 +357,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading
                 ? customerId

@@ -98,7 +98,7 @@ export const Analytics: React.FC = () => {
             ].map((activity, index) => (
               <div key={index} className="flex items-center space-x-3">
                 <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <BuildingOfficeIcon className="h-4 w-4 text-blue-600" />
+                  <BuildingOfficeIcon className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-900">{activity.action}</p>

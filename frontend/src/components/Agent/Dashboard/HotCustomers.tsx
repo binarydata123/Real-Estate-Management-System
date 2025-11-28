@@ -2,6 +2,7 @@
 
 import React from "react";
 import { UserIcon, PhoneIcon, FireIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 export interface Customer {
   _id: string;
@@ -15,6 +16,8 @@ export interface HotCustomersProps {
 }
 
 const HotCustomers: React.FC<HotCustomersProps> = ({ customers }) => {
+  const router = useRouter();
+
   const formatBudgetRange = (min?: number, max?: number): string => {
     const formatValue = (value: number): string => {
       if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
@@ -47,6 +50,7 @@ const HotCustomers: React.FC<HotCustomersProps> = ({ customers }) => {
               <div
                 key={customer._id}
                 className="flex md:flex-row md:items-center justify-between p-2 md:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={() => router.push("/agent/customers")}
               >
                 <div className="flex items-center space-x-4">
                   <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
@@ -68,7 +72,7 @@ const HotCustomers: React.FC<HotCustomersProps> = ({ customers }) => {
                 <div className="flex items-stretch">
                   <div className="flex flex-col justify-between flex-1">
                     <div className="text-right flex items-start gap-1 justify-end">
-                      <span className="md:mt-2 text-blue-600 hover:text-blue-700">
+                      <span className="md:mt-2 text-primary hover:text-primary">
                         <PhoneIcon className="h-4 w-4" />
                       </span>
                     </div>
