@@ -267,7 +267,7 @@ const NotificationsPage: React.FC = () => {
           {/* Notifications List */}
           {isFetching && notifications.length === 0 ? (
             <div className="text-center py-20">
-              <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+              <div className="loader border-t-4 border-b-4 border-primary w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
               <p className="text-gray-600">Loading notifications...</p>
             </div>
           ) : notifications.length === 0 ? (
@@ -326,7 +326,7 @@ const NotificationsPage: React.FC = () => {
               hasMore={currentPage < totalPages}
               loader={
                 <div className="text-center py-6">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               }
               endMessage={

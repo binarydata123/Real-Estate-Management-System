@@ -137,7 +137,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
             <input
               type="text"
               {...register("name")}
-              className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
               placeholder="John Doe"
             />
             {errors.name && (
@@ -153,7 +153,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
             <input
               type="tel"
               {...register("phone")}
-              className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
               placeholder="+91 9876543210"
             />
             {errors.phone && (
@@ -171,7 +171,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
             <input
               type="email"
               {...register("email")}
-              className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
               placeholder="agent@example.com"
             />
             {errors.email && (
@@ -189,7 +189,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
             <textarea
               {...register("message")}
               rows={3}
-              className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
               placeholder="Welcome to our team! Looking forward to working with you."
             />
           </div>
@@ -207,7 +207,7 @@ export const InviteAgentModal: React.FC<InviteAgentModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <UserPlusIcon className="h-4 w-4 mr-2" />
               {loading

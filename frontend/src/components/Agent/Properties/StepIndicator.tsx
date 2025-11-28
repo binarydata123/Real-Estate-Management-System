@@ -25,7 +25,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, steps }) => 
                                     aria-hidden="true"
                                 >
                                     <div
-                                        className={`h-full w-full transition-colors duration-500 ${isCompleted ? "bg-blue-600" : "bg-gray-200"
+                                        className={`h-full w-full transition-colors duration-500 ${isCompleted ? "bg-primary" : "bg-gray-200"
                                             }`}
                                     />
                                 </div>
@@ -35,9 +35,9 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, steps }) => 
                                 {/* Step circle */}
                                 <div
                                     className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${isCompleted
-                                        ? "bg-blue-600 shadow-md"
+                                        ? "bg-primary shadow-md"
                                         : isCurrent
-                                            ? "border-2 border-blue-600 bg-white shadow-lg scale-110"
+                                            ? "border-2 border-primary bg-white shadow-lg scale-110"
                                             : "border-2 border-gray-300 bg-white"
                                         }`}
                                 >
@@ -46,7 +46,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, steps }) => 
                                     ) : (
                                         <span
                                             className={`text-base font-medium transition-colors duration-300 ${isCurrent
-                                                ? "text-blue-600 font-bold"
+                                                ? "text-primary font-bold"
                                                 : "text-gray-500"
                                                 }`}
                                         >
@@ -57,7 +57,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, steps }) => 
 
                                 {/* Step label */}
                                 <p
-                                    className={`mt-2 text-sm font-medium transition-colors duration-300 ${isCurrent ? "text-blue-600" : "text-gray-500"
+                                    className={`mt-2 text-sm font-medium transition-colors duration-300 ${isCurrent ? "text-primary" : "text-gray-500"
                                         }`}
                                 >
                                     {name}

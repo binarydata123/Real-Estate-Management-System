@@ -21,7 +21,7 @@ const IconCheckbox: React.FC<IconCheckboxProps> = ({ option, name, register }) =
             />
             <label
                 htmlFor={`${name}-${option.value}`}
-                className="cursor-pointer shadow flex items-center gap-3 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
+                className="cursor-pointer shadow flex items-center gap-3 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary"
             >
                 <span>{option.icon}</span>
                 {option.label}

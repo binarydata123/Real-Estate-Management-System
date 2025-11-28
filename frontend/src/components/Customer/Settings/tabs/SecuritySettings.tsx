@@ -81,7 +81,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
       </div>
 
       {/* Session Timeout */}
-      <div className="p-4 border border-gray-200 rounded-lg">
+      {/* <div className="p-4 border border-gray-200 rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h4 className="font-medium text-gray-900 flex items-center">
@@ -110,7 +110,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Login Notifications */}
       <div className="p-4 border border-gray-200 rounded-lg">

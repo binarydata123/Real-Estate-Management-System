@@ -257,7 +257,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             )}
           </div>
           <button
-            className="text-blue-600 hover:text-blue-700 text-xs font-medium"
+            className="text-primary text-xs font-medium"
             onClick={() => {
               if (conversation.otherParticipant?.role !== "admin") {
                 onViewCandidate(

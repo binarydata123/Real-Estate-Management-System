@@ -49,7 +49,7 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
             <div className="flex gap-1 items-center">
               <button
                 type="button"
-                className="hidden p-2 text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-500"
+                className="hidden p-2 text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary"
                 onClick={onMenuButtonClick}
               >
                 <span className="sr-only">Open sidebar</span>
@@ -85,9 +85,9 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
 
               {/* User Menu */}
               <Menu as="div" className="relative">
-                <Menu.Button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <Menu.Button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-1 focus:ring-primary">
                   <span className="sr-only">Open user menu</span>
-                  <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+                  <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-semibold">
                     {getInitial(user?.name)}
                   </div>
                 </Menu.Button>

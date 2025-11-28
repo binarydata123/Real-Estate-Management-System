@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { ForwardedRef, forwardRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -37,15 +37,13 @@ interface SidebarProps {
   isOpen: boolean;
 }
 
-export const CustomerSidebar: React.FC<SidebarProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export const CustomerSidebar = forwardRef<HTMLDivElement,SidebarProps>(({isOpen,onClose}, ref) => {
   const { signOut, user } = useAuth();
   const pathname = usePathname();
 
   return (
     <div
+    ref={ref}
       className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
@@ -138,4 +136,5 @@ export const CustomerSidebar: React.FC<SidebarProps> = ({
       </div>
     </div>
   );
-};
+});
+CustomerSidebar.displayName = "CustomerSidebar";

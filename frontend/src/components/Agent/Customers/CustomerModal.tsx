@@ -94,7 +94,7 @@ export default function CustomerModal({
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex-shrink-0 h-14 w-14 rounded-full bg-blue-100 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-blue-600">
+                    <span className="text-2xl font-bold text-primary">
                       {customer.fullName.charAt(0)}
                     </span>
                   </div>

@@ -99,7 +99,7 @@ export default function Profile() {
             placeholder="John Doe"
             className={`w-full px-4 py-2.5 border ${
               errors.fullName ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+            } rounded-xl focus:ring-2 focus:ring-primary focus:border-primary 
             text-gray-900 placeholder-gray-400 transition-all duration-150`}
           />
           {errors.fullName && (
@@ -121,7 +121,7 @@ export default function Profile() {
             placeholder="example@gmail.com"
             className={`w-full px-4 py-2.5 border ${
               errors.email ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+            } rounded-xl focus:ring-2 focus:ring-primary focus:border-primary 
             text-gray-900 placeholder-gray-400 transition-all duration-150 bg-zinc-200 cursor-not-allowed`}
           />
           {errors.email && (
@@ -142,7 +142,7 @@ export default function Profile() {
             placeholder="Enter your WhatsApp number"
             className={`w-full px-4 py-2.5 border ${
               errors.whatsapp ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+            } rounded-xl focus:ring-2 focus:ring-primary focus:border-primary 
             text-gray-900 placeholder-gray-400 transition-all duration-150`}
           />
           {errors.whatsapp && (
@@ -163,7 +163,7 @@ export default function Profile() {
             {...register("agencyName", { required: "Agency name is required" })}
             className={`w-full px-4 py-2.5 border ${
               errors.agencyName ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+            } rounded-xl focus:ring-2 focus:ring-primary focus:border-primary 
     text-gray-900 bg-white transition-all duration-150`}
             placeholder="Enter agency name"
           />

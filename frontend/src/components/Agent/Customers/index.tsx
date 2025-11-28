@@ -177,7 +177,7 @@ export const Customers: React.FC = () => {
                 <div className="md:col-span-2 flex justify-between items-start">
                   <div className="flex items-center space-x-3">
                     <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <UserIcon className="h-6 w-6 text-blue-600" />
+                      <UserIcon className="h-6 w-6 text-primary" />
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">
@@ -241,7 +241,7 @@ export const Customers: React.FC = () => {
                         setViewCustomer(customer);
                         setOpen(true);
                       }}
-                      className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
+                      className="cursor-pointer text-primary p-1 rounded hover:text-primary text-sm font-medium"
                     >
                       View
                     </span>
@@ -268,7 +268,7 @@ export const Customers: React.FC = () => {
       {/* --- SMALL INLINE LOADER (NO FLICKER) --- */}
       {isFetching && customers.length > 0 && (
         <div className="text-center py-4">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       )}
 
@@ -282,7 +282,7 @@ export const Customers: React.FC = () => {
           hasMore={currentPage < totalPages}
           loader={
             <div className="text-center py-4">
-              <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+              <div className="loader border-t-4 border-b-4 border-primary w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
             </div>
           }
           endMessage={
