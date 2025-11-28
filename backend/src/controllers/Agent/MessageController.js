@@ -141,9 +141,8 @@ export const getConversations = async (req, res) => {
         let avatar = "";
         if (otherParticipant?.role === "customer") {
           if (profile?.profilePhoto?.medium) {
-            avatar = `${process.env.BACKEND_URL || ""}${
-              profile.profilePhoto.medium
-            }`;
+            avatar = `${process.env.BACKEND_URL || ""}${profile.profilePhoto.medium
+              }`;
           }
         } else if (otherParticipant?.role === "agent") {
           if (profile?.logo?.medium) {
@@ -168,17 +167,17 @@ export const getConversations = async (req, res) => {
           ...conv,
           otherParticipant: otherParticipant
             ? {
-                _id: otherParticipant._id,
-                name: `${otherParticipant.fullName}`,
-                email: encryptOneTwo(otherParticipant.email),
-                phone: encryptOneTwo(otherParticipant.phone),
-                role: otherParticipant.role,
-                userId: otherParticipant.userId,
-                position: profile?.jobTitle || profile?.companyName,
-                avatar,
-                status,
-                application: applicationInfo,
-              }
+              _id: otherParticipant._id,
+              name: `${otherParticipant.fullName}`,
+              email: encryptOneTwo(otherParticipant.email),
+              phone: encryptOneTwo(otherParticipant.phone),
+              role: otherParticipant.role,
+              userId: otherParticipant.userId,
+              position: profile?.jobTitle || profile?.companyName,
+              avatar,
+              status,
+              application: applicationInfo,
+            }
             : null,
         };
       })
@@ -205,74 +204,10 @@ export const getConversations = async (req, res) => {
 // GET /api/messages/conversations/:id - Get messages for a conversation
 export const getConversationMessages = async (req, res) => {
   try {
-    const userId = req.user._id;
     const conversationId = req.params.id;
 
-    // Check if conversation exists and user is a participant
-    const conversation = await Conversation.findOne({
-      _id: new ObjectId(conversationId),
-      participants: userId,
-    });
-
-    // const anotherParticipantId = conversation.participants.find(
-    //   (id) => !id.equals(userId)
-    // );
-
-    let allowMessages = null;
-    let showProfile = true;
-
-    // if (userSettings?.privacy) {
-    //   // ------------------- allow messages -------------------
-    //   if (typeof userSettings.privacy.allowRecruiterContact === "boolean") {
-    //     allowMessages = userSettings.privacy.allowRecruiterContact;
-    //   } else if (typeof userSettings.privacy.allowDirectContact === "boolean") {
-    //     allowMessages = userSettings.privacy.allowDirectContact;
-    //   }
-
-    //   // ------------------- show profile based on req.user.role -------------------
-    //   const role = req.user.role; // 'company', 'admin', 'mentor', 'candidate'
-
-    //   if (userSettings?.privacy) {
-    //     if (role === "company") {
-    //       // Company can see candidate profiles
-    //       showProfile =
-    //         userSettings.privacy.profileVisibility === "public" ||
-    //         userSettings.privacy.profileVisibility === "recruiters";
-    //     } else if (role === "mentor") {
-    //       // Mentor can see both candidate profiles and company profiles
-    //       showProfile =
-    //         userSettings.privacy.profileVisibility === "public" ||
-    //         userSettings.privacy.profileVisibility === "mentors" ||
-    //         userSettings.privacy.companyVisibility === "public" ||
-    //         userSettings.privacy.companyVisibility === "mentors";
-    //     } else if (role === "admin") {
-    //       showProfile =
-    //         userSettings.privacy.profileVisibility === "public" ||
-    //         userSettings.privacy.companyVisibility === "public";
-    //     } else if (role === "candidate") {
-    //       showProfile =
-    //         userSettings.privacy.companyVisibility === "public" ||
-    //         userSettings.privacy.companyVisibility === "candidates" ||
-    //         userSettings.privacy.profileVisibility === "public" ||
-    //         userSettings.privacy.profileVisibility === "candidates";
-    //     }
-    //   }
-
-    //   // Optional: mentor role viewing company profile
-    //   if (role === "mentor") {
-    //     showProfile =
-    //       showProfile ||
-    //       userSettings.privacy.companyVisibility === "public" ||
-    //       userSettings.privacy.companyVisibility === "mentors";
-    //   }
-    // }
-
-    // if (!conversation) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: "Conversation not found or you do not have permission",
-    //   });
-    // }
+    const allowMessages = null;
+    const showProfile = true;
 
     // Get messages
     const messages = await Message.find({
@@ -321,10 +256,6 @@ export const sendMessage = async (req, res) => {
       receiverId = conversation.participants.find(
         (id) => id.toString() !== senderId.toString()
       );
-      // return res.status(404).json({
-      //   success: false,
-      //   message: "Conversation not found or you do not have permission",
-      // });
     } else {
       receiverId = conversationId;
     }
@@ -355,8 +286,8 @@ export const sendMessage = async (req, res) => {
       content?.trim() !== ""
         ? content
         : attachments?.length
-        ? "📎 Attachment"
-        : "";
+          ? "📎 Attachment"
+          : "";
 
     // Update conversation metadata
     await Conversation.updateOne(
@@ -482,8 +413,8 @@ export const startConversation = async (req, res) => {
         content?.trim() !== ""
           ? content
           : attachments?.length
-          ? "📎 Attachment"
-          : "";
+            ? "📎 Attachment"
+            : "";
 
       // Update conversation metadata
       await Conversation.updateOne(
@@ -533,9 +464,8 @@ export const startConversation = async (req, res) => {
         title: "New Message",
         message: `You have a new message from ${req.user.name}`,
         priority: "medium",
-        actionUrl: `/${
-          receiver.role === "agent" ? "customer" : "agent"
-        }/messages?conversationId=${conversationId}`,
+        actionUrl: `/${receiver.role === "agent" ? "customer" : "agent"
+          }/messages?conversationId=${conversationId}`,
       });
     }
     if (req.user.role === "admin") {
@@ -691,13 +621,6 @@ export const unArchiveConversation = async (req, res) => {
       participants: userId,
     });
 
-    // if (!conversation) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: "Conversation not found or you do not have permission",
-    //   });
-    // }
-
     // Unarchive conversation for this user
     await Conversation.updateOne(
       { _id: new ObjectId(conversationId) },
@@ -733,13 +656,6 @@ export const restoreConversation = async (req, res) => {
       _id: new ObjectId(conversationId),
       participants: userId,
     });
-
-    // if (!conversation) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: "Conversation not found or you do not have permission",
-    //   });
-    // }
 
     // restore conversation for this user
     await Conversation.updateOne(
