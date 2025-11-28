@@ -27,6 +27,7 @@ export interface Agency {
   email: string;
   phone: string;
   logoUrl?: string;
+  owner: string;
 }
 
 // --- Custom Auth Types ---
@@ -58,7 +59,7 @@ interface AuthContextType {
   completeSignIn: (user: User, token: string) => void;
   signOut: () => Promise<void>;
   router: ReturnType<typeof useRouter>;
-  setBrandingColor:(value:brandColor)=>void;
+  setBrandingColor: (value: brandColor) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -74,12 +75,12 @@ export const useAuth = () => {
 interface AuthProviderProps {
   children: React.ReactNode;
 }
- 
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [brandColors,setBrandingColor]=useState<brandColor>()
+  const [brandColors, setBrandingColor] = useState<brandColor>()
   const router = useRouter();
 
 
@@ -169,21 +170,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     Cookies.set(ROLE_FOR_MIDDELEWARE, userData.role);
     router.push(`/${userData.role}/dashboard`);
   };
-  const getSettings=async()=>{
+  const getSettings = async () => {
     try {
-      const res =await getAgencySettings();
+      const res = await getAgencySettings();
       setBrandingColor(res.branding);
     } catch (error) {
-      showErrorToast("Error",error);
+      showErrorToast("Error", error);
     }
   }
 
-  useEffect(()=>{
-getSettings();
-  },[])
-    useEffect(() => {
-    document.documentElement.style.setProperty("--primary", brandColors?.primaryColor||"#1e41f1");
-  }, [brandColors,user]);
+  useEffect(() => {
+    getSettings();
+  }, [])
+  useEffect(() => {
+    document.documentElement.style.setProperty("--primary", brandColors?.primaryColor || "#1e41f1");
+  }, [brandColors, user]);
 
   const signOut = async () => {
     clearSession();

@@ -1,8 +1,6 @@
 "use client";
 import React, { useRef, useEffect } from "react";
 import { MessageThreadProps } from "../types/messageTypes";
-import { MessageSquare } from "lucide-react";
-import EmptyState from "../UI/EmptyState";
 import MessageHeader from "./MessageHeader";
 import MessagesList from "./MessagesList";
 import MessageInput from "./MessageInput";
@@ -40,17 +38,17 @@ const MessageThread: React.FC<MessageThreadProps> = ({
     }
   }, [messages, selectedConversation]);
 
-  if (!selectedConversation && !isLoadingMessages) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <EmptyState
-          icon={<MessageSquare className="w-16 h-16 text-gray-300 " />}
-          title="No conversation selected"
-          message="Select a conversation from the list to start messaging"
-        />
-      </div>
-    );
-  }
+  // if (!selectedConversation && !isLoadingMessages) {
+  //   return (
+  //     <div className="flex-1 flex items-center justify-center">
+  //       <EmptyState
+  //         icon={<MessageSquare className="w-16 h-16 text-gray-300 " />}
+  //         title="No conversation selected"
+  //         message="Select a conversation from the list to start messaging"
+  //       />
+  //     </div>
+  //   );
+  // }
 
   const isFirstMessageEmpty =
     messages.length === 1 &&

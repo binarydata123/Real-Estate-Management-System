@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 //import { useSearchParams } from "react-router-dom";
@@ -16,9 +17,11 @@ import {
   unArchiveConversation,
   unblockConversation,
   uploadFile,
+  startConversation,
 } from "@/lib/Customer/MessagesAPI";
 import { io } from "socket.io-client";
 import { showErrorToast } from "@/utils/toastHandler";
+import ErrorDisplay from "@/components/Agent/Messages/UI/ErrorDisplay";
 
 const Messages: React.FC = () => {
   const { user } = useAuth();
@@ -35,6 +38,7 @@ const Messages: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [showProfile, setShowProfile] = useState(true);
+  const [errors, setErrors] = useState<any | null>(null);
 
   const socket = useMemo(() => {
     return io(process.env.NEXT_PUBLIC_BACKEND_URL, {
@@ -60,7 +64,7 @@ const Messages: React.FC = () => {
   // Fetch conversations on component mount
   useEffect(() => {
     fetchConversations();
-  }, []);
+  }, [user]);
 
   // Fetch messages when a conversation is selected
   useEffect(() => {
@@ -80,6 +84,11 @@ const Messages: React.FC = () => {
         setSelectedConversation(priorityConversationId);
       } else if (conversations.length > 0 && !selectedConversation) {
         setSelectedConversation(conversations[0]._id);
+      }
+      if (conversations.length === 0) {
+        // Start new conversation if conversation not started at
+        setIsLoadingMessages(false);
+        startNewConversation(user?.agency?.owner as string);
       }
     } catch (error) {
       showErrorToast("Error fetching conversations:", error);
@@ -104,6 +113,38 @@ const Messages: React.FC = () => {
     }
   };
 
+  const startNewConversation = async (agencyId: string) => {
+    try {
+      const messageText = ""
+
+      const data = await startConversation(agencyId, {
+        content: messageText,
+      });
+
+      if (data.success) {
+        const newConversationId = data.data.conversationId;
+        setSelectedConversation(newConversationId);
+        fetchConversations(newConversationId);
+      } else {
+        if (
+          typeof data.error === "string" &&
+          data.error.includes("Not enough tokens")
+        ) {
+          setErrors(<>{data.error} </>);
+        } else {
+          setErrors("Failed to start conversation.");
+        }
+      }
+    } catch (error: any) {
+      showErrorToast("Error starting new conversation:", error);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error.message ||
+        "An unexpected error occurred.";
+      setErrors(errorMessage);
+    }
+  };
+
   const markAsRead = async (conversationId: string) => {
     try {
       await markConversationAsRead(conversationId);
@@ -112,12 +153,12 @@ const Messages: React.FC = () => {
         prev.map((conv) =>
           conv._id === conversationId
             ? {
-                ...conv,
-                unreadCount: {
-                  ...conv.unreadCount,
-                  [user?._id as string]: 0,
-                },
-              }
+              ...conv,
+              unreadCount: {
+                ...conv.unreadCount,
+                [user?._id as string]: 0,
+              },
+            }
             : conv
         )
       );
@@ -173,10 +214,10 @@ const Messages: React.FC = () => {
             prev.map((conv) =>
               conv._id === selectedConversation
                 ? {
-                    ...conv,
-                    lastMessage: newMessage || "📎 Attachment",
-                    lastMessageAt: new Date().toISOString(),
-                  }
+                  ...conv,
+                  lastMessage: newMessage || "📎 Attachment",
+                  lastMessageAt: new Date().toISOString(),
+                }
                 : conv
             )
           );
@@ -345,6 +386,7 @@ const Messages: React.FC = () => {
 
   return (
     <div className="max-w-full mx-auto lg:p-6" style={{ overflow: "hidden" }}>
+      {errors && <ErrorDisplay error={errors} />}
       <div className="bg-white lg:rounded-xl shadow-sm border border-gray-100 flex h-[94vh] lg:h-[85vh]">
         <MessageThread
           selectedConversation={selectedConv}
