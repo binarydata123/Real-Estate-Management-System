@@ -1,5 +1,5 @@
 "use client";
-import React, { ForwardedRef, forwardRef } from "react";
+import React, { forwardRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -37,7 +37,7 @@ interface SidebarProps {
   isOpen: boolean;
 }
 
-export const CustomerSidebar = forwardRef<HTMLDivElement,SidebarProps>(({isOpen,onClose}, ref) => {
+export const CustomerSidebar = forwardRef<HTMLDivElement,SidebarProps>(({ isOpen,onClose }, ref) => {
   const { signOut, user } = useAuth();
   const pathname = usePathname();
 

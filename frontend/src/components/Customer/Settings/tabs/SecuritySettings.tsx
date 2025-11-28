@@ -3,7 +3,6 @@ import React from "react";
 import {
   KeyIcon,
   ShieldCheckIcon,
-  ClockIcon,
 } from "@heroicons/react/24/outline";
 
 interface SecuritySettingsProps {
