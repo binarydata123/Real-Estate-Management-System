@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { MapPinIcon, EyeIcon, HeartIcon } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
+import { MapPinIcon, EyeIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import {
   getPropertyImageUrlWithFallback,
@@ -20,8 +19,6 @@ interface PropertyCardProps {
 
 const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
   property,
-  onFavorite,
-  isFavorited = false,
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -66,19 +63,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
             </span>
           </div>
           <div className="absolute md:top-3 md:right-3 top-2 right-2 flex items-center space-x-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onFavorite?.(property);
-              }}
-              className="p-1.5 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
-            >
-              {isFavorited ? (
-                <HeartSolid className="h-5 w-5 text-red-500" />
-              ) : (
-                <HeartIcon className="h-5 w-5 text-gray-600" />
-              )}
-            </button>
+
             {property.images?.length > 1 && (
               <div className="px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs font-medium text-white">
                 +{property.images.length - 1}
@@ -103,7 +88,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
           </div>
           <div className="flex items-center text-sm text-gray-600">
             <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-            <span className="line-clamp-1">{property.location}</span>
+            <span className="line-clamp-1">{property.location || 'N/A'}</span>
           </div>
 
           {/* Property Details */}

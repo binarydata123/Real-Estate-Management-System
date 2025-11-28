@@ -30,7 +30,7 @@ interface DashboardData {
   recentActivity?: RecentActivity[];
   totalSharedProperties?: number;
   latestSharedProperties?: {
-    propertyId: {
+    propertyId?: {
       _id: string;
       title: string;
       price: number;
@@ -174,7 +174,7 @@ export default function CustomerDashboard() {
             <div className="p-3 md:p-6">
               <div className="space-y-2 md:space-y-4">
                 {dashboardData?.recentActivity &&
-                dashboardData.recentActivity.length > 0 ? (
+                  dashboardData.recentActivity.length > 0 ? (
                   dashboardData.recentActivity.map((activity) => (
                     <Link
                       href={"/customer/notifications"}
@@ -213,33 +213,33 @@ export default function CustomerDashboard() {
             <div className="p-3 md:p-6">
               <div className="space-y-2 md:space-y-4">
                 {dashboardData?.latestSharedProperties &&
-                dashboardData.latestSharedProperties.length > 0 ? (
+                  dashboardData.latestSharedProperties.length > 0 ? (
                   dashboardData.latestSharedProperties.map((property) => (
                     <Link
-                      href={`/customer/properties/${property.propertyId._id}`}
-                      key={property.propertyId._id}
+                      href={`/customer/properties/${property?.propertyId?._id}`}
+                      key={property.propertyId?._id}
                       className="flex items-center space-x-4 p-3 bg-white border border-gray-200 rounded-xl hover:shadow-md hover:border-blue-300 transition-all duration-300 group"
                     >
                       <Image
                         width={60}
                         height={60}
-                        src={getImageUrl(property.propertyId.images[0]?.url)}
-                        alt={property.propertyId.title}
+                        src={getImageUrl(property.propertyId?.images?.[0]?.url || "/placeholder.jpg")}
+                        alt={property.propertyId?.title as string}
                         className="h-15 w-15 object-cover rounded-lg flex-shrink-0"
                       />
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors truncate">
-                          {property.propertyId.title}
+                          {property.propertyId?.title}
                         </h3>
                         <div className="flex items-center text-sm text-gray-500 mt-1">
                           <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
                           <span className="truncate">
-                            {property.propertyId.location || "N/A"}
+                            {property.propertyId?.location || "N/A"}
                           </span>
                         </div>
-                        {property.propertyId.price > 0 && (
+                        {property.propertyId?.price && property.propertyId?.price > 0 && (
                           <p className="text-lg font-bold text-blue-700 mt-1">
-                            {formatPrice(property.propertyId.price)}
+                            {formatPrice(property.propertyId?.price)}
                           </p>
                         )}
                       </div>
