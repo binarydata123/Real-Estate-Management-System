@@ -13,6 +13,7 @@ import { NotificationCenter } from "./NotificationHeaderModal";
 import InstallButton from "@/components/Common/InstallButton";
 import { getUnreadNotificationsCount } from "@/lib/Common/Notifications";
 import { showErrorToast } from "@/utils/toastHandler";
+import { getInitial } from "@/helper/getInitialForProfile";
 
 interface HeaderProps {
   onMenuButtonClick: () => void;
@@ -34,10 +35,6 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     } catch (err) {
       showErrorToast("Error", err);
     }
-  };
-  const getInitial = (name?: string) => {
-    if (!name) return "U";
-    return name.charAt(0).toUpperCase();
   };
 
   return (
@@ -117,9 +114,8 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                         {({ active }) => (
                           <Link
                             href="/agent/profile"
-                            className={`${
-                              active ? "bg-gray-100" : ""
-                            } flex items-center px-4 py-3 text-sm text-gray-700 transition`}
+                            className={`${active ? "bg-gray-100" : ""
+                              } flex items-center px-4 py-3 text-sm text-gray-700 transition`}
                           >
                             <UserCircleIcon className="mr-3 h-5 w-5 text-gray-500" />
                             Account Profile
@@ -132,9 +128,8 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                           <Link
                             href={"#"}
                             onClick={signOut}
-                            className={`${
-                              active ? "bg-red-50" : ""
-                            } flex  items-center px-4 py-3 text-sm text-red-600 font-medium transition`}
+                            className={`${active ? "bg-red-50" : ""
+                              } flex  items-center px-4 py-3 text-sm text-red-600 font-medium transition`}
                           >
                             <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-red-500" />
                             Log Out
