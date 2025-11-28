@@ -2,7 +2,8 @@
 import React from "react";
 import { Conversation } from "../types/messageTypes";
 import { Tooltip } from "react-tooltip";
-import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import { getInitial } from "@/helper/getInitialForProfile";
 
 interface MessageHeaderProps {
   selectedConversation: Conversation | undefined;
@@ -19,24 +20,14 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   selectedConversation,
   showProfile,
 }) => {
+  const { user } = useAuth();
   return (
     <div className="p-2 md:p-4 border-b border-gray-200 bg-gray-50 flex items-center">
       <div className="flex-1 flex items-center space-x-3 min-w-0 overflow-hidden">
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
-          {selectedConversation?.otherParticipant?.avatar &&
-          /^https?:\/\//.test(
-            selectedConversation?.otherParticipant?.avatar
-          ) ? (
-            <Image
-              src={selectedConversation?.otherParticipant?.avatar}
-              alt={selectedConversation?.otherParticipant?.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-xl">
-              {selectedConversation?.otherParticipant?.name?.charAt(0) || "👤"}
-            </span>
-          )}
+        {/* <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0"> */}
+        <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+          {getInitial(user?.name)}
+          {/* </div> */}
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className="flex items-center space-x-2">
@@ -48,13 +39,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
                 opacity: showProfile ? 1 : 0.5,
               }}
             >
-              {selectedConversation?.otherParticipant?.name || "Deleted User"}
-              <span style={{ fontSize: "13px" }}>
-                (
-                {selectedConversation?.otherParticipant?.position ||
-                  selectedConversation?.otherParticipant?.role}
-                )
-              </span>
+              {selectedConversation?.otherParticipant?.name || user?.agency?.name}
             </h3>
 
             <Tooltip
@@ -68,9 +53,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             />
           </div>
           <p className="text-sm text-gray-600 truncate">
-            {selectedConversation?.otherParticipant?.application?.jobTitle
-              ? `Applied for: ${selectedConversation?.otherParticipant.application?.jobTitle}`
-              : "Direct conversation"}
+            Direct conversation
           </p>
         </div>
       </div>

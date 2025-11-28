@@ -141,9 +141,8 @@ export const getConversations = async (req, res) => {
         let avatar = "";
         if (otherParticipant?.role === "customer") {
           if (profile?.profilePhoto?.medium) {
-            avatar = `${process.env.BACKEND_URL || ""}${
-              profile.profilePhoto.medium
-            }`;
+            avatar = `${process.env.BACKEND_URL || ""}${profile.profilePhoto.medium
+              }`;
           }
         } else if (otherParticipant?.role === "agent") {
           if (profile?.logo?.medium) {
@@ -168,17 +167,17 @@ export const getConversations = async (req, res) => {
           ...conv,
           otherParticipant: otherParticipant
             ? {
-                _id: otherParticipant._id,
-                name: `${otherParticipant.agencyId?.name}`,
-                email: encryptOneTwo(otherParticipant.email),
-                phone: encryptOneTwo(otherParticipant.phone),
-                role: otherParticipant.role,
-                userId: otherParticipant.userId,
-                position: profile?.jobTitle || profile?.companyName,
-                avatar,
-                status,
-                application: applicationInfo,
-              }
+              _id: otherParticipant._id,
+              name: `${otherParticipant.agencyId?.name}`,
+              email: encryptOneTwo(otherParticipant.email),
+              phone: encryptOneTwo(otherParticipant.phone),
+              role: otherParticipant.role,
+              userId: otherParticipant.userId,
+              position: profile?.jobTitle || profile?.companyName,
+              avatar,
+              status,
+              application: applicationInfo,
+            }
             : null,
         };
       })
@@ -288,8 +287,8 @@ export const sendMessage = async (req, res) => {
       content?.trim() !== ""
         ? content
         : attachments?.length
-        ? "📎 Attachment"
-        : "";
+          ? "📎 Attachment"
+          : "";
 
     // Update conversation metadata
     await Conversation.updateOne(
@@ -369,10 +368,10 @@ export const startConversation = async (req, res) => {
     }
 
     const userId = req.user._id;
-    const { receiverId, content, attachments, applicationId } = req.body;
+    const { receiverId, content, attachments } = req.body;
 
     // Check if receiver exists
-    const receiver = await Customer.findOne({
+    const receiver = await User.findOne({
       _id: new ObjectId(receiverId),
     });
 
@@ -421,8 +420,8 @@ export const startConversation = async (req, res) => {
         content?.trim() !== ""
           ? content
           : attachments?.length
-          ? "📎 Attachment"
-          : "";
+            ? "📎 Attachment"
+            : "";
 
       // Update conversation metadata
       await Conversation.updateOne(

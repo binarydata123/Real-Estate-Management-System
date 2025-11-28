@@ -40,7 +40,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
     return (
       <EmptyState
         icon={<MessageSquare className="w-8 h-8 text-gray-300 mx-auto mb-2" />}
-        title="No messages yet"
+        title="Your chat starts here 👋"
         description="Start the conversation by sending a message"
       />
     );
@@ -56,7 +56,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
         return (
           <React.Fragment key={message._id}>
             {idx === firstUnreadIndex && firstUnreadIndex !== -1 && (
-              <div key="unread-divider" className="flex items-center my-4">
+              <div className="flex items-center my-4">
                 <div className="flex-grow border-t border-gray-300" />
                 <span className="px-4 text-sm text-gray-500">
                   Unread Messages
