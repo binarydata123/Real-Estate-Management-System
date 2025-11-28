@@ -18,7 +18,14 @@ import { Users } from "lucide-react";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
-  const [customers, setCustomers] = useState<CustomerFormData[]>([]);
+  // const [customers, setCustomers] = useState<CustomerFormData[]>([]);
+
+
+const [customers, setCustomers] = useState<
+  (CustomerFormData & { isDeleted?: boolean })[]
+>([]);
+
+
   const [isFetching, setIsFetching] = useState(false);
   const [addMode, setAddMode] = useState<"manual" | "ai" | null>(null);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
@@ -51,16 +58,17 @@ export const Customers: React.FC = () => {
     setShowConfirmDialog(true);
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      const response = await deleteCustomerById(id);
-      if (response.data.success) {
-        setCustomers((prev) => prev.filter((c) => c._id !== id));
-      }
-    } catch (error) {
-      showErrorToast("Failed to delete customer:", error);
+const handleDelete = async (id: string) => {
+  try {
+    const response = await deleteCustomerById(id);
+    if (response.data.success) {
+      getAllCustomers(); // refresh list from API
     }
-  };
+  } catch (error) {
+    showErrorToast("Failed to delete customer:", error);
+  }
+};
+
 
   const getAllCustomers = useCallback(
     async (page = 1, search = "", append = false) => {
@@ -168,99 +176,113 @@ export const Customers: React.FC = () => {
           </div>
 
           <div className="divide-y divide-gray-200">
-            {customers.map((customer: CustomerFormData, index) => (
-              <div
-                key={`${customer._id}-${index}`}
-                className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors"
-              >
-                {/* Customer Info */}
-                <div className="md:col-span-2 flex justify-between items-start">
-                  <div className="flex items-center space-x-3">
-                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <UserIcon className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">
+            {customers
+              .filter((customer) => !customer.isDeleted)
+              .map((customer: CustomerFormData, index) => (
+                <div
+                  key={`${customer._id}-${index}`}
+                  className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors"
+                >
+                  {/* Customer Info */}
+                  <div className="md:col-span-2 flex justify-between items-start">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <UserIcon className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        {/* <p className="font-medium text-gray-900">
                         {customer?.fullName}
-                      </p>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <PhoneIcon className="h-4 w-4 hidden md:block mr-2 flex-shrink-0" />
-                        <span>
-                          <a
-                            href={`tel:${customer.phoneNumber}`}
-                            className="underline text-primary"
-                          >
-                            {customer.phoneNumber || "No phone"}
-                          </a>
-                        </span>
+                      </p> */}
+
+                        <p className="font-medium text-gray-900">
+                          {customer.fullName}{" "}
+                          {(customer as { isDeleted?: boolean }).isDeleted && (
+                            <span className="text-red-500 text-sm">
+                              (Deleted)
+                            </span>
+                          )}
+                        </p>
+
+                        <div className="flex items-center text-sm text-gray-600">
+                          <PhoneIcon className="h-4 w-4 hidden md:block mr-2 flex-shrink-0" />
+                          <span>
+                            <a
+                              href={`tel:${customer.phoneNumber}`}
+                              className="underline text-primary"
+                            >
+                              {customer.phoneNumber || "No phone"}
+                            </a>
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {/* Budget */}
-                  <div>
-                    <p className="text-xs text-gray-500 md:hidden md:mb-1">
-                      Budget
-                    </p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {formatBudget(
-                        customer?.minimumBudget,
-                        customer?.maximumBudget
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 md:gap-4 mt-2 md:mt-4 md:contents">
-                  {/* Status (desktop) */}
-                  <div className="hidden md:block">
-                    <span
-                      className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        customer?.status
-                      )}`}
-                    >
-                      {customer?.status}
-                    </span>
+                    {/* Budget */}
+                    <div>
+                      <p className="text-xs text-gray-500 md:hidden md:mb-1">
+                        Budget
+                      </p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {formatBudget(
+                          customer?.minimumBudget,
+                          customer?.maximumBudget
+                        )}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="col-span-2 md:col-auto flex justify-end md:justify-start space-x-2 md:space-x-4">
-                    <span
-                      onClick={() => setEditingCustomer(customer)}
-                      className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium"
-                    >
-                      Edit
-                    </span>
-                    <span
-                      onClick={() => handleDeleteClick(customer)}
-                      className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
-                    >
-                      Delete
-                    </span>
-                    <span
-                      onClick={() => {
-                        setViewCustomer(customer);
-                        setOpen(true);
-                      }}
-                      className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                    >
-                      View
-                    </span>
-                    <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                      <Link
-                        href={`/agent/preference?customerId=${customer._id}`}
+                  <div className="grid grid-cols-2 gap-2 md:gap-4 mt-2 md:mt-4 md:contents">
+                    {/* Status (desktop) */}
+                    <div className="hidden md:block">
+                      <span
+                        className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          customer?.status
+                        )}`}
                       >
-                        Preference
-                      </Link>
-                    </span>
-                    <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                      <Link href={`/agent/messages?customerId=${customer._id}`}>
-                        Message
-                      </Link>
-                    </span>
+                        {customer?.status}
+                      </span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="col-span-2 md:col-auto flex justify-end md:justify-start space-x-2 md:space-x-4">
+                      <span
+                        onClick={() => setEditingCustomer(customer)}
+                        className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium"
+                      >
+                        Edit
+                      </span>
+                      <span
+                        onClick={() => handleDeleteClick(customer)}
+                        className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
+                      >
+                        Delete
+                      </span>
+                      <span
+                        onClick={() => {
+                          setViewCustomer(customer);
+                          setOpen(true);
+                        }}
+                        className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
+                      >
+                        View
+                      </span>
+                      <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                        <Link
+                          href={`/agent/preference?customerId=${customer._id}`}
+                        >
+                          Preference
+                        </Link>
+                      </span>
+                      <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                        <Link
+                          href={`/agent/messages?customerId=${customer._id}`}
+                        >
+                          Message
+                        </Link>
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       )}
@@ -328,8 +350,12 @@ export const Customers: React.FC = () => {
                   phoneNumber: editingCustomer.phoneNumber ?? "",
                   email: editingCustomer.email ?? "",
                   whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
-                  minimumBudget: editingCustomer.minimumBudget ? Number(editingCustomer.minimumBudget) : undefined,
-                  maximumBudget: editingCustomer.maximumBudget ? Number(editingCustomer.maximumBudget) : undefined,
+                  minimumBudget: editingCustomer.minimumBudget
+                    ? Number(editingCustomer.minimumBudget)
+                    : undefined,
+                  maximumBudget: editingCustomer.maximumBudget
+                    ? Number(editingCustomer.maximumBudget)
+                    : undefined,
                   leadSource: editingCustomer.leadSource ?? "website",
                   initialNotes: editingCustomer.initialNotes ?? "",
                   showAllProperty: editingCustomer.showAllProperty ?? false,

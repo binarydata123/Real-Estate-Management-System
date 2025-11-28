@@ -51,6 +51,7 @@ export default function CustomerDashboard() {
   const getDashboardData = async () => {
     try {
       const res = await customerDashboard();
+      console.log("This is my",res)
       if (res.success) {
         setDashboardData(res.data);
       }
@@ -58,9 +59,21 @@ export default function CustomerDashboard() {
       showErrorToast("Error:", error);
     }
   };
+  // useEffect(() => {
+  //   getDashboardData();
+  // }, []);
+
+
   useEffect(() => {
-    getDashboardData();
-  }, []);
+    if (user?._id) {
+      getDashboardData();
+    }
+  }, [user]);
+
+
+
+
+
   const userStats = [
     {
       title: "Properties ",

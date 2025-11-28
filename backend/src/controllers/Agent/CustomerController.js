@@ -163,7 +163,7 @@ export const getCustomersForDropDown = async (req, res) => {
       });
     }
 
-    const customers = await Customer.find({ agencyId: agencyId });
+    const customers = await Customer.find({ agencyId: agencyId ,isDeleted:false});
 
     if (!customers || customers.length === 0) {
       return res.status(200).json({
@@ -254,21 +254,25 @@ export const updateCustomer = async (req, res) => {
   }
 };
 
-// Delete a customer
 export const deleteCustomer = async (req, res) => {
   try {
     const customerId = req.params.id;
-    const deletedCustomer = await Customer.findByIdAndDelete(customerId);
-    if (!deletedCustomer) {
+
+    const updatedCustomer = await Customer.findByIdAndUpdate(
+      customerId,
+      { isDeleted: true },
+      { new: true }
+    );
+
+    if (!updatedCustomer) {
       return res
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    await User.deleteOne({ email: deletedCustomer.email });
 
     return res.json({
       success: true,
-      message: "Customer and user deleted successfully",
+      message: "Customer marked as deleted (soft deleted)",
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });

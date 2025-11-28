@@ -28,12 +28,39 @@ export const Meetings: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { user } = useAuth();
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  // const [meetings, setMeetings] = useState<Meeting[]>([]);
+
+  const [meetings, setMeetings] = useState<
+    (Meeting & { customer?: { fullName: string; isDeleted?: boolean } })[]
+  >([]);
+
   const [isFetching, setIsFetching] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "cancelled">(
     "upcoming"
   );
+  // const fetchMeetings = async (page = 1, append = false) => {
+  //   if (!user?.agency?._id) return;
+  //   setIsFetching(true);
+  //   try {
+  //     const res = await getMeetingsByAgency(
+  //       user?.agency?._id,
+  //       activeTab,
+  //       page,
+  //       10
+  //     );
+  //     setMeetings((prev) =>
+  //       append ? [...prev, ...res.data.data] : res.data.data
+  //     );
+  //     setTotalPages(Math.ceil(res.data.total / 10));
+  //     setCurrentPage(page);
+  //   } catch (error) {
+  //     showErrorToast("Failed to fetch meetings:", error);
+  //   } finally {
+  //     setIsFetching(false);
+  //   }
+  // };
+
   const fetchMeetings = async (page = 1, append = false) => {
     if (!user?.agency?._id) return;
     setIsFetching(true);
@@ -44,8 +71,24 @@ export const Meetings: React.FC = () => {
         page,
         10
       );
+
+      // Map meetings to include customer info with isDeleted
+     const formattedMeetings = res.data.data.map((m: any) => ({
+       ...m,
+       // Use the customer object directly from API
+       customer: m.customer
+         ? {
+             fullName: m.customer.isDeleted
+               ? "Inactive Customer"
+               : m.customer.fullName,
+             isDeleted: m.customer.isDeleted,
+           }
+         : null,
+       isPast: activeTab === "past",
+     }));
+
       setMeetings((prev) =>
-        append ? [...prev, ...res.data.data] : res.data.data
+        append ? [...prev, ...formattedMeetings] : formattedMeetings
       );
       setTotalPages(Math.ceil(res.data.total / 10));
       setCurrentPage(page);
@@ -67,7 +110,7 @@ export const Meetings: React.FC = () => {
     if (meetingId) await updateMeetingStatus(meetingId, status);
     setCurrentPage(1); // Reset to page 1 before refetching
     fetchMeetings(1); // Refetch from page 1 to see the change
-    showSuccessToast("Meeting Cancelled Successfully!")
+    showSuccessToast("Meeting Cancelled Successfully!");
   };
 
   // page change handler
@@ -110,14 +153,14 @@ export const Meetings: React.FC = () => {
     if (user?._id) {
       const res = await getCustomers(user?._id);
       if (res.success) {
-        if(res?.data?.length === 0){
-          setShowAddCustomerModal(true)
-        }else{
+        if (res?.data?.length === 0) {
+          setShowAddCustomerModal(true);
+        } else {
           setShowSelectionModal(true);
         }
       }
     }
-  }
+  };
 
   return (
     <div className="space-y-2">
@@ -130,7 +173,8 @@ export const Meetings: React.FC = () => {
         <button
           // onClick={() => setShowSelectionModal(true)}
           onClick={handleScheduleMeetingBtn}
-          className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors">
+          className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors"
+        >
           <PlusIcon className="h-5 w-5 mr-2" />
           Schedule Meeting
         </button>
@@ -139,26 +183,32 @@ export const Meetings: React.FC = () => {
         <nav className="flex space-x-4" aria-label="Tabs">
           <button
             onClick={() => setActiveTab("upcoming")}
-            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${activeTab === "upcoming"
-              ? "text-primary border-b-2 border-primary"
-              : "text-gray-600 hover:text-gray-800"
-              }`}>
+            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${
+              activeTab === "upcoming"
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
             Upcoming Meetings
           </button>
           <button
             onClick={() => setActiveTab("past")}
-            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${activeTab === "past"
-              ? "text-primary border-b-2 border-primary"
-              : "text-gray-600 hover:text-gray-800"
-              }`}>
+            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${
+              activeTab === "past"
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
             Past Meetings
           </button>
           <button
             onClick={() => setActiveTab("cancelled")}
-            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${activeTab === "cancelled"
-              ? "text-primary border-b-2 border-primary"
-              : "text-gray-600 hover:text-gray-800"
-              }`}>
+            className={`px-3 py-2 font-medium text-sm rounded-t-md whitespace-nowrap ${
+              activeTab === "cancelled"
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
             Cancelled
           </button>
         </nav>
@@ -174,7 +224,8 @@ export const Meetings: React.FC = () => {
           {meetings.map((meeting, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow">
+              className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
+            >
               <div className="flex flex-col md:flex-row items-start justify-between">
                 {/* Left: meeting info */}
                 <div className="flex-1 w-full md:w-auto">
@@ -184,6 +235,17 @@ export const Meetings: React.FC = () => {
                     </div>
 
                     <div className="w-full md:w-auto">
+                      {/* <h3 className="text-lg font-semibold text-gray-900">
+                        Meeting with {meeting?.customer?.fullName}
+                      </h3> */}
+
+                      {/* <h3 className="text-lg font-semibold text-gray-900">
+                        Meeting with {meeting?.customer?.fullName}{" "}
+                        {meeting?.customer?.isDeleted && (
+                          <span className="text-red-500">(Inactive)</span>
+                        )}
+                      </h3> */}
+
                       <h3 className="text-lg font-semibold text-gray-900">
                         Meeting with {meeting?.customer?.fullName}
                       </h3>
@@ -228,7 +290,8 @@ export const Meetings: React.FC = () => {
                     <span
                       className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl  text-xs font-medium ${getStatusColor(
                         meeting.status
-                      )}`}>
+                      )}`}
+                    >
                       {meeting.status}
                     </span>
                   )}
@@ -237,12 +300,14 @@ export const Meetings: React.FC = () => {
                     <div className="flex items-start md:flex-col flex-row gap-2">
                       <button
                         onClick={() => onEdit?.(meeting._id)}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
                         Edit
                       </button>
                       <button
                         onClick={() => onCancel?.(meeting._id)}
-                        className="text-red-600 hover:text-red-700 text-sm font-medium">
+                        className="text-red-600 hover:text-red-700 text-sm font-medium"
+                      >
                         Cancel
                       </button>
                     </div>
@@ -253,7 +318,8 @@ export const Meetings: React.FC = () => {
                         onClick={() => {
                           onEdit?.(meeting._id, "rescheduled");
                         }}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
                         Reschedule
                       </button>
                     </div>
@@ -271,15 +337,15 @@ export const Meetings: React.FC = () => {
               activeTab === "upcoming"
                 ? "No meetings scheduled"
                 : activeTab === "past"
-                  ? "No past meetings"
-                  : "No cancelled meetings"
+                ? "No past meetings"
+                : "No cancelled meetings"
             }
             description={
               activeTab === "upcoming"
                 ? "Plan ahead by scheduling new meetings with your customers."
                 : activeTab === "past"
-                  ? "Once meetings are completed, they’ll show up here for your records."
-                  : "Cancelled meetings will be listed here if any were called off."
+                ? "Once meetings are completed, they’ll show up here for your records."
+                : "Cancelled meetings will be listed here if any were called off."
             }
             buttonIcon={
               activeTab === "upcoming" ? (
@@ -306,12 +372,11 @@ export const Meetings: React.FC = () => {
         />
       )}
 
-      {showAddCustomersModal === true ?
-        <AddCustomerForm
-          onClose={() => setShowAddCustomerModal(false)}
-        />
-        : ""
-      }
+      {showAddCustomersModal === true ? (
+        <AddCustomerForm onClose={() => setShowAddCustomerModal(false)} />
+      ) : (
+        ""
+      )}
 
       {/* Add Meeting Selection Modal */}
       <AddMeetingSelectionModal
