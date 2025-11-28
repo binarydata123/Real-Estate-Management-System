@@ -17,7 +17,7 @@ export const ProfileSettings = ({ user }) => {
             type="text"
             defaultValue="John Doe"
             className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                       focus:ring-2 focus:ring-primary focus:border-primary 
                        text-gray-900 placeholder-gray-400"
           />
         </div>
@@ -31,7 +31,7 @@ export const ProfileSettings = ({ user }) => {
             type="email"
             defaultValue={user?.email || ""}
             className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                       focus:ring-2 focus:ring-primary focus:border-primary 
                        text-gray-900 placeholder-gray-400"
           />
         </div>
@@ -46,7 +46,7 @@ export const ProfileSettings = ({ user }) => {
             // defaultValue={user?.whatsapp || ""}
             placeholder="Enter your WhatsApp number"
             className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                       focus:ring-2 focus:ring-primary focus:border-primary 
                        text-gray-900 placeholder-gray-400"
           />
         </div>
@@ -58,7 +58,7 @@ export const ProfileSettings = ({ user }) => {
           </label>
           <select
             className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                       focus:ring-2 focus:ring-primary focus:border-primary 
                        text-gray-900"
             defaultValue="Asia/Kolkata"
           >

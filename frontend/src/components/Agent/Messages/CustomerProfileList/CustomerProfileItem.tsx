@@ -37,7 +37,7 @@ const CustomerProfileItem: React.FC<CustomerProfileItemProps> = ({
       onClick={handleClick}
       className={`p-3 md:p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
         isSelected
-          ? "bg-blue-50 border-r-2 border-blue-500"
+          ? "bg-blue-50 border-r-2 border-primary"
           : ""
       } ${isDeleted ? "opacity-50 cursor-not-allowed" : ""}`}
     >

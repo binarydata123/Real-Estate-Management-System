@@ -115,7 +115,7 @@ export default function CustomerAssistant({ onClose }: CustomerAssistantProps) {
                     ? "bg-gray-400 cursor-not-allowed"
                     : isSpeaking
                     ? "bg-red-600 hover:bg-red-700"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    : "bg-primary hover:bg-primary"
                 }`}
                 aria-label={isSpeaking ? "Stop assistant" : "Start assistant"}
               >

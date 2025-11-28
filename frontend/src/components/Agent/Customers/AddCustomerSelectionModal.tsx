@@ -36,7 +36,7 @@ export const AddCustomerSelectionModal: React.FC<
             {/* Manual Entry Card */}
             <button
               onClick={() => onSelectMode("manual")}
-              className="group flex flex-col items-center text-center p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-blue-500 hover:-translate-y-1 transition-all duration-300"
+              className="group flex flex-col items-center text-center p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-primary hover:-translate-y-1 transition-all duration-300"
             >
               <div className="bg-gray-100 p-4 rounded-full mb-4 group-hover:bg-gray-200 transition-colors">
                 <Edit className="w-8 h-8 text-gray-600 group-hover:text-gray-800" />
@@ -51,9 +51,9 @@ export const AddCustomerSelectionModal: React.FC<
             {/* AI Assistant Card */}
             <button
               onClick={() => onSelectMode("ai")}
-              className="group flex flex-col items-center text-center p-6 bg-blue-600 text-white rounded-xl shadow-lg hover:shadow-blue-400/50 hover:-translate-y-1 transition-all duration-300"
+              className="group flex flex-col items-center text-center p-6 bg-primary text-white rounded-xl shadow-lg hover:shadow-blue-400/50 hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="bg-blue-500 p-4 rounded-full mb-4 group-hover:bg-blue-400 transition-colors">
+              <div className="bg-primary p-4 rounded-full mb-4 group-hover:bg-blue-400 transition-colors">
                 <Mic className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-lg font-semibold mb-1">Use AI Assistant</h3>

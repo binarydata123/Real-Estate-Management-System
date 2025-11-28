@@ -19,7 +19,7 @@ interface CustomerSettingsType {
   };
   security: {
     twoFactorAuth: boolean;
-    sessionTimeout: "7 days" | "15 days" | "never";
+    // sessionTimeout: "7 days" | "15 days" | "never";
     loginNotifications: boolean;
   };
   createdAt: string;
