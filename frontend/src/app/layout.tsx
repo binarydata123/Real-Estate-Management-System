@@ -6,6 +6,8 @@ import { ToastProvider } from "@/context/ToastContext";
 import SpeakMessage from "@/components/Common/SpeakMessage";
 import { AppToastContainer } from "@/utils/toastHandler";
 import NextTopLoader from "nextjs-toploader";
+import { getSettingsData } from "../lib/Common/Settings";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,13 +32,21 @@ const inter = Inter({
   variable: "--font-inter", // This creates a CSS variable
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settingsResponse = await getSettingsData();
+  const settingsData = settingsResponse?.data || null;
   return (
     <html lang="en" className={`${inter.variable}`}>
+      {settingsData?.faviconUrl
+        ?
+          <link rel="icon" href={settingsData.faviconUrl} sizes="256x256" type="image/x-icon"/>
+        :
+          ''
+      }
       <body
         suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} font-sans antialiased`}

@@ -447,6 +447,29 @@ declare global {
     facing: string[];
     reraStatus: string[];
   }
+  interface AdminSettingsResponse {
+    success: boolean;
+    data: AdminSettingData;
+    userData: UserData;
+    message: string;
+  }
+  interface AdminSettingData {
+    _id?: string;
+    logoUrl?: string;
+    logoFile?: string;
+    faviconUrl?: string;
+    faviconFile?: string;
+    footerContent?: string;
+    currentPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+    notificationEmailAlert?: boolean;
+    notificationLoginAlert?: boolean;
+    notificationUpdatesAlert?: boolean;
+    notificationSecurityAlert?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+  }
 }
 interface TeamMember {
   _id: string;
