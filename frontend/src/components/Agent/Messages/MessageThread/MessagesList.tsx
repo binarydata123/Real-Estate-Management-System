@@ -36,7 +36,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
     );
   }
 
-  if (messages.length === 0) {
+  if (messages.length < 0) {
     return (
       <EmptyState
         icon={<MessageSquare className="w-8 h-8 text-gray-300 mx-auto mb-2" />}
@@ -56,7 +56,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
         return (
           <React.Fragment key={message._id}>
             {idx === firstUnreadIndex && firstUnreadIndex !== -1 && (
-              <div className="flex items-center my-4">
+              <div className="flex items-center my-4" key={`unread-divider-${message._id}`}>
                 <div className="flex-grow border-t border-gray-300" />
                 <span className="px-4 text-sm text-gray-500">
                   Unread Messages

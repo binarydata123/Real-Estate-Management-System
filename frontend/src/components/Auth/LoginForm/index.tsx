@@ -209,7 +209,7 @@ export const LoginForm = () => {
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-semibold text-gray-800 text-left">
-                    Agency / Agent
+                    Agency / Admin
                   </p>
                   <p className="text-sm text-gray-600 text-left">
                     Grow your business fast.
@@ -263,8 +263,8 @@ export const LoginForm = () => {
                 {loginAs === "agency"
                   ? "an Agency"
                   : loginAs === "admin"
-                  ? "an Admin"
-                  : "a Customer"}
+                    ? "an Admin"
+                    : "a Customer"}
               </h2>
             </div>
 
@@ -306,9 +306,8 @@ export const LoginForm = () => {
                         type="email"
                         {...register("email")}
                         autoFocus
-                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                          errors.email ? "border-red-500" : "border-gray-300"
-                        }`}
+                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.email ? "border-red-500" : "border-gray-300"
+                          }`}
                         placeholder="you@example.com"
                       />
                     </div>
@@ -342,9 +341,8 @@ export const LoginForm = () => {
                       type="tel"
                       {...register("phone")}
                       autoFocus
-                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                        errors.phone ? "border-red-500" : "border-gray-300"
-                      }`}
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.phone ? "border-red-500" : "border-gray-300"
+                        }`}
                       placeholder="Enter your phone number"
                     />
                   </div>
@@ -378,9 +376,8 @@ export const LoginForm = () => {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
-                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                        errors.password ? "border-red-500" : "border-gray-300"
-                      }`}
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.password ? "border-red-500" : "border-gray-300"
+                        }`}
                       placeholder="Enter your password"
                     />
                     <button

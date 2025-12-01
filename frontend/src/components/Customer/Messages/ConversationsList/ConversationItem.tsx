@@ -31,13 +31,13 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
 
       if (typeof document === "undefined") {
         const plain = html.replace(/<[^>]*>/g, "");
-        return plain.length > length ? `${plain.substring(0, length)  }...` : plain;
+        return plain.length > length ? `${plain.substring(0, length)}...` : plain;
       }
 
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = html;
       const plainText = tempDiv.textContent || tempDiv.innerText || "";
-      return plainText.length > length ? `${plainText.substring(0, length)  }...` : plainText;
+      return plainText.length > length ? `${plainText.substring(0, length)}...` : plainText;
     } catch (error) {
       showErrorToast("Error processing HTML for truncation:", error);
       return "";
@@ -53,14 +53,13 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           onSelect(conversation._id);
         }
       }}
-      className={`p-3 md:p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-        isSelected ? "bg-purple-50 border-r-2 border-purple-500" : ""
-      } ${isDeleted ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`p-3 md:p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${isSelected ? "bg-purple-50 border-r-2 border-purple-500" : ""
+        } ${isDeleted ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <div className="flex items-start space-x-3">
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
           {conversation.otherParticipant?.avatar &&
-          /^https?:\/\//.test(conversation.otherParticipant.avatar) ? (
+            /^https?:\/\//.test(conversation.otherParticipant.avatar) ? (
             <Image
               src={conversation.otherParticipant.avatar}
               alt={conversation.otherParticipant?.name || "User"}
@@ -91,12 +90,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
               </span>
             </div>
           </div>
-          <p className="text-sm text-gray-600 truncate line-clamp-1">
-            {conversation?.otherParticipant?.application?.jobTitle
-              ? `Applied for: ${conversation?.otherParticipant?.application?.jobTitle}`
-              : "Direct conversation"}
-          </p>
-          <p className="text-sm text-gray-700 truncate mt-1 break-words">
+          <p className="text-sm text-gray-700 truncate break-words">
             {getTruncatedMessage(conversation.lastMessage, 50)}
           </p>
           {conversation?.otherParticipant?.status && (
