@@ -76,7 +76,7 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
     });
 
     return () => {
-      instance.stop().catch(() => {});
+      instance.stop().catch(() => { });
     };
   }, []);
 
@@ -134,11 +134,11 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
   }, [vapi]);
 
   // Auto-start the assistant when the component is ready
-  useEffect(() => {
-    if (vapi && propertyId && user?._id) {
-      handleStart();
-    }
-  }, [vapi, propertyId, user?._id, handleStart]);
+  // useEffect(() => {
+  //   if (vapi && propertyId && user?._id) {
+  //     handleStart();
+  //   }
+  // }, [vapi, propertyId, user?._id, handleStart]);
 
   return (
     <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-xl border border-gray-200 mb-6 shadow-sm">
@@ -146,13 +146,12 @@ export default function PropertyVoiceAgent({ propertyId }: Props) {
         <button
           onClick={isSpeaking ? handleStop : handleStart}
           disabled={!isSpeaking && (loading || !propertyId)}
-          className={`relative w-14 h-14 flex items-center justify-center rounded-full text-white transition-all duration-300 shadow-lg ${
-            loading
+          className={`relative w-14 h-14 flex items-center justify-center rounded-full text-white transition-all duration-300 shadow-lg ${loading
               ? "bg-gray-400 cursor-not-allowed"
               : isSpeaking
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-gray-400 cursor-not-allowed" // Disabled look before speaking starts
-          }`}
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-gray-400 cursor-not-allowed" // Disabled look before speaking starts
+            }`}
           title={isSpeaking ? "Stop Assistant" : "Talk to AI Assistant"}
         >
           {loading ? (

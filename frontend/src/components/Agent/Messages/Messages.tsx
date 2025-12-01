@@ -52,6 +52,7 @@ const CompanyMessages: React.FC = () => {
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const [isSelectingConversation, setIsSelectingConversation] = useState(true);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [error, setError] = useState<any | null>(null);
   const [copyToast, setCopyToast] = useState<string | null>(null);
@@ -86,6 +87,8 @@ const CompanyMessages: React.FC = () => {
     // eslint-disable-next-line no-shadow
     socket.on("messages_update", (conversationId: string) => {
       fetchConversationMessages(conversationId);
+      markAsRead(conversationId);
+
     });
     // Cleanup listener on unmount
     return () => {
@@ -152,6 +155,7 @@ const CompanyMessages: React.FC = () => {
   // API Functions
   const fetchConversations = async (priorityConversationId?: string) => {
     setIsLoadingConversations(true);
+    setIsSelectingConversation(true);
     setError(null);
     try {
       const {
@@ -178,6 +182,7 @@ const CompanyMessages: React.FC = () => {
       setError("Failed to load conversations. Please try again.");
     } finally {
       setIsLoadingConversations(false);
+      setIsSelectingConversation(false);
     }
   };
 
@@ -329,12 +334,12 @@ const CompanyMessages: React.FC = () => {
         prev.map((conv) =>
           conv._id === conversationId
             ? {
-                ...conv,
-                unreadCount: {
-                  ...conv.unreadCount,
-                  [user?._id as string]: 0,
-                },
-              }
+              ...conv,
+              unreadCount: {
+                ...conv.unreadCount,
+                [user?._id as string]: 0,
+              },
+            }
             : conv
         )
       );
@@ -390,10 +395,10 @@ const CompanyMessages: React.FC = () => {
             prev.map((conv) =>
               conv._id === selectedConversation
                 ? {
-                    ...conv,
-                    lastMessage: newMessage || "📎 Attachment",
-                    lastMessageAt: new Date().toISOString(),
-                  }
+                  ...conv,
+                  lastMessage: newMessage || "📎 Attachment",
+                  lastMessageAt: new Date().toISOString(),
+                }
                 : conv
             )
           );
@@ -640,17 +645,17 @@ const CompanyMessages: React.FC = () => {
   // Derived Values
   const filteredConversations = Array.isArray(conversations)
     ? conversations.filter((conv) => {
-        const nameMatch = conv.otherParticipant?.name
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase());
-        const positionMatch = conv.otherParticipant?.position
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase());
-        const lastMessageMatch = conv.lastMessage
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase());
-        return nameMatch || positionMatch || lastMessageMatch;
-      })
+      const nameMatch = conv.otherParticipant?.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const positionMatch = conv.otherParticipant?.position
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const lastMessageMatch = conv.lastMessage
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      return nameMatch || positionMatch || lastMessageMatch;
+    })
     : [];
 
   const selectedConv = Array.isArray(conversations)
@@ -691,7 +696,7 @@ const CompanyMessages: React.FC = () => {
           fetchBlockedConversations={fetchBlockedConversations}
           showConversationList={showConversationList}
           setShowConversationList={setShowConversationList}
-          handleViewCandidate={() => {}}
+          handleViewCandidate={() => { }}
           getUnreadCount={getUnreadCount}
           getTruncatedMessage={getTruncatedMessage}
           filteredConversations={filteredConversations}
@@ -713,8 +718,8 @@ const CompanyMessages: React.FC = () => {
           anotherUserAllowMessage={anotherUserAllowMessage}
           showConversationList={showConversationList}
           setShowConversationList={setShowConversationList}
-          onViewCandidate={() => {}}
-          onViewJob={() => {}}
+          onViewCandidate={() => { }}
+          onViewJob={() => { }}
           onArchive={handleArchiveConversation}
           onUnarchive={handleUnarchiveConversation}
           onBlock={handleBlockConversation}
@@ -728,7 +733,7 @@ const CompanyMessages: React.FC = () => {
           copyToast={copyToast}
           onCopyToClipboard={handleCopyToClipboard}
           firstUnreadIndex={firstUnreadIndex}
-          isLoadingMessages={isLoadingMessages}
+          isLoadingMessages={isLoadingMessages || isSelectingConversation}
           userRole={user?.role}
         />
       </div>

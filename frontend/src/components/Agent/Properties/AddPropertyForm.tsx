@@ -10,6 +10,8 @@ import { useAuth } from "@/context/AuthContext";
 import { MapPin } from "lucide-react";
 import BackButton from "@/components/Common/BackButton";
 import Image from "next/image";
+import Tippy from '@tippyjs/react';
+import 'tippy.js/dist/tippy.css';
 import {
   amenitiesOptions,
   featuresOptions,
@@ -134,6 +136,17 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
   const [images, setImages] = useState<string[]>([]);
   const { showToast, showPromiseToast } = useToast();
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [highlightLocationIcon, setHighlightLocationIcon] = useState(false);
+
+  useEffect(() => {
+    // Only highlight on mobile devices
+    if (window.innerWidth < 768) {
+      setHighlightLocationIcon(true);
+      // Remove highlight after 3 seconds
+      const timer = setTimeout(() => setHighlightLocationIcon(false), 4500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const {
     register,
@@ -343,9 +356,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     if (data.location) desc += ` is available for sale in ${data.location}.`;
 
     if (data.built_up_area && data.built_up_area > 0) {
-      desc += ` Spanning ${data.built_up_area} ${
-        data.unit_area_type || "sq.ft."
-      }, this property`;
+      desc += ` Spanning ${data.built_up_area} ${data.unit_area_type || "sq.ft."
+        }, this property`;
     } else {
       desc += ` This property`;
     }
@@ -758,16 +770,16 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     step: number;
     required: boolean;
   }[] = [
-    {
-      name: "built_up_area",
-      label: isPlotOrLand ? "Plot Area" : "Built-up Area",
-      desc: "Enter the Area",
-      fieldType: "input",
-      step: 1,
-      required: false,
-    },
-    ...(isBuiltStructure
-      ? [
+      {
+        name: "built_up_area",
+        label: isPlotOrLand ? "Plot Area" : "Built-up Area",
+        desc: "Enter the Area",
+        fieldType: "input",
+        step: 1,
+        required: false,
+      },
+      ...(isBuiltStructure
+        ? [
           {
             name: "carpet_area" as keyof FormValues,
             label: "Carpet Area",
@@ -777,50 +789,50 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             required: false,
           },
         ]
-      : []),
-    {
-      name: "unit_area_type",
-      label: "Area Unit",
-      desc: "Choose Area Unit",
-      fieldType: "radio",
-      step: 1,
-      required: false,
-    },
-    {
-      name: "plot_front_area",
-      label: "Plot Frontage",
-      desc: "Enter Plot Frontage",
-      fieldType: "input",
-      step: 1,
-      required: false,
-    },
-    {
-      name: "plot_depth_area",
-      label: "Plot Depth",
-      desc: "Enter the Plot Depth",
-      fieldType: "input",
-      step: 1,
-      required: false,
-    },
-    {
-      name: "plot_dimension_unit",
-      label: "Dimension Unit",
-      desc: "Choose Dimension Unit",
-      fieldType: "radio",
-      step: 1,
-      required: false,
-    },
-    {
-      name: "is_corner_plot",
-      label: "Corner Plot?",
-      desc: "Choose Corner Plot",
-      fieldType: "radio",
-      step: 1,
-      required: false,
-    },
+        : []),
+      {
+        name: "unit_area_type",
+        label: "Area Unit",
+        desc: "Choose Area Unit",
+        fieldType: "radio",
+        step: 1,
+        required: false,
+      },
+      {
+        name: "plot_front_area",
+        label: "Plot Frontage",
+        desc: "Enter Plot Frontage",
+        fieldType: "input",
+        step: 1,
+        required: false,
+      },
+      {
+        name: "plot_depth_area",
+        label: "Plot Depth",
+        desc: "Enter the Plot Depth",
+        fieldType: "input",
+        step: 1,
+        required: false,
+      },
+      {
+        name: "plot_dimension_unit",
+        label: "Dimension Unit",
+        desc: "Choose Dimension Unit",
+        fieldType: "radio",
+        step: 1,
+        required: false,
+      },
+      {
+        name: "is_corner_plot",
+        label: "Corner Plot?",
+        desc: "Choose Corner Plot",
+        fieldType: "radio",
+        step: 1,
+        required: false,
+      },
 
-    ...(watchedType === "residential" && !isPlotOrLand
-      ? [
+      ...(watchedType === "residential" && !isPlotOrLand
+        ? [
           {
             name: "bedrooms" as keyof FormValues,
             label: "Bedrooms",
@@ -846,10 +858,10 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             required: false,
           },
         ]
-      : []),
+        : []),
 
-    ...(watchedType === "commercial" && !isPlotOrLand
-      ? [
+      ...(watchedType === "commercial" && !isPlotOrLand
+        ? [
           {
             name: "washrooms" as keyof FormValues,
             label: "Washrooms",
@@ -875,10 +887,10 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             required: false,
           },
         ]
-      : []),
+        : []),
 
-    ...(isBuiltStructure
-      ? [
+      ...(isBuiltStructure
+        ? [
           {
             name: "total_floors" as keyof FormValues,
             label: "Total Floors",
@@ -896,17 +908,17 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             required: false,
           },
         ]
-      : []),
-    {
-      name: "facing",
-      label: "Facing",
-      desc: "Choose Facing",
-      fieldType: "radio",
-      step: 1,
-      required: false,
-    },
-    ...(isBuiltStructure
-      ? [
+        : []),
+      {
+        name: "facing",
+        label: "Facing",
+        desc: "Choose Facing",
+        fieldType: "radio",
+        step: 1,
+        required: false,
+      },
+      ...(isBuiltStructure
+        ? [
           {
             name: "property_age" as keyof FormValues,
             label: "Property Age",
@@ -940,41 +952,41 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             required: false,
           },
         ]
-      : []),
-    {
-      name: "transaction_type",
-      label: "Transaction Type",
-      desc: "Choose Transaction Type",
-      fieldType: "radio",
-      step: 1,
-      required: false,
-    },
-    {
-      name: "rera_status",
-      label: "RERA Status",
-      desc: "Choose RERA Status",
-      fieldType: "radio",
-      step: 1,
-      required: false,
-    },
-    {
-      name: "owner_name",
-      label: "Owner Name",
-      desc: "Enter Owner Name",
-      fieldType: "input",
-      step: 1,
-      required: false,
-    },
-    {
-      name: "owner_contact",
-      label: "Owner Contact",
-      desc: "Enter Owner Contact",
-      fieldType: "input",
-      step: 1,
-      required: false,
-    },
-    ...(isEditMode
-      ? [
+        : []),
+      {
+        name: "transaction_type",
+        label: "Transaction Type",
+        desc: "Choose Transaction Type",
+        fieldType: "radio",
+        step: 1,
+        required: false,
+      },
+      {
+        name: "rera_status",
+        label: "RERA Status",
+        desc: "Choose RERA Status",
+        fieldType: "radio",
+        step: 1,
+        required: false,
+      },
+      {
+        name: "owner_name",
+        label: "Owner Name",
+        desc: "Enter Owner Name",
+        fieldType: "input",
+        step: 1,
+        required: false,
+      },
+      {
+        name: "owner_contact",
+        label: "Owner Contact",
+        desc: "Enter Owner Contact",
+        fieldType: "input",
+        step: 1,
+        required: false,
+      },
+      ...(isEditMode
+        ? [
           {
             name: "description" as keyof FormValues,
             label: "",
@@ -984,8 +996,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             required: false,
           },
         ]
-      : []),
-  ];
+        : []),
+    ];
 
   const StepOneFields: {
     name: keyof FormValues;
@@ -995,8 +1007,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     step: number;
     required: boolean;
   }[] = [
-    ...(isEditMode
-      ? [
+      ...(isEditMode
+        ? [
           {
             name: "title" as keyof FormValues,
             label: "Property Title",
@@ -1006,41 +1018,41 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             required: false,
           },
         ]
-      : []),
-    {
-      name: "type",
-      label: "Property Type",
-      desc: "Choose Property Type",
-      fieldType: "radio",
-      step: 1,
-      required: true,
-    },
-    {
-      name: "category",
-      label: "Category",
-      desc: "Choose Category",
-      fieldType: "radio",
-      step: 1,
-      required: true,
-    },
-    {
-      name: "location",
-      label: "Location",
-      desc: "Specify where the property is located.",
-      fieldType: "input",
-      step: 1,
-      required: false,
-    },
-    {
-      name: "price",
-      label: "Price",
-      desc: "Enter the total cost in Indian Rupees.",
-      fieldType: "input",
-      step: 1,
-      required: false,
-    },
-    ...(watchedType && watchedCategory ? StepOneConditionFields : []),
-  ];
+        : []),
+      {
+        name: "type",
+        label: "Property Type",
+        desc: "Choose Property Type",
+        fieldType: "radio",
+        step: 1,
+        required: true,
+      },
+      {
+        name: "category",
+        label: "Category",
+        desc: "Choose Category",
+        fieldType: "radio",
+        step: 1,
+        required: true,
+      },
+      {
+        name: "location",
+        label: "Location",
+        desc: "Specify where the property is located.",
+        fieldType: "input",
+        step: 1,
+        required: false,
+      },
+      {
+        name: "price",
+        label: "Price",
+        desc: "Enter the total cost in Indian Rupees.",
+        fieldType: "input",
+        step: 1,
+        required: false,
+      },
+      ...(watchedType && watchedCategory ? StepOneConditionFields : []),
+    ];
 
   const StepTwoFields: {
     name: keyof FormValues;
@@ -1050,15 +1062,15 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     step: number;
     required: boolean;
   }[] = [
-    {
-      name: "images" as keyof FormValues,
-      label: "Upload Images",
-      desc: "Choose Images",
-      fieldType: "file",
-      step: 2,
-      required: false,
-    },
-  ];
+      {
+        name: "images" as keyof FormValues,
+        label: "Upload Images",
+        desc: "Choose Images",
+        fieldType: "file",
+        step: 2,
+        required: false,
+      },
+    ];
 
   const StepThreeFields: {
     name: keyof FormValues;
@@ -1068,24 +1080,24 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
     step: number;
     required: boolean;
   }[] = [
-    {
-      name: "overlooking" as keyof FormValues,
-      label: "Overlooking",
-      desc: "Select Overlooking",
-      fieldType: "checkbox",
-      step: 3,
-      required: false,
-    },
-    {
-      name: "water_source" as keyof FormValues,
-      label: "Water Source",
-      desc: "Select Overlooking",
-      fieldType: "checkbox",
-      step: 3,
-      required: false,
-    },
-    ...(filteredFeatures.length > 0
-      ? [
+      {
+        name: "overlooking" as keyof FormValues,
+        label: "Overlooking",
+        desc: "Select Overlooking",
+        fieldType: "checkbox",
+        step: 3,
+        required: false,
+      },
+      {
+        name: "water_source" as keyof FormValues,
+        label: "Water Source",
+        desc: "Select Overlooking",
+        fieldType: "checkbox",
+        step: 3,
+        required: false,
+      },
+      ...(filteredFeatures.length > 0
+        ? [
           {
             name: "features" as keyof FormValues,
             label: "Features",
@@ -1095,9 +1107,9 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             required: false,
           },
         ]
-      : []),
-    ...(!isPlotOrLand
-      ? [
+        : []),
+      ...(!isPlotOrLand
+        ? [
           {
             name: "amenities" as keyof FormValues,
             label: "Amenities",
@@ -1107,8 +1119,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
             required: false,
           },
         ]
-      : []),
-  ];
+        : []),
+    ];
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -1182,39 +1194,48 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           placeholder="Bandra West, Mumbai"
                         />
-                        <button
-                          type="button"
-                          onClick={handleGetCurrentLocation}
-                          disabled={isFetchingLocation}
-                          className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
-                          aria-label="Get current location"
-                          title="Get current location using GPS"
+                        <Tippy
+                          content="Tap to auto-fill your location"
+                          placement="top"
+                          animation="shift-away"
+                          trigger={highlightLocationIcon ? 'manual' : 'mouseenter focus'}
+                          visible={highlightLocationIcon}
+                          theme="light-border"
                         >
-                          {isFetchingLocation ? (
-                            <svg
-                              className="animate-spin h-5 w-5 text-primary"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
-                            </svg>
-                          ) : (
-                            <MapPin className="h-5 w-5" />
-                          )}
-                        </button>
+                          <button
+                            type="button"
+                            onClick={handleGetCurrentLocation}
+                            disabled={isFetchingLocation}
+                            className={`absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 transition-shadow duration-300 ${highlightLocationIcon ? 'shadow-lg ring-2 ring-blue-400 bg-blue-50 animate-pulse' : ''}`}
+                            aria-label="Get current location"
+                            title="Get current location using GPS"
+                          >
+                            {isFetchingLocation ? (
+                              <svg
+                                className="animate-spin h-5 w-5 text-blue-600"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                            ) : (
+                              <MapPin className={`h-5 w-5 ${highlightLocationIcon ? 'text-blue-500' : ''}`} />
+                            )}
+                          </button>
+                        </Tippy>
                       </div>
                     </Field>
                   </div>
@@ -1996,8 +2017,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                 {loading && step === 1 && !isEditMode
                   ? "Saving..."
                   : step === 1 && !isEditMode
-                  ? "Save & Continue"
-                  : "Next"}
+                    ? "Save & Continue"
+                    : "Next"}
               </button>
             ) : (
               <button

@@ -38,18 +38,6 @@ const MessageThread: React.FC<MessageThreadProps> = ({
     }
   }, [messages, selectedConversation]);
 
-  // if (!selectedConversation && !isLoadingMessages) {
-  //   return (
-  //     <div className="flex-1 flex items-center justify-center">
-  //       <EmptyState
-  //         icon={<MessageSquare className="w-16 h-16 text-gray-300 " />}
-  //         title="No conversation selected"
-  //         message="Select a conversation from the list to start messaging"
-  //       />
-  //     </div>
-  //   );
-  // }
-
   const isFirstMessageEmpty =
     messages.length === 1 &&
     !messages[0].content?.trim() &&
