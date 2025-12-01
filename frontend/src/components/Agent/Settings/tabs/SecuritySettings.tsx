@@ -109,7 +109,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               onChange={(e) => setOldPassword(e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg
-                           focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                           focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -123,7 +123,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               onChange={(e) => setNewPassword(e.target.value)}
               minLength={6}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg
-                           focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                           focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -137,7 +137,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               onChange={(e) => setConfirmPassword(e.target.value)}
               minLength={6}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg
-                           focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                           focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -145,7 +145,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary
                            transition-colors disabled:opacity-50">
               {loading ? "Updating..." : "Update Password"}
             </button>

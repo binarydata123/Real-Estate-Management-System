@@ -72,7 +72,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           {Object.values(filters).some((value) => value !== "") && (
             <span
               onClick={handleReset}
-              className="cursor-pointer text-sm text-blue-600 hover:text-blue-700"
+              className="cursor-pointer text-sm text-primary hover:text-primary"
             >
               Reset All
             </span>
@@ -100,7 +100,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           <select
             value={filters.type}
             onChange={(e) => handleFilterChange("type", e.target.value)}
-            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
           >
             <option value="">All Types</option>
             <option value="residential">Residential</option>
@@ -113,7 +113,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           <select
             value={filters.category}
             onChange={(e) => handleFilterChange("category", e.target.value)}
-            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
           >
             <option value="">All Categories</option>
             <option value="plot">Plot</option>
@@ -132,7 +132,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
             onChange={(e) =>
               handleFilterChange("unit_area_type", e.target.value)
             }
-            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
           >
             <option value="">All Units</option>
             <option value="square feet">Square Feet</option>
@@ -151,7 +151,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           <select
             value={filters.facing}
             onChange={(e) => handleFilterChange("facing", e.target.value)}
-            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
           >
             <option value="">Any Facing</option>
             <option value="north">North</option>
@@ -171,7 +171,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
             onChange={(e) =>
               handleFilterChange("is_corner_plot", e.target.value)
             }
-            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
           >
             <option value="">Corner Plot?</option>
             <option value="yes">Yes</option>
@@ -185,7 +185,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
             onChange={(e) =>
               handleFilterChange("plot_dimension_unit", e.target.value)
             }
-            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
           >
             <option value="">Dimension Unit</option>
             <option value="feet">Feet</option>
@@ -197,7 +197,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           <select
             value={filters.rera_status}
             onChange={(e) => handleFilterChange("rera_status", e.target.value)}
-            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
           >
             <option value="">RERA Status</option>
             <option value="approved">Approved</option>
@@ -212,7 +212,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
             onChange={(e) =>
               handleFilterChange("transaction_type", e.target.value)
             }
-            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-[11px] py-[11px] border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
           >
             <option value="">Transaction</option>
             <option value="new">New</option>

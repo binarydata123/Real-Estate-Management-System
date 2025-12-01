@@ -135,7 +135,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   }) => (
     <div className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0">
       <div className="bg-blue-50 p-2 rounded-lg">
-        <Icon className="h-4 w-4 text-blue-600" />
+        <Icon className="h-4 w-4 text-primary" />
       </div>
       <div className="flex-1">
         <p className="text-sm text-gray-600">{label}</p>
@@ -208,7 +208,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowShareModal(true)}
-              className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-all"
+              className="p-2 bg-blue-50 text-primary rounded-xl hover:bg-blue-100 transition-all"
             >
               <ShareIcon className="h-5 w-5" />
             </button>
@@ -325,7 +325,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                     }}
                     className={`flex-shrink-0 relative rounded-lg overflow-hidden border-2 transition-all duration-200 ${
                       selectedImage?._id === image._id
-                        ? "border-blue-500 ring-2 ring-blue-300"
+                        ? "border-primary ring-2 ring-primary"
                         : "border-gray-200 hover:border-gray-400"
                     }`}
                   >
@@ -392,7 +392,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             {isResidential && hasValue(propertyData.bedrooms) && (
               <div className="text-center">
                 <div className="bg-blue-50 p-2 rounded-xl inline-block mb-1">
-                  <BedIcon className="h-5 w-5 text-blue-600" />
+                  <BedIcon className="h-5 w-5 text-primary" />
                 </div>
                 <div className="text-sm font-semibold text-gray-900">
                   {propertyData.bedrooms}
@@ -597,7 +597,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                 propertyData.overlooking.length > 0 && (
                   <div className="flex items-center gap-3 py-2">
                     <div className="bg-blue-50 p-2 rounded-lg">
-                      <Eye className="h-4 w-4 text-blue-600" />
+                      <Eye className="h-4 w-4 text-primary" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-gray-600">Overlooking</p>
@@ -695,7 +695,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
               propertyData.water_source?.length > 0 && (
                 <div className="flex items-center gap-3 py-2">
                   <div className="bg-blue-50 p-2 rounded-lg">
-                    <DropletsIcon className="h-4 w-4 text-blue-600" />
+                    <DropletsIcon className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-600">Water Source</p>

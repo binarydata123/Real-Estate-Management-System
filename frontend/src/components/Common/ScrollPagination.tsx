@@ -34,7 +34,7 @@ const ScrollPagination: React.FC<ScrollPaginationProps> = ({
   const defaultLoader = (
     <div className="flex justify-center items-center py-8">
       <div className="flex items-center space-x-2">
-        <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
         <span className="text-gray-600 text-sm">Loading more...</span>
       </div>
     </div>
@@ -123,7 +123,7 @@ const ScrollPagination: React.FC<ScrollPaginationProps> = ({
       {showBackToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-28 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 z-50"
+          className="fixed bottom-28 right-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary transition-all duration-300 z-50"
           aria-label="Go to top"
         >
           <ArrowUp className="h-6 w-6" />

@@ -104,12 +104,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className="">
           <div className="flex items-start justify-between mb-1">
             <Link href={`/agent/properties/${property._id}`}>
-              <h3 className="font-semibold text-gray-800 text-base md:text-lg leading-tight group-hover:text-blue-600 transition-colors">
+              <h3 className="font-semibold text-gray-800 text-base md:text-lg leading-tight group-hover:text-primary transition-colors">
                 {property.title}
               </h3>
             </Link>
             {(property.price ?? 0) > 0 && (
-              <p className="text-xl md:text-2xl font-bold text-blue-700">
+              <p className="text-xl md:text-2xl font-bold text-primary">
                 {formatPrice(property.price as number)}
               </p>
             )}

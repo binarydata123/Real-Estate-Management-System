@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,7 +21,9 @@ interface LayoutProps {
 export default function AgentLayout({ children }: LayoutProps) {
   const { loading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [selectedMore, setSelectedMore] = useState(false);
   const pathname = usePathname();
+  const sideBarRef = useRef<HTMLDivElement>(null);
 
   const footerLinks = [
     {
@@ -58,8 +60,24 @@ export default function AgentLayout({ children }: LayoutProps) {
   ];
 
   const handleMoreClick = () => {
+    setSelectedMore(true);
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  const handleMouseDownEvent = (e: MouseEvent) => {
+  if (sideBarRef.current && !sideBarRef.current.contains(e.target as Node)) {
+    setIsSidebarOpen(false);
+    setSelectedMore(false);
+  }
+};
+
+
+  useEffect(() => {
+    document.addEventListener("mousedown",handleMouseDownEvent);
+    return () => {
+      document.removeEventListener("mousedown",handleMouseDownEvent)
+    }
+  },[])
 
   const isPropertyDetailPage =
     pathname.startsWith("/agent/properties/") && pathname.split("/").length > 3;
@@ -71,7 +89,7 @@ export default function AgentLayout({ children }: LayoutProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader className="w-8 h-8 text-blue-600 animate-spin" />
+        <Loader className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -81,9 +99,8 @@ export default function AgentLayout({ children }: LayoutProps) {
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
-          className={`lg:hidden fixed inset-y-0 left-0 z-30 max-w-72 transform ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } transition-transform duration-300 ease-in-out`}
+          className={`lg:hidden fixed inset-y-0 left-0 z-30 max-w-72 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            } transition-transform duration-300 ease-in-out`}
           onClick={() => setIsSidebarOpen(false)}
         ></div>
       )}
@@ -91,7 +108,8 @@ export default function AgentLayout({ children }: LayoutProps) {
       {/* Sidebar (Desktop always visible, Mobile toggled) */}
       <AgentSidebar
         isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
+        onClose={() => {setIsSidebarOpen(false); setSelectedMore(false)}}
+        ref={sideBarRef}
       />
 
       <div className="flex-1 flex flex-col">
@@ -99,46 +117,43 @@ export default function AgentLayout({ children }: LayoutProps) {
           <AgentHeader onMenuButtonClick={() => setIsSidebarOpen(true)} />
         )}
         <main
-          className={`flex-1 ${!isConditionalPage ? "p-2" : ""} md:p-6 ${
-            !isMessagesPage && "mb-12"
-          }`}
+          className={`flex-1 ${!isConditionalPage ? "p-2" : ""} md:p-6 ${!isMessagesPage && "mb-12"
+            }`}
         >
           {children}
         </main>
 
         {/* Footer Links */}
         <div
-          className="fixed bottom-0 left-0 w-full   py-2 md:hidden bg-primary"
-          // style={{ backgroundColor: "#2563eb" }}
+          className="fixed bottom-0 left-0 w-full h-[50px] md:hidden bg-primary"
         >
-          <div className="grid grid-cols-5 gap-2 text-white">
-            {footerLinks
-              // .filter((link) => hasPerm(permissionKeyMap[link.id]))
-              .map((link) =>
-                link.id === "more" ? (
-                  <div
-                    key={link.id}
-                    onClick={() => handleMoreClick()} // 👈 your custom function
-                    className="flex flex-col items-center text-xs hover:text-white transition-colors w-full"
-                  >
-                    <link.icon className="w-5 h-5 mb-1" />
-                    <span>{link.label}</span>
-                  </div>
-                ) : (
-                  <Link
-                    key={link.id}
-                    href={link.path}
-                    className={`flex flex-col items-center text-xs hover:text-white transition-colors ${
-                      link.id === "dashboard" ? "ml-3" : ""
+          <div className="grid grid-cols-5 h-[100%] gap-2 text-white">
+            {footerLinks.map((link) =>
+              link.id === "more" ? (
+                <div
+                  key={link.id}
+                  onClick={() => handleMoreClick()}
+                  className={`h-[100%] justify-center flex flex-col items-center text-xs transition-colors cursor-pointer ${ selectedMore === true ? "bg-white text-primary" : ""
                     }`}
-                  >
-                    <link.icon className="w-5 h-5 mb-1" />
-                    <span>{link.label}</span>
-                  </Link>
-                )
-              )}
+                >
+                  <link.icon className="w-5 h-5 mb-1" />
+                  <span>{link.label}</span>
+                </div>
+              ) : (
+                <Link
+                  key={link.id}
+                  href={link.path}
+                  className={`h-[100%] justify-center flex flex-col items-center text-xs transition-colors
+                   ${pathname.startsWith(link.path) && selectedMore === false ? "bg-white text-primary" : ""}`}
+                >
+                  <link.icon className="w-5 h-5 mb-1" />
+                  <span>{link.label}</span>
+                </Link>
+              )
+            )}
           </div>
         </div>
+
       </div>
     </div>
   );

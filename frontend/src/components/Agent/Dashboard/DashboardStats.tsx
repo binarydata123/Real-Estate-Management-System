@@ -56,7 +56,7 @@ interface DashboardStatsProps {
 export const DashboardStats: React.FC<DashboardStatsProps> = ({ value }) => {
   const stats = [
     {
-      title: "Active",
+      title: "Properties",
       value: value?.totalProperties ?? 0,
       icon: BuildingOfficeIcon,
       color: "text-blue-600",

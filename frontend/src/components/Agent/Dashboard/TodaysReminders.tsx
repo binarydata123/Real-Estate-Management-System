@@ -2,6 +2,7 @@
 
 import React from "react";
 import { CalendarIcon, ClockIcon, } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 interface Customer {
   fullName: string;
@@ -21,6 +22,7 @@ interface TodaysRemindersProps {
 }
 
 const TodaysReminders: React.FC<TodaysRemindersProps> = ({ reminders }) => {
+  const router = useRouter();
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200">
       <div className="md:p-6 p-2 border-b border-gray-200">
@@ -33,13 +35,13 @@ const TodaysReminders: React.FC<TodaysRemindersProps> = ({ reminders }) => {
         {reminders?.length > 0 ? (
           <div className="md:space-y-4 space-y-2">
             {reminders.map((reminder) => {
-              const Icon =CalendarIcon ;
+              const Icon =CalendarIcon;
               return (
-                <div key={reminder._id}>
+                <div key={reminder._id} onClick={() => router.push("/agent/meetings")} className="cursor-pointer">
                   <div className="flex flex-col md:flex-row md:items-center justify-between bg-gradient-to-br from-white to-gray-50 rounded-xl p-2 md:p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
                     <div className="flex items-start md:items-center gap-3 w-full">
                       <div className="p-2 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Icon className="h-5 w-5 text-blue-600" />
+                        <Icon className="h-5 w-5 text-primary" />
                       </div>
 
                       <div className="flex-1">

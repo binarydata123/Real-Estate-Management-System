@@ -147,7 +147,7 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
                     ? "bg-gray-400 cursor-not-allowed"
                     : isSpeaking
                     ? "bg-red-600 hover:bg-red-700"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    : "bg-primary"
                 }`}
                 aria-label={isSpeaking ? "Stop assistant" : "Start assistant"}
               >

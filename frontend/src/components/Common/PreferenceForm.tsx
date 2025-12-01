@@ -34,7 +34,7 @@ import {
   sendRequestToCustomer,
 } from "@/lib/Common/Preference";
 import { useToast } from "@/context/ToastContext";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { showErrorToast } from "@/utils/toastHandler";
 
@@ -115,7 +115,7 @@ const IconRadio: React.FC<{
             />
             <label
               htmlFor={`${name as string}-${option.value}`}
-              className="cursor-pointer flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
+              className="cursor-pointer flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary"
             >
               {option.icon}
               {option.label}
@@ -145,7 +145,7 @@ const IconCheckbox: React.FC<{
     />
     <label
       htmlFor={`${name as string}-${option.value}`}
-      className="cursor-pointer shadow flex items-center gap-2 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
+      className="cursor-pointer shadow flex items-center gap-2 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary"
     >
       {option.icon && <span>{option.icon}</span>}
       {option.label}
@@ -255,7 +255,7 @@ const RangeSlider: React.FC<{
           className="relative w-full h-1.5 bg-gray-200 rounded-full"
         >
           <div
-            className="absolute h-full bg-blue-500 rounded-full"
+            className="absolute h-full bg-primary rounded-full"
             style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
           />
 
@@ -274,7 +274,7 @@ const RangeSlider: React.FC<{
               <div
                 onMouseDown={(e) => handleInteraction(e, "min")}
                 onTouchStart={(e) => handleInteraction(e, "min")}
-                className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2"
+                className="w-5 h-5 bg-white border-2 border-primary rounded-full cursor-pointer shadow-md -translate-x-1/2"
                 tabIndex={0}
               />
             )}
@@ -298,7 +298,7 @@ const RangeSlider: React.FC<{
               <div
                 onMouseDown={(e) => handleInteraction(e, "max")}
                 onTouchStart={(e) => handleInteraction(e, "max")}
-                className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2"
+                className="w-5 h-5 bg-white border-2 border-primary rounded-full cursor-pointer shadow-md -translate-x-1/2"
                 tabIndex={0}
               />
             )}
@@ -313,6 +313,7 @@ const RangeSlider: React.FC<{
 };
 
 export default function PreferenceForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const customerId: string | undefined = useMemo(() => {
     return searchParams.get("customerId") ?? undefined;
@@ -457,6 +458,7 @@ useEffect(() => {
       console.log("This is my response: ",res)
       if (res.success) {
         showToast(res.message, "success");
+        router.push("/agent/customers");
       }
     } catch (err) {
       showErrorToast("Error", err);
@@ -496,7 +498,7 @@ useEffect(() => {
           <button
             onClick={sendRequest}
             disabled={loading || requestSent}
-            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {requestSent
               ? "Request Sent"
@@ -698,7 +700,7 @@ useEffect(() => {
           <button
             type="submit"
             disabled={loading || isReadOnly}
-            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Saving..." : "Save Preferences"}
           </button>

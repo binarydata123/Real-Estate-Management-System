@@ -1151,7 +1151,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <Field label={f.label} required error={errors.title}>
                       <input
                         {...register(f.name)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                         placeholder="Spacious 3BHK Flat in Koramangala"
                       />
                     </Field>
@@ -1191,7 +1191,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       <div className="relative">
                         <input
                           {...register(f.name)}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           placeholder="Bandra West, Mumbai"
                         />
                         <Tippy
@@ -1252,7 +1252,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           })
                         }
                         placeholder="50,00,000"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                       />
                     </Field>
                   </div>
@@ -1282,7 +1282,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="Enter area"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:primary-500"
                           />
                         </Field>
                       </div>
@@ -1305,7 +1305,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="Enter area"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                         </Field>
                       </div>
@@ -1345,7 +1345,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                 )
                               }
                               placeholder="Enter frontage in ft, m, etc."
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                             />
                           </Field>
                         </div>
@@ -1368,7 +1368,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                                 )
                               }
                               placeholder="Enter depth in ft, m, etc."
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                             />
                           </Field>
                         </div>
@@ -1432,7 +1432,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="e.g., 3"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                         </Field>
                       ))}
@@ -1457,7 +1457,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="e.g., 2"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                         </Field>
                       ))}
@@ -1482,7 +1482,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="1,500"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                         </Field>
                       ))}
@@ -1515,7 +1515,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="1,200"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                         </Field>
                       ))}
@@ -1540,7 +1540,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="40"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                         </Field>
                       ))}
@@ -1565,7 +1565,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="60"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                         </Field>
                       ))}
@@ -1598,7 +1598,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="5"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                         </Field>
                       ))}
@@ -1623,7 +1623,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                               )
                             }
                             placeholder="12"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                         </Field>
                       ))}
@@ -1761,7 +1761,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       >
                         <input
                           {...register(f.name)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           placeholder="Enter owner's full name"
                         />
                       </Field>
@@ -1776,7 +1776,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       >
                         <input
                           {...register(f.name)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           placeholder="Enter owner's contact number"
                           maxLength={20}
                         />
@@ -1790,7 +1790,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                     <div className="flex justify-between items-center mb-2">
                       <span
                         onClick={generateDescription}
-                        className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 cursor-pointer"
+                        className="flex items-center text-sm font-medium text-primary hover:text-primary cursor-pointer"
                       >
                         <SparklesIcon className="h-4 w-4 mr-1" />
                         Auto-Generate Description
@@ -1804,7 +1804,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                           {...register(f.name)}
                           id={f.name}
                           rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                           placeholder="Describe the property, its features, and nearby landmarks..."
                           onChange={(e) => setValue(f.name, e.target.value)}
                         />
@@ -2012,7 +2012,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                 type="button"
                 onClick={handleNextStep}
                 disabled={loading}
-                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading && step === 1 && !isEditMode
                   ? "Saving..."
@@ -2024,7 +2024,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Updating..." : "Update Property"}
               </button>
