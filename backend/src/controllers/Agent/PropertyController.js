@@ -345,19 +345,22 @@ export const getProperties = async (req, res) => {
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
 
-    // 🔹 Add new filters
-    if (type) filter.type = type;
-    if (category) filter.category = category;
-    if (unit_area_type) filter.unit_area_type = unit_area_type;
-    if (facing) filter.facing = facing;
-    if (plot_dimension_unit) filter.plot_dimension_unit = plot_dimension_unit;
-    if (rera_status) filter.rera_status = rera_status;
-    if (transaction_type) filter.transaction_type = transaction_type;
+    // 🔹 Add new filters (skip empty strings)
+    if (type && type !== "") filter.type = type;
+    if (category && category !== "") filter.category = category;
+    if (unit_area_type && unit_area_type !== "") filter.unit_area_type = unit_area_type;
+    if (facing && facing !== "") filter.facing = facing;
+    if (plot_dimension_unit && plot_dimension_unit !== "") filter.plot_dimension_unit = plot_dimension_unit;
+    if (rera_status && rera_status !== "") filter.rera_status = rera_status;
+    if (transaction_type && transaction_type !== "") filter.transaction_type = transaction_type;
 
-    // Handle boolean filter
-    if (is_corner_plot !== undefined) {
-      //filter.is_corner_plot = is_corner_plot === "true";
-      filter.is_corner_plot = is_corner_plot;
+    // Handle boolean filter (normalize to 'yes'/'no')
+    if (typeof is_corner_plot !== "undefined" && is_corner_plot !== "") {
+      if (is_corner_plot === "true" || is_corner_plot === "yes") {
+        filter.is_corner_plot = "yes";
+      } else if (is_corner_plot === "false" || is_corner_plot === "no") {
+        filter.is_corner_plot = "no";
+      }
     }
 
     // 🔹 Fetch data

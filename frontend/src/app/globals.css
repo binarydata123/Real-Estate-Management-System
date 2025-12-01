@@ -1,4 +1,3 @@
-
 @import "tailwindcss";
 /* @tailwind base; */
 /* @tailwind components; */
@@ -8,7 +7,7 @@
   --background: #ffffff;
   --foreground: #171717;
   --primary: #fc0303;
-  --secondary:var(--foreground);
+  --secondary: var(--foreground);
 }
 
 @theme inline {
@@ -17,14 +16,14 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-primary: var(--primary);
-  --color-secondary:var(--secondary)
+  --color-secondary: var(--secondary)
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-    
+
   }
 }
 
@@ -36,6 +35,7 @@ body {
 
 /* Bounce Animation */
 @keyframes bounce {
+
   0%,
   100% {
     transform: translateY(0);
@@ -159,28 +159,55 @@ select:focus-visible {
   textarea {
     font-size: 16px;
   }
+
   .stats-card-padding-sec {
     padding: 0px;
   }
+
   .header-tab-sec {
     font-size: 0.675rem;
   }
+
   .text-sec-margin {
     margin-left: calc(var(--spacing) * 11);
   }
+
   .dashboard-tab-sec-padding {
     padding-top: 9px;
     padding-bottom: 15px;
   }
+
   .analytics-stats-tab-sec {
     padding: calc(var(--spacing) * 2);
   }
+
   .monthly-signup-chart-sec svg:not(.logo-svg, .header-icon),
   .monthly-revenue-chart-sec svg:not(.logo-svg, .header-icon) {
     width: auto !important;
     height: auto !important;
   }
+
   .pagination-button-sec button {
     padding: 5px 10px 5px 10px !important;
   }
+}
+
+
+/* Customize toast height */
+.Toastify__toast {
+  min-height: 60px !important;
+  /* Change height */
+  padding: 12px 16px !important;
+  /* Adjust padding */
+  display: flex;
+  align-items: center;
+  /* Vertically center */
+}
+
+/* For colored theme */
+.Toastify__toast--success,
+.Toastify__toast--error,
+.Toastify__toast--info,
+.Toastify__toast--warning {
+  min-height: 60px !important;
 }

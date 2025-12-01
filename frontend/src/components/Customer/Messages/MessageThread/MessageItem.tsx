@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Message } from "../types/messageTypes";
-import { Circle, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { FiFile } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
 import { formatDateToReadable } from "../../../../services/formatters";
@@ -21,10 +21,9 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
     <div className={`flex ${isSender ? "justify-end" : "justify-start"}`}>
       <div
         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg
-          ${
-            isSender
-              ? "bg-blue-600 text-white"
-              : isUnread
+          ${isSender
+            ? "bg-blue-600 text-white"
+            : isUnread
               ? "bg-indigo-50 text-gray-900"
               : "bg-gray-100 text-gray-900"
           }`}
@@ -70,9 +69,8 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 
         <div className="flex items-center justify-between mt-1">
           <span
-            className={`text-xs ${
-              isSender ? "text-blue-200" : "text-gray-500"
-            }`}
+            className={`text-xs ${isSender ? "text-blue-200" : "text-gray-500"
+              }`}
           >
             {formatDateToReadable(message.createdAt)}
           </span>
@@ -81,7 +79,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
               {message.isRead ? (
                 <CheckCircle2 className="w-3 h-3 text-blue-200" />
               ) : (
-                <Circle className="w-3 h-3 text-blue-200" />
+                <CheckCircle2 className="w-3 h-3 text-blue-200" />
               )}
             </div>
           )}

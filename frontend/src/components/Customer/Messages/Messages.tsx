@@ -53,6 +53,7 @@ const Messages: React.FC = () => {
     // Live updates from socket
     socket.on("messages_update", (conversationId: string) => {
       fetchConversationMessages(conversationId);
+      markAsRead(conversationId);
     });
 
     // Cleanup listener on unmount
