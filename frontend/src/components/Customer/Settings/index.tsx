@@ -10,7 +10,8 @@ import { showSuccessToast, showErrorToast } from "@/utils/toastHandler";
 
 export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState("security");
-  const [customerSettings, setCustomerSettings] = useState<CustomerSettingsType | null>(null);
+  const [customerSettings, setCustomerSettings] =
+    useState<CustomerSettingsType | null>(null);
   const [settings, setSettings] = useState<CustomerSettingsType | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -18,7 +19,7 @@ export const Settings: React.FC = () => {
   const updateCustomerSetting = (
     section: keyof CustomerSettingsType,
     field: string,
-    value: string | boolean,
+    value: string | boolean
   ) => {
     setCustomerSettings((prev) => {
       if (!prev) return prev;
@@ -59,7 +60,8 @@ export const Settings: React.FC = () => {
   const handleUpdateSettings = async () => {
     if (!customerSettings) return;
 
-    const isEqual = JSON.stringify(settings) === JSON.stringify(customerSettings);
+    const isEqual =
+      JSON.stringify(settings) === JSON.stringify(customerSettings);
     if (isEqual) return;
 
     setLoading(true);
@@ -122,10 +124,11 @@ export const Settings: React.FC = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`
               flex items-center flex-shrink-0 px-2.5 md:px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors
-              ${activeTab === tab.id
-                      ? "bg-blue-50 text-blue-700 border-b-2 lg:border-b-0 lg:border-r-2 border-blue-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    }
+              ${
+                activeTab === tab.id
+                  ? "bg-blue-50 text-blue-700 border-b-2 lg:border-b-0 lg:border-r-2 border-blue-700"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }
             `}
                 >
                   <tab.icon className="mr-1.5 h-4 w-4" />
@@ -140,7 +143,11 @@ export const Settings: React.FC = () => {
         <div className="flex-1 min-w-0">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 md:p-4">
             {customerSettings ? (
-              renderTabContent(activeTab, customerSettings, updateCustomerSetting)
+              renderTabContent(
+                activeTab,
+                customerSettings,
+                updateCustomerSetting
+              )
             ) : (
               <div className="text-center py-8">
                 <p className="text-gray-500">Unable to load settings</p>

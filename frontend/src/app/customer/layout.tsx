@@ -20,7 +20,7 @@ interface LayoutProps {
 export default function CustomerLayout({ children }: LayoutProps) {
   const { loading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [selectedMore, setSelectedMore] = useState(false);
+  // const [selectedMore, setSelectedMore] = useState(false);
   const pathname = usePathname();
   const sideBarRef = useRef<HTMLDivElement>(null);
 
@@ -60,23 +60,21 @@ export default function CustomerLayout({ children }: LayoutProps) {
   ];
 
   const handleMoreClick = () => {
-    setSelectedMore(true);
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   const handleOutsideClick = (e: MouseEvent) => {
-    if(sideBarRef.current && !sideBarRef.current.contains(e.target as Node)){
+    if (sideBarRef.current && !sideBarRef.current.contains(e.target as Node)) {
       setIsSidebarOpen(false);
-      setSelectedMore(false);
     }
-  }
+  };
 
   useEffect(() => {
-    document.addEventListener("mousedown",handleOutsideClick);
+    document.addEventListener("mousedown", handleOutsideClick);
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
-    }
-  }, [])
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -101,7 +99,9 @@ export default function CustomerLayout({ children }: LayoutProps) {
       {/* Sidebar (Desktop always visible, Mobile toggled) */}
       <CustomerSidebar
         isOpen={isSidebarOpen}
-        onClose={() => {setIsSidebarOpen(false); setSelectedMore(false)}}
+        onClose={() => {
+          setIsSidebarOpen(false);
+        }}
         ref={sideBarRef}
       />
 
@@ -124,7 +124,14 @@ export default function CustomerLayout({ children }: LayoutProps) {
                   <div
                     key={link.id}
                     onClick={() => handleMoreClick()} // 👈 your custom function
-                    className={`height-[100%] justify-center cursor-pointer flex flex-col items-center text-xs transition-colors w-full ${selectedMore === true ? "text-primary bg-gray-50" : ""}`}
+                    className={`height-[100%] justify-center cursor-pointer flex flex-col items-center text-xs transition-colors w-full ${
+                      !pathname.startsWith("/customer/dashboard") &&
+                      !pathname.startsWith("/customer/properties") &&
+                      !pathname.startsWith("/customer/messages") &&
+                      !pathname.startsWith("/customer/meetings")
+                        ? "text-primary bg-gray-50"
+                        : ""
+                    }`}
                   >
                     <link.icon className="w-5 h-5 mb-1" />
                     <span>{link.label}</span>
@@ -135,7 +142,11 @@ export default function CustomerLayout({ children }: LayoutProps) {
                 <Link
                   key={link.id}
                   href={link.path}
-                  className={`height-[100%] justify-center flex flex-col items-center text-xs transition-colors ${pathname.startsWith(link.path) && selectedMore === false ? "text-primary bg-white" : ""}`}
+                  className={`height-[100%] justify-center flex flex-col items-center text-xs transition-colors ${
+                    pathname.startsWith(link.path)
+                      ? "text-primary bg-white"
+                      : ""
+                  }`}
                 >
                   <link.icon className="w-5 h-5 mb-1" />
                   <span>{link.label}</span>

@@ -32,7 +32,7 @@ export const Settings: React.FC = () => {
     },
     security: {
       twoFactorAuth: false,
-      sessionTimeout: "7 days",
+      // sessionTimeout: "7 days",
       loginNotifications: true,
     },
     createdAt: new Date().toISOString(),

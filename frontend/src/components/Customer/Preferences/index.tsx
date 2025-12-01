@@ -32,6 +32,7 @@ import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { showErrorToast } from "@/utils/toastHandler";
 import { formatPrice } from "@/utils/helperFunction";
+import { useRouter } from "next/navigation";
 
 const lookingForOptions = [
   { value: "buy", label: "Buy" },
@@ -309,6 +310,7 @@ export default function PreferenceForm() {
   //const [requestSent, setRequestSent] = useState(false);
   const [initialType, setInitialType] = useState<string | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const router = useRouter();
 
   const customerId = user?._id;
   console.log("This is my Customer ID      ::::: ",customerId)
@@ -478,6 +480,7 @@ useEffect(() => {
       const res = await createPreference(data);
       if (res.success) {
         showToast(res.message, "success");
+        router.push("/customer/dashboard")
       }
     } catch (err) {
       showErrorToast("Error", err);
