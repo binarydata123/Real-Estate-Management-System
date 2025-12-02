@@ -150,27 +150,14 @@ export const getConversations = async (req, res) => {
           }
         }
 
-        function encryptOneTwo(str) {
-          if (!str) return "";
-          let result = "";
-          for (let i = 0; i < str.length; i++) {
-            if (i % 3 === 0) {
-              result += str[i]; // keep 1st in group of 3
-            } else {
-              result += "*"; // mask next two
-            }
-          }
-          return result;
-        }
-
         return {
           ...conv,
           otherParticipant: otherParticipant
             ? {
               _id: otherParticipant._id,
               name: `${otherParticipant.fullName}`,
-              email: encryptOneTwo(otherParticipant.email),
-              phone: encryptOneTwo(otherParticipant.phone),
+              email: otherParticipant.email,
+              phone: otherParticipant.phoneNumber,
               role: otherParticipant.role,
               userId: otherParticipant.userId,
               position: profile?.jobTitle || profile?.companyName,

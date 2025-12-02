@@ -24,7 +24,6 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   return (
     <div className="p-2 md:p-4 border-b border-gray-200 bg-gray-50 flex items-center">
       <div className="flex-1 flex items-center space-x-3 min-w-0 overflow-hidden">
-        {/* <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0"> */}
         <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
           {getInitial(user?.name)}
           {/* </div> */}
@@ -52,9 +51,6 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
               }
             />
           </div>
-          <p className="text-sm text-gray-600 truncate">
-            Direct conversation
-          </p>
         </div>
       </div>
     </div>

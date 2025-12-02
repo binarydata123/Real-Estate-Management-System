@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -26,6 +26,8 @@ import {
 } from "@/lib/Authentication/AuthenticationAPI";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import OtpModal from "./OtpModal";
+import { getSettingsData } from "../../../lib/Common/Settings";
+import Image from "next/image";
 
 const agencyLoginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -63,6 +65,7 @@ export const LoginForm = () => {
   const { signIn, completeSignIn } = useAuth();
   const [openOtpModal, setOpenOtpModal] = useState(false);
   const [pendingLoginData, setPendingLoginData] = useState<LoginData | null>(null);
+  const [settingsData, setSettingsData] = useState<AdminSettingData | null>(null);
 
   const {
     register,
@@ -165,14 +168,42 @@ export const LoginForm = () => {
     }
   };
 
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+        try {
+            const response = await getSettingsData();
+            if (response.success) {
+                const d = response.data;
+                setSettingsData(d);
+            }
+        } catch (err) {
+            showErrorToast("Error", err);
+        }
+    };
+    fetchSettings();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-200 to-purple-200 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl md:p-8 p-6 transition-all duration-300">
         {/* Logo */}
         <div className="text-center md:mb-8 mb-2">
-          <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
-            <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
-          </div>
+          {settingsData?.logoUrl
+            ?
+              <div style={{ display: 'inline-block' }}>
+                <Image
+                  src={settingsData.logoUrl}
+                  alt="Logo"
+                  width={70}
+                  height={70}
+                />
+              </div>
+            :
+              <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
+                <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
+              </div>
+          }
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             REAMS
           </h1>
@@ -231,7 +262,7 @@ export const LoginForm = () => {
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-semibold text-gray-800 text-left">
-                    Agency / Agent
+                    Agency / Admin
                   </p>
                   <p className="text-sm text-gray-600 text-left">
                     Grow your business fast.
@@ -285,8 +316,8 @@ export const LoginForm = () => {
                 {loginAs === "agency"
                   ? "an Agency"
                   : loginAs === "admin"
-                  ? "an Admin"
-                  : "a Customer"}
+                    ? "an Admin"
+                    : "a Customer"}
               </h2>
             </div>
 
@@ -328,9 +359,8 @@ export const LoginForm = () => {
                         type="email"
                         {...register("email")}
                         autoFocus
-                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                          errors.email ? "border-red-500" : "border-gray-300"
-                        }`}
+                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.email ? "border-red-500" : "border-gray-300"
+                          }`}
                         placeholder="you@example.com"
                       />
                     </div>
@@ -364,9 +394,8 @@ export const LoginForm = () => {
                       type="tel"
                       {...register("phone")}
                       autoFocus
-                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                        errors.phone ? "border-red-500" : "border-gray-300"
-                      }`}
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.phone ? "border-red-500" : "border-gray-300"
+                        }`}
                       placeholder="Enter your phone number"
                     />
                   </div>
@@ -400,9 +429,8 @@ export const LoginForm = () => {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
-                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                        errors.password ? "border-red-500" : "border-gray-300"
-                      }`}
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.password ? "border-red-500" : "border-gray-300"
+                        }`}
                       placeholder="Enter your password"
                     />
                     <button

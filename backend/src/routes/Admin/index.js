@@ -7,6 +7,7 @@ import agentsRoutes from "./Agents/index.js";
 import dashboardRoutes from "./Dashboard/index.js";
 import profileRoutes from "./Profile/index.js";
 import analyticsRoutes from "./Analytics/index.js";
+import adminSettings from "./AdminSettings/index.js";
 
 const router = express.Router();
 
@@ -18,4 +19,5 @@ router.use("/agents", agentsRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/profile", profileRoutes);
 router.use("/analytics", analyticsRoutes);
+router.use("/admin-settings", adminSettings);
 export default router;

@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^5.2.1",
     "@next/font": "^14.2.15",
     "@supabase/supabase-js": "^2.57.4",
+    "@tippyjs/react": "^4.2.6",
     "@vapi-ai/web": "^2.5.0",
     "axios": "^1.12.1",
     "chart.js": "^4.5.0",
@@ -33,6 +34,7 @@
     "react-toastify": "^11.0.5",
     "recharts": "^3.2.0",
     "socket.io-client": "^4.8.1",
+    "tippy.js": "^6.3.7",
     "web-push": "^3.6.7",
     "zod": "^4.1.9"
   },
