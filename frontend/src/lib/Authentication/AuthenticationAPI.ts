@@ -37,3 +37,11 @@ export const changePassword = async (
 ): Promise<AxiosResponse> => {
   return api.post("/auth/change-password", data);
 };
+
+export const otpHandler = async (data: { phone: string | undefined; otp: string; resend: boolean }) => {
+  return api.post("/auth/check-otp", data);
+}
+
+export const otpGenerator = async (phone: string | undefined ) => {
+  return api.post("/auth/otp", { phone });
+}

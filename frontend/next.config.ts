@@ -16,7 +16,7 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["api.real-estate.ai-developer.site"],
+    domains: ["api.real-estate.ai-developer.site","localhost","images.pexels.com"],
     remotePatterns: [
       {
         protocol: "https",
@@ -24,6 +24,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5001",
+        pathname : "/**",
+      }
     ],
   },
 

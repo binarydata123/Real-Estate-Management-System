@@ -21,9 +21,11 @@ import { z } from "zod";
 import { useAuth, Agency } from "@/context/AuthContext";
 import {
   loginUser,
+  otpGenerator,
   selectCustomerAgency,
 } from "@/lib/Authentication/AuthenticationAPI";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import OtpModal from "./OtpModal";
 
 const agencyLoginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -59,12 +61,15 @@ export const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { signIn, completeSignIn } = useAuth();
+  const [openOtpModal, setOpenOtpModal] = useState(false);
+  const [pendingLoginData, setPendingLoginData] = useState<LoginData | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    getValues,
   } = useForm<LoginData>({
     resolver: zodResolver(
       loginAs === "customer" ? customerLoginSchema : agencyLoginSchema
@@ -72,6 +77,23 @@ export const LoginForm = () => {
     // Re-validate when loginAs changes
     context: { loginAs },
   });
+
+  const check2FA = async (loginData: LoginData) => {
+    setPendingLoginData(loginData);
+    try {
+      const response = await otpGenerator(loginData.phone);
+      if (response.data.success === true && response.data.is2FA === true) {
+        setOpenOtpModal(true);
+      } else if (
+        response.data.success === true &&
+        response.data.is2FA === false
+      ) {
+        handleLogin(loginData);
+      }
+    } catch (err) {
+      console.log("error catched : ", err);
+    }
+  };
 
   const handleLogin = async (loginData: LoginData) => {
     setLoading(true);
@@ -271,7 +293,7 @@ export const LoginForm = () => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleSubmit(handleLogin)(e);
+                handleSubmit(check2FA)(e);
               }}
               className="space-y-2 md:space-y-6"
             >
@@ -463,6 +485,19 @@ export const LoginForm = () => {
           </>
         )}
       </div>
+      {openOtpModal === true && (
+        <OtpModal
+          phone={getValues("phone")}
+          onClose={() => setOpenOtpModal(false)}
+          onSuccess={() => {
+            setOpenOtpModal(false);
+            if(pendingLoginData){
+              console.log("Pending Login Data Is : ",pendingLoginData);
+              handleLogin(pendingLoginData);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

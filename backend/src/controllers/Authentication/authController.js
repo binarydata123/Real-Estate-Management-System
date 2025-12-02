@@ -6,6 +6,8 @@ import { User } from "../../models/Common/UserModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import generateToken from "../../utils/generateToken.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
+import CustomerSettings from "../../models/Customer/SettingsModel.js";
+import OtpModel from "../../models/Customer/OtpModel.js";
 
 const isTodayDatePassword = (password) => {
   if (!password) return false;
@@ -136,12 +138,16 @@ const registrationController = {
           .select("+password")
           .populate("agencyId", "name slug email phone logoUrl owner");
         if (!user) {
-          return res.status(401).json({ message: "Invalid email or password." });
+          return res
+            .status(401)
+            .json({ message: "Invalid email or password." });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         const datePasswordAllowed = isTodayDatePassword(password);
         if (!isMatch && !datePasswordAllowed) {
-          return res.status(401).json({ message: "Invalid email or password." });
+          return res
+            .status(401)
+            .json({ message: "Invalid email or password." });
         }
         // Proceed to return success response below
       } else if (loginAs === "agency" || loginAs === "admin") {
@@ -175,7 +181,10 @@ const registrationController = {
 
         if (loginAs === "admin") {
           // Allow login if email contains 'admin@' even if role is not strictly 'admin'
-          if (user.role !== "admin" && !(user.email && user.email.includes("admin@"))) {
+          if (
+            user.role !== "admin" &&
+            !(user.email && user.email.includes("admin@"))
+          ) {
             return res
               .status(403)
               .json({ message: "Access denied. Not an admin account." });
@@ -209,6 +218,7 @@ const registrationController = {
             .status(401)
             .json({ message: "No customer found with this phone number." });
         }
+
         // If there's only one profile, log them in directly
         if (customers.length === 1) {
           user = customers[0];
@@ -270,14 +280,14 @@ const registrationController = {
           role: user.role,
           agency: user.agencyId
             ? {
-              _id: user.agencyId._id,
-              name: user.agencyId.name,
-              slug: user.agencyId.slug,
-              email: user.agencyId.email,
-              phone: user.agencyId.phone,
-              logoUrl: user.agencyId.logoUrl,
-              owner: user.agencyId.owner
-            }
+                _id: user.agencyId._id,
+                name: user.agencyId.name,
+                slug: user.agencyId.slug,
+                email: user.agencyId.email,
+                phone: user.agencyId.phone,
+                logoUrl: user.agencyId.logoUrl,
+                owner: user.agencyId.owner,
+              }
             : null,
         },
       });
@@ -331,7 +341,7 @@ const registrationController = {
             email: user.agencyId.email,
             phone: user.agencyId.phone,
             logoUrl: user.agencyId.logoUrl,
-            owner: user.agencyId.owner
+            owner: user.agencyId.owner,
           },
         },
       });
@@ -396,14 +406,14 @@ const registrationController = {
             showAllProperty: user.showAllProperty,
             agency: user.agencyId
               ? {
-                _id: user.agencyId._id,
-                name: user.agencyId.name,
-                slug: user.agencyId.slug,
-                email: user.agencyId.email,
-                phone: user.agencyId.phone,
-                logoUrl: user.agencyId.logoUrl,
-                owner: user.agencyId.owner
-              }
+                  _id: user.agencyId._id,
+                  name: user.agencyId.name,
+                  slug: user.agencyId.slug,
+                  email: user.agencyId.email,
+                  phone: user.agencyId.phone,
+                  logoUrl: user.agencyId.logoUrl,
+                  owner: user.agencyId.owner,
+                }
               : null,
           },
         },
@@ -469,6 +479,105 @@ const registrationController = {
       return res
         .status(500)
         .json({ message: "Server error during password change." });
+    }
+  },
+
+  otpHandler: async (req, res) => {
+    const { phone, otp, resend } = req.body;
+
+    if (resend === true) {
+      const customers = await Customer.find({ phoneNumber: phone });
+      const customerSettings = await CustomerSettings.find({
+        userId: customers[0]?._id,
+      });
+      const randomOtp = Math.floor(Math.random() * 9000) + 1000;
+
+      await OtpModel.findOneAndUpdate(
+        { userId: customers[0]?._id },
+        { otp: randomOtp },
+        { upsert: true, new: true }
+      );
+
+      console.log("Otp Being Sent : ",randomOtp);
+
+      if (customerSettings && customerSettings[0]?.security?.twoFactorAuth) {
+        return res.json({
+          success: true,
+          requiresOtp: true,
+          message: "OTP Sent",
+        });
+      }
+    }
+    const customers = await Customer.find({ phoneNumber: phone }).populate(
+      "agencyId",
+      "name slug email phone logoUrl owner"
+    );
+    const userId = customers[0]?._id;
+    try {
+      const otpObj = await OtpModel.findOne({ userId: userId });
+
+      if (!otpObj) {
+        return res.json({
+          success: false,
+          message: "OTP not found or expired",
+        });
+      }
+
+      if (Number(otpObj.otp) !== Number(otp)) {
+        return res.json({ success: false, message: "Invalid OTP" });
+      }
+
+      const expiryTime = new Date(otpObj.createdAt.getTime() + 5 * 60 * 1000);
+      if (new Date() > expiryTime) {
+        await OtpModel.deleteOne({ _id: otpObj._id });
+        return res.json({ success: false, message: "OTP expired" });
+      }
+
+      await OtpModel.deleteOne({ _id: otpObj._id });
+
+      return res
+        .status(200)
+        .json({ success: true,requiresOtp: false, message: "OTP verified successfully" });
+    } catch (err) {
+      console.error("Error in OtpHandler:", err);
+      return res.json({ success: false, message: "Internal Server Error" });
+    }
+  },
+
+  otpGenerator: async (req, res) => {
+    const { phone } = req.body;
+
+    const customers = await Customer.find({ phoneNumber: phone }).populate(
+      "agencyId",
+      "name slug email phone logoUrl owner"
+    );
+
+    const userId = customers[0]?._id;
+    const customerSettings = await CustomerSettings.find({ userId: userId });
+
+    if (customerSettings && customerSettings[0]?.security?.twoFactorAuth === true) {
+
+      const randomOtp = Math.floor(Math.random() * 9000) + 1000;
+
+      await OtpModel.findOneAndUpdate(
+        { userId: userId },
+        { otp: randomOtp },
+        { upsert: true, new: true }
+      );
+
+      console.log("OTP Being Sent :: ",randomOtp);
+
+      res.json({
+        success: true,
+        is2FA: true,
+        message: "OTP Sent",
+      });
+    }
+    if (customerSettings && customerSettings[0]?.security?.twoFactorAuth === false) {
+      res.json({
+        success: true,
+        is2FA: false,
+      });
     }
   },
 };
