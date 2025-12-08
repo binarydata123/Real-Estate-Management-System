@@ -34,7 +34,7 @@ export const createMeeting = async (req, res) => {
         type: "meeting_scheduled",
       });
     }
-    console.log(customerSettings);
+
     if (customerSettings?.notifications?.meetingReminders) {
       await createNotification({
         userId: customer._id,
@@ -186,9 +186,9 @@ export const getMeetingById = async (req, res) => {
 
 // Update a meeting
 export const updateMeeting = async (req, res) => {
-  const { agencyId,customerId,date,propertyId,status,time} = req.body;
+  const { agencyId, customerId, date, propertyId, status, time } = req.body;
   let correctPropertyId;
-  if(propertyId === ""){
+  if (propertyId === "") {
     correctPropertyId = null;
   } else {
     correctPropertyId = propertyId;
@@ -197,11 +197,11 @@ export const updateMeeting = async (req, res) => {
     agencyId,
     customerId,
     date,
-    propertyId : correctPropertyId,
+    propertyId: correctPropertyId,
     status,
     time
   }
-  console.log("New Body is : ",newBody);
+  console.log("New Body is : ", newBody);
   try {
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,

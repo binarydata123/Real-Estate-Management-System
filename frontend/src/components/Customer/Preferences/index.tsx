@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo,useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -166,140 +166,140 @@ const RangeSlider: React.FC<{
   formatDisplay,
   readOnly = false,
 }) => {
-  const minVal = (watch(minName) as number | undefined) ?? min;
-  const maxVal = (watch(maxName) as number | undefined) ?? max;
+    const minVal = (watch(minName) as number | undefined) ?? min;
+    const maxVal = (watch(maxName) as number | undefined) ?? max;
 
-  const trackRef = React.useRef<HTMLDivElement>(null);
+    const trackRef = React.useRef<HTMLDivElement>(null);
 
-  const getPercent = React.useCallback(
-    (value: number) => {
-      return Math.round(((value - min) / (max - min)) * 100);
-    },
-    [min, max]
-  );
+    const getPercent = React.useCallback(
+      (value: number) => {
+        return Math.round(((value - min) / (max - min)) * 100);
+      },
+      [min, max]
+    );
 
-  const minPercent = getPercent(minVal);
-  const maxPercent = getPercent(maxVal);
+    const minPercent = getPercent(minVal);
+    const maxPercent = getPercent(maxVal);
 
-  const handleInteraction = (
-    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
-    thumb: "min" | "max"
-  ) => {
-    if (!trackRef.current || readOnly) return;
-    e.preventDefault();
+    const handleInteraction = (
+      e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
+      thumb: "min" | "max"
+    ) => {
+      if (!trackRef.current || readOnly) return;
+      e.preventDefault();
 
-    const trackRect = trackRef.current.getBoundingClientRect();
+      const trackRect = trackRef.current.getBoundingClientRect();
 
-    const moveHandler = (moveEvent: MouseEvent | TouchEvent) => {
-      const clientX =
-        "touches" in moveEvent
-          ? moveEvent.touches[0].clientX
-          : moveEvent.clientX;
-      const delta = clientX - trackRect.left;
-      const percent = Math.min(Math.max(delta / trackRect.width, 0), 1);
-      let newValue = min + percent * (max - min);
+      const moveHandler = (moveEvent: MouseEvent | TouchEvent) => {
+        const clientX =
+          "touches" in moveEvent
+            ? moveEvent.touches[0].clientX
+            : moveEvent.clientX;
+        const delta = clientX - trackRect.left;
+        const percent = Math.min(Math.max(delta / trackRect.width, 0), 1);
+        let newValue = min + percent * (max - min);
 
-      // Apply step
-      newValue = Math.round(newValue / step) * step;
+        // Apply step
+        newValue = Math.round(newValue / step) * step;
 
-      if (thumb === "min") {
-        const newMinVal = Math.min(newValue, maxVal - step);
-        setValue(minName, newMinVal as UserPreferenceFormData[typeof minName], {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-      } else {
-        // thumb === 'max'
-        const newMaxVal = Math.max(newValue, minVal + step);
-        setValue(maxName, newMaxVal as UserPreferenceFormData[typeof maxName], {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-      }
+        if (thumb === "min") {
+          const newMinVal = Math.min(newValue, maxVal - step);
+          setValue(minName, newMinVal as UserPreferenceFormData[typeof minName], {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        } else {
+          // thumb === 'max'
+          const newMaxVal = Math.max(newValue, minVal + step);
+          setValue(maxName, newMaxVal as UserPreferenceFormData[typeof maxName], {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }
+      };
+
+      const upHandler = () => {
+        document.removeEventListener("mousemove", moveHandler);
+        document.removeEventListener("mouseup", upHandler);
+        document.removeEventListener("touchmove", moveHandler);
+        document.removeEventListener("touchend", upHandler);
+      };
+
+      document.addEventListener("mousemove", moveHandler);
+      document.addEventListener("mouseup", upHandler);
+      document.addEventListener("touchmove", moveHandler);
+      document.addEventListener("touchend", upHandler);
     };
 
-    const upHandler = () => {
-      document.removeEventListener("mousemove", moveHandler);
-      document.removeEventListener("mouseup", upHandler);
-      document.removeEventListener("touchmove", moveHandler);
-      document.removeEventListener("touchend", upHandler);
-    };
-
-    document.addEventListener("mousemove", moveHandler);
-    document.addEventListener("mouseup", upHandler);
-    document.addEventListener("touchmove", moveHandler);
-    document.addEventListener("touchend", upHandler);
-  };
-
-  return (
-    <div className="col-span-2 md:col-span-4">
-      <div className="flex justify-between items-center mb-2">
-        <label className="block text-sm font-semibold text-gray-800">
-          {label}
-        </label>
-      </div>
-      <div className="relative h-10 flex items-center mt-8">
-        <div
-          ref={trackRef}
-          className="relative w-full h-1.5 bg-gray-200 rounded-full"
-        >
+    return (
+      <div className="col-span-2 md:col-span-4">
+        <div className="flex justify-between items-center mb-2">
+          <label className="block text-sm font-semibold text-gray-800">
+            {label}
+          </label>
+        </div>
+        <div className="relative h-10 flex items-center mt-8">
           <div
-            className="absolute h-full bg-blue-500 rounded-full"
-            style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
-          />
-
-          {/* Min Thumb with Indicator */}
-          <div
-            className="absolute top-1/2 -translate-y-1/2"
-            style={{ left: `${minPercent}%`, zIndex: 11 }}
+            ref={trackRef}
+            className="relative w-full h-1.5 bg-gray-200 rounded-full"
           >
-            <div className="absolute bottom-full mb-2 -translate-x-1/2">
-              <div className="relative bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-md whitespace-nowrap">
-                {formatDisplay(minVal)}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
-              </div>
-            </div>
-            {!readOnly && (
-              <div
-                onMouseDown={(e) => handleInteraction(e, "min")}
-                onTouchStart={(e) => handleInteraction(e, "min")}
-                className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2"
-                tabIndex={0}
-              />
-            )}
-            {readOnly && (
-              <div className="w-5 h-5 bg-gray-300 border-2 border-gray-400 rounded-full shadow-md -translate-x-1/2 opacity-50" />
-            )}
-          </div>
+            <div
+              className="absolute h-full bg-blue-500 rounded-full"
+              style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
+            />
 
-          {/* Max Thumb with Indicator */}
-          <div
-            className="absolute top-1/2 -translate-y-1/2"
-            style={{ left: `${maxPercent}%`, zIndex: 10 }}
-          >
-            <div className="absolute bottom-full mb-2 -translate-x-1/2">
-              <div className="relative bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-md whitespace-nowrap">
-                {formatDisplay(maxVal)}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
+            {/* Min Thumb with Indicator */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2"
+              style={{ left: `${minPercent}%`, zIndex: 11 }}
+            >
+              <div className="absolute bottom-full mb-2 -translate-x-1/2">
+                <div className="relative bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-md whitespace-nowrap">
+                  {formatDisplay(minVal)}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
+                </div>
               </div>
+              {!readOnly && (
+                <div
+                  onMouseDown={(e) => handleInteraction(e, "min")}
+                  onTouchStart={(e) => handleInteraction(e, "min")}
+                  className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2"
+                  tabIndex={0}
+                />
+              )}
+              {readOnly && (
+                <div className="w-5 h-5 bg-gray-300 border-2 border-gray-400 rounded-full shadow-md -translate-x-1/2 opacity-50" />
+              )}
             </div>
-            {!readOnly && (
-              <div
-                onMouseDown={(e) => handleInteraction(e, "max")}
-                onTouchStart={(e) => handleInteraction(e, "max")}
-                className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2"
-                tabIndex={0}
-              />
-            )}
-            {readOnly && (
-              <div className="w-5 h-5 bg-gray-300 border-2 border-gray-400 rounded-full shadow-md -translate-x-1/2 opacity-50" />
-            )}
+
+            {/* Max Thumb with Indicator */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2"
+              style={{ left: `${maxPercent}%`, zIndex: 10 }}
+            >
+              <div className="absolute bottom-full mb-2 -translate-x-1/2">
+                <div className="relative bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-md whitespace-nowrap">
+                  {formatDisplay(maxVal)}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
+                </div>
+              </div>
+              {!readOnly && (
+                <div
+                  onMouseDown={(e) => handleInteraction(e, "max")}
+                  onTouchStart={(e) => handleInteraction(e, "max")}
+                  className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2"
+                  tabIndex={0}
+                />
+              )}
+              {readOnly && (
+                <div className="w-5 h-5 bg-gray-300 border-2 border-gray-400 rounded-full shadow-md -translate-x-1/2 opacity-50" />
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default function PreferenceForm() {
   const { showToast } = useToast();
@@ -311,7 +311,6 @@ export default function PreferenceForm() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const customerId = user?._id;
-  console.log("This is my Customer ID      ::::: ",customerId)
 
   const {
     register,
@@ -342,23 +341,6 @@ export default function PreferenceForm() {
 
   const watchedType = watch("type");
   const watchedCategories = watch("category") || [];
-
-  // useEffect(() => {
-  //   setValue("category", []);
-  // }, [watchedType, setValue]);
-
-
-// useEffect(() => {
-//   if (isInitialLoad) return; // ⭐ do NOT clear during backend load
-
-//   // ⭐ only clear when user manually changes the type
-//   if (initialType && watchedType !== initialType) {
-//     setValue("category", []);
-//   }
-// }, [watchedType, initialType, isInitialLoad, setValue]);
-
-
-
 
   const showConfiguration = useMemo(() => {
     if (watchedType !== "residential") return false;
@@ -403,74 +385,35 @@ export default function PreferenceForm() {
     );
   }, [watchedCategories, containsOnlyPlotOrLand]);
 
-  // useEffect(() => {
-  //   if (user) {
-  //     const fetchDetail = async () => {
-  //       try {
-  //         const res = await getPreferenceDetail(user._id);
-  //         if (res.success && res.data) {
-  //           reset(res.data);
-  //           //setRequestSent(res.requestSent);
-  //         }
-  //       } catch (error) {
-  //         // Don't show an error toast if it's just a 404, which is expected
-  //         if (axios.isAxiosError(error) && error.response?.status === 404) {
-  //           // Preferences not found, do nothing, form will have default values.
-  //           return;
-  //         }
-  //         showErrorToast("Failed to fetch preferences:", error);
-  //       }
-  //     };
-  //     fetchDetail();
-  //   }
-  // }, [customerId, reset, showToast, user]);
-
-
-
-
-
-
-
-useEffect(() => {
-  if (user) {
-    const fetchDetail = async () => {
-      try {
-        const res = await getPreferenceDetail(user._id);
-        if (res.success && res.data) {
-          reset(res.data);
-          setInitialType(res.data.type); 
-          setIsInitialLoad(false); // 
+  useEffect(() => {
+    if (user) {
+      const fetchDetail = async () => {
+        try {
+          const res = await getPreferenceDetail(user._id);
+          if (res.success && res.data) {
+            reset(res.data);
+            setInitialType(res.data.type);
+            setIsInitialLoad(false); // 
+          }
+        } catch (error) {
+          if (axios.isAxiosError(error) && error.response?.status === 404) {
+            setIsInitialLoad(false);
+            return;
+          }
+          showErrorToast("Failed to fetch preferences:", error);
         }
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          setIsInitialLoad(false);
-          return;
-        }
-        showErrorToast("Failed to fetch preferences:", error);
-      }
-    };
-    fetchDetail();
-  }
-}, [user, reset]);
+      };
+      fetchDetail();
+    }
+  }, [user, reset]);
 
 
-
-
-useEffect(() => {
-  if (isInitialLoad) return;
-  if (initialType && watchedType !== initialType) {
-    setValue("category", []);
-  }
-}, [watchedType, initialType, isInitialLoad, setValue]);
-
-
-
-
-
-
-
-
-
+  useEffect(() => {
+    if (isInitialLoad) return;
+    if (initialType && watchedType !== initialType) {
+      setValue("category", []);
+    }
+  }, [watchedType, initialType, isInitialLoad, setValue]);
   const onSubmit = async (data: UserPreferenceFormData) => {
     if (isReadOnly) return;
     setLoading(true);
@@ -486,23 +429,6 @@ useEffect(() => {
     }
   };
 
-  // const sendRequest = async () => {
-  //     try {
-  //         const res = await sendRequestToCustomer(customerId as string);
-
-  //         if (res.success) {
-  //             showToast(res.message, "success");
-  //             // Show warning if push notification failed
-  //             if (res.customerPushNotificationResult) {
-  //                 showToast(res.customerPushNotificationResult, "warning");
-  //             }
-  //         }
-  //     } catch (error) {
-  //         console.error(error);
-  //         showToast("An unexpected error occurred.", "error");
-  //     }
-  // };
-
   return (
     <>
       <div className="flex justify-between items-center mb-2">
@@ -514,15 +440,6 @@ useEffect(() => {
             Tell us your needs, we’ll find the fit.
           </p>
         </div>
-        {/* {customerId &&
-                    <button
-                        onClick={sendRequest}
-                        disabled={loading || requestSent}
-                        className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {requestSent ? 'Request Sent' : loading ? 'Sending...' : 'Send Request'}
-                    </button>
-                } */}
       </div>
       <form
         id="preference-form"

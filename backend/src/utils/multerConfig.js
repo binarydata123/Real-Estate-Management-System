@@ -2,9 +2,17 @@ import path from 'path';
 import fs from 'fs/promises';
 import multer from 'multer';
 import sharp from 'sharp';
+import { fileURLToPath } from 'url';
 
-const rootPath = process.cwd(); // correct path even in monorepo
-const storageRoot = path.join(rootPath, 'src', 'storage');
+// Fix: Get actual backend path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// backend/src folder
+// const rootPath = __dirname;
+
+// storage folder inside backend/src/storage
+const storageRoot = path.join(__dirname, '..', 'storage');
 
 const storage = (folderName) =>
   multer.diskStorage({
@@ -12,22 +20,17 @@ const storage = (folderName) =>
       const folderPath = path.join(storageRoot, folderName, 'original');
 
       fs.mkdir(folderPath, { recursive: true })
-        .then(() => {
-          return cb(null, folderPath);// ✔ return added
-        })
-        .catch((error) => {
-          return cb(error, folderPath); // ✔ return added
-        });
+        .then(() => cb(null, folderPath))
+        .catch((error) => cb(error, folderPath));
     },
 
     filename: (req, file, cb) => {
       const safeName = file.originalname.replace(/[^\w.-]/g, "_");
-      return cb(null, `${Date.now()}-${safeName}`); // ✔ return added
+      cb(null, `${Date.now()}-${safeName}`);
     }
   });
 
-
-// Process and save uploaded images in multiple sizes
+// Process and save images
 const processAndSaveImages = async (file, folderName) => {
   const safeName = file.filename;
 
@@ -52,6 +55,7 @@ const processAndSaveImages = async (file, folderName) => {
 
   return safeName;
 };
+
 
 
 // Move PDF files
