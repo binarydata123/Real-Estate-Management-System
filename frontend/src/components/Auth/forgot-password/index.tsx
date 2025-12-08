@@ -5,8 +5,11 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { getSettingsData } from "../../../lib/Common/Settings";
+import Image from "next/image";
+import { showErrorToast } from "@/utils/toastHandler";
 
 const forgotPasswordSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -18,6 +21,7 @@ export default function ForgotPassword() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [settingsData, setSettingsData] = useState<AdminSettingData | null>(null);
 
     const {
         register,
@@ -49,14 +53,41 @@ export default function ForgotPassword() {
         }
     };
 
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await getSettingsData();
+                if (response.success) {
+                    const d = response.data;
+                    setSettingsData(d);
+                }
+            } catch (err) {
+                showErrorToast("Error", err);
+            }
+        };
+        fetchSettings();
+    }, []);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-lg md:rounded-2xl shadow-xl md:p-8 p-4">
                 {/* Logo */}
                 <div className="text-center md:mb-8 mb-4">
-                    <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-3">
-                        <BuildingOffice2Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                    </div>
+                    {settingsData?.logoUrl
+                        ?
+                            <div style={{ display: 'inline-block' }}>
+                                <Image
+                                    src={settingsData.logoUrl}
+                                    alt="Logo"
+                                    width={70}
+                                    height={70}
+                                />
+                            </div>
+                        :
+                            <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
+                                <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
+                            </div>
+                    }
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Forgot Password</h1>
                     <p className="text-gray-600 mt-1">
                         Enter your email to receive a reset link.
