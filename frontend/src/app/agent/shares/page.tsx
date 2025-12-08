@@ -1,3 +1,4 @@
+"use client"
 import { Shares } from '@/components/Agent/Shares';
 import React from 'react';
 

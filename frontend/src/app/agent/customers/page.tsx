@@ -1,3 +1,4 @@
+"use client"
 import { Customers } from "@/components/Agent/Customers";
 import React from "react";
 

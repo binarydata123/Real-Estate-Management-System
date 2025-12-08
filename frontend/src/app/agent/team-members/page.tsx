@@ -1,4 +1,4 @@
-
+"use client"
 import { TeamManagement } from "@/components/Agent/TeamManagement/TeamManagement";
 import React from "react";
 

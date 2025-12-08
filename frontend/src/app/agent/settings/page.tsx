@@ -1,3 +1,4 @@
+"use client"
 import { Settings } from '@/components/Agent/Settings';
 import React from 'react';
 

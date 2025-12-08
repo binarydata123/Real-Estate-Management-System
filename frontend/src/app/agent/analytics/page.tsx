@@ -1,3 +1,4 @@
+'use client'
 import { Analytics } from '@/components/Agent/Analytics';
 import React from 'react';
 
