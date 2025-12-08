@@ -1,3 +1,4 @@
+"use client"
 import { AgentDashboard } from '@/components/Agent/Dashboard';
 import React from 'react';
 

@@ -1,3 +1,4 @@
+"use client"
 import { Properties } from '@/components/Agent/Properties';
 import React from 'react';
 
