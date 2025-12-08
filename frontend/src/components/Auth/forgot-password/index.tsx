@@ -37,7 +37,7 @@ export default function ForgotPassword() {
         setSuccess(null);
 
         try {
-            const response = await axios.post('http://localhost:5001/api/auth/forgot-password', data);
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, data);
             setSuccess(response.data.message || "If an account with that email exists, a password reset link has been sent.");
         } catch (err: unknown) {  // ✅ use unknown instead of any
             if (axios.isAxiosError(error) && error.response) {
