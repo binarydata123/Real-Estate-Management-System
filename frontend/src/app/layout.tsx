@@ -10,6 +10,7 @@ import NextTopLoader from "nextjs-toploader";
 import PopupLayout from "@/components/GlobalLogoutPopupProvider";
 import { getSettingsData } from "../lib/Common/Settings";
 
+export const dynamic = 'force-dynamic';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
