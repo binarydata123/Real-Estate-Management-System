@@ -7,8 +7,8 @@ const OtpSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    otp:{
-        type:Number,
+    verificationId:{
+        type:String,
         required: true,
     },
     createdAt:{

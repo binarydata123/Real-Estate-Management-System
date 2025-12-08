@@ -20,7 +20,7 @@ export const loginUser = async (data: LoginData): Promise<AxiosResponse> => {
 };
 
 export const selectCustomerAgency = async (
-  customerId: string
+  customerId: string,
 ): Promise<AxiosResponse> => {
   return api.post("/auth/select-customer-agency", { customerId });
 };
