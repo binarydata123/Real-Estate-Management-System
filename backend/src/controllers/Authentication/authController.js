@@ -467,6 +467,7 @@ const registrationController = {
         },
       });
     } catch (error) {
+      console.log("Error in Auth Controller : ",error);
       return res
         .status(500)
         .json({ message: "Server error during session check." });

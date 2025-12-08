@@ -263,11 +263,24 @@ declare global {
     name: string;
   }
 
+  interface SharedWithSchema {
+    fullName : string;
+    _id: string;
+  }
+
+  interface SharedBySchema {
+    createdAt : string;
+    email : string;
+    name : string;
+    phone : string;
+    _id : string;
+  }
+
   interface SharePropertyFormData {
-    propertyId: string;
-    sharedWithUserId: string;
+    propertyId: Property;
+    sharedWithUserId: SharedWithSchema;
     message?: string;
-    sharedByUserId: string;
+    sharedByUserId: SharedBySchema;
     agencyId: string;
     _id: string;
     status: string;
@@ -317,8 +330,8 @@ declare global {
     properties?: [];
     users?: UserData;
     customers?: CustomerFormData[];
-    meetings?:[];
-    propertyshares?:[];
+    meetings?: [];
+    propertyshares?: [];
     whatsAppNumber?: string;
   }
 
