@@ -369,7 +369,7 @@ export const LoginForm = () => {
               {loginAs === "agency" || loginAs === "admin" ? (
                 <>
                   <div
-                    className="animate-slide-in-up"
+                    // className="animate-slide-in-up"
                     style={{ animationDelay: "100ms" }}
                   >
                     <label
@@ -441,7 +441,7 @@ export const LoginForm = () => {
               )}
               {(loginAs === "agency" || loginAs === "admin") && (
                 <div
-                  className="animate-slide-in-up"
+                  // className="animate-slide-in-up"
                   style={{ animationDelay: "200ms" }}
                 >
                   <label
