@@ -199,7 +199,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
               </label>
               <select
                 {...register("customerId")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
               >
                 <option value="">Select a customer</option>
                 {customers.map((customer) => (
@@ -221,7 +221,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
               </label>
               <select
                 {...register("propertyId")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
               >
                 <option value="">Select a Property</option>
                 {properties.map((property) => (
@@ -250,7 +250,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
                   type="date"
                   {...register("date")}
                   min={new Date().toISOString().split("T")[0]}
-                  className="w-full pl-8 md:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-8 md:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                 />
               </div>
               {errors.date && (
@@ -269,7 +269,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
                 <input
                   type="time"
                   {...register("time")}
-                  className="w-full pl-8 md:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-8 md:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                 />
               </div>
               {errors.time && (
@@ -292,7 +292,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Updating..." : "Update Meeting"}
             </button>

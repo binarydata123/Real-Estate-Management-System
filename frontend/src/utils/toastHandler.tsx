@@ -159,5 +159,6 @@ export const showWarningToast = (
   toast.warn(message, { ...defaultOptions, ...options });
 };
 
-// Toast container
-export const AppToastContainer = () => <ToastContainer />;
+// ✅ Toast container (render once in root layout or App.tsx)
+export const AppToastContainer = () => <ToastContainer {...defaultOptions} />;
+

@@ -149,7 +149,7 @@ export const Shares: React.FC = () => {
 
                     <div className="flex flex-col space-y-1 text-sm text-gray-600">
                       <div className="flex items-center">
-                        <UserIcon className="h-4 w-4 mr-1.5 text-blue-500" />
+                        <UserIcon className="h-4 w-4 mr-1.5 text-primary" />
                         <span>
                           Shared by{" "}
                           <span className="font-medium">
@@ -209,7 +209,7 @@ export const Shares: React.FC = () => {
         hasMore={hasMore}
         loader={
           <div className="text-center py-4">
-            <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+            <div className="loader border-t-4 border-b-4 border-primary w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
           </div>
         }
       />

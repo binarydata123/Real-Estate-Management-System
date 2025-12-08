@@ -35,11 +35,10 @@ const CustomerProfileItem: React.FC<CustomerProfileItemProps> = ({
   return (
     <div
       onClick={handleClick}
-      className={`p-3 md:p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-        isSelected
-          ? "bg-blue-50 border-r-2 border-blue-500"
+      className={`p-3 md:p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${isSelected
+          ? "bg-blue-50 border-r-2 border-primary"
           : ""
-      } ${isDeleted ? "opacity-50 cursor-not-allowed" : ""}`}
+        } ${isDeleted ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <div className="flex items-start space-x-3">
         <div className="flex-1 min-w-0">
@@ -67,13 +66,10 @@ const CustomerProfileItem: React.FC<CustomerProfileItemProps> = ({
               </span> */}
             </div>
           </div>
-          {/* <p className="text-sm text-gray-700 truncate mt-1 break-words">
-            {getTruncatedMessage(customer.lastMessage, 50)}
-          </p> */}
 
           {customer?.status && (
             <div className="mt-2">
-              <StatusBadge status={customer?.status } />
+              <StatusBadge status={customer?.status} />
             </div>
           )}
         </div>

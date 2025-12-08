@@ -111,7 +111,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-2 md:p-5 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-100 text-blue-600 p-2 rounded-lg">
+            <div className="bg-blue-100 text-primary p-2 rounded-lg">
               <ShareIcon className="h-5 w-5" />
             </div>
             <h2 className="text-xl font-semibold  text-gray-800">
@@ -140,7 +140,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
             <div>
               <h3 className="font-semibold text-gray-800">{property.title}</h3>
               <p className="text-sm text-gray-600">{property.location}</p>
-              <p className="text-lg font-bold text-blue-700 mt-1">
+              <p className="text-lg font-bold text-primary mt-1">
                 {formatPrice(property.price as number)}
               </p>
             </div>
@@ -164,7 +164,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                   <div>
                     <select
                       {...field}
-                      className={`w-full pl-3 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                      className={`w-full pl-3 pr-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors ${
                         errors.sharedWithUserId
                           ? "border-red-600"
                           : "border-gray-300"
@@ -210,7 +210,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
                   <textarea
                     {...field}
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
                     placeholder="Add a personal message..."
                   />
                 )}
@@ -228,7 +228,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                className="flex items-center px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
                 {!loading && <ShareIcon className="h-5 w-5 mr-2" />}
                 {loading ? "Sharing..." : "Share Property"}
               </button>

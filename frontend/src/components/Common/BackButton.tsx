@@ -14,7 +14,7 @@ export default function BackButton() {
     return (
         <span
             onClick={handleBack}
-            className="w-5 h-5 cursor-pointer hover:text-blue-600"
+            className="w-5 h-5 cursor-pointer hover:text-primary"
         >
             <ArrowLeft />
         </span>

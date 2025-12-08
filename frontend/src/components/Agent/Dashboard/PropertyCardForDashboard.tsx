@@ -53,7 +53,6 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={handleImageError}
           /> */}
-
           <img
             src={getImageUrl(primaryImage)}
             alt={property.title}
@@ -87,7 +86,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
                 {property.title}
               </Link>
             </h3>
-            <p className="text-lg md:text-xl font-bold text-blue-600 flex-shrink-0">
+            <p className="text-lg md:text-xl font-bold text-primary flex-shrink-0">
               {formatPrice(property.price as number)}
             </p>
           </div>
@@ -123,7 +122,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
             href={`/agent/properties/${property._id}`}
             className="flex flex-1 item-center justify-center"
           >
-            <button className="flex-1 flex items-center justify-center px-3 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+            <button className="flex-1 flex items-center justify-center px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors text-sm">
               <EyeIcon className="h-4 w-4 mr-2" />
               View
             </button>

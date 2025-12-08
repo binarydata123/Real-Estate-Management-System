@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const router = useRouter();
 
-
+  console.log(user)
   // Centralized function to clear session state and storage
   const clearSession = useCallback(() => {
     setUser(null);
@@ -202,7 +202,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     getSettings();
-  }, [])
+  }, []);
+
   useEffect(() => {
     document.documentElement.style.setProperty("--primary", brandColors?.primaryColor || "#1e41f1");
   }, [brandColors, user]);

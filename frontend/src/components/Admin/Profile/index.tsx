@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Edit, Mail, Phone, Shield, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
+//import { Edit, Mail, Phone, Shield, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 import { getAdminProfile, updateAdminProfile } from "@/lib/Admin/ProfileAPI";
 import { useAuth } from "@/context/AuthContext";
 import { showErrorToast } from '@/utils/toastHandler';
@@ -88,11 +88,11 @@ export default function AdminProfile() {
         </div>
 
         {/* Profile Card */}
-        {!showForm && (
+        {/* {!showForm && (
             <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-8 transition hover:shadow-md">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-6 border-b pb-8">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6 border-b pb-8"> */}
                     {/* Profile Info */}
-                    <div className="flex items-center gap-6">
+                    {/* <div className="flex items-center gap-6">
                         <div className="relative w-28 h-28">
                             <Image
                                 src={admin.profilePictureUrl || '/default-avatar-profile-new-img.png'}
@@ -117,18 +117,18 @@ export default function AdminProfile() {
                                 {admin.status ? admin.status.toUpperCase() : ''}
                             </p>
                         </div>
-                    </div>
+                    </div> */}
                     {/* Edit Button */}
-                    <button
+                    {/* <button
                         onClick={toggleForm}
                         className="inline-flex items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow transition-all"
                     >
                         <Edit className="w-4 h-4 mr-2" />
                         {showForm ? "Cancel" : "Edit Profile"}
                     </button>
-                </div>
+                </div> */}
                 {/* Profile Details Section */}
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div className="flex items-center gap-3">
                         <Mail className="text-gray-500 w-5 h-5" />
                         <span className="text-gray-800 font-medium">{admin.email}</span>
@@ -162,9 +162,9 @@ export default function AdminProfile() {
                     </div>
                 </div>
             </div>
-        )}
+        )} */}
         {/* Inline Edit Form */}
-        {showForm && (
+        {/* {showForm && ( */}
             <form onSubmit={handleUpdate} className="border-t border-gray-200 pt-6 space-y-6 bg-white rounded-2xl p-6 shadow-sm mt-4">
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Update Profile Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -252,7 +252,7 @@ export default function AdminProfile() {
                     </button>
                 </div>
             </form>
-        )}
+        {/* )} */}
 
         {/* Account Settings Card */}
         {/* <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-8 mt-10 transition hover:shadow-md">

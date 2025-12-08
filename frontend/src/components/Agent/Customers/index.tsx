@@ -291,7 +291,7 @@ const handleDelete = async (id: string) => {
       {/* --- SMALL INLINE LOADER (NO FLICKER) --- */}
       {/* {isFetching && customers.length > 0 && (
         <div className="text-center py-4">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       )} */}
 
@@ -305,7 +305,7 @@ const handleDelete = async (id: string) => {
           hasMore={currentPage < totalPages}
           loader={
             <div className="text-center py-4">
-              <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+              <div className="loader border-t-4 border-b-4 border-primary w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
             </div>
           }
           endMessage={

@@ -46,10 +46,10 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           placeholder="Search conversations..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
         />
       </div>
-      
+
       {/* Only show header actions in desktop view */}
       {!isMobile && (
         <div className="flex items-center justify-between">
@@ -58,7 +58,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
               <div className="">
                 <button
                   type="button"
-                  className="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1.5 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                  className="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
                   onClick={onBack}
                 >
                   <IoArrowBackSharp />
@@ -69,13 +69,14 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
               {isArchiveMode
                 ? "Archived Messages"
                 : isTrashMode
-                ? "Deleted Messages"
-                : isBlockMode
-                ? "Blocked Messages"
-                : "Conversations"}
+                  ? "Deleted Messages"
+                  : isBlockMode
+                    ? "Blocked Messages"
+                    : "Conversations"}
             </h3>
+
           </div>
-          
+
           {showActions && (
             <ActionButtons
               isArchiveMode={isArchiveMode}

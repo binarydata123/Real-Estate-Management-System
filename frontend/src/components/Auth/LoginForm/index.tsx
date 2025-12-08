@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import  InfoPopup  from "../../Common/PopMessage";
+import InfoPopup from "../../Common/PopMessage";
 import {
   BuildingOffice2Icon,
   EyeIcon,
@@ -25,6 +25,8 @@ import {
   selectCustomerAgency,
 } from "@/lib/Authentication/AuthenticationAPI";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { getSettingsData } from "../../../lib/Common/Settings";
+import Image from "next/image";
 
 const agencyLoginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -62,6 +64,9 @@ export const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { signIn, completeSignIn } = useAuth();
+  const [settingsData, setSettingsData] = useState<AdminSettingData | null>(
+    null
+  );
 
   const {
     register,
@@ -84,9 +89,9 @@ export const LoginForm = () => {
       const response = await loginUser(loginData);
 
       if (response.data?.forceLogout) {
-        alert("this can check at the time og login")
+        alert("this can check at the time og login");
         setPopupMessage(
-        response.data.message || "Your account has been removed by the agency"
+          response.data.message || "Your account has been removed by the agency"
         );
         setLoading(false);
         return;
@@ -162,15 +167,41 @@ export const LoginForm = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await getSettingsData();
+        if (response.success) {
+          const d = response.data;
+          setSettingsData(d);
+        }
+      } catch (err) {
+        showErrorToast("Error", err);
+      }
+    };
+    fetchSettings();
+  }, []);
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-200 to-purple-200 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white/80 rounded-2xl shadow-2xl md:p-8 p-6 transition-all duration-300">
           {/* Logo */}
           <div className="text-center md:mb-8 mb-2">
-            <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
-              <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
-            </div>
+            {settingsData?.logoUrl ? (
+              <div style={{ display: "inline-block" }}>
+                <Image
+                  src={settingsData.logoUrl}
+                  alt="Logo"
+                  width={70}
+                  height={70}
+                />
+              </div>
+            ) : (
+              <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
+                <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
+              </div>
+            )}
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               REAMS
             </h1>

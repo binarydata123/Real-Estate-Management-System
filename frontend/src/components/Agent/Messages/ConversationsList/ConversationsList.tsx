@@ -106,9 +106,8 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
 
   return (
     <div
-      className={`w-full lg:w-1/3 border-r border-gray-200 flex flex-col ${
-        showConversationList ? "flex" : "hidden lg:flex"
-      }`}
+      className={`w-full lg:w-1/3 border-r border-gray-200 flex flex-col ${showConversationList ? "flex" : "hidden lg:flex"
+        }`}
     >
       {/* Mobile header with back button - Only shows in mobile */}
       {isMobile && (
@@ -118,7 +117,7 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
               <div>
                 <button
                   type="button"
-                  className="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1.5 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                  className="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
                   onClick={handleBack}
                 >
                   <IoArrowBackSharp />
@@ -129,11 +128,12 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
               {isArchiveMode
                 ? "Archived Messages"
                 : isTrashMode
-                ? "Deleted Messages"
-                : isBlockMode
-                ? "Blocked Messages"
-                : "Conversations"}
+                  ? "Deleted Messages"
+                  : isBlockMode
+                    ? "Blocked Messages"
+                    : "Conversations"}
             </h3>
+
           </div>
           <div className="lg:hidden flex items-center justify-between">
             <ActionButtons

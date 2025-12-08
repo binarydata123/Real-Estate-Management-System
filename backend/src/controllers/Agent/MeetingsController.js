@@ -199,10 +199,26 @@ export const getMeetingById = async (req, res) => {
 
 // Update a meeting
 export const updateMeeting = async (req, res) => {
+  const { agencyId,customerId,date,propertyId,status,time} = req.body;
+  let correctPropertyId;
+  if(propertyId === ""){
+    correctPropertyId = null;
+  } else {
+    correctPropertyId = propertyId;
+  }
+  const newBody = {
+    agencyId,
+    customerId,
+    date,
+    propertyId : correctPropertyId,
+    status,
+    time
+  }
+  console.log("New Body is : ",newBody);
   try {
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      newBody,
       { new: true, runValidators: true }
     );
 

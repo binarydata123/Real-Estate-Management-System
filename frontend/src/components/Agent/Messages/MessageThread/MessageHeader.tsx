@@ -64,7 +64,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             style={{ cursor: "pointer" }}
           >
             <div
-              className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0"
+              className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0"
               onClick={() => {
                 if (conversation.otherParticipant?.role !== "admin") {
                   onViewCandidate(
@@ -73,7 +73,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
                 }
               }}
             >
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
                 {/^https?:\/\//.test(conversation.otherParticipant?.avatar || "") ? (
                   <Image
                     src={conversation.otherParticipant?.avatar as string}
@@ -93,10 +93,9 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             <div className="min-w-0 overflow-hidden">
               <div className="flex flex-col">
                 <h3
-                  className={`font-semibold text-gray-900 truncate capitalize hover:text-gray-800 cursor-pointer ${
-                    conversation.otherParticipant?.role !== "admin" &&
+                  className={`font-semibold text-gray-900 truncate capitalize hover:text-gray-800 cursor-pointer ${conversation.otherParticipant?.role !== "admin" &&
                     "hover:text-gray-800 relative group"
-                  }`}
+                    }`}
                   onClick={() => {
                     if (conversation.otherParticipant?.role !== "admin") {
                       onViewCandidate(
@@ -107,21 +106,15 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
                   }}
                 >
                   {conversation.otherParticipant?.name || "Deleted User"}
-                  <span
-                    className="capitalize"
-                    style={{ fontSize: "13px" }}
-                  >
-                    (
-                    {conversation.otherParticipant?.position ||
-                      conversation.otherParticipant?.role ||
-                      "N/A"}
-                    )
-                  </span>
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 hidden group-hover:flex items-center justify-center whitespace-nowrap bg-gray-900 text-white text-xs rounded py-1 px-2 z-10 shadow">
-                    Click to view profile
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
-                  </div>
                 </h3>
+                <a
+                  href={`tel:${conversation.otherParticipant?.phone}`}
+                  className="underline text-primary"
+                >
+                  {conversation.otherParticipant?.phone}
+                </a>
+                <p>
+                </p>
               </div>
             </div>
           </div>
@@ -257,7 +250,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             )}
           </div>
           <button
-            className="text-blue-600 hover:text-blue-700 text-xs font-medium"
+            className="text-primary text-xs font-medium"
             onClick={() => {
               if (conversation.otherParticipant?.role !== "admin") {
                 onViewCandidate(

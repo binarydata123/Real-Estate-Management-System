@@ -179,7 +179,7 @@ export const Meetings: React.FC = () => {
       {/* Meetings List */}
       {isFetching && meetings.length === 0 ? (
         <div className="text-center py-12">
-          <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+          <div className="loader border-t-4 border-b-4 border-primary w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
           <p className="text-gray-600">Loading meetings...</p>
         </div>
       ) : meetings.length > 0 ? (
@@ -194,7 +194,7 @@ export const Meetings: React.FC = () => {
                 <div className="flex-1 w-full md:w-auto">
                   <div className="flex items-center space-x-3 md:mb-3 mb-2 w-full md:w-auto">
                     <div className="p-2 bg-blue-100 rounded-lg">
-                      <CalendarIcon className="h-5 w-5 text-blue-600" />
+                      <CalendarIcon className="h-5 w-5 text-primary" />
                     </div>
 
                     <div className="w-full md:w-auto">
@@ -252,8 +252,7 @@ export const Meetings: React.FC = () => {
                     <div className="flex items-start md:flex-col flex-row gap-2">
                       <button
                         onClick={() => onEdit?.(meeting._id)}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      >
+                        className="text-primary hover:text-primary text-sm font-medium">
                         Edit
                       </button>
                       <button
@@ -270,8 +269,7 @@ export const Meetings: React.FC = () => {
                         onClick={() => {
                           onEdit?.(meeting._id, "rescheduled");
                         }}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      >
+                        className="text-primary text-sm font-medium">
                         Reschedule
                       </button>
                     </div>
@@ -379,7 +377,7 @@ export const Meetings: React.FC = () => {
           hasMore={currentPage < totalPages}
           loader={
             <div className="text-center py-4">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
           }
           endMessage={

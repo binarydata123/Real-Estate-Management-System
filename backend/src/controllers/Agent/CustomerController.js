@@ -50,18 +50,22 @@ export const createCustomer = async (req, res) => {
     const customer = new Customer(customerData);
     const savedCustomer = await customer.save();
 
+    await CustomerSettings.create({
+      userId: savedCustomer._id
+    });
+
     // Send notification to the agent/agency who created the customer
     const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
     });
     if (agencySettings?.notifications?.customerActivity) {
-     await createNotification({
-      agencyId: savedCustomer.agencyId,
-      userId: req.user._id,
-      message: `A new customer lead (${savedCustomer.fullName}) has been created successfully.`,
-      type: "new_lead",
-    });
-  }
+      await createNotification({
+        agencyId: savedCustomer.agencyId,
+        userId: req.user._id,
+        message: `A new customer lead (${savedCustomer.fullName}) has been created successfully.`,
+        type: "new_lead",
+      });
+    }
 
     // Send notifications to the newly created user if they exist
     if (savedCustomer) {
@@ -225,13 +229,13 @@ export const updateCustomer = async (req, res) => {
     });
 
     if (agencySettings?.notifications?.customerActivity) {
-    await createNotification({
-      agencyId: updatedCustomer.agencyId,
-      userId: updatedCustomer.agencyId,
-      message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
-      type: "lead_updated",
-    });
-  }
+      await createNotification({
+        agencyId: updatedCustomer.agencyId,
+        userId: updatedCustomer.agencyId,
+        message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
+        type: "lead_updated",
+      });
+    }
 
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({

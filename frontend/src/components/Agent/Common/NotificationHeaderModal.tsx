@@ -159,7 +159,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  className="text-primary hover:text-primary text-sm font-medium"
                 >
                   Mark all read
                 </button>
@@ -207,7 +207,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                           {notification.type}
                         </p>
                         {!notification.read && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-primary rounded-full"></div>
                         )}
                       </div>
                       <p className="text-sm text-gray-600 md:mt-1">
