@@ -85,4 +85,29 @@ agencySchema.virtual('properties', {
   foreignField: 'agencyId',// Field in Property
 });
 
+agencySchema.virtual('users', {
+  ref: 'User',// The model to use
+  localField: 'owner',// Field in Agency
+  foreignField: '_id',// Field in User
+  justOne: true
+});
+
+agencySchema.virtual('meetings', {
+  ref: 'Meetings',// The model to use
+  localField: '_id',// Field in Agency
+  foreignField: 'agencyId',// Field in Meeting
+});
+
+agencySchema.virtual('propertyshares', {
+  ref: 'PropertyShare',// The model to use
+  localField: '_id',// Field in Agency
+  foreignField: 'agencyId',// Field in PropertyShare
+});
+
+agencySchema.virtual('customers', {
+  ref: 'Customer',// The model to use
+  localField: '_id',// Field in Agency
+  foreignField: 'agencyId',// Field in Customer
+});
+
 export const Agency = mongoose.model("Agency", agencySchema);

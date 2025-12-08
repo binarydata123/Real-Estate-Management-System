@@ -1,39 +1,33 @@
 import express from "express";
 import {
-  getAgencies,
-  updateAgency,
-  deleteAgency,
-  getAgencyById
-} from "../../../controllers/Admin/AgenciesController.js";
+  getTeamMembers,
+  updateTeamMember,
+  deleteTeamMember
+} from "../../../controllers/Admin/TeamMembersController.js";
 import { protect } from "../../../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Read
+// Using a more RESTful approach for property routes.
+
 router.get(
-  "/get-all-agencies",
+  "/get-all-team-members",
   protect(["admin", "agent", "customer"]),
-  getAgencies
+  getTeamMembers
 );
 
 // Update
 router.put(
   "/update/:id",
   protect(["admin", "agent", "customer"]),
-  updateAgency
+  updateTeamMember
 );
 
 // Delete
 router.delete(
   "/delete/:id",
   protect(["admin", "agent", "customer"]),
-  deleteAgency
-);
-
-router.get(
-  "/get-agency-by-id/:id",
-  protect(["admin", "agent", "customer"]),
-  getAgencyById
+  deleteTeamMember
 );
 
 export default router;

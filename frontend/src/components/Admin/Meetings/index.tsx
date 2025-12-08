@@ -1,39 +1,35 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import { Building2, PlusIcon, UserPlus } from "lucide-react";
-import { getCustomers, deleteCustomerById } from "@/lib/Admin/CustomerAPI";
+import { Building2, PlusIcon, Calendar } from "lucide-react";
+import { getMeetings, deleteMeetingById } from "@/lib/Admin/MeetingAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { showErrorToast } from "@/utils/toastHandler";
 
 const statusStyles: { [key: string]: string } = {
-  new: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
-  interested:
+  scheduled: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
+  completed:
     "bg-pink-100 text-pink-800 dark:bg-pink-500/10 dark:text-pink-400",
-  negotiating:
+  confirmed:
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400",
-  converted:
+  rescheduled:
     "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
-  not_interested:
+  cancelled:
     "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
-  follow_up:
-    "bg-orange-100 text-orange-800 dark:bg-orange-500/10 dark:text-orange-400",
 };
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Customers() {
+export default function Meetings() {
   // State to control the Add Agency modal
-  const [customers, setCustomers] = useState<CustomerFormData[]>([]);
+  const [meetings, setMeetings] = useState<MeetingFormData[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-  const [selectedCustomer, setSelectedCustomer] =
-    useState<CustomerFormData | null>(null);
+  const [selectedMeeting, setSelectedMeeting] = useState<MeetingFormData | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = "10";
@@ -41,25 +37,25 @@ export default function Customers() {
   const [searchStatus, setSearchStatus] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
-  const searchParams = useSearchParams();
-  const agencyId = searchParams.get("agencyId");
+  const searchParams = useSearchParams(); // ✅ to access query string params
+  const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
   const [totalRecords, setTotalRecords] = useState(0);
 
   // Calculate stats from mock data
-  //const totalCustomers = customers.length;
-  const newCustomers = customers.filter((a) => a.status === "new").length;
+  //const totalMeetings = meetings.length;
+  const scheduleMeetings = meetings.filter((a) => a.status === "scheduled").length;
 
-  const customerStats = [
+  const meetingStats = [
     {
-      name: "Total Customers",
+      name: "Total Meetings",
       value: totalRecords,
       icon: Building2,
       color: "bg-blue-500",
     },
     {
-      name: "New",
-      value: newCustomers,
-      icon: UserPlus,
+      name: "Schedule",
+      value: scheduleMeetings,
+      icon: Calendar,
       color: "bg-indigo-500",
     },
   ];
@@ -72,22 +68,21 @@ export default function Customers() {
     }, 400);
     return () => clearTimeout(handler);
   }, [searchTerm, searchStatus]);
-  const handleDeleteClick = (customer: CustomerFormData) => {
-    setSelectedCustomer(customer);
+  const handleDeleteClick = (meeting: MeetingFormData) => {
+    setSelectedMeeting(meeting);
     setShowConfirmDialog(true);
   };
   const handleDelete = async (id: string) => {
     try {
-      const response = await deleteCustomerById(id);
+      const response = await deleteMeetingById(id);
       if (response.data.success) {
-        setCustomers((prev) => prev.filter((c) => c._id !== id));
-        showSuccessToast("Customer deleted successfully")
+        setMeetings((prev) => prev.filter((c) => c._id !== id));
       }
     } catch (error) {
       showErrorToast("Error:", error);
     }
   };
-  const getAllCustomers = useCallback(
+  const getAllMeetings = useCallback(
     async (
       page = 1,
       search = "",
@@ -97,7 +92,7 @@ export default function Customers() {
     ) => {
       try {
         setIsFetching(true);
-        const res = await getCustomers(
+        const res = await getMeetings(
           page,
           limit,
           search,
@@ -105,7 +100,7 @@ export default function Customers() {
           agencyIdParam
         );
         if (res.success) {
-          setCustomers((prev) => (append ? [...prev, ...res.data] : res.data));
+          setMeetings((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
           setTotalRecords(res.pagination?.total ?? 0);
@@ -120,19 +115,19 @@ export default function Customers() {
   );
 
   useEffect(() => {
-    setCustomers([]); // Clear customers on filter change
-    getAllCustomers(
+    setMeetings([]); // Clear meetings on filter change
+    getAllMeetings(
       1,
       debouncedSearchTerm,
       debouncedSearchStatus,
       agencyId || ""
     );
-  }, [getAllCustomers, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
+  }, [getAllMeetings, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || isFetching) return;
     const finalAgencyId = agencyId || "";
-    getAllCustomers(
+    getAllMeetings(
       page,
       debouncedSearchTerm,
       debouncedSearchStatus,
@@ -146,10 +141,10 @@ export default function Customers() {
       <div className="sm:flex sm:items-center sm:justify-between sm:gap-4">
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-            Customers
+            Meetings
           </h1>
           <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-            A list of all the customers in the system including their name,
+            A list of all the meetings in the system including their name,
             members, and status.
           </p>
         </div>
@@ -168,7 +163,7 @@ export default function Customers() {
       {/* Stats Cards */}
       <div className="mt-8">
         <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {customerStats.map((item) => (
+          {meetingStats.map((item) => (
             <div
               key={item.name}
               className="relative overflow-hidden rounded-lg bg-white shadow p-2"
@@ -231,12 +226,11 @@ export default function Customers() {
             defaultValue="All Statuses"
           >
             <option value={""}>All Statuses</option>
-            <option value={"new"}>New</option>
-            <option value={"interested"}>Interested</option>
-            <option value={"negotiating"}>Negotiating</option>
-            <option value={"converted"}>Converted</option>
-            <option value={"not_interested"}>Not Interested</option>
-            <option value={"follow_up"}>Follow Up</option>
+            <option value={"scheduled"}>Scheduled</option>
+            <option value={"completed"}>Completed</option>
+            <option value={"cancelled"}>Cancelled</option>
+            <option value={"rescheduled"}>ReScheduled</option>
+            <option value={"confirmed"}>Confirmed</option>
           </select>
         </div>
       </div>
@@ -248,15 +242,15 @@ export default function Customers() {
               id="table-listing-sec"
               className="overflow-hidden shadow-sm  md:rounded-lg"
             >
-              {isFetching && customers.length === 0 ? (
+              {isFetching && meetings.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
-                  <p className="text-gray-600">Loading Customers...</p>
+                  <p className="text-gray-600">Loading Meetings...</p>
                 </div>
               ) : (
                 <>
                   <table className="min-w-full divide-y divide-gray-300 ">
-                    {customers.length > 0 ? (
+                    {meetings.length > 0 ? (
                       <>
                         <thead className="bg-gray-50  dark:bg-gray-800">
                           <tr>
@@ -266,30 +260,29 @@ export default function Customers() {
                             >
                               Customer
                             </th>
-                            {/* <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Email</th> */}
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300"
                             >
-                              Phone
+                              Property Name
                             </th>
                             <th
                               scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
-                              Minimum Budget
+                              Agency Name
                             </th>
                             <th
                               scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
-                              Maximum Budget
+                              Date
                             </th>
                             <th
                               scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
-                              Agency
+                              Time
                             </th>
                             <th
                               scope="col"
@@ -306,55 +299,67 @@ export default function Customers() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900 dark:divide-gray-700">
-                          {customers.map((customer) => (
-                            <tr key={customer._id}>
+                          {meetings.map((meeting) => (
+                            <tr key={meeting._id}>
                               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                 <div className="flex items-center">
-                                  {/* <div className="h-10 w-10 flex-shrink-0">
-                                                                        <Image width={100} height={100} className="h-10 w-10 rounded-full" src={agency.logo_url} alt={`${agency.name} logo`} />
-                                                                    </div> */}
                                   <div className="ml-4">
                                     <div className="font-medium text-gray-900 dark:text-white">
-                                      {customer.fullName || "N/A"}
+                                      {meeting.customerData?.fullName || "N/A"}
                                     </div>
                                   </div>
                                 </div>
                               </td>
-                              {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{customer.email || 'N/A'}</td> */}
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {customer.phoneNumber || "N/A"}
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {meeting.propertyData?.title || "N/A"}
+                                    </div>
+                                  </div>
+                                </div>
                               </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {customer.minimumBudget?.toLocaleString(
-                                  "en-US",
-                                  {
-                                    style: "currency",
-                                    currency: "USD",
-                                    maximumFractionDigits: 0,
-                                  }
-                                ) || "--"}
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {meeting.agencyData?.name || "N/A"}
+                                    </div>
+                                  </div>
+                                </div>
                               </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {customer.maximumBudget?.toLocaleString(
-                                  "en-US",
-                                  {
-                                    style: "currency",
-                                    currency: "USD",
-                                    maximumFractionDigits: 0,
-                                  }
-                                ) || "--"}
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                        {meeting.date
+                                        ? new Date(meeting.date).toLocaleDateString("en-US", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                            })
+                                        : "N/A"}
+                                    </div>
+                                  </div>
+                                </div>
                               </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {customer?.agencyId?.name || "N/A"}
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {meeting.time || "N/A"}
+                                    </div>
+                                  </div>
+                                </div>
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 <span
                                   className={classNames(
-                                    statusStyles[customer.status],
+                                    statusStyles[meeting.status],
                                     "inline-flex capitalize items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                   )}
                                 >
-                                  {customer.status
+                                  {meeting.status
                                     .replace(/_/g, " ")
                                     .replace(/\b\w/g, (char) =>
                                       char.toUpperCase()
@@ -362,34 +367,11 @@ export default function Customers() {
                                 </span>
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {/* <button className="text-gray-400 hover:text-blue-600 dark:text-gray-500 dark:hover:text-blue-400"><span className="sr-only">Actions for {agency.name}</span><MoreVertical className="h-5 w-5" /></button> */}
-                                {/* <span
-                                                                    //onClick={() => setEditingAgency(agency)}
-                                                                    className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium"
-                                                                >
-                                                                    Edit
-                                                                </span> */}
                                 <span
-                                  onClick={() => handleDeleteClick(customer)}
+                                  onClick={() => handleDeleteClick(meeting)}
                                   className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
                                 >
                                   Delete
-                                </span>
-                                {/* <span
-                                                                onClick={() => {
-                                                                    setViewCustomer(customer);
-                                                                    setOpen(true);
-                                                                }}
-                                                                className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                                                                >
-                                                                View
-                                                                </span>*/}
-                                <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                                  <Link
-                                    href={`/admin/preference?customerId=${customer._id}`}
-                                  >
-                                    Preference
-                                  </Link>
                                 </span>
                               </td>
                             </tr>
@@ -400,10 +382,10 @@ export default function Customers() {
                       <div className="text-center py-12">
                         {/* <UserIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" /> */}
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          No customers yet
+                          No meetings yet
                         </h3>
                         <p className="text-gray-500 mb-6">
-                          Start building your customer base
+                          Start building your meeting base
                         </p>
                         {!debouncedSearchTerm && (
                           <div className="flex justify-center mt-4">
@@ -412,7 +394,7 @@ export default function Customers() {
                               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
                               <PlusIcon className="h-5 w-5 mr-2" />
-                              Add Customer
+                              Add Meeting
                             </button>
                           </div>
                         )}
@@ -449,14 +431,14 @@ export default function Customers() {
         open={showConfirmDialog}
         onCancel={() => setShowConfirmDialog(false)}
         onConfirm={() => {
-          if (selectedCustomer?._id) {
-            handleDelete(selectedCustomer._id);
+          if (selectedMeeting?._id) {
+            handleDelete(selectedMeeting._id);
           }
           setShowConfirmDialog(false);
-          setSelectedCustomer(null);
+          setSelectedMeeting(null);
         }}
         heading="Are you sure?"
-        description="This customer will be deleted, and this action cannot be undone."
+        description="This meeting will be deleted, and this action cannot be undone."
         confirmText="Delete"
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"

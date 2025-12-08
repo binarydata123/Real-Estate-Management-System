@@ -39,6 +39,7 @@ export interface User {
   role: string;
   showAllProperty: boolean;
   agency?: Agency;
+  profilePictureUrl?: string;
 }
 
 export interface Session {

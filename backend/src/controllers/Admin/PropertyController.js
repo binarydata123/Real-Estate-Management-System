@@ -1,5 +1,9 @@
 import { Property } from "../../models/Agent/PropertyModel.js";
 import { Agency } from "../../models/Agent/AgencyModel.js";
+//import { Customer } from "../../models/Agent/CustomerModel.js";
+import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
+import { Meetings } from "../../models/Agent/MeetingModel.js";
+import { PreferenceFeedbacks } from "../../models/Agent/PreferenceFeedbackModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
@@ -71,7 +75,7 @@ export const getProperties = async (req, res) => {
       success: true,
       data: property,
       pagination: {
-        total: totalProperties,
+        totalProperties: totalProperties,
         page: pageNumber,
         limit: limitNumber,
         totalPages: Math.ceil(totalProperties / limitNumber),
@@ -131,6 +135,138 @@ export const deleteProperty = async (req, res) => {
     return res.json({
       success: true,
       message: "Property deleted successfully",
+    });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const getPropertyById = async (req, res) => {
+  try {
+    const searchQuery = {};
+    const propertyId = req.params.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    //const customersSearch = req.query.customersSearch;
+    const meetingsSearch = req.query.meetingsSearch;
+    const propertyShareSearch = req.query.propertyShareSearch;
+    const propertyFeedbackSearch = req.query.propertyFeedbackSearch;
+
+    if (propertyId) {
+      searchQuery._id = propertyId;
+    }
+
+    // if (customersSearch) {
+    //   searchQuery.$or = [];
+    //   if (customersSearch && typeof customersSearch === "string") {
+    //     searchQuery.$or.push({ fullName: { $regex: customersSearch, $options: "i" } });
+    //   }
+    // }
+
+    if (meetingsSearch) {
+      searchQuery.$or = [];
+      if (meetingsSearch && typeof meetingsSearch === "string") {
+        searchQuery.$or.push({ fullName: { $regex: meetingsSearch, $options: "i" } });
+      }
+    }
+
+    if (propertyShareSearch) {
+      searchQuery.$or = [];
+      if (propertyShareSearch && typeof propertyShareSearch === "string") {
+        searchQuery.$or.push({ fullName: { $regex: propertyShareSearch, $options: "i" } });
+      }
+    }
+    if (propertyFeedbackSearch) {
+      searchQuery.$or = [];
+      if (propertyFeedbackSearch && typeof propertyFeedbackSearch === "string") {
+        searchQuery.$or.push({ fullName: { $regex: propertyFeedbackSearch, $options: "i" } });
+      }
+    }
+    const property = await Property.findById({_id: propertyId});
+    // PAGINATED CUSTOMERS
+    // const totalCustomers = await Customer.countDocuments(searchQuery);
+    // const propertyCustomers = await Customer.find(searchQuery)
+    //   .sort({ _id: -1 })
+    //   .skip(skip)
+    //   .limit(limit);
+
+    // PAGINATED MEETINGS (AGGREGATE)
+    const totalMeetings = await Meetings.countDocuments({ propertyId: propertyId }, searchQuery);
+    let propertyMeetings = await Meetings.find({ propertyId: propertyId }, searchQuery)
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('customerId')
+      .populate('propertyId')
+      .lean();
+
+    propertyMeetings = propertyMeetings.map((item) => ({
+      ...item,
+      customerData: item.customerId,
+      propertyData: item.propertyId,
+      customerId: undefined,
+      propertyId: undefined,
+    }));
+
+    const totalPropertyShares = await PropertyShare.countDocuments({ propertyId: propertyId }, searchQuery);
+    const propertyShares = await PropertyShare.find({ propertyId: propertyId }, searchQuery)
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('propertyId')
+      .populate('sharedWithUserId')
+      .populate('sharedByUserId')
+      .lean();
+
+    const totalPropertyFeedbacks = await PreferenceFeedbacks.countDocuments({ propertyId: propertyId }, searchQuery);
+    const propertyFeedbacks = await PreferenceFeedbacks.find({ propertyId: propertyId }, searchQuery)
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('propertyId')
+      .populate('userId')
+      .lean();
+
+    if (!property) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Property not found" });
+    }
+    return res.json({
+      success: true,
+      message: "Property fetch successfully",
+      data: {
+        property: property,
+        // customers: propertyCustomers,
+        // customersPagination: {
+        //   total: totalCustomers,
+        //   page,
+        //   limit,
+        //   totalPages: Math.ceil(totalCustomers / limit),
+        // },
+        meetings: propertyMeetings,
+        meetingsPagination: {
+          total: totalMeetings,
+          page,
+          limit,
+          totalPages: Math.ceil(totalMeetings / limit),
+        },
+        propertyShare: propertyShares,
+        propertySharePagination: {
+          total: totalPropertyShares,
+          page,
+          limit,
+          totalPages: Math.ceil(totalPropertyShares / limit),
+        },
+        propertyFeedback: propertyFeedbacks,
+        propertyFeedbackPagination: {
+          total: totalPropertyFeedbacks,
+          page,
+          limit,
+          totalPages: Math.ceil(totalPropertyFeedbacks / limit),
+        }
+      }
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });

@@ -35,6 +35,20 @@ const propertyShareSchema = new mongoose.Schema(
   }
 );
 
+propertyShareSchema.virtual('customers', {
+  ref: 'Customer',
+  localField: 'sharedWithUserId',
+  foreignField: '_id',
+  justOne: true
+});
+
+propertyShareSchema.virtual('users', {
+  ref: 'User',
+  localField: 'sharedByUserId',
+  foreignField: '_id',
+  justOne: true
+});
+
 export const PropertyShare = mongoose.model(
   "PropertyShare",
   propertyShareSchema

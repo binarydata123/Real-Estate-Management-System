@@ -1,0 +1,179 @@
+import { Dialog, Transition } from "@headlessui/react";
+import {
+  X,
+  StickyNote,
+  ThumbsUp,
+  ClipboardList,
+  User
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { showErrorToast } from "@/utils/toastHandler";
+import { getPropertyFeedbackByPropertyId } from "@/lib/Admin/SharedPropertyAPI";
+
+interface PropertyFeedbackModalProps {
+  open: boolean;
+  onClose: () => void;
+  propertyShareId: string;
+}
+
+const DetailItem = ({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: React.ReactNode;
+}) => {
+  if (!value) return null;
+  return (
+    <div className="flex items-start gap-3">
+      <Icon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+      <div>
+        <p className="text-sm text-gray-500">{label}</p>
+        <p className="font-semibold text-gray-800 break-words">{value}</p>
+      </div>
+    </div>
+  );
+};
+
+export default function SharePropertyFeedbackModal({
+  open,
+  onClose,
+  propertyShareId,
+}: PropertyFeedbackModalProps) {
+  const [propertyFeedback, setPropertyFeedback] = useState<PropertyFeedback | null>(null);
+
+  useEffect(() => {
+    if (!propertyShareId) return; // safe inside useEffect
+    const fetchFeedbackProperty = async () => {
+      try {
+        const res = await getPropertyFeedbackByPropertyId(propertyShareId);
+        console.log(res);
+        if (res.success) {
+          setPropertyFeedback(res.data.preferenceFeedback);
+        }
+      } catch (err) {
+        showErrorToast("Error", err);
+      }
+    };
+    fetchFeedbackProperty();
+  }, [propertyShareId]);
+
+  // 🚀 Now this is safe
+  if (!propertyShareId) {
+    return null;
+  }
+
+  return (
+    <Transition.Root show={open} as={React.Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition.Child
+          as={React.Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={React.Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <div className="absolute top-4 right-4">
+                  <button
+                    type="button"
+                    className="rounded-full cursor-pointer p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                    onClick={onClose}
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* Header */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex-shrink-0 h-14 w-14 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-primary">
+                      {propertyFeedback?.propertyId?.title?.charAt(0)}
+                    </span>
+                  </div>
+                  <div>
+                    <Dialog.Title
+                      as="h3"
+                      className="text-xl font-bold leading-6 text-gray-900"
+                    >
+                      {propertyFeedback?.propertyId?.title || 'N/A'}
+                    </Dialog.Title>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Property Feedback Details
+                    </p>
+                  </div>
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 border-t border-gray-200 pt-5">
+                  <DetailItem
+                    icon={User}
+                    label="User"
+                    value={propertyFeedback?.userId ? propertyFeedback?.userId.name : 'N/A'}
+                  />
+                  {/* <DetailItem
+                    icon={ClipboardList}
+                    label="Reason"
+                    value={propertyFeedback?.reason}
+                  /> */}
+                  <DetailItem
+                    icon={ThumbsUp}
+                    label="Liked"
+                    value={propertyFeedback ? propertyFeedback?.liked === true ? 'YES' : 'NO' : 'N/A'}
+                  />
+                </div>
+
+                {/* Reason Section */}
+                {propertyFeedback?.reason && (
+                  <div className="mt-6 border-t border-gray-200 pt-5">
+                    <DetailItem
+                      icon={ClipboardList}
+                      label="Reason"
+                      value={
+                        <p className="text-gray-700 font-normal whitespace-pre-wrap">
+                          {propertyFeedback.reason || 'N/A'}
+                        </p>
+                      }
+                    />
+                  </div>
+                )}
+                {/* Notes Section */}
+                {propertyFeedback?.notes && (
+                  <div className="mt-6 border-t border-gray-200 pt-5">
+                    <DetailItem
+                      icon={StickyNote}
+                      label="Notes"
+                      value={
+                        <p className="text-gray-700 font-normal whitespace-pre-wrap">
+                          {propertyFeedback.notes || 'N/A'}
+                        </p>
+                      }
+                    />
+                  </div>
+                )}
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition.Root>
+  );
+}

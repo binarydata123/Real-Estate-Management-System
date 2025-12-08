@@ -40,3 +40,40 @@ export const updateAgency = async (
 export const deleteAgencyById = async (id: string) => {
   return await api.delete(`/admin/agency/delete/${id}`);
 };
+
+export const getAgencyById = async (
+  page?: number, 
+  limit?: string, 
+  teamMembersSearch?: string,
+  customersSearch?: string,
+  propertiesSearch?: string,
+  meetingsSearch?: string,
+  propertyShareSearch?: string,
+  id?: string
+) => {
+  const params: Record<string, string> = {};
+  if (page !== undefined) {
+    params.page = page.toString();
+  }
+  if (limit !== undefined) {
+    params.limit = limit.toString();
+  }
+  if (teamMembersSearch) {
+    params.teamMembersSearch = teamMembersSearch;
+  }
+  if (customersSearch) {
+    params.customersSearch = customersSearch;
+  }
+  if (propertiesSearch) {
+    params.propertiesSearch = propertiesSearch;
+  }
+  if (meetingsSearch) {
+    params.meetingsSearch = meetingsSearch;
+  }
+  if (propertyShareSearch) {
+    params.propertyShareSearch = propertyShareSearch;
+  }
+  const query = new URLSearchParams(params);
+  const response = await api.get(`/admin/agency/get-agency-by-id/${id}?${query.toString()}`);
+  return response.data;
+};

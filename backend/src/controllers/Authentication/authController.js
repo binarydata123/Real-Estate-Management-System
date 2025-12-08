@@ -208,10 +208,10 @@ const registrationController = {
         }
 
         // Find all customer profiles with the given phone number
-        const customers = await Customer.find({ phoneNumber: phone ,isDeleted:false}).populate(
-          "agencyId",
-          "name slug email phone logoUrl owner"
-        );
+        const customers = await Customer.find({
+          phoneNumber: phone,
+          isDeleted: false,
+        }).populate("agencyId", "name slug email phone logoUrl owner");
 
         if (!customers || customers.length === 0) {
           return res
@@ -247,7 +247,8 @@ const registrationController = {
           return res.status(403).json({
             success: false,
             forceLogout: true,
-            message: "Your account has been removed by the agency.Please contact with agency",
+            message:
+              "Your account has been removed by the agency.Please contact with agency",
           });
         }
 
@@ -280,15 +281,15 @@ const registrationController = {
         }
       } else if (loginAs === "customer") {
         const customerSettings = await CustomerSettings.find({
-          userId: user._id
+          userId: user._id,
         });
 
         if (customerSettings[0]?.security?.loginNotifications) {
           const notification = new Notification({
-            userId : user._id,
+            userId: user._id,
             message: "You Have Logged In Successfully!",
             type: "welcome",
-            link: "/dashboard"
+            link: "/dashboard",
           });
           await notification.save();
         }
@@ -302,6 +303,7 @@ const registrationController = {
           name: user.name || user.fullName,
           email: user.email,
           role: user.role,
+          profilePictureUrl: user.profilePictureUrl,
           agency: user.agencyId
             ? {
                 _id: user.agencyId._id,
@@ -349,7 +351,7 @@ const registrationController = {
       }
 
       const customerSettings = await CustomerSettings.find({
-        userId:user._id,
+        userId: user._id,
       });
 
       if (customerSettings[0]?.security?.loginNotifications) {
@@ -357,7 +359,7 @@ const registrationController = {
           userId: user._id,
           message: "You've Logged in Successfully!",
           type: "welcome",
-          link: "/dashboard"
+          link: "/dashboard",
         });
 
         await notification.save();
@@ -448,6 +450,8 @@ const registrationController = {
             name: user.name || user.fullName,
             email: user.email,
             role: user.role,
+            showAllProperty: user.showAllProperty,
+            profilePictureUrl: user.profilePictureUrl,
             agency: user.agencyId
               ? {
                   _id: user.agencyId._id,

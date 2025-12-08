@@ -1,10 +1,10 @@
 import express from "express";
 import {
-  getProperties,
-  updateProperty,
-  deleteProperty,
-  getPropertyById
-} from "../../../controllers/Admin/PropertyController.js";
+  getSharedProperties,
+  updateSharedProperty,
+  deleteSharedProperty,
+  getPropertyFeedbackByPropertyId
+} from "../../../controllers/Admin/SharedPropertiesController.js";
 import { protect } from "../../../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -15,29 +15,29 @@ const router = express.Router();
 // This assumes the router is mounted at a path like `/api/agent/properties`.
 
 router.get(
-  "/get-all-properties",
+  "/get-all-shared-properties",
   protect(["admin", "agent", "customer"]),
-  getProperties
+  getSharedProperties
 );
 
 // Update
 router.put(
   "/update/:id",
   protect(["admin", "agent", "customer"]),
-  updateProperty
+  updateSharedProperty
 );
 
 // Delete
 router.delete(
   "/delete/:id",
   protect(["admin", "agent", "customer"]),
-  deleteProperty
+  deleteSharedProperty
 );
 
 router.get(
-  "/get-property-by-id/:id",
+  "/get-property-feedback-by-property-id/:id",
   protect(["admin", "agent", "customer"]),
-  getPropertyById
+  getPropertyFeedbackByPropertyId
 );
 
 export default router;
