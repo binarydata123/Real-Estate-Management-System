@@ -1,3 +1,4 @@
+"use client"
 import NotificationsPage from "@/components/Common/Notifications";
 import React from "react";
 

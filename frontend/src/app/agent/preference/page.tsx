@@ -1,3 +1,4 @@
+"use client"
 import PreferenceForm from "@/components/Common/PreferenceForm";
 
 

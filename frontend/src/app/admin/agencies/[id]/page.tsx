@@ -1,9 +1,10 @@
 import AgencyView from "@/components/Admin/Agencies/AgencyView";
-export default function AgencyDetailPage({
+
+export default async function AgencyDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
   return <AgencyView agencyId={id} />;
 }
