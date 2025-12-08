@@ -48,8 +48,21 @@ export const createCustomer = async (req, res) => {
     const customer = new Customer(customerData);
     const savedCustomer = await customer.save();
 
+    const customers = await Customer.find({
+      phoneNumber: customerData.phoneNumber,
+    });
+
+    const customerSettings = await CustomerSettings.find({
+      userId: customers[0]?._id,
+    });
+
+    const Has2FA = customerSettings.some(settings => settings?.security?.twoFactorAuth === true);
+
     await CustomerSettings.create({
-      userId: savedCustomer._id
+      userId: savedCustomer._id,
+      security: {
+        twoFactorAuth: Has2FA,
+      },
     });
 
     // Send notification to the agent/agency who created the customer
@@ -73,7 +86,6 @@ export const createCustomer = async (req, res) => {
         type: "welcome",
       });
     }
-
 
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
@@ -110,14 +122,14 @@ export const getCustomers = async (req, res) => {
     const limitNumber = parseInt(limit);
     const searchQuery = search
       ? {
-        agencyId: agencyId,
-        $or: [
-          { fullName: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-          { whatsAppNumber: { $regex: search, $options: "i" } },
-          { phoneNumber: { $regex: search, $options: "i" } },
-        ],
-      }
+          agencyId: agencyId,
+          $or: [
+            { fullName: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { whatsAppNumber: { $regex: search, $options: "i" } },
+            { phoneNumber: { $regex: search, $options: "i" } },
+          ],
+        }
       : { agencyId: agencyId };
 
     const totalCustomers = await Customer.countDocuments(searchQuery);

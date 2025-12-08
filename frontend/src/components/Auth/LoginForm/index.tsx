@@ -21,9 +21,11 @@ import { z } from "zod";
 import { useAuth, Agency } from "@/context/AuthContext";
 import {
   loginUser,
+  // otpGenerator,
   selectCustomerAgency,
 } from "@/lib/Authentication/AuthenticationAPI";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import OtpModal from "./OtpModal";
 import { getSettingsData } from "../../../lib/Common/Settings";
 import Image from "next/image";
 
@@ -35,7 +37,11 @@ const agencyLoginSchema = z.object({
 });
 
 const customerLoginSchema = z.object({
-  phone: z.string().min(10, "A valid phone number is required"),
+  phone: z
+    .string()
+    .min(10, "Minimum 10 digits are required")
+    .max(10, "Maximum 10 digits are required")
+    .regex(/^[6-9]\d{9}$/, "A Valid Number is Required"),
   loginAs: z.literal("customer"),
   email: z.undefined().optional(),
   password: z.undefined().optional(),
@@ -61,13 +67,20 @@ export const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { signIn, completeSignIn } = useAuth();
-  const [settingsData, setSettingsData] = useState<AdminSettingData | null>(null);
+  const [openOtpModal, setOpenOtpModal] = useState(false);
+  const [pendingLoginData, setPendingLoginData] = useState<LoginData | null>(
+    null
+  );
+  const [settingsData, setSettingsData] = useState<AdminSettingData | null>(
+    null
+  );
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    getValues,
   } = useForm<LoginData>({
     resolver: zodResolver(
       loginAs === "customer" ? customerLoginSchema : agencyLoginSchema
@@ -75,6 +88,26 @@ export const LoginForm = () => {
     // Re-validate when loginAs changes
     context: { loginAs },
   });
+
+  const check2FA = async (loginData: LoginData) => {
+    setPendingLoginData(loginData);
+    // try {
+    //   const response = await otpGenerator(loginData.phone);
+    //   if (response.data.success === true && response.data.is2FA === true) {
+    //     setOpenOtpModal(true);
+    //   } else if (
+    //     response.data.success === true &&
+    //     response.data.is2FA === false
+    //   ) {
+    //     handleLogin(loginData);
+    //   } else if (response.data.success === false) {
+    //     showErrorToast(response.data.message);
+    //   }
+    // } catch (err) {
+    //   console.log("error catched : ", err);
+    // }
+    handleLogin(loginData);
+  };
 
   const handleLogin = async (loginData: LoginData) => {
     setLoading(true);
@@ -146,18 +179,17 @@ export const LoginForm = () => {
     }
   };
 
-
   useEffect(() => {
     const fetchSettings = async () => {
-        try {
-            const response = await getSettingsData();
-            if (response.success) {
-                const d = response.data;
-                setSettingsData(d);
-            }
-        } catch (err) {
-            showErrorToast("Error", err);
+      try {
+        const response = await getSettingsData();
+        if (response.success) {
+          const d = response.data;
+          setSettingsData(d);
         }
+      } catch (err) {
+        showErrorToast("Error", err);
+      }
     };
     fetchSettings();
   }, []);
@@ -167,21 +199,20 @@ export const LoginForm = () => {
       <div className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl md:p-8 p-6 transition-all duration-300">
         {/* Logo */}
         <div className="text-center md:mb-8 mb-2">
-          {settingsData?.logoUrl
-            ?
-              <div style={{ display: 'inline-block' }}>
-                <Image
-                  src={settingsData.logoUrl}
-                  alt="Logo"
-                  width={70}
-                  height={70}
-                />
-              </div>
-            :
-              <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
-                <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
-              </div>
-          }
+          {settingsData?.logoUrl ? (
+            <div style={{ display: "inline-block" }}>
+              <Image
+                src={settingsData.logoUrl}
+                alt="Logo"
+                width={70}
+                height={70}
+              />
+            </div>
+          ) : (
+            <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
+              <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
+            </div>
+          )}
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             REAMS
           </h1>
@@ -212,7 +243,7 @@ export const LoginForm = () => {
               {agenciesToSelect.map((agency) => (
                 <button
                   key={agency.customerId}
-                  onClick={() => handleAgencySelection(agency.customerId)}
+                  onClick={() => {handleAgencySelection(agency.customerId)}}
                   disabled={loading}
                   className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50"
                 >
@@ -294,16 +325,19 @@ export const LoginForm = () => {
                 {loginAs === "agency"
                   ? "an Agency"
                   : loginAs === "admin"
-                    ? "an Admin"
-                    : "a Customer"}
+                  ? "an Admin"
+                  : "a Customer"}
               </h2>
             </div>
 
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmit(handleLogin)(e);
-              }}
+              onSubmit={handleSubmit((data) => {
+                if (loginAs === "agency" || loginAs === "admin") {
+                  handleLogin(data);
+                } else {
+                  check2FA(data);
+                }
+              })}
               className="space-y-2 md:space-y-6"
             >
               {error && (
@@ -337,8 +371,9 @@ export const LoginForm = () => {
                         type="email"
                         {...register("email")}
                         autoFocus
-                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.email ? "border-red-500" : "border-gray-300"
-                          }`}
+                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                          errors.email ? "border-red-500" : "border-gray-300"
+                        }`}
                         placeholder="you@example.com"
                       />
                     </div>
@@ -372,8 +407,9 @@ export const LoginForm = () => {
                       type="tel"
                       {...register("phone")}
                       autoFocus
-                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.phone ? "border-red-500" : "border-gray-300"
-                        }`}
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                        errors.phone ? "border-red-500" : "border-gray-300"
+                      }`}
                       placeholder="Enter your phone number"
                     />
                   </div>
@@ -407,8 +443,9 @@ export const LoginForm = () => {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
-                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.password ? "border-red-500" : "border-gray-300"
-                        }`}
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                        errors.password ? "border-red-500" : "border-gray-300"
+                      }`}
                       placeholder="Enter your password"
                     />
                     <button
@@ -491,6 +528,19 @@ export const LoginForm = () => {
           </>
         )}
       </div>
+      {openOtpModal === true && (
+        <OtpModal
+          phone={getValues("phone")}
+          onClose={() => setOpenOtpModal(false)}
+          onSuccess={() => {
+            setOpenOtpModal(false);
+            if (pendingLoginData) {
+              console.log("Pending Login Data Is : ", pendingLoginData);
+              handleLogin(pendingLoginData);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

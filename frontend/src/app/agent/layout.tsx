@@ -21,7 +21,6 @@ interface LayoutProps {
 export default function AgentLayout({ children }: LayoutProps) {
   const { loading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [selectedMore, setSelectedMore] = useState(false);
   const pathname = usePathname();
   const sideBarRef = useRef<HTMLDivElement>(null);
 
@@ -60,24 +59,21 @@ export default function AgentLayout({ children }: LayoutProps) {
   ];
 
   const handleMoreClick = () => {
-    setSelectedMore(true);
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   const handleMouseDownEvent = (e: MouseEvent) => {
-  if (sideBarRef.current && !sideBarRef.current.contains(e.target as Node)) {
-    setIsSidebarOpen(false);
-    setSelectedMore(false);
-  }
-};
-
+    if (sideBarRef.current && !sideBarRef.current.contains(e.target as Node)) {
+      setIsSidebarOpen(false);
+    }
+  };
 
   useEffect(() => {
-    document.addEventListener("mousedown",handleMouseDownEvent);
+    document.addEventListener("mousedown", handleMouseDownEvent);
     return () => {
-      document.removeEventListener("mousedown",handleMouseDownEvent)
-    }
-  },[])
+      document.removeEventListener("mousedown", handleMouseDownEvent);
+    };
+  }, []);
 
   const isPropertyDetailPage =
     pathname.startsWith("/agent/properties/") && pathname.split("/").length > 3;
@@ -99,8 +95,9 @@ export default function AgentLayout({ children }: LayoutProps) {
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
-          className={`lg:hidden fixed inset-y-0 left-0 z-30 max-w-72 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } transition-transform duration-300 ease-in-out`}
+          className={`lg:hidden fixed inset-y-0 left-0 z-30 max-w-72 transform ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out`}
           onClick={() => setIsSidebarOpen(false)}
         ></div>
       )}
@@ -108,7 +105,9 @@ export default function AgentLayout({ children }: LayoutProps) {
       {/* Sidebar (Desktop always visible, Mobile toggled) */}
       <AgentSidebar
         isOpen={isSidebarOpen}
-        onClose={() => {setIsSidebarOpen(false); setSelectedMore(false)}}
+        onClose={() => {
+          setIsSidebarOpen(false);
+        }}
         ref={sideBarRef}
       />
 
@@ -117,24 +116,29 @@ export default function AgentLayout({ children }: LayoutProps) {
           <AgentHeader onMenuButtonClick={() => setIsSidebarOpen(true)} />
         )}
         <main
-          className={`flex-1 ${!isConditionalPage ? "p-2" : ""} md:p-6 ${!isMessagesPage && "mb-12"
-            }`}
+          className={`flex-1 ${!isConditionalPage ? "p-2" : ""} md:p-6 ${
+            !isMessagesPage && "mb-12"
+          }`}
         >
           {children}
         </main>
 
         {/* Footer Links */}
-        <div
-          className="fixed bottom-0 left-0 w-full h-[50px] md:hidden bg-primary"
-        >
+        <div className="fixed bottom-0 left-0 w-full h-[50px] md:hidden bg-primary">
           <div className="grid grid-cols-5 h-[100%] gap-2 text-white">
             {footerLinks.map((link) =>
               link.id === "more" ? (
                 <div
                   key={link.id}
                   onClick={() => handleMoreClick()}
-                  className={`h-[100%] justify-center flex flex-col items-center text-xs transition-colors cursor-pointer ${ selectedMore === true ? "bg-white text-primary" : ""
-                    }`}
+                  className={`h-[100%] justify-center flex flex-col items-center text-xs transition-colors cursor-pointer ${
+                    !pathname.startsWith("/agent/dashboard") &&
+                    !pathname.startsWith("/agent/properties") &&
+                    !pathname.startsWith("/agent/customers") &&
+                    !pathname.startsWith("/agent/meetings")
+                      ? "bg-white text-primary"
+                      : ""
+                  }`}
                 >
                   <link.icon className="w-5 h-5 mb-1" />
                   <span>{link.label}</span>
@@ -144,7 +148,11 @@ export default function AgentLayout({ children }: LayoutProps) {
                   key={link.id}
                   href={link.path}
                   className={`h-[100%] justify-center flex flex-col items-center text-xs transition-colors
-                   ${pathname.startsWith(link.path) && selectedMore === false ? "bg-white text-primary" : ""}`}
+                   ${
+                     pathname.startsWith(link.path)
+                       ? "bg-white text-primary"
+                       : ""
+                   }`}
                 >
                   <link.icon className="w-5 h-5 mb-1" />
                   <span>{link.label}</span>
@@ -153,7 +161,6 @@ export default function AgentLayout({ children }: LayoutProps) {
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
