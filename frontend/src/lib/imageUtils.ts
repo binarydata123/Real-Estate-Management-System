@@ -8,7 +8,7 @@ const DEFAULT_IMAGE_URL = "https://images.pexels.com/photos/106399/pexels-photo-
  * Get the base image URL from environment or default to localhost:5001
  */
 export const getBaseImageUrl = (): string => {
-    return process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5001/images";
+    return process.env.NEXT_PUBLIC_IMAGE_URL as string;
 };
 
 /**

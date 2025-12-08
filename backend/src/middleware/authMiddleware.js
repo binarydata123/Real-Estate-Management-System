@@ -31,7 +31,7 @@ const protect =
               return res.status(401).json({
                 forceLogout: true,
                 message: "Your account has been removed by the agency.Please contact with agency",
-              });   
+              });
             }
           } else {
             // For 'agent', 'admin', etc.
