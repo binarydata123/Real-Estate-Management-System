@@ -294,6 +294,7 @@ const registrationController = {
           name: user.name || user.fullName,
           email: user.email,
           role: user.role,
+          profilePictureUrl: user.profilePictureUrl,
           agency: user.agencyId
             ? {
                 _id: user.agencyId._id,
@@ -435,6 +436,7 @@ const registrationController = {
             email: user.email,
             role: user.role,
             showAllProperty: user.showAllProperty,
+            profilePictureUrl: user.profilePictureUrl,
             agency: user.agencyId
               ? {
                   _id: user.agencyId._id,

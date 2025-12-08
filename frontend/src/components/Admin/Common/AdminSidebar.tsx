@@ -3,17 +3,18 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BarChart4, Settings, X, Building2, Users, UserCircle, House, UserCog } from "lucide-react";
+import { Home, BarChart4, Settings, X, Building2, Users, House, UserCog, Layers, CalendarCheck } from "lucide-react";
 
 const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: Home },
-    { name: "Profile", href: "/admin/profile", icon: UserCog },
     { name: "Agencies", href: "/admin/agencies", icon: Building2 },
-    { name: "Agents", href: "/admin/agents", icon: UserCircle },
+    // { name: "Agents", href: "/admin/agents", icon: UserCircle },
     { name: "Customers", href: "/admin/customers", icon: Users },
+    { name: "Meetings", href: "/admin/meetings", icon: CalendarCheck },
     { name: "Properties", href: "/admin/properties", icon: House },
+    { name: "Shared Properties", href: "/admin/shared-properties", icon: Layers },
     { name: "Analytics", href: "/admin/analytics", icon: BarChart4 },
-    // { name: "Users", href: "/admin/users", icon: Users },
+    { name: "Profile", href: "/admin/profile", icon: UserCog },
     { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
