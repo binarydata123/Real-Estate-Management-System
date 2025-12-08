@@ -64,11 +64,11 @@ const CustomerSettings = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
-      sessionTimeout: {
-        type: String,
-        enum: ["7 days", "15 days", "never"],
-        default: "never",
-      },
+      // sessionTimeout: {
+      //   type: String,
+      //   enum: ["7 days", "15 days", "never"],
+      //   default: "never",
+      // },
       loginNotifications: {
         type: Boolean,
         default: false,

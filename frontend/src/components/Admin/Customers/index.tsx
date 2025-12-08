@@ -7,7 +7,7 @@ import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 
 const statusStyles: { [key: string]: string } = {
   new: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
@@ -41,17 +41,18 @@ export default function Customers() {
   const [searchStatus, setSearchStatus] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
-  const searchParams = useSearchParams(); // ✅ to access query string params
-  const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
+  const searchParams = useSearchParams();
+  const agencyId = searchParams.get("agencyId");
+  const [totalRecords, setTotalRecords] = useState(0);
 
   // Calculate stats from mock data
-  const totalCustomers = customers.length;
+  //const totalCustomers = customers.length;
   const newCustomers = customers.filter((a) => a.status === "new").length;
 
   const customerStats = [
     {
       name: "Total Customers",
-      value: totalCustomers,
+      value: totalRecords,
       icon: Building2,
       color: "bg-blue-500",
     },
@@ -80,6 +81,7 @@ export default function Customers() {
       const response = await deleteCustomerById(id);
       if (response.data.success) {
         setCustomers((prev) => prev.filter((c) => c._id !== id));
+        showSuccessToast("Customer deleted successfully")
       }
     } catch (error) {
       showErrorToast("Error:", error);
@@ -106,7 +108,7 @@ export default function Customers() {
           setCustomers((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
-          //setTotalRecords(res.pagination?.total ?? 0);
+          setTotalRecords(res.pagination?.total ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);

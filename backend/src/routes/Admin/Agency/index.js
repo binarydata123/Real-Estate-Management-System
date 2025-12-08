@@ -3,6 +3,7 @@ import {
   getAgencies,
   updateAgency,
   deleteAgency,
+  getAgencyById
 } from "../../../controllers/Admin/AgenciesController.js";
 import { protect } from "../../../middleware/authMiddleware.js";
 
@@ -27,6 +28,12 @@ router.delete(
   "/delete/:id",
   protect(["admin", "agent", "customer"]),
   deleteAgency
+);
+
+router.get(
+  "/get-agency-by-id/:id",
+  protect(["admin", "agent", "customer"]),
+  getAgencyById
 );
 
 export default router;

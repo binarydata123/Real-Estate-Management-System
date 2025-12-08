@@ -5,7 +5,8 @@ import { Property } from "../../models/Agent/PropertyModel.js";
 export const getDashboardData = async (req, res) => {
   try {
     // 1️⃣ Stats
-    const totalUsers = await User.countDocuments();
+    const currentUserId = req.user?._id;
+    const totalUsers = await User.countDocuments({_id: { $ne: currentUserId }});
     const totalAgencies = await Agency.countDocuments();
     const totalProperties = await Property.countDocuments();
     const pendingApprovals = await User.countDocuments({ status: "pending" });

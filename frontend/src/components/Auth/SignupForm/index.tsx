@@ -23,6 +23,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { getSettingsData } from "../../../lib/Common/Settings";
+import Image from "next/image";
+import { showErrorToast } from "@/utils/toastHandler";
 
 // 1. Define the validation schema with Zod
 const signupSchema = z.object({
@@ -48,6 +51,7 @@ const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
   const router = useRouter();
+  const [settingsData, setSettingsData] = useState<AdminSettingData | null>(null);
 
   // 2. Set up react-hook-form
   const {
@@ -115,14 +119,41 @@ const SignupForm = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+        try {
+            const response = await getSettingsData();
+            if (response.success) {
+                const d = response.data;
+                setSettingsData(d);
+            }
+        } catch (err) {
+            showErrorToast("Error", err);
+        }
+    };
+    fetchSettings();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-200 to-purple-200 flex items-center justify-center p-4">
-      <div className="max-w-lg w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl md:p-8 p-6">
+      <div className="max-w-lg w-full bg-white/80  rounded-2xl shadow-2xl md:p-8 p-6">
         {/* Logo */}
         <div className="text-center md:mb-8 mb-3">
-          <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
-            <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
-          </div>
+          {settingsData?.logoUrl
+            ?
+              <div style={{ display: 'inline-block' }}>
+                <Image
+                  src={settingsData.logoUrl}
+                  alt="Logo"
+                  width={70}
+                  height={70}
+                />
+              </div>
+            :
+              <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
+                <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
+              </div>
+          }
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             Create Your Agency
           </h1>

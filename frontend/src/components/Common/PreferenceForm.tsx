@@ -359,13 +359,15 @@ export default function PreferenceForm() {
   const watchedType = watch("type");
   const watchedCategories = watch("category") || [];
 
-  useEffect(() => {
-    if (isInitialLoad) return;
-    if (initialType && watchedType !== initialType) {
-      setValue("category", []);
+  
+
+  useEffect(()=>{
+    if(isInitialLoad) return;
+
+    if(initialType && watchedType!==initialType ){
+      setValue("category",[]);
     }
-    
-  }, [watchedType, initialType, isInitialLoad, setValue]);
+  },[watchedType,initialType,isInitialLoad,setValue])
 
   const showConfiguration = useMemo(() => {
     if (watchedType !== "residential") return false;
@@ -418,7 +420,7 @@ useEffect(() => {
     const fetchDetail = async () => {
       try {
         const res = await getPreferenceDetail(customerId);
-        console.log(res)
+      
         if (res.success && res.data) {
           reset(res.data);
           setInitialType(res.data.type);
@@ -438,11 +440,6 @@ useEffect(() => {
   }
 }, [customerId, reset, showToast]);
 
-
-
-
-
-
   const onSubmit = async (data: UserPreferenceFormData) => {
 
     const finalData = {
@@ -455,7 +452,7 @@ useEffect(() => {
 
     try {
       const res = await createPreference(finalData);
-      console.log("This is my response: ",res)
+      
       if (res.success) {
         showToast(res.message, "success");
         router.push("/agent/customers");

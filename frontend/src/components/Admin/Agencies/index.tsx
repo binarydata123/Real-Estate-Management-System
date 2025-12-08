@@ -1,21 +1,22 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import { Building2, CheckCircle, Clock, XCircle, PlusIcon } from "lucide-react";
+import { Building2 } from "lucide-react";
 import AddAgencyModal from "./AddAgencyModal";
 import { getAgencies, deleteAgencyById } from "@/lib/Admin/AgencyAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
-import { useAuth } from "@/context/AuthContext";
+//import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast,showSuccessToast } from "@/utils/toastHandler";
+import Link from "next/link";
 
-const statusStyles: { [key: string]: string } = {
-  approved:
-    "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
-  pending:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400",
-  rejected: "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
-};
+// const statusStyles: { [key: string]: string } = {
+//   approved:
+//     "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
+//   pending:
+//     "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400",
+//   rejected: "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
+// };
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -24,7 +25,7 @@ function classNames(...classes: string[]) {
 export default function Agencies() {
   // State to control the Add Agency modal
   const [isAddAgencyModalOpen, setAddAgencyModalOpen] = useState(false);
-  const { user } = useAuth();
+  //const { user } = useAuth();
   const [agencies, setAgencies] = useState<AgencyFormData[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
@@ -38,42 +39,45 @@ export default function Agencies() {
   const [searchStatus, setSearchStatus] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
+  //const [open, setOpen] = useState(false);
+  //const [viewAgency, setViewAgency] = useState<AgencyFormData | null>(null);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   // Calculate stats from mock data
-  const totalAgencies = agencies.length;
-  const approvedAgencies = agencies.filter(
-    (a) => a.status === "approved"
-  ).length;
-  const pendingAgencies = agencies.filter((a) => a.status === "pending").length;
-  const rejectedAgencies = agencies.filter(
-    (a) => a.status === "rejected"
-  ).length;
+  //const totalAgencies = agencies.length;
+  // const approvedAgencies = agencies.filter(
+  //   (a) => a.status === "approved"
+  // ).length;
+  // const pendingAgencies = agencies.filter((a) => a.status === "pending").length;
+  // const rejectedAgencies = agencies.filter(
+  //   (a) => a.status === "rejected"
+  // ).length;
 
   const agencyStats = [
     {
       name: "Total Agencies",
-      value: totalAgencies,
+      value: totalRecords,
       icon: Building2,
       color: "bg-blue-500",
     },
-    {
-      name: "Approved",
-      value: approvedAgencies,
-      icon: CheckCircle,
-      color: "bg-green-500",
-    },
-    {
-      name: "Pending",
-      value: pendingAgencies,
-      icon: Clock,
-      color: "bg-yellow-500",
-    },
-    {
-      name: "Rejected",
-      value: rejectedAgencies,
-      icon: XCircle,
-      color: "bg-red-500",
-    },
+    // {
+    //   name: "Approved",
+    //   value: approvedAgencies,
+    //   icon: CheckCircle,
+    //   color: "bg-green-500",
+    // },
+    // {
+    //   name: "Pending",
+    //   value: pendingAgencies,
+    //   icon: Clock,
+    //   color: "bg-yellow-500",
+    // },
+    // {
+    //   name: "Rejected",
+    //   value: rejectedAgencies,
+    //   icon: XCircle,
+    //   color: "bg-red-500",
+    // },
   ];
 
   useEffect(() => {
@@ -94,6 +98,7 @@ export default function Agencies() {
       const response = await deleteAgencyById(id);
       if (response.data.success) {
         setAgencies((prev) => prev.filter((c) => c._id !== id));
+        showSuccessToast("Agency deleted successfully")
       }
     } catch (error) {
       showErrorToast("Failed to delete customer:", error);
@@ -109,6 +114,7 @@ export default function Agencies() {
           setAgencies((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
+          setTotalRecords(res.pagination?.total ?? 0);
         }
       } catch (error) {
         showErrorToast("Failed to fetch agencies:", error);
@@ -116,7 +122,7 @@ export default function Agencies() {
         setIsFetching(false);
       }
     },
-    [user?._id]
+    []
   );
 
   useEffect(() => {
@@ -144,13 +150,13 @@ export default function Agencies() {
         </div>
         <div className="mt-4 sm:mt-0 sm:flex-none">
           {/* <button
-                        type="button"
-                        onClick={() => setAddAgencyModalOpen(true)}
-                        className="inline-flex items-center justify-center rounded-md   bg-blue-600 md:px-4 px-2 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
-                    >
-                        <PlusCircle className="-ml-1 mr-2 h-5 w-5" />
-                        Add Agency
-                    </button> */}
+              type="button"
+              onClick={() => setAddAgencyModalOpen(true)}
+              className="inline-flex items-center justify-center rounded-md   bg-blue-600 md:px-4 px-2 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+          >
+              <PlusCircle className="-ml-1 mr-2 h-5 w-5" />
+              Add Agency
+          </button> */}
         </div>
       </div>
 
@@ -198,10 +204,10 @@ export default function Agencies() {
             Search
           </label>
           {/* <div className="relative rounded-md shadow-sm">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <SearchInput value={searchTerm} onChange={setSearchTerm} className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                    </div> */}
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <SearchInput value={searchTerm} onChange={setSearchTerm} className="h-5 w-5 text-gray-400" aria-hidden="true" />
+              </div>
+          </div> */}
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
@@ -251,9 +257,15 @@ export default function Agencies() {
                             </th>
                             <th
                               scope="col"
+                              className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300"
+                            >
+                              Owner Name
+                            </th>
+                            <th
+                              scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
-                              Members
+                              Team Members
                             </th>
                             <th
                               scope="col"
@@ -265,8 +277,26 @@ export default function Agencies() {
                               scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
-                              Status
+                              Customers
                             </th>
+                            <th
+                              scope="col"
+                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
+                            >
+                              Meetings
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
+                            >
+                              Shared Properties
+                            </th>
+                            {/* <th
+                              scope="col"
+                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
+                            >
+                              Status
+                            </th> */}
                             <th
                               scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
@@ -286,9 +316,6 @@ export default function Agencies() {
                             <tr key={agency._id}>
                               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                 <div className="flex items-center">
-                                  {/* <div className="h-10 w-10 flex-shrink-0">
-                                                                        <Image width={100} height={100} className="h-10 w-10 rounded-full" src={agency.logo_url} alt={`${agency.name} logo`} />
-                                                                    </div> */}
                                   <div className="ml-4">
                                     <div className="font-medium text-gray-900 dark:text-white">
                                       {agency.name}
@@ -296,13 +323,81 @@ export default function Agencies() {
                                   </div>
                                 </div>
                               </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {agency.teamMembers?.length}
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {agency.users?.name}
+                                    </div>
+                                  </div>
+                                </div>
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {agency.properties?.length}
+                                {(agency.teamMembers?.length ?? 0) > 0 &&
+                                  agency?._id ? (
+                                    <a
+                                      className="text-blue-800"
+                                      href={`/admin/team-members?agencyId=${agency._id}`}
+                                    >
+                                      {agency.teamMembers?.length ?? 0}
+                                    </a>
+                                  ) : (
+                                    agency.teamMembers?.length ?? 0
+                                )}
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                {(agency.properties?.length ?? 0) > 0 &&
+                                  agency?._id ? (
+                                    <a
+                                      className="text-blue-800"
+                                      href={`/admin/properties?agencyId=${agency._id}`}
+                                    >
+                                      {agency.properties?.length ?? 0}
+                                    </a>
+                                  ) : (
+                                    agency.properties?.length ?? 0
+                                )}
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                {(agency.customers?.length ?? 0) > 0 &&
+                                  agency._id ? (
+                                    <a
+                                      className="text-blue-800"
+                                      href={`/admin/customers?agencyId=${agency._id}`}
+                                    >
+                                      {agency.customers?.length ?? 0}
+                                    </a>
+                                  ) : (
+                                    agency.customers?.length ?? 0
+                                )}
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                {(agency.meetings?.length ?? 0) > 0 &&
+                                  agency?._id ? (
+                                    <a
+                                      className="text-blue-800"
+                                      href={`/admin/meetings?agencyId=${agency._id}`}
+                                    >
+                                      {agency.meetings?.length ?? 0}
+                                    </a>
+                                  ) : (
+                                    agency.meetings?.length ?? 0
+                                )}
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                {(agency.propertyshares?.length ?? 0) > 0 &&
+                                  agency?._id ? (
+                                    <a
+                                      className="text-blue-800"
+                                      href={`/admin/shared-properties?agencyId=${agency._id}`}
+                                    >
+                                      {agency.propertyshares?.length ?? 0}
+                                    </a>
+                                  ) : (
+                                    agency.propertyshares?.length ?? 0
+                                )}
+                              </td>
+                              {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 <span
                                   className={classNames(
                                     statusStyles[agency.status],
@@ -312,7 +407,7 @@ export default function Agencies() {
                                   {agency.status.charAt(0).toUpperCase() +
                                     agency.status.slice(1)}
                                 </span>
-                              </td>
+                              </td> */}
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 {new Date(
                                   agency.createdAt
@@ -332,20 +427,22 @@ export default function Agencies() {
                                 >
                                   Delete
                                 </span>
-                                {/* <span
-                                                                onClick={() => {
-                                                                    setViewCustomer(customer);
-                                                                    setOpen(true);
-                                                                }}
-                                                                className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                                                                >
-                                                                View
-                                                                </span>
-                                                                <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                                                                <Link href={`/agent/preference?customerId=${customer._id}`}>
-                                                                    Preference
-                                                                </Link>
-                                                                </span> */}
+                                <span
+                                  // onClick={() => {
+                                  //     setViewAgency(agency);
+                                  //     setOpen(true);
+                                  // }}
+                                  className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
+                                >
+                                  <Link href={`/admin/agencies/${agency._id}`}>
+                                      View
+                                  </Link>
+                                </span>
+                                {/* <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                                  <Link href={`/agent/preference?customerId=${customer._id}`}>
+                                      Preference
+                                  </Link>
+                                </span> */}
                               </td>
                             </tr>
                           ))}
@@ -360,7 +457,7 @@ export default function Agencies() {
                         <p className="text-gray-500 mb-6">
                           Start building your agency base
                         </p>
-                        {!debouncedSearchTerm && (
+                        {/* {!debouncedSearchTerm && (
                           <div className="flex justify-center mt-4">
                             <button
                               // onClick={() => setShowAddForm(true)}
@@ -370,7 +467,7 @@ export default function Agencies() {
                               Add Agency
                             </button>
                           </div>
-                        )}
+                        )} */}
                       </div>
                     )}
                   </table>
@@ -440,6 +537,11 @@ export default function Agencies() {
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"
       />
+      {/* <AgencyModal
+        open={open}
+        onClose={() => setOpen(false)}
+        agency={viewAgency}
+      /> */}
     </div>
   );
 }

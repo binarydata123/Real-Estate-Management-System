@@ -29,5 +29,13 @@ router.post(
   protect(["agent", "admin", "customer"]),
   registrationController.changePassword
 );
+router.post(
+  "/check-otp",
+  registrationController.otpHandler
+);
+router.post(
+  "/otp",
+  registrationController.otpGenerator
+);
 
 export default router;

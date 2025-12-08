@@ -1,3 +1,4 @@
+import { Customer } from "../../models/Agent/CustomerModel.js";
 import CustomerSettings from "../../models/Customer/SettingsModel.js";
 
 export const getCustomerSettings = async (req, res) => {
@@ -29,6 +30,30 @@ export const updateCustomerSettings = async (req, res) => {
   try {
     const userId = req.user._id;
     const updateData = req.body || {};
+
+    const currentCustomer = await Customer.findById(userId);
+
+    if (!currentCustomer) {
+      return res.json({
+        success: false,
+        message: "Customer Not Found",
+      });
+    }
+
+    const allCustomerIds = await Customer.find({
+      phoneNumber: currentCustomer.phoneNumber,
+    });
+
+    if (updateData?.security?.twoFactorAuth !== undefined) {
+      const twoFactorValue = updateData?.security?.twoFactorAuth;
+      for (const customer of allCustomerIds) {
+        await CustomerSettings.findOneAndUpdate(
+          {userId : customer._id},
+          { $set: {"security.twoFactorAuth" : twoFactorValue}},
+          { upsert : true},
+        );
+      }
+    }
 
     // Find existing settings by userId
     let customer = await CustomerSettings.findOne({ userId });
@@ -85,7 +110,7 @@ export const updateCustomerSettings = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating customer settings:", error);
-   return res.status(500).json({
+    return res.status(500).json({
       message: "Server error",
       error: error.message,
     });

@@ -199,6 +199,44 @@ declare global {
     showAllProperty?: boolean;
   }
 
+  interface MeetingResponse {
+    success: boolean;
+    data: MeetingFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface MeetingFormData {
+    _id: string;
+    customerId: string;
+    propertyId: string;
+    agencyId?: string;
+    date?: string;
+    time?: string;
+    status: string;
+    createdAt: string;
+    customerData: CustomerFormData;
+    propertyData: Property;
+    agencyData: AgencyFormData;
+  }
+
+  interface SharedPropertyResponse {
+    success: boolean;
+    data: SharedPropertiesFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface SharedPropertiesFormData {
+    _id: string;
+    agencyId?: AgencyFormData;
+    propertyId: Property;
+    sharedsharedWithUserId: CustomerFormData;
+    sharedByUserId: UserData;
+    message?: string;
+    createdAt: string;
+  }
+
   interface Pagination {
     total: number;
     page: number;
@@ -226,14 +264,18 @@ declare global {
   }
 
   interface SharePropertyFormData {
-    propertyId: Property;
-    sharedWithUserId: CustomerFormData;
+    propertyId: string;
+    sharedWithUserId: string;
     message?: string;
-    sharedByUserId: UserRef;
+    sharedByUserId: string;
     agencyId: string;
     _id: string;
     status: string;
     createdAt: string;
+    agencyData: AgencyFormData;
+    propertyData: Property;
+    customerData: CustomerFormData;
+    userData: UserData;
   }
 
   interface sharePropertyResponse {
@@ -273,6 +315,11 @@ declare global {
     createdAt: Date;
     updatedAt: Date;
     properties?: [];
+    users?: UserData;
+    customers?: CustomerFormData[];
+    meetings?:[];
+    propertyshares?:[];
+    whatsAppNumber?: string;
   }
 
   interface PropertyResponse {
@@ -290,6 +337,37 @@ declare global {
   }
 
   interface AgentFormData {
+    _id: string;
+    name: string;
+    email: string | "";
+    phone?: string;
+    password?: string;
+    role?: string;
+    status: string;
+    profilePictureUrl?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    agencyId?: {
+      email: string;
+      id: string;
+      members: number;
+      name: string;
+      phone: string;
+      status: string;
+      _id: string;
+    };
+    customersCount?: number;
+    propertiesCount?: number;
+  }
+
+  interface TeamMemberResponse {
+    success: boolean;
+    data: TeamMemberFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface TeamMemberFormData {
     _id: string;
     name: string;
     email: string | "";
@@ -446,6 +524,39 @@ declare global {
     features: string[];
     facing: string[];
     reraStatus: string[];
+  }
+  interface AdminSettingsResponse {
+    success: boolean;
+    data: AdminSettingData;
+    userData: UserData;
+    message: string;
+  }
+  interface AdminSettingData {
+    _id?: string;
+    logoUrl?: string;
+    logoFile?: string;
+    faviconUrl?: string;
+    faviconFile?: string;
+    footerContent?: string;
+    currentPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+    notificationEmailAlert?: boolean;
+    notificationLoginAlert?: boolean;
+    notificationUpdatesAlert?: boolean;
+    notificationSecurityAlert?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+  }
+  interface PropertyFeedback {
+    _id?: string;
+    userId?: UserData;
+    propertyId?: Property;
+    liked?: boolean;
+    reason?: string;
+    notes?: string;
+    createdAt?: string;
+    updatedAt?: string;
   }
 }
 interface TeamMember {

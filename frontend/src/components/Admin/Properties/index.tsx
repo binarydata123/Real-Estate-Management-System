@@ -14,7 +14,8 @@ import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
 import { useSearchParams } from "next/navigation";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import Link from "next/link";
 
 const statusStyles: { [key: string]: string } = {
   Available:
@@ -42,7 +43,7 @@ export default function Properties() {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  //const [totalRecords, setTotalRecords] = useState(0);
+  const [totalRecords, setTotalRecords] = useState(0);
   const limit = "10";
   const [searchTerm, setSearchTerm] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
@@ -51,9 +52,12 @@ export default function Properties() {
   //const [showAddForm, setShowAddForm] = useState(false);
   const searchParams = useSearchParams(); // ✅ to access query string params
   const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
+  //const [open, setOpen] = useState(false);
+  //const [viewPropertyFeedback, setViewPropertyFeedback] = useState<string>('');
+
 
   // Calculate stats from mock data
-  const totalProperties = properties.length;
+  //const totalProperties = properties.length;
   const availableProperties = properties.filter(
     (a) => a.status === "Available"
   ).length;
@@ -69,7 +73,7 @@ export default function Properties() {
     //{ name: 'Total Properties', value: totalRecords, icon: Building2, color: 'bg-blue-500' },
     {
       name: "Total Properties",
-      value: totalProperties,
+      value: totalRecords,
       icon: Building2,
       color: "bg-blue-500",
     },
@@ -116,6 +120,7 @@ export default function Properties() {
       const response = await deletePropertyById(id);
       if (response.data.success) {
         setProperties((prev) => prev.filter((c) => c._id !== id));
+        showSuccessToast("Property deleted successfully")
       }
     } catch (error) {
       showErrorToast("Error:", error);
@@ -143,7 +148,7 @@ export default function Properties() {
           setProperties((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
-          //setTotalRecords(res.pagination?.total ?? 0);
+          setTotalRecords(res.pagination?.totalProperties ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);
@@ -206,7 +211,7 @@ export default function Properties() {
 
       {/* Stats Cards */}
       <div className="mt-8">
-        <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-5">
           {propertyStats.map((item) => (
             <div
               key={item.name}
@@ -403,20 +408,37 @@ export default function Properties() {
                                 >
                                   Delete
                                 </span>
+                                <span
+                                  className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
+                                >
+                                  <Link href={`/admin/properties/${property._id}`}>
+                                      View
+                                  </Link>
+                                </span>
                                 {/* <span
-                                                                onClick={() => {
-                                                                    setViewCustomer(customer);
-                                                                    setOpen(true);
-                                                                }}
-                                                                className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                                                                >
-                                                                View
-                                                                </span>
-                                                                <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                                                                <Link href={`/agent/preference?customerId=${customer._id}`}>
-                                                                    Preference
-                                                                </Link>
-                                                                </span> */}
+                                  onClick={() => {
+                                      setViewPropertyFeedback(property._id);
+                                      setOpen(true);
+                                  }}
+                                  className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
+                                >
+                                  View
+                                </span> */}
+                                {/* <span
+                                  onClick={() => {
+                                      setViewCustomer(customer);
+                                      setOpen(true);
+                                  }}
+                                  className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
+                                  >
+                                  View
+                                  </span>
+                                  <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                                  <Link href={`/agent/preference?customerId=${customer._id}`}>
+                                      Preference
+                                  </Link>
+                                  </span> 
+                                */}
                               </td>
                             </tr>
                           ))}
@@ -487,6 +509,11 @@ export default function Properties() {
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"
       />
+      {/* <PropertyFeedbackModal
+        open={open}
+        onClose={() => setOpen(false)}
+        propertyId={viewPropertyFeedback}
+      /> */}
     </div>
   );
 }

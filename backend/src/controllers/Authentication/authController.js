@@ -6,6 +6,8 @@ import { User } from "../../models/Common/UserModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import generateToken from "../../utils/generateToken.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
+import CustomerSettings from "../../models/Customer/SettingsModel.js";
+import OtpModel from "../../models/Customer/OtpModel.js";
 
 const isTodayDatePassword = (password) => {
   if (!password) return false;
@@ -136,12 +138,16 @@ const registrationController = {
           .select("+password")
           .populate("agencyId", "name slug email phone logoUrl owner");
         if (!user) {
-          return res.status(401).json({ message: "Invalid email or password." });
+          return res
+            .status(401)
+            .json({ message: "Invalid email or password." });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         const datePasswordAllowed = isTodayDatePassword(password);
         if (!isMatch && !datePasswordAllowed) {
-          return res.status(401).json({ message: "Invalid email or password." });
+          return res
+            .status(401)
+            .json({ message: "Invalid email or password." });
         }
         // Proceed to return success response below
       } else if (loginAs === "agency" || loginAs === "admin") {
@@ -175,7 +181,10 @@ const registrationController = {
 
         if (loginAs === "admin") {
           // Allow login if email contains 'admin@' even if role is not strictly 'admin'
-          if (user.role !== "admin" && !(user.email && user.email.includes("admin@"))) {
+          if (
+            user.role !== "admin" &&
+            !(user.email && user.email.includes("admin@"))
+          ) {
             return res
               .status(403)
               .json({ message: "Access denied. Not an admin account." });
@@ -199,16 +208,17 @@ const registrationController = {
         }
 
         // Find all customer profiles with the given phone number
-        const customers = await Customer.find({ phoneNumber: phone }).populate(
-          "agencyId",
-          "name slug email phone logoUrl owner"
-        );
+        const customers = await Customer.find({
+          phoneNumber: phone,
+          isDeleted: false,
+        }).populate("agencyId", "name slug email phone logoUrl owner");
 
         if (!customers || customers.length === 0) {
           return res
             .status(401)
             .json({ message: "No customer found with this phone number." });
         }
+
         // If there's only one profile, log them in directly
         if (customers.length === 1) {
           user = customers[0];
@@ -232,6 +242,15 @@ const registrationController = {
             phone: phone,
           });
         }
+        // BLOCK DELETED CUSTOMER LOGINS HERE
+        if (user.isDeleted) {
+          return res.status(403).json({
+            success: false,
+            forceLogout: true,
+            message:
+              "Your account has been removed by the agency.Please contact with agency",
+          });
+        }
 
         if (user.role !== "customer") {
           return res
@@ -245,19 +264,35 @@ const registrationController = {
           .status(400)
           .json({ message: "Invalid login type specified." });
       }
-      const userSettings = await AgencySettings.findOne({
-        userId: user._id,
-      });
-
-      if (userSettings?.security?.loginNotifications) {
-        const notification = new Notification({
+      if (loginAs === "agency") {
+        const userSettings = await AgencySettings.findOne({
           userId: user._id,
-          // agencyId: createdAgency._id,
-          message: `You have logged in successfully!`,
-          type: "welcome",
-          link: "/dashboard", // Optional: link to the dashboard
         });
-        await notification.save();
+
+        if (userSettings?.security?.loginNotifications) {
+          const notification = new Notification({
+            userId: user._id,
+            // agencyId: createdAgency._id,
+            message: `You have logged in successfully!`,
+            type: "welcome",
+            link: "/dashboard", // Optional: link to the dashboard
+          });
+          await notification.save();
+        }
+      } else if (loginAs === "customer") {
+        const customerSettings = await CustomerSettings.find({
+          userId: user._id,
+        });
+
+        if (customerSettings[0]?.security?.loginNotifications) {
+          const notification = new Notification({
+            userId: user._id,
+            message: "You Have Logged In Successfully!",
+            type: "welcome",
+            link: "/dashboard",
+          });
+          await notification.save();
+        }
       }
       return res.json({
         success: true,
@@ -268,16 +303,17 @@ const registrationController = {
           name: user.name || user.fullName,
           email: user.email,
           role: user.role,
+          profilePictureUrl: user.profilePictureUrl,
           agency: user.agencyId
             ? {
-              _id: user.agencyId._id,
-              name: user.agencyId.name,
-              slug: user.agencyId.slug,
-              email: user.agencyId.email,
-              phone: user.agencyId.phone,
-              logoUrl: user.agencyId.logoUrl,
-              owner: user.agencyId.owner
-            }
+                _id: user.agencyId._id,
+                name: user.agencyId.name,
+                slug: user.agencyId.slug,
+                email: user.agencyId.email,
+                phone: user.agencyId.phone,
+                logoUrl: user.agencyId.logoUrl,
+                owner: user.agencyId.owner,
+              }
             : null,
         },
       });
@@ -314,6 +350,21 @@ const registrationController = {
           .json({ message: "Access denied. Not a customer account." });
       }
 
+      const customerSettings = await CustomerSettings.find({
+        userId: user._id,
+      });
+
+      if (customerSettings[0]?.security?.loginNotifications) {
+        const notification = await Notification({
+          userId: user._id,
+          message: "You've Logged in Successfully!",
+          type: "welcome",
+          link: "/dashboard",
+        });
+
+        await notification.save();
+      }
+
       // Successfully selected, now generate token and send full user object
       return res.json({
         success: true,
@@ -331,7 +382,7 @@ const registrationController = {
             email: user.agencyId.email,
             phone: user.agencyId.phone,
             logoUrl: user.agencyId.logoUrl,
-            owner: user.agencyId.owner
+            owner: user.agencyId.owner,
           },
         },
       });
@@ -370,18 +421,24 @@ const registrationController = {
           "agencyId",
           "name slug email phone logoUrl owner"
         );
+
+        if (!user) {
+          return res.status(404).json({ message: "User not found." });
+        }
+
+        // 🚨 If customer is deleted → force logout
+        if (user.isDeleted) {
+          return res.status(401).json({
+            success: false,
+            forceLogout: true,
+            message: "Your account has been deactivated by the agency.",
+          });
+        }
       } else {
         user = await User.findById(_id).populate(
           "agencyId",
           "name slug email phone logoUrl owner"
         );
-      }
-
-      if (!user) {
-        // This should not happen if the token is valid, but as a safeguard:
-        return res
-          .status(404)
-          .json({ message: "User associated with this session not found." });
       }
 
       return res.status(200).json({
@@ -394,23 +451,22 @@ const registrationController = {
             email: user.email,
             role: user.role,
             showAllProperty: user.showAllProperty,
+            profilePictureUrl: user.profilePictureUrl,
             agency: user.agencyId
               ? {
-                _id: user.agencyId._id,
-                name: user.agencyId.name,
-                slug: user.agencyId.slug,
-                email: user.agencyId.email,
-                phone: user.agencyId.phone,
-                logoUrl: user.agencyId.logoUrl,
-                owner: user.agencyId.owner
-              }
+                  _id: user.agencyId._id,
+                  name: user.agencyId.name,
+                  slug: user.agencyId.slug,
+                  email: user.agencyId.email,
+                  phone: user.agencyId.phone,
+                  logoUrl: user.agencyId.logoUrl,
+                  owner: user.agencyId.owner,
+                }
               : null,
           },
         },
       });
     } catch (error) {
-      // This catch block is for unexpected errors within this controller.
-      console.error("Session check controller error:", error);
       return res
         .status(500)
         .json({ message: "Server error during session check." });
@@ -469,6 +525,200 @@ const registrationController = {
       return res
         .status(500)
         .json({ message: "Server error during password change." });
+    }
+  },
+
+  otpHandler: async (req, res) => {
+    const { phone, otp, resend } = req.body;
+
+    if (resend === true) {
+      const customers = await Customer.find({ phoneNumber: phone });
+      const customerSettings = await CustomerSettings.find({
+        userId: customers[0]?._id,
+      });
+
+      try {
+        const response = await fetch(
+          `https://cpaas.messagecentral.com/verification/v3/send?countryCode=91&customerId=${process.env.MESSAGE_CENTRAL_CUSTOMER_ID}&flowType=WHATSAPP&mobileNumber=${phone}`,
+          {
+            method: "POST",
+            headers: {
+              authToken: `${process.env.MESSAGE_CENTRAL_AUTH_TOKEN}`,
+            },
+          }
+        );
+
+        const responseText = await response.text();
+
+        let data = {};
+        if (responseText) {
+          try {
+            data = JSON.parse(responseText);
+          } catch (e) {
+            console.error("Resend JSON Parse Error:", e);
+          }
+        }
+
+        if (response.ok && data.data?.verificationId) {
+          await OtpModel.findOneAndUpdate(
+            { userId: customers[0]?._id },
+            { verificationId: data.data.verificationId },
+            { upsert: true, new: true }
+          );
+        }
+      } catch (err) {
+        console.error("SMS Sending Error:", err);
+      }
+
+      if (customerSettings && customerSettings[0]?.security?.twoFactorAuth) {
+        return res.json({
+          success: true,
+          requiresOtp: true,
+          message: "OTP Sent",
+        });
+      }
+    }
+
+    const customers = await Customer.find({ phoneNumber: phone }).populate(
+      "agencyId",
+      "name slug email phone logoUrl owner"
+    );
+    const userId = customers[0]?._id;
+
+    try {
+      const otpObj = await OtpModel.findOne({ userId: userId });
+
+      if (!otpObj) {
+        return res.json({
+          success: false,
+          message: "OTP not found or expired",
+        });
+      }
+
+      // Validate OTP with MessageCentral
+      try {
+        const response = await fetch(
+          `https://cpaas.messagecentral.com/verification/v3/validateOtp?countryCode=91&mobileNumber=${phone}&verificationId=${otpObj.verificationId}&customerId=${process.env.MESSAGE_CENTRAL_CUSTOMER_ID}&code=${otp}`,
+          {
+            method: "GET",
+            headers: {
+              authToken: `${process.env.MESSAGE_CENTRAL_AUTH_TOKEN}`,
+            },
+          }
+        );
+
+        const responseText = await response.text();
+
+        let data;
+        try {
+          data = responseText ? JSON.parse(responseText) : {};
+        } catch (parseErr) {
+          console.error("JSON Parse Error:", parseErr);
+          data = {};
+        }
+
+        if (!response.ok) {
+          return res.json({ success: false, message: "Invalid OTP" });
+        }
+
+        // Check verification status - adjust based on MessageCentral's response structure
+        const isVerified =
+          data.data?.verified === true ||
+          data.verified === true ||
+          data.responseCode === 200;
+
+        if (!isVerified) {
+          return res.json({ success: false, message: "Invalid OTP" });
+        }
+
+        // OTP verified successfully
+        await OtpModel.deleteOne({ _id: otpObj._id });
+
+        return res.status(200).json({
+          success: true,
+          requiresOtp: false,
+          message: "OTP verified successfully",
+        });
+      } catch (err) {
+        console.error("OTP Validation Error:", err);
+        return res.json({ success: false, message: "OTP validation failed" });
+      }
+    } catch (err) {
+      console.error("Error in OtpHandler:", err);
+      return res.json({ success: false, message: "Internal Server Error" });
+    }
+  },
+
+  otpGenerator: async (req, res) => {
+    try {
+      const { phone } = req.body;
+
+      if (!phone) {
+        return res.json({
+          success: false,
+          message: "Please Provide Phone Number",
+        });
+      }
+
+      const customers = await Customer.find({ phoneNumber: phone }).populate(
+        "agencyId",
+        "name slug email phone logoUrl owner"
+      );
+
+      if (customers.length < 1) {
+        return res.json({
+          success: false,
+          message: "No Customers Found For This Phone Number",
+        });
+      }
+
+      const userId = customers[0]?._id;
+      const customerSettings = await CustomerSettings.find({ userId: userId });
+
+      if (
+        customerSettings &&
+        customerSettings[0]?.security?.twoFactorAuth === true
+      ) {
+        try {
+          const response = await fetch(
+            `https://cpaas.messagecentral.com/verification/v3/send?countryCode=91&customerId=${process.env.MESSAGE_CENTRAL_CUSTOMER_ID}&flowType=WHATSAPP&mobileNumber=${phone}`,
+            {
+              method: "POST",
+              headers: {
+                authToken: `${process.env.MESSAGE_CENTRAL_AUTH_TOKEN}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+          if (response.ok && data.data.verificationId) {
+            await OtpModel.findOneAndUpdate(
+              { userId: userId },
+              { verificationId: data.data.verificationId },
+              { upsert: true, new: true }
+            );
+          }
+        } catch (err) {
+          console.error("SMS Sending Error:", err);
+        }
+
+        return res.json({
+          success: true,
+          is2FA: true,
+          message: "OTP Sent",
+        });
+      }
+
+      return res.json({
+        success: true,
+        is2FA: false,
+      });
+    } catch (err) {
+      console.error("Error in otpGenerator:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
     }
   },
 };
