@@ -83,12 +83,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           {/* <Image
             width={400}
             height={200}
-            src={primaryImage}
-            alt={property.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            
             onError={handleImageError}
           /> */}
-
           <img
             src={primaryImage}
             alt={property.title}

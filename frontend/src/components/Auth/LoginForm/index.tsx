@@ -22,9 +22,11 @@ import { z } from "zod";
 import { useAuth, Agency } from "@/context/AuthContext";
 import {
   loginUser,
+  // otpGenerator,
   selectCustomerAgency,
 } from "@/lib/Authentication/AuthenticationAPI";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import OtpModal from "./OtpModal";
 import { getSettingsData } from "../../../lib/Common/Settings";
 import Image from "next/image";
 
@@ -36,7 +38,11 @@ const agencyLoginSchema = z.object({
 });
 
 const customerLoginSchema = z.object({
-  phone: z.string().min(10, "A valid phone number is required"),
+  phone: z
+    .string()
+    .min(10, "Minimum 10 digits are required")
+    .max(10, "Maximum 10 digits are required")
+    .regex(/^[6-9]\d{9}$/, "A Valid Number is Required"),
   loginAs: z.literal("customer"),
   email: z.undefined().optional(),
   password: z.undefined().optional(),
@@ -64,6 +70,10 @@ export const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { signIn, completeSignIn } = useAuth();
+  const [openOtpModal, setOpenOtpModal] = useState(false);
+  const [pendingLoginData, setPendingLoginData] = useState<LoginData | null>(
+    null
+  );
   const [settingsData, setSettingsData] = useState<AdminSettingData | null>(
     null
   );
@@ -73,6 +83,7 @@ export const LoginForm = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    getValues,
   } = useForm<LoginData>({
     resolver: zodResolver(
       loginAs === "customer" ? customerLoginSchema : agencyLoginSchema
@@ -80,6 +91,26 @@ export const LoginForm = () => {
     // Re-validate when loginAs changes
     context: { loginAs },
   });
+
+  const check2FA = async (loginData: LoginData) => {
+    setPendingLoginData(loginData);
+    // try {
+    //   const response = await otpGenerator(loginData.phone);
+    //   if (response.data.success === true && response.data.is2FA === true) {
+    //     setOpenOtpModal(true);
+    //   } else if (
+    //     response.data.success === true &&
+    //     response.data.is2FA === false
+    //   ) {
+    //     handleLogin(loginData);
+    //   } else if (response.data.success === false) {
+    //     showErrorToast(response.data.message);
+    //   }
+    // } catch (err) {
+    //   console.log("error catched : ", err);
+    // }
+    handleLogin(loginData);
+  };
 
   const handleLogin = async (loginData: LoginData) => {
     setLoading(true);
@@ -183,338 +214,351 @@ export const LoginForm = () => {
   }, []);
 
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-200 to-purple-200 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white/80 rounded-2xl shadow-2xl md:p-8 p-6 transition-all duration-300">
-          {/* Logo */}
-          <div className="text-center md:mb-8 mb-2">
-            {settingsData?.logoUrl ? (
-              <div style={{ display: "inline-block" }}>
-                <Image
-                  src={settingsData.logoUrl}
-                  alt="Logo"
-                  width={70}
-                  height={70}
-                />
-              </div>
-            ) : (
-              <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
-                <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
-              </div>
-            )}
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              REAMS
-            </h1>
-            <p className="text-gray-600 md:mt-2 hidden md:block">
-              Real Estate Management System
-            </p>
-          </div>
-
-          {agenciesToSelect ? (
-            // Agency Selection Screen
-            <div className="space-y-3 md:space-y-6">
-              <div className="relative mb-2 md:mb-4 text-center">
-                <button
-                  onClick={() => {
-                    setAgenciesToSelect(null);
-                    setLoginAs(null);
-                  }}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 p-2 rounded-full hover:bg-gray-100 transition-colors"
-                  aria-label="Go back"
-                >
-                  <ArrowLeftIcon className="h-5 w-5" />
-                </button>
-                <h2 className="text-center text-sm md:text-xl font-semibold text-gray-800 inheritClass">
-                  Select Your Agency
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 gap-3">
-                {agenciesToSelect.map((agency) => (
-                  <button
-                    key={agency.customerId}
-                    onClick={() => handleAgencySelection(agency.customerId)}
-                    disabled={loading}
-                    className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50"
-                  >
-                    <p className="font-semibold text-gray-800 text-left flex-1">
-                      {agency.name}
-                    </p>
-                    <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-transform duration-300 transform group-hover:translate-x-1" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : !loginAs ? (
-            // Role Selection Screen
-            <div className="space-y-3 md:space-y-6">
-              <h2 className="text-center text-sm md:text-xl font-semibold text-gray-800 inheritClass">
-                Sign in to your account
-              </h2>
-              <div className="grid grid-cols-1 gap-4">
-                <button
-                  onClick={() => handleRoleSelect("agency")}
-                  className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1"
-                >
-                  <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-blue-100 rounded-lg">
-                    <BuildingOffice2Icon className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-semibold text-gray-800 text-left">
-                      Agency / Agent
-                    </p>
-                    <p className="text-sm text-gray-600 text-left">
-                      Grow your business fast.
-                    </p>
-                  </div>
-                  <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-transform duration-300 transform group-hover:translate-x-1" />
-                </button>
-                <button
-                  onClick={() => handleRoleSelect("customer")}
-                  className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1"
-                >
-                  <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-purple-100 rounded-lg">
-                    <UserIcon className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-semibold text-gray-800 text-left">
-                      Customer
-                    </p>
-                    <p className="text-sm text-gray-600 text-left">
-                      Find your dream home.
-                    </p>
-                  </div>
-                  <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-purple-600 transition-transform duration-300 transform group-hover:translate-x-1" />
-                </button>
-              </div>
-              <div className="text-center pt-2">
-                <p className="text-sm text-gray-600">
-                  Don’t have an agency account?{" "}
-                  <Link
-                    href="/auth/signup"
-                    className="font-semibold text-blue-600 hover:underline"
-                  >
-                    Create one now
-                  </Link>
-                </p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-200 to-purple-200 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl md:p-8 p-6 transition-all duration-300">
+        {/* Logo */}
+        <div className="text-center md:mb-8 mb-2">
+          {settingsData?.logoUrl ? (
+            <div style={{ display: "inline-block" }}>
+              <Image
+                src={settingsData.logoUrl}
+                alt="Logo"
+                width={70}
+                height={70}
+              />
             </div>
           ) : (
-            // Login Form
-            <>
-              <div className="relative mb-2 md:mb-4 text-center">
-                <button
-                  onClick={() => setLoginAs(null)}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 p-2 rounded-full hover:bg-gray-100 transition-colors"
-                  aria-label="Go back"
-                >
-                  <ArrowLeftIcon className="h-5 w-5" />
-                </button>
-                <h2 className="text-sm md:text-xl font-semibold text-gray-800 inheritClass">
-                  Sign in as{" "}
-                  {loginAs === "agency"
-                    ? "an Agency"
-                    : loginAs === "admin"
-                    ? "an Admin"
-                    : "a Customer"}
-                </h2>
-              </div>
+            <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
+              <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
+            </div>
+          )}
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            REAMS
+          </h1>
+          <p className="text-gray-600 md:mt-2 hidden md:block">
+            Real Estate Management System
+          </p>
+        </div>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSubmit(handleLogin)(e);
+        {agenciesToSelect ? (
+          // Agency Selection Screen
+          <div className="space-y-3 md:space-y-6">
+            <div className="relative mb-2 md:mb-4 text-center">
+              <button
+                onClick={() => {
+                  setAgenciesToSelect(null);
+                  setLoginAs(null);
                 }}
-                className="space-y-2 md:space-y-6"
+                className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Go back"
               >
-                {error && (
-                  <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-lg p-3">
-                    <ExclamationCircleIcon className="h-5 w-5 text-red-500 flex-shrink-0" />
-                    <p className="text-red-600 text-sm">{error}</p>
-                  </div>
-                )}
+                <ArrowLeftIcon className="h-5 w-5" />
+              </button>
+              <h2 className="text-center text-sm md:text-xl font-semibold text-gray-800 inheritClass">
+                Select Your Agency
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              {agenciesToSelect.map((agency) => (
+                <button
+                  key={agency.customerId}
+                  onClick={() => handleAgencySelection(agency.customerId)}
+                  disabled={loading}
+                  className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50"
+                >
+                  <p className="font-semibold text-gray-800 text-left flex-1">
+                    {agency.name}
+                  </p>
+                  <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-transform duration-300 transform group-hover:translate-x-1" />
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : !loginAs ? (
+          // Role Selection Screen
+          <div className="space-y-3 md:space-y-6">
+            <h2 className="text-center text-sm md:text-xl font-semibold text-gray-800 inheritClass">
+              Sign in to your account
+            </h2>
+            <div className="grid grid-cols-1 gap-4">
+              <button
+                onClick={() => handleRoleSelect("agency")}
+                className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1"
+              >
+                <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-blue-100 rounded-lg">
+                  <BuildingOffice2Icon className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="font-semibold text-gray-800 text-left">
+                    Agency / Agent
+                  </p>
+                  <p className="text-sm text-gray-600 text-left">
+                    Grow your business fast.
+                  </p>
+                </div>
+                <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-transform duration-300 transform group-hover:translate-x-1" />
+              </button>
+              <button
+                onClick={() => handleRoleSelect("customer")}
+                className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1"
+              >
+                <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-purple-100 rounded-lg">
+                  <UserIcon className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="font-semibold text-gray-800 text-left">
+                    Customer
+                  </p>
+                  <p className="text-sm text-gray-600 text-left">
+                    Find your dream home.
+                  </p>
+                </div>
+                <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-purple-600 transition-transform duration-300 transform group-hover:translate-x-1" />
+              </button>
+            </div>
+            <div className="text-center pt-2">
+              <p className="text-sm text-gray-600">
+                Don’t have an agency account?{" "}
+                <Link
+                  href="/auth/signup"
+                  className="font-semibold text-blue-600 hover:underline"
+                >
+                  Create one now
+                </Link>
+              </p>
+            </div>
+          </div>
+        ) : (
+          // Login Form
+          <>
+            <div className="relative mb-2 md:mb-4 text-center">
+              <button
+                onClick={() => setLoginAs(null)}
+                className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Go back"
+              >
+                <ArrowLeftIcon className="h-5 w-5" />
+              </button>
+              <h2 className="text-sm md:text-xl font-semibold text-gray-800 inheritClass">
+                Sign in as{" "}
+                {loginAs === "agency"
+                  ? "an Agency"
+                  : loginAs === "admin"
+                  ? "an Admin"
+                  : "a Customer"}
+              </h2>
+            </div>
 
-                {loginAs === "agency" || loginAs === "admin" ? (
-                  <>
-                    <div
-                      className="animate-slide-in-up"
-                      style={{ animationDelay: "100ms" }}
-                    >
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
-                        Email Address
-                      </label>
-                      <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                          <AtSymbolIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                        </div>
-                        <input
-                          id="email"
-                          type="email"
-                          {...register("email")}
-                          autoFocus
-                          className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                            errors.email ? "border-red-500" : "border-gray-300"
-                          }`}
-                          placeholder="you@example.com"
-                        />
-                      </div>
-                      {errors.email && (
-                        <p className="text-red-600 text-sm mt-1">
-                          {errors.email.message}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                ) : (
+            <form
+              onSubmit={handleSubmit((data) => {
+                if (loginAs === "agency" || loginAs === "admin") {
+                  handleLogin(data);
+                } else {
+                  check2FA(data);
+                }
+              })}
+              className="space-y-2 md:space-y-6"
+            >
+              {error && (
+                <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                  <ExclamationCircleIcon className="h-5 w-5 text-red-500 flex-shrink-0" />
+                  <p className="text-red-600 text-sm">{error}</p>
+                </div>
+              )}
+
+              {loginAs === "agency" || loginAs === "admin" ? (
+                <>
                   <div
-                    // className="animate-slide-in-up"
+                    className="animate-slide-in-up"
                     style={{ animationDelay: "100ms" }}
                   >
                     <label
-                      htmlFor="phone"
+                      htmlFor="email"
                       className="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      Phone Number
+                      Email Address
                     </label>
                     <div className="relative">
                       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <PhoneIcon
+                        <AtSymbolIcon
                           className="h-5 w-5 text-gray-400"
                           aria-hidden="true"
                         />
                       </div>
                       <input
-                        id="phone"
-                        type="tel"
-                        {...register("phone")}
+                        id="email"
+                        type="email"
+                        {...register("email")}
                         autoFocus
                         className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                          errors.phone ? "border-red-500" : "border-gray-300"
+                          errors.email ? "border-red-500" : "border-gray-300"
                         }`}
-                        placeholder="Enter your phone number"
+                        placeholder="you@example.com"
                       />
                     </div>
-                    {errors.phone && (
+                    {errors.email && (
                       <p className="text-red-600 text-sm mt-1">
-                        {errors.phone.message}
+                        {errors.email.message}
                       </p>
                     )}
                   </div>
-                )}
-
-                {(loginAs === "agency" || loginAs === "admin") && (
-                  <div
-                    className="animate-slide-in-up"
-                    style={{ animationDelay: "200ms" }}
-                  >
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Password
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <LockClosedIcon
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        {...register("password")}
-                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                          errors.password ? "border-red-500" : "border-gray-300"
-                        }`}
-                        placeholder="Enter your password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
-                        aria-label={
-                          showPassword ? "Hide password" : "Show password"
-                        }
-                      >
-                        {showPassword ? (
-                          <EyeSlashIcon className="h-5 w-5" />
-                        ) : (
-                          <EyeIcon className="h-5 w-5" />
-                        )}
-                      </button>
-                    </div>
-                    {errors.password && (
-                      <p className="text-red-600 text-sm mt-1">
-                        {errors.password.message}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full flex items-center justify-center bg-blue-600 text-white py-3 md:px-4 px-2 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                </>
+              ) : (
+                <div
+                  // className="animate-slide-in-up"
+                  style={{ animationDelay: "100ms" }}
                 >
-                  {loading && (
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  )}
-                  {loading ? "Signing In..." : "Sign In"}
-                </button>
-              </form>
-
-              {/* Footer with registration and forgot password */}
-              <div className="md:mt-6 mt-4 text-center space-y-2 md:space-y-4">
-                {(loginAs === "agency" || loginAs === "admin") && (
-                  <div>
-                    <Link
-                      href="/auth/forgot-password"
-                      className="inline-block text-sm text-blue-600 hover:underline font-medium transition-colors"
-                    >
-                      Forgot your password?
-                    </Link>
-                  </div>
-                )}
-
-                <div className="text-sm text-gray-600">
-                  <span>Don’t have an account? </span>
-                  <Link
-                    href="/auth/signup"
-                    className="font-semibold text-blue-600 hover:underline"
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Create Agency
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <PhoneIcon
+                        className="h-5 w-5 text-gray-400"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <input
+                      id="phone"
+                      type="tel"
+                      {...register("phone")}
+                      autoFocus
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                        errors.phone ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                  {errors.phone && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.phone.message}
+                    </p>
+                  )}
+                </div>
+              )}
+              {(loginAs === "agency" || loginAs === "admin") && (
+                <div
+                  className="animate-slide-in-up"
+                  style={{ animationDelay: "200ms" }}
+                >
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Password
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <LockClosedIcon
+                        className="h-5 w-5 text-gray-400"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      {...register("password")}
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                        errors.password ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="Enter your password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeSlashIcon className="h-5 w-5" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center bg-blue-600 text-white py-3 md:px-4 px-2 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {loading && (
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                )}
+                {loading ? "Signing In..." : "Sign In"}
+              </button>
+            </form>
+
+            {/* Footer with registration and forgot password */}
+            <div className="md:mt-6 mt-4 text-center space-y-2 md:space-y-4">
+              {(loginAs === "agency" || loginAs === "admin") && (
+                <div>
+                  <Link
+                    href="/auth/forgot-password"
+                    className="inline-block text-sm text-blue-600 hover:underline font-medium transition-colors"
+                  >
+                    Forgot your password?
                   </Link>
                 </div>
+              )}
+
+              <div className="text-sm text-gray-600">
+                <span>Don’t have an account? </span>
+                <Link
+                  href="/auth/signup"
+                  className="font-semibold text-blue-600 hover:underline"
+                >
+                  Create Agency
+                </Link>
               </div>
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </div>
+      {openOtpModal && (
+        <OtpModal
+          phone={getValues("phone")}
+          onClose={() => setOpenOtpModal(false)}
+          onSuccess={() => {
+            setOpenOtpModal(false);
+            if (pendingLoginData) {
+              console.log("Pending Login Data Is : ", pendingLoginData);
+              handleLogin(pendingLoginData);
+            }
+          }}
+        />
+      )}
 
       {popupMessage && (
         <InfoPopup
@@ -522,6 +566,6 @@ export const LoginForm = () => {
           onClose={() => setPopupMessage(null)}
         />
       )}
-    </>
+    </div>
   );
 };

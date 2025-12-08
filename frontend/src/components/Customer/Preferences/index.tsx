@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo,useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -308,7 +308,7 @@ export default function PreferenceForm() {
   const { user } = useAuth();
   const isReadOnly = user?.role === "admin";
   const [loading, setLoading] = React.useState(false);
-  const router=useRouter()
+  const router = useRouter();
 
   // const [initialType, setInitialType] = useState<string | null>(null);
 
@@ -349,8 +349,6 @@ export default function PreferenceForm() {
 
   const watchedType = watch("type");
   const watchedCategories = watch("category") || [];
-
-
 
   const showConfiguration = useMemo(() => {
     if (watchedType !== "residential") return false;
@@ -402,7 +400,6 @@ export default function PreferenceForm() {
           const res = await getPreferenceDetail(user._id);
           if (res.success && res.data) {
             reset(res.data);
-          
           }
         } catch (error) {
           // Don't show an error toast if it's just a 404, which is expected
@@ -417,29 +414,25 @@ export default function PreferenceForm() {
     }
   }, [customerId, reset, showToast, user]);
 
-// useEffect(() => {
-//   if (isInitialLoad) return;
-//   if (initialType && watchedType !== initialType) {
-//     setValue("category", []);
-//   }
-// }, [watchedType, initialType, isInitialLoad, setValue]);
+  // useEffect(() => {
+  //   if (isInitialLoad) return;
+  //   if (initialType && watchedType !== initialType) {
+  //     setValue("category", []);
+  //   }
+  // }, [watchedType, initialType, isInitialLoad, setValue]);
 
-
-useEffect(() => {
-  if (isInitialLoad) {
-    setInitialType(watchedType);
-    setIsInitialLoad(false);
-  } else {
-    if (initialType && watchedType !== initialType) {
-      setValue("category", []);
+  useEffect(() => {
+    if (isInitialLoad) {
+      setInitialType(watchedType);
+      setIsInitialLoad(false);
+    } else {
+      if (initialType && watchedType !== initialType) {
+        setValue("category", []);
+      }
     }
-  }
-}, [watchedType, initialType, isInitialLoad, setValue]);
-
-
+  }, [watchedType, initialType, isInitialLoad, setValue]);
 
   const onSubmit = async (data: UserPreferenceFormData) => {
-
     const finalData = {
       ...data,
       customerId: customerId,
