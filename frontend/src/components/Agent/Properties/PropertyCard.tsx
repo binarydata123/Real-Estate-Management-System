@@ -91,6 +91,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             alt={property.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
+
           <div className="absolute top-3 left-3">
             <span
               className={`inline-flex capitalize items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(

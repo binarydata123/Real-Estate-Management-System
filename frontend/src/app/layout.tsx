@@ -6,6 +6,8 @@ import { ToastProvider } from "@/context/ToastContext";
 import SpeakMessage from "@/components/Common/SpeakMessage";
 import { AppToastContainer } from "@/utils/toastHandler";
 import NextTopLoader from "nextjs-toploader";
+// import GlobalLogoutPopupProvider from "@/components/GlobalLogoutPopupProvider";
+import PopupLayout from "@/components/GlobalLogoutPopupProvider";
 import { getSettingsData } from "../lib/Common/Settings";
 
 
@@ -53,9 +55,11 @@ export default async function RootLayout({
       >
         <ToastProvider>
           <AuthProvider>
-            <NextTopLoader showSpinner={false} />
-            {children}
-            <AppToastContainer />
+            <PopupLayout>
+              <NextTopLoader showSpinner={false} />
+              {children}
+              <AppToastContainer />
+            </PopupLayout>
           </AuthProvider>
           <SpeakMessage />
         </ToastProvider>

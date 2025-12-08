@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo,useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useForm,
@@ -307,13 +308,17 @@ export default function PreferenceForm() {
   const { user } = useAuth();
   const isReadOnly = user?.role === "admin";
   const [loading, setLoading] = React.useState(false);
-  //const [requestSent, setRequestSent] = useState(false);
-  const [initialType, setInitialType] = useState<string | null>(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const router = useRouter();
 
+  // const [initialType, setInitialType] = useState<string | null>(null);
+
+  const [initialType, setInitialType] = useState<string | null | undefined>(
+    null
+  );
+
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   const customerId = user?._id;
-  console.log("This is my Customer ID      ::::: ",customerId)
 
   const {
     register,
@@ -344,23 +349,6 @@ export default function PreferenceForm() {
 
   const watchedType = watch("type");
   const watchedCategories = watch("category") || [];
-
-  // useEffect(() => {
-  //   setValue("category", []);
-  // }, [watchedType, setValue]);
-
-
-// useEffect(() => {
-//   if (isInitialLoad) return; // ⭐ do NOT clear during backend load
-
-//   // ⭐ only clear when user manually changes the type
-//   if (initialType && watchedType !== initialType) {
-//     setValue("category", []);
-//   }
-// }, [watchedType, initialType, isInitialLoad, setValue]);
-
-
-
 
   const showConfiguration = useMemo(() => {
     if (watchedType !== "residential") return false;
@@ -405,82 +393,58 @@ export default function PreferenceForm() {
     );
   }, [watchedCategories, containsOnlyPlotOrLand]);
 
+  useEffect(() => {
+    if (user) {
+      const fetchDetail = async () => {
+        try {
+          const res = await getPreferenceDetail(user._id);
+          if (res.success && res.data) {
+            reset(res.data);
+          }
+        } catch (error) {
+          // Don't show an error toast if it's just a 404, which is expected
+          if (axios.isAxiosError(error) && error.response?.status === 404) {
+            // Preferences not found, do nothing, form will have default values.
+            return;
+          }
+          showErrorToast("Failed to fetch preferences:", error);
+        }
+      };
+      fetchDetail();
+    }
+  }, [customerId, reset, showToast, user]);
+
   // useEffect(() => {
-  //   if (user) {
-  //     const fetchDetail = async () => {
-  //       try {
-  //         const res = await getPreferenceDetail(user._id);
-  //         if (res.success && res.data) {
-  //           reset(res.data);
-  //           //setRequestSent(res.requestSent);
-  //         }
-  //       } catch (error) {
-  //         // Don't show an error toast if it's just a 404, which is expected
-  //         if (axios.isAxiosError(error) && error.response?.status === 404) {
-  //           // Preferences not found, do nothing, form will have default values.
-  //           return;
-  //         }
-  //         showErrorToast("Failed to fetch preferences:", error);
-  //       }
-  //     };
-  //     fetchDetail();
+  //   if (isInitialLoad) return;
+  //   if (initialType && watchedType !== initialType) {
+  //     setValue("category", []);
   //   }
-  // }, [customerId, reset, showToast, user]);
+  // }, [watchedType, initialType, isInitialLoad, setValue]);
 
-
-
-
-
-
-
-useEffect(() => {
-  if (user) {
-    const fetchDetail = async () => {
-      try {
-        const res = await getPreferenceDetail(user._id);
-        if (res.success && res.data) {
-          reset(res.data);
-          setInitialType(res.data.type); 
-          setIsInitialLoad(false); // 
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          setIsInitialLoad(false);
-          return;
-        }
-        showErrorToast("Failed to fetch preferences:", error);
+  useEffect(() => {
+    if (isInitialLoad) {
+      setInitialType(watchedType);
+      setIsInitialLoad(false);
+    } else {
+      if (initialType && watchedType !== initialType) {
+        setValue("category", []);
       }
-    };
-    fetchDetail();
-  }
-}, [user, reset]);
-
-
-
-
-useEffect(() => {
-  if (isInitialLoad) return;
-  if (initialType && watchedType !== initialType) {
-    setValue("category", []);
-  }
-}, [watchedType, initialType, isInitialLoad, setValue]);
-
-
-
-
-
-
-
-
+    }
+  }, [watchedType, initialType, isInitialLoad, setValue]);
 
   const onSubmit = async (data: UserPreferenceFormData) => {
+    const finalData = {
+      ...data,
+      customerId: customerId,
+    };
     if (isReadOnly) return;
     setLoading(true);
     try {
-      const res = await createPreference(data);
+      const res = await createPreference(finalData);
+
       if (res.success) {
         showToast(res.message, "success");
-        router.push("/customer/dashboard")
+        router.push("/customer/dashboard");
       }
     } catch (err) {
       showErrorToast("Error", err);
@@ -488,23 +452,6 @@ useEffect(() => {
       setLoading(false);
     }
   };
-
-  // const sendRequest = async () => {
-  //     try {
-  //         const res = await sendRequestToCustomer(customerId as string);
-
-  //         if (res.success) {
-  //             showToast(res.message, "success");
-  //             // Show warning if push notification failed
-  //             if (res.customerPushNotificationResult) {
-  //                 showToast(res.customerPushNotificationResult, "warning");
-  //             }
-  //         }
-  //     } catch (error) {
-  //         console.error(error);
-  //         showToast("An unexpected error occurred.", "error");
-  //     }
-  // };
 
   return (
     <>
@@ -517,15 +464,6 @@ useEffect(() => {
             Tell us your needs, we’ll find the fit.
           </p>
         </div>
-        {/* {customerId &&
-                    <button
-                        onClick={sendRequest}
-                        disabled={loading || requestSent}
-                        className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {requestSent ? 'Request Sent' : loading ? 'Sending...' : 'Send Request'}
-                    </button>
-                } */}
       </div>
       <form
         id="preference-form"

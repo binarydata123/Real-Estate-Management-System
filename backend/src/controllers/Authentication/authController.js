@@ -208,10 +208,10 @@ const registrationController = {
         }
 
         // Find all customer profiles with the given phone number
-        const customers = await Customer.find({ phoneNumber: phone }).populate(
-          "agencyId",
-          "name slug email phone logoUrl owner"
-        );
+        const customers = await Customer.find({
+          phoneNumber: phone,
+          isDeleted: false,
+        }).populate("agencyId", "name slug email phone logoUrl owner");
 
         if (!customers || customers.length === 0) {
           return res
@@ -240,6 +240,15 @@ const registrationController = {
               "Multiple agency profiles found. Please select one to continue.",
             agencies: agencies,
             phone: phone,
+          });
+        }
+        // BLOCK DELETED CUSTOMER LOGINS HERE
+        if (user.isDeleted) {
+          return res.status(403).json({
+            success: false,
+            forceLogout: true,
+            message:
+              "Your account has been removed by the agency.Please contact with agency",
           });
         }
 
@@ -272,15 +281,15 @@ const registrationController = {
         }
       } else if (loginAs === "customer") {
         const customerSettings = await CustomerSettings.find({
-          userId: user._id
+          userId: user._id,
         });
 
         if (customerSettings[0]?.security?.loginNotifications) {
           const notification = new Notification({
-            userId : user._id,
+            userId: user._id,
             message: "You Have Logged In Successfully!",
             type: "welcome",
-            link: "/dashboard"
+            link: "/dashboard",
           });
           await notification.save();
         }
@@ -342,7 +351,7 @@ const registrationController = {
       }
 
       const customerSettings = await CustomerSettings.find({
-        userId:user._id,
+        userId: user._id,
       });
 
       if (customerSettings[0]?.security?.loginNotifications) {
@@ -350,7 +359,7 @@ const registrationController = {
           userId: user._id,
           message: "You've Logged in Successfully!",
           type: "welcome",
-          link: "/dashboard"
+          link: "/dashboard",
         });
 
         await notification.save();
@@ -412,18 +421,24 @@ const registrationController = {
           "agencyId",
           "name slug email phone logoUrl owner"
         );
+
+        if (!user) {
+          return res.status(404).json({ message: "User not found." });
+        }
+
+        // 🚨 If customer is deleted → force logout
+        if (user.isDeleted) {
+          return res.status(401).json({
+            success: false,
+            forceLogout: true,
+            message: "Your account has been deactivated by the agency.",
+          });
+        }
       } else {
         user = await User.findById(_id).populate(
           "agencyId",
           "name slug email phone logoUrl owner"
         );
-      }
-
-      if (!user) {
-        // This should not happen if the token is valid, but as a safeguard:
-        return res
-          .status(404)
-          .json({ message: "User associated with this session not found." });
       }
 
       return res.status(200).json({
@@ -452,8 +467,6 @@ const registrationController = {
         },
       });
     } catch (error) {
-      // This catch block is for unexpected errors within this controller.
-      console.error("Session check controller error:", error);
       return res
         .status(500)
         .json({ message: "Server error during session check." });

@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-
 import connectDB from "./config/db.js";
 import app from "./app.js";
 import { startCronJob } from "./cronJob/index.js";
@@ -18,3 +17,4 @@ startCronJob();
 // start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    

@@ -20,13 +20,24 @@ const protect =
           const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
           // 3. Get user based on role from the token
-          if (decoded.role === 'customer') {
-            req.user = await Customer.findById(decoded.userId).populate('agencyId', 'name slug email phone logoUrl');
+          if (decoded.role === "customer") {
+            req.user = await Customer.findById(decoded.userId).populate(
+              "agencyId",
+              "name slug email phone logoUrl"
+            );
+
+            // Auto logout if customer OR agency is deleted
+            if (!req.user || req.user.isDeleted || !req.user.agencyId) {
+              return res.status(401).json({
+                forceLogout: true,
+                message: "Your account has been removed by the agency.Please contact with agency",
+              });   
+            }
           } else {
             // For 'agent', 'admin', etc.
             req.user = await User.findById(decoded.userId)
               .select("-password")
-              .populate('agencyId', 'name slug email phone logoUrl');
+              .populate("agencyId", "name slug email phone logoUrl");
           }
 
           if (!req.user) {

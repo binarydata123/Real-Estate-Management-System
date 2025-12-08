@@ -4,7 +4,7 @@ import { customerDashboardData } from "../../../controllers/Customer/DashboardCo
 const router = express.Router();
 
 
-router.get("/dashborad-data",protect(["customer"]),customerDashboardData);
+router.get("/dashboard-data",protect(["customer"]),customerDashboardData);
 
 
 export default router;

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import InfoPopup from "../../Common/PopMessage";
 import {
   BuildingOffice2Icon,
   EyeIcon,
@@ -57,6 +58,8 @@ export type LoginData = z.infer<
 
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [popupMessage, setPopupMessage] = useState<string | null>(null);
+
   const [loginAs, setLoginAs] = useState<
     "agency" | "customer" | "admin" | null
   >(null);
@@ -116,6 +119,15 @@ export const LoginForm = () => {
       // The backend now returns a different shape for multi-agency customers
       const response = await loginUser(loginData);
 
+      if (response.data?.forceLogout) {
+        alert("this can check at the time og login");
+        setPopupMessage(
+          response.data.message || "Your account has been removed by the agency"
+        );
+        setLoading(false);
+        return;
+      }
+
       if (response.data.success) {
         showSuccessToast(response.data.message || "Login successful!");
 
@@ -143,7 +155,14 @@ export const LoginForm = () => {
         err.response?.data?.message ||
         err.message ||
         "An unknown error occurred.";
-      setError(errorMessage);
+      if (err.response?.data?.forceLogout) {
+        setPopupMessage(
+          err.response.data.message ||
+            "Your account has been deleted by the agency."
+        );
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -243,7 +262,7 @@ export const LoginForm = () => {
               {agenciesToSelect.map((agency) => (
                 <button
                   key={agency.customerId}
-                  onClick={() => {handleAgencySelection(agency.customerId)}}
+                  onClick={() => handleAgencySelection(agency.customerId)}
                   disabled={loading}
                   className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50"
                 >
@@ -271,7 +290,7 @@ export const LoginForm = () => {
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-semibold text-gray-800 text-left">
-                    Agency / Admin
+                    Agency / Agent
                   </p>
                   <p className="text-sm text-gray-600 text-left">
                     Grow your business fast.
@@ -386,7 +405,7 @@ export const LoginForm = () => {
                 </>
               ) : (
                 <div
-                  className="animate-slide-in-up"
+                  // className="animate-slide-in-up"
                   style={{ animationDelay: "100ms" }}
                 >
                   <label
@@ -420,7 +439,6 @@ export const LoginForm = () => {
                   )}
                 </div>
               )}
-
               {(loginAs === "agency" || loginAs === "admin") && (
                 <div
                   className="animate-slide-in-up"
@@ -528,7 +546,7 @@ export const LoginForm = () => {
           </>
         )}
       </div>
-      {openOtpModal === true && (
+      {openOtpModal && (
         <OtpModal
           phone={getValues("phone")}
           onClose={() => setOpenOtpModal(false)}
@@ -539,6 +557,13 @@ export const LoginForm = () => {
               handleLogin(pendingLoginData);
             }
           }}
+        />
+      )}
+
+      {popupMessage && (
+        <InfoPopup
+          message={popupMessage}
+          onClose={() => setPopupMessage(null)}
         />
       )}
     </div>

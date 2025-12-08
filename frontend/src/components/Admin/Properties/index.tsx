@@ -14,7 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
 import { useSearchParams } from "next/navigation";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import Link from "next/link";
 
 const statusStyles: { [key: string]: string } = {
@@ -120,6 +120,7 @@ export default function Properties() {
       const response = await deletePropertyById(id);
       if (response.data.success) {
         setProperties((prev) => prev.filter((c) => c._id !== id));
+        showSuccessToast("Property deleted successfully")
       }
     } catch (error) {
       showErrorToast("Error:", error);
