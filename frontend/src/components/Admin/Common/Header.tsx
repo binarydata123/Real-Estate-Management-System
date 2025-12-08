@@ -5,11 +5,14 @@ import {
   UserCircleIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
+  Cog6ToothIcon,
+  //QuestionMarkCircleIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
 import { NotificationCenter } from './Notification';
 import { getNotifications } from "@/lib/Common/Notifications";
 import { showErrorToast } from '@/utils/toastHandler';
+import Image from 'next/image';
 
 interface HeaderProps {
   onMenuButtonClick: () => void;
@@ -126,9 +129,13 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                   </>
                 )}
               </button>
-
+              {/* Notification Center */}
+              <NotificationCenter
+                isOpen={showNotifications}
+                onClose={() => setShowNotifications(false)}
+              />
               {/* User Menu */}
-              <Menu as="div" className="relative">
+              {/* <Menu as="div" className="relative">
                 <Menu.Button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500">
                   <UserCircleIcon className="md:h-8 md:w-8 w-6 h-6 text-gray-400 header-icon" />
                 </Menu.Button>
@@ -173,17 +180,132 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                     </div>
                   </Menu.Items>
                 </Transition>
+              </Menu> */}
+              <Menu as="div" className="relative">
+                <Menu.Button className="flex items-center cursor-pointer">
+                  <img
+                    src={user?.profilePictureUrl || "/default-avatar-profile-new-img.png"}
+                    alt="avatar"
+                    className="w-9 h-9 rounded-full border border-gray-300 shadow-sm object-cover"
+                  />
+                </Menu.Button>
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-200"
+                  enterFrom="opacity-0 translate-y-2 scale-95"
+                  enterTo="opacity-100 translate-y-0 scale-100"
+                  leave="transition ease-in duration-150"
+                  leaveFrom="opacity-100 translate-y-0 scale-100"
+                  leaveTo="opacity-0 translate-y-2 scale-95"
+                >
+                  <Menu.Items
+                    className="
+                      absolute right-0 mt-3 w-64 origin-top-right 
+                      bg-white/80 dark:bg-gray-900/80 
+                      backdrop-blur-xl 
+                      rounded-2xl shadow-2xl ring-1 ring-black/5 
+                      z-50 overflow-hidden
+                    "
+                  >
+
+                    {/* Gradient Header */}
+                    <div className="px-4 py-4 bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                      <div className="flex items-center space-x-3">
+                        <Image
+                          src={user?.profilePictureUrl || "/default-avatar-profile-new-img.png"}
+                          alt="Profile Picture"
+                          width={12}
+                          height={12}
+                          className="w-12 h-12 rounded-full border-2 border-white shadow-md"
+                        />
+                        <div>
+                          <p className="text-base font-semibold">
+                            {user?.name || "User Name"}
+                          </p>
+                          <p className="text-sm text-blue-100 truncate">
+                            {user?.email}
+                          </p>
+                          <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full mt-1 inline-block">
+                            Admin
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* MENU ITEMS */}
+                    <div className="py-2">
+
+                      {/* Profile */}
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="/admin/profile"
+                            className={`${
+                              active ? "bg-gray-100 dark:bg-gray-800" : ""
+                            } flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-200 transition`}
+                          >
+                            <UserCircleIcon className="mr-3 h-5 w-5 text-gray-500 dark:text-gray-300" />
+                            My Profile
+                          </a>
+                        )}
+                      </Menu.Item>
+
+                      {/* Settings */}
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="/admin/settings"
+                            className={`${
+                              active ? "bg-gray-100 dark:bg-gray-800" : ""
+                            } flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-200 transition`}
+                          >
+                            <Cog6ToothIcon className="mr-3 h-5 w-5 text-gray-500 dark:text-gray-300" />
+                            Settings
+                          </a>
+                        )}
+                      </Menu.Item>
+
+                      {/* Divider */}
+                      <div className="border-t border-gray-200 dark:border-gray-700 my-2" />
+
+                      {/* Help Center */}
+                      {/* <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="/admin/help"
+                            className={`${
+                              active ? "bg-gray-100 dark:bg-gray-800" : ""
+                            } flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-200 transition`}
+                          >
+                            <QuestionMarkCircleIcon className="mr-3 h-5 w-5 text-gray-500 dark:text-gray-300" />
+                            Help Center
+                          </a>
+                        )}
+                      </Menu.Item> */}
+
+                      {/* Logout */}
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            onClick={signOut}
+                            className={`${
+                              active ? "bg-red-50 dark:bg-gray-800 cursor-pointer" : ""
+                            } flex w-full items-center px-4 py-3 text-sm text-red-600 dark:text-red-400 font-semibold transition cursor-pointer`}
+                          >
+                            <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-red-500 dark:text-red-400" />
+                            Sign Out
+                          </button>
+                        )}
+                      </Menu.Item>
+
+                    </div>
+                  </Menu.Items>
+                </Transition>
               </Menu>
             </div>
           </div>
         </div>
       </header>
-
-      {/* Notification Center */}
-      <NotificationCenter
-        isOpen={showNotifications}
-        onClose={() => setShowNotifications(false)}
-      />
     </>
   );
 };

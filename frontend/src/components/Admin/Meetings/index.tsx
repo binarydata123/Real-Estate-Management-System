@@ -1,105 +1,62 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Building2,
-  CheckCircle,
-  Clock,
-  PlusIcon,
-  DollarSign,
-  Key,
-} from "lucide-react";
-import { getProperty, deletePropertyById } from "@/lib/Admin/PropertyAPI";
+import { Building2, PlusIcon, Calendar } from "lucide-react";
+import { getMeetings, deleteMeetingById } from "@/lib/Admin/MeetingAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
-import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
 import { useSearchParams } from "next/navigation";
 import { showErrorToast } from "@/utils/toastHandler";
-import Link from "next/link";
 
 const statusStyles: { [key: string]: string } = {
-  Available:
-    "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
-  Pending:
+  scheduled: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
+  completed:
+    "bg-pink-100 text-pink-800 dark:bg-pink-500/10 dark:text-pink-400",
+  confirmed:
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400",
-  Sold: "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
-  Rented: "bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400",
+  rescheduled:
+    "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
+  cancelled:
+    "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
 };
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Properties() {
+export default function Meetings() {
   // State to control the Add Agency modal
-  //const [isAddAgencyModalOpen, setAddAgencyModalOpen] = useState(false);
-  const { user } = useAuth();
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [meetings, setMeetings] = useState<MeetingFormData[]>([]);
   const [isFetching, setIsFetching] = useState(false);
-  //const [editingAgency, setEditingAgency] = useState<AgencyFormData | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
-    null
-  );
+  const [selectedMeeting, setSelectedMeeting] = useState<MeetingFormData | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
   const limit = "10";
   const [searchTerm, setSearchTerm] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
-  //const [showAddForm, setShowAddForm] = useState(false);
   const searchParams = useSearchParams(); // ✅ to access query string params
   const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
-  //const [open, setOpen] = useState(false);
-  //const [viewPropertyFeedback, setViewPropertyFeedback] = useState<string>('');
-
+  const [totalRecords, setTotalRecords] = useState(0);
 
   // Calculate stats from mock data
-  //const totalProperties = properties.length;
-  const availableProperties = properties.filter(
-    (a) => a.status === "Available"
-  ).length;
-  const pendingProperties = properties.filter(
-    (a) => a.status === "Pending"
-  ).length;
-  const soldProperties = properties.filter((a) => a.status === "Sold").length;
-  const rentedProperties = properties.filter(
-    (a) => a.status === "Rented"
-  ).length;
+  //const totalMeetings = meetings.length;
+  const scheduleMeetings = meetings.filter((a) => a.status === "scheduled").length;
 
-  const propertyStats = [
-    //{ name: 'Total Properties', value: totalRecords, icon: Building2, color: 'bg-blue-500' },
+  const meetingStats = [
     {
-      name: "Total Properties",
+      name: "Total Meetings",
       value: totalRecords,
       icon: Building2,
       color: "bg-blue-500",
     },
     {
-      name: "Available",
-      value: availableProperties,
-      icon: CheckCircle,
-      color: "bg-green-500",
-    },
-    {
-      name: "Pending",
-      value: pendingProperties,
-      icon: Clock,
-      color: "bg-yellow-500",
-    },
-    {
-      name: "Sold",
-      value: soldProperties,
-      icon: DollarSign,
-      color: "bg-red-500",
-    },
-    {
-      name: "Rented",
-      value: rentedProperties,
-      icon: Key,
-      color: "bg-blue-500",
+      name: "Schedule",
+      value: scheduleMeetings,
+      icon: Calendar,
+      color: "bg-indigo-500",
     },
   ];
 
@@ -111,22 +68,21 @@ export default function Properties() {
     }, 400);
     return () => clearTimeout(handler);
   }, [searchTerm, searchStatus]);
-  const handleDeleteClick = (property: Property) => {
-    setSelectedProperty(property);
+  const handleDeleteClick = (meeting: MeetingFormData) => {
+    setSelectedMeeting(meeting);
     setShowConfirmDialog(true);
   };
   const handleDelete = async (id: string) => {
     try {
-      const response = await deletePropertyById(id);
+      const response = await deleteMeetingById(id);
       if (response.data.success) {
-        setProperties((prev) => prev.filter((c) => c._id !== id));
+        setMeetings((prev) => prev.filter((c) => c._id !== id));
       }
     } catch (error) {
       showErrorToast("Error:", error);
     }
   };
-
-  const getAllProperty = useCallback(
+  const getAllMeetings = useCallback(
     async (
       page = 1,
       search = "",
@@ -136,7 +92,7 @@ export default function Properties() {
     ) => {
       try {
         setIsFetching(true);
-        const res = await getProperty(
+        const res = await getMeetings(
           page,
           limit,
           search,
@@ -144,10 +100,10 @@ export default function Properties() {
           agencyIdParam
         );
         if (res.success) {
-          setProperties((prev) => (append ? [...prev, ...res.data] : res.data));
+          setMeetings((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
-          setTotalRecords(res.pagination?.totalProperties ?? 0);
+          setTotalRecords(res.pagination?.total ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);
@@ -155,27 +111,23 @@ export default function Properties() {
         setIsFetching(false);
       }
     },
-    [user?._id]
+    []
   );
 
   useEffect(() => {
-    let finalAgencyId = "";
-    if (agencyId) {
-      finalAgencyId = agencyId;
-    }
-    setProperties([]); // Clear properties when filters change
-    getAllProperty(
+    setMeetings([]); // Clear meetings on filter change
+    getAllMeetings(
       1,
       debouncedSearchTerm,
       debouncedSearchStatus,
-      finalAgencyId || ""
+      agencyId || ""
     );
-  }, [getAllProperty, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
+  }, [getAllMeetings, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || isFetching) return;
     const finalAgencyId = agencyId || "";
-    getAllProperty(
+    getAllMeetings(
       page,
       debouncedSearchTerm,
       debouncedSearchStatus,
@@ -189,10 +141,10 @@ export default function Properties() {
       <div className="sm:flex sm:items-center sm:justify-between sm:gap-4">
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-            Properties
+            Meetings
           </h1>
           <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-            A list of all the properties in the system including their name,
+            A list of all the meetings in the system including their name,
             members, and status.
           </p>
         </div>
@@ -210,8 +162,8 @@ export default function Properties() {
 
       {/* Stats Cards */}
       <div className="mt-8">
-        <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-5">
-          {propertyStats.map((item) => (
+        <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {meetingStats.map((item) => (
             <div
               key={item.name}
               className="relative overflow-hidden rounded-lg bg-white shadow p-2"
@@ -274,10 +226,11 @@ export default function Properties() {
             defaultValue="All Statuses"
           >
             <option value={""}>All Statuses</option>
-            <option value={"Available"}>Available</option>
-            <option value={"Pending"}>Pending</option>
-            <option value={"Sold"}>Sold</option>
-            <option value={"Rented"}>Rented</option>
+            <option value={"scheduled"}>Scheduled</option>
+            <option value={"completed"}>Completed</option>
+            <option value={"cancelled"}>Cancelled</option>
+            <option value={"rescheduled"}>ReScheduled</option>
+            <option value={"confirmed"}>Confirmed</option>
           </select>
         </div>
       </div>
@@ -285,16 +238,19 @@ export default function Properties() {
       <div className="mt-8 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow-sm  md:rounded-lg">
-              {isFetching && properties.length === 0 ? (
+            <div
+              id="table-listing-sec"
+              className="overflow-hidden shadow-sm  md:rounded-lg"
+            >
+              {isFetching && meetings.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
-                  <p className="text-gray-600">Loading Property...</p>
+                  <p className="text-gray-600">Loading Meetings...</p>
                 </div>
               ) : (
                 <>
                   <table className="min-w-full divide-y divide-gray-300 ">
-                    {properties.length > 0 ? (
+                    {meetings.length > 0 ? (
                       <>
                         <thead className="bg-gray-50  dark:bg-gray-800">
                           <tr>
@@ -302,37 +258,31 @@ export default function Properties() {
                               scope="col"
                               className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300"
                             >
-                              Property
+                              Customer
+                            </th>
+                            <th
+                              scope="col"
+                              className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300"
+                            >
+                              Property Name
                             </th>
                             <th
                               scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
-                              Type
+                              Agency Name
                             </th>
                             <th
                               scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
-                              Category
+                              Date
                             </th>
                             <th
                               scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
-                              Price
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
-                            >
-                              Owner
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
-                            >
-                              Agency
+                              Time
                             </th>
                             <th
                               scope="col"
@@ -349,95 +299,80 @@ export default function Properties() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900 dark:divide-gray-700">
-                          {properties.map((property) => (
-                            <tr key={property._id}>
+                          {meetings.map((meeting) => (
+                            <tr key={meeting._id}>
                               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                 <div className="flex items-center">
-                                  {/* <div className="h-10 w-10 flex-shrink-0">
-                                                                        <Image width={100} height={100} className="h-10 w-10 rounded-full" src={agency.logo_url} alt={`${agency.name} logo`} />
-                                                                    </div> */}
                                   <div className="ml-4">
                                     <div className="font-medium text-gray-900 dark:text-white">
-                                      {property.title || "N/A"}
+                                      {meeting.customerData?.fullName || "N/A"}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {meeting.propertyData?.title || "N/A"}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {meeting.agencyData?.name || "N/A"}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                        {meeting.date
+                                        ? new Date(meeting.date).toLocaleDateString("en-US", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                            })
+                                        : "N/A"}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {meeting.time || "N/A"}
                                     </div>
                                   </div>
                                 </div>
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {property.type || "N/A"}
-                              </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {property.category || "N/A"}
-                              </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {property.price?.toLocaleString("en-US", {
-                                  style: "currency",
-                                  currency: "USD",
-                                  maximumFractionDigits: 0,
-                                }) || "--"}
-                              </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {property.owner_name || "N/A"}
-                              </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {property?.agencyId?.name || "N/A"}
-                              </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 <span
                                   className={classNames(
-                                    statusStyles[property.status],
+                                    statusStyles[meeting.status],
                                     "inline-flex capitalize items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                   )}
                                 >
-                                  {property.status.charAt(0).toUpperCase() +
-                                    property.status.slice(1)}
+                                  {meeting.status
+                                    .replace(/_/g, " ")
+                                    .replace(/\b\w/g, (char) =>
+                                      char.toUpperCase()
+                                    )}
                                 </span>
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {/* <button className="text-gray-400 hover:text-blue-600 dark:text-gray-500 dark:hover:text-blue-400"><span className="sr-only">Actions for {agency.name}</span><MoreVertical className="h-5 w-5" /></button> */}
-                                {/* <span
-                                                                    //onClick={() => setEditingAgency(agency)}
-                                                                    className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium"
-                                                                >
-                                                                    Edit
-                                                                </span> */}
                                 <span
-                                  onClick={() => handleDeleteClick(property)}
+                                  onClick={() => handleDeleteClick(meeting)}
                                   className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
                                 >
                                   Delete
                                 </span>
-                                <span
-                                  className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                                >
-                                  <Link href={`/admin/properties/${property._id}`}>
-                                      View
-                                  </Link>
-                                </span>
-                                {/* <span
-                                  onClick={() => {
-                                      setViewPropertyFeedback(property._id);
-                                      setOpen(true);
-                                  }}
-                                  className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                                >
-                                  View
-                                </span> */}
-                                {/* <span
-                                  onClick={() => {
-                                      setViewCustomer(customer);
-                                      setOpen(true);
-                                  }}
-                                  className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                                  >
-                                  View
-                                  </span>
-                                  <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                                  <Link href={`/agent/preference?customerId=${customer._id}`}>
-                                      Preference
-                                  </Link>
-                                  </span> 
-                                */}
                               </td>
                             </tr>
                           ))}
@@ -447,10 +382,10 @@ export default function Properties() {
                       <div className="text-center py-12">
                         {/* <UserIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" /> */}
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          No properties yet
+                          No meetings yet
                         </h3>
                         <p className="text-gray-500 mb-6">
-                          Start building your property base
+                          Start building your meeting base
                         </p>
                         {!debouncedSearchTerm && (
                           <div className="flex justify-center mt-4">
@@ -459,7 +394,7 @@ export default function Properties() {
                               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
                               <PlusIcon className="h-5 w-5 mr-2" />
-                              Add Property
+                              Add Meeting
                             </button>
                           </div>
                         )}
@@ -496,23 +431,18 @@ export default function Properties() {
         open={showConfirmDialog}
         onCancel={() => setShowConfirmDialog(false)}
         onConfirm={() => {
-          if (selectedProperty?._id) {
-            handleDelete(selectedProperty._id);
+          if (selectedMeeting?._id) {
+            handleDelete(selectedMeeting._id);
           }
           setShowConfirmDialog(false);
-          setSelectedProperty(null);
+          setSelectedMeeting(null);
         }}
         heading="Are you sure?"
-        description="This property will be deleted, and this action cannot be undone."
+        description="This meeting will be deleted, and this action cannot be undone."
         confirmText="Delete"
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"
       />
-      {/* <PropertyFeedbackModal
-        open={open}
-        onClose={() => setOpen(false)}
-        propertyId={viewPropertyFeedback}
-      /> */}
     </div>
   );
 }

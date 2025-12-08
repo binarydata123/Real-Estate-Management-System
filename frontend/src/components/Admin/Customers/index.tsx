@@ -41,17 +41,18 @@ export default function Customers() {
   const [searchStatus, setSearchStatus] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
-  const searchParams = useSearchParams(); // ✅ to access query string params
-  const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
+  const searchParams = useSearchParams();
+  const agencyId = searchParams.get("agencyId");
+  const [totalRecords, setTotalRecords] = useState(0);
 
   // Calculate stats from mock data
-  const totalCustomers = customers.length;
+  //const totalCustomers = customers.length;
   const newCustomers = customers.filter((a) => a.status === "new").length;
 
   const customerStats = [
     {
       name: "Total Customers",
-      value: totalCustomers,
+      value: totalRecords,
       icon: Building2,
       color: "bg-blue-500",
     },
@@ -106,7 +107,7 @@ export default function Customers() {
           setCustomers((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
-          //setTotalRecords(res.pagination?.total ?? 0);
+          setTotalRecords(res.pagination?.total ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);
