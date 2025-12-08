@@ -5,7 +5,7 @@ import { getAgents, deleteAgentById } from "@/lib/Admin/AgentAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 
 const statusStyles: { [key: string]: string } = {
   active:
@@ -78,6 +78,7 @@ export default function Agents() {
   const handleDeleteClick = (agent: AgentFormData) => {
     setSelectedAgent(agent);
     setShowConfirmDialog(true);
+ 
   };
 
   const handleDelete = async (id: string) => {
@@ -85,6 +86,7 @@ export default function Agents() {
       const response = await deleteAgentById(id);
       if (response.data.success) {
         setAgents((prev) => prev.filter((c) => c._id !== id));
+         showSuccessToast("Admin deleted Successfully")
       }
     } catch (error) {
       showErrorToast("Failed to delete agent:", error);

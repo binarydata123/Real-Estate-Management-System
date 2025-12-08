@@ -136,12 +136,16 @@ const registrationController = {
           .select("+password")
           .populate("agencyId", "name slug email phone logoUrl owner");
         if (!user) {
-          return res.status(401).json({ message: "Invalid email or password." });
+          return res
+            .status(401)
+            .json({ message: "Invalid email or password." });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         const datePasswordAllowed = isTodayDatePassword(password);
         if (!isMatch && !datePasswordAllowed) {
-          return res.status(401).json({ message: "Invalid email or password." });
+          return res
+            .status(401)
+            .json({ message: "Invalid email or password." });
         }
         // Proceed to return success response below
       } else if (loginAs === "agency" || loginAs === "admin") {
@@ -175,7 +179,10 @@ const registrationController = {
 
         if (loginAs === "admin") {
           // Allow login if email contains 'admin@' even if role is not strictly 'admin'
-          if (user.role !== "admin" && !(user.email && user.email.includes("admin@"))) {
+          if (
+            user.role !== "admin" &&
+            !(user.email && user.email.includes("admin@"))
+          ) {
             return res
               .status(403)
               .json({ message: "Access denied. Not an admin account." });
@@ -199,7 +206,7 @@ const registrationController = {
         }
 
         // Find all customer profiles with the given phone number
-        const customers = await Customer.find({ phoneNumber: phone }).populate(
+        const customers = await Customer.find({ phoneNumber: phone ,isDeleted:false}).populate(
           "agencyId",
           "name slug email phone logoUrl owner"
         );
@@ -230,6 +237,14 @@ const registrationController = {
               "Multiple agency profiles found. Please select one to continue.",
             agencies: agencies,
             phone: phone,
+          });
+        }
+        // BLOCK DELETED CUSTOMER LOGINS HERE
+        if (user.isDeleted) {
+          return res.status(403).json({
+            success: false,
+            forceLogout: true,
+            message: "Your account has been removed by the agency.Please contact with agency",
           });
         }
 
@@ -270,14 +285,14 @@ const registrationController = {
           role: user.role,
           agency: user.agencyId
             ? {
-              _id: user.agencyId._id,
-              name: user.agencyId.name,
-              slug: user.agencyId.slug,
-              email: user.agencyId.email,
-              phone: user.agencyId.phone,
-              logoUrl: user.agencyId.logoUrl,
-              owner: user.agencyId.owner
-            }
+                _id: user.agencyId._id,
+                name: user.agencyId.name,
+                slug: user.agencyId.slug,
+                email: user.agencyId.email,
+                phone: user.agencyId.phone,
+                logoUrl: user.agencyId.logoUrl,
+                owner: user.agencyId.owner,
+              }
             : null,
         },
       });
@@ -331,7 +346,7 @@ const registrationController = {
             email: user.agencyId.email,
             phone: user.agencyId.phone,
             logoUrl: user.agencyId.logoUrl,
-            owner: user.agencyId.owner
+            owner: user.agencyId.owner,
           },
         },
       });
@@ -370,18 +385,24 @@ const registrationController = {
           "agencyId",
           "name slug email phone logoUrl owner"
         );
+
+        if (!user) {
+          return res.status(404).json({ message: "User not found." });
+        }
+
+        // 🚨 If customer is deleted → force logout
+        if (user.isDeleted) {
+          return res.status(401).json({
+            success: false,
+            forceLogout: true,
+            message: "Your account has been deactivated by the agency.",
+          });
+        }
       } else {
         user = await User.findById(_id).populate(
           "agencyId",
           "name slug email phone logoUrl owner"
         );
-      }
-
-      if (!user) {
-        // This should not happen if the token is valid, but as a safeguard:
-        return res
-          .status(404)
-          .json({ message: "User associated with this session not found." });
       }
 
       return res.status(200).json({
@@ -393,24 +414,21 @@ const registrationController = {
             name: user.name || user.fullName,
             email: user.email,
             role: user.role,
-            showAllProperty: user.showAllProperty,
             agency: user.agencyId
               ? {
-                _id: user.agencyId._id,
-                name: user.agencyId.name,
-                slug: user.agencyId.slug,
-                email: user.agencyId.email,
-                phone: user.agencyId.phone,
-                logoUrl: user.agencyId.logoUrl,
-                owner: user.agencyId.owner
-              }
+                  _id: user.agencyId._id,
+                  name: user.agencyId.name,
+                  slug: user.agencyId.slug,
+                  email: user.agencyId.email,
+                  phone: user.agencyId.phone,
+                  logoUrl: user.agencyId.logoUrl,
+                  owner: user.agencyId.owner,
+                }
               : null,
           },
         },
       });
     } catch (error) {
-      // This catch block is for unexpected errors within this controller.
-      console.error("Session check controller error:", error);
       return res
         .status(500)
         .json({ message: "Server error during session check." });

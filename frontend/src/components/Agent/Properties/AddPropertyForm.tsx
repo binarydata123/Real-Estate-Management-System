@@ -1955,6 +1955,8 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                             alt={`Property ${index + 1}`}
                             className="w-full h-32 object-cover rounded-lg"
                           />
+
+                         
                         )}
                         <button
                           type="button"

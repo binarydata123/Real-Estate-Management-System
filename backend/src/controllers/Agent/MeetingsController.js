@@ -156,18 +156,23 @@ export const getMeetingsByAgency = async (req, res) => {
     //   // propertyId: undefined,
     // }));
 
-    const formattedMeetings = meetings.filter((m)=> !m.customerId?.isDeleted)
-    .map((m)=>({...m,
-    customer:m.customerId?{
-  fullName:m.customerId.fullName,}:null,
-customerId:undefined,
-isPast:status==="past"}))
-
+    const formattedMeetings = meetings
+      .filter((m) => !m.customerId?.isDeleted)
+      .map((m) => ({
+        ...m,
+        customer: m.customerId
+          ? {
+              fullName: m.customerId.fullName,
+            }
+          : null,
+        customerId: undefined,
+        isPast: status === "past",
+      }));
 
     res.json({
       success: true,
       data: formattedMeetings,
-      total:formattedMeetings.length,
+      total: formattedMeetings.length,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -179,7 +184,6 @@ export const getMeetingById = async (req, res) => {
   try {
     const agencyId = req.user.agencyId._id._id;
     const meeting = await Meetings.findOne({ _id: req.params.id, agencyId });
-
 
     if (!meeting) {
       return res

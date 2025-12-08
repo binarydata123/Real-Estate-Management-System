@@ -7,7 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/context/AuthContext";
-import { getCustomers } from "@/lib/Agent/CustomerAPI";
+import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
 import { shareProperty } from "@/lib/Agent/SharePropertyAPI";
 import { sharePropertySchema } from "@/schemas/Agent/sharePropertySchema";
 import { useToast } from "@/context/ToastContext";
@@ -51,10 +51,12 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
   });
 
   useEffect(() => {
-    if (!user?._id) return;
+    if (!user?._id)
+     return;
     const fetchAll = async () => {
       try {
-        const res = await getCustomers(user?._id);
+        const res = await getCustomersForDropDown(user?._id);
+        
         setOptions(res.data || []);
       } catch (err) {
         showErrorToast("Error:", err);

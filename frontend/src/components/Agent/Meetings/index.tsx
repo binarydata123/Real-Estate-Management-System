@@ -39,28 +39,6 @@ export const Meetings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "cancelled">(
     "upcoming"
   );
-  // const fetchMeetings = async (page = 1, append = false) => {
-  //   if (!user?.agency?._id) return;
-  //   setIsFetching(true);
-  //   try {
-  //     const res = await getMeetingsByAgency(
-  //       user?.agency?._id,
-  //       activeTab,
-  //       page,
-  //       10
-  //     );
-  //     setMeetings((prev) =>
-  //       append ? [...prev, ...res.data.data] : res.data.data
-  //     );
-  //     setTotalPages(Math.ceil(res.data.total / 10));
-  //     setCurrentPage(page);
-  //   } catch (error) {
-  //     showErrorToast("Failed to fetch meetings:", error);
-  //   } finally {
-  //     setIsFetching(false);
-  //   }
-  // };
-
   const fetchMeetings = async (page = 1, append = false) => {
     if (!user?.agency?._id) return;
     setIsFetching(true);
@@ -71,24 +49,8 @@ export const Meetings: React.FC = () => {
         page,
         10
       );
-
-      // Map meetings to include customer info with isDeleted
-     const formattedMeetings = res.data.data.map((m: any) => ({
-       ...m,
-       // Use the customer object directly from API
-       customer: m.customer
-         ? {
-             fullName: m.customer.isDeleted
-               ? "Inactive Customer"
-               : m.customer.fullName,
-             isDeleted: m.customer.isDeleted,
-           }
-         : null,
-       isPast: activeTab === "past",
-     }));
-
       setMeetings((prev) =>
-        append ? [...prev, ...formattedMeetings] : formattedMeetings
+        append ? [...prev, ...res.data.data] : res.data.data
       );
       setTotalPages(Math.ceil(res.data.total / 10));
       setCurrentPage(page);
@@ -98,6 +60,7 @@ export const Meetings: React.FC = () => {
       setIsFetching(false);
     }
   };
+
 
   useEffect(() => {
     setMeetings([]); // Clear meetings when tab changes
@@ -235,18 +198,7 @@ export const Meetings: React.FC = () => {
                     </div>
 
                     <div className="w-full md:w-auto">
-                      {/* <h3 className="text-lg font-semibold text-gray-900">
-                        Meeting with {meeting?.customer?.fullName}
-                      </h3> */}
-
-                      {/* <h3 className="text-lg font-semibold text-gray-900">
-                        Meeting with {meeting?.customer?.fullName}{" "}
-                        {meeting?.customer?.isDeleted && (
-                          <span className="text-red-500">(Inactive)</span>
-                        )}
-                      </h3> */}
-
-                      <h3 className="text-lg font-semibold text-gray-900">
+                                          <h3 className="text-lg font-semibold text-gray-900">
                         Meeting with {meeting?.customer?.fullName}
                       </h3>
                     </div>

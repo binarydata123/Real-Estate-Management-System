@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { MapPinIcon, ShareIcon, EyeIcon } from "@heroicons/react/24/outline";
-import Image from "next/image";
+// import Image from "next/image";
 import {
   Armchair,
   BathIcon,
@@ -15,7 +15,7 @@ import { deleteProperty } from "@/lib/Agent/PropertyAPI";
 import { useToast } from "@/context/ToastContext";
 import {
   getPropertyImageUrlWithFallback,
-  handleImageError,
+  // handleImageError,
 } from "@/lib/imageUtils";
 import { showErrorToast } from "@/utils/toastHandler";
 import { formatPrice } from "@/utils/helperFunction";
@@ -80,14 +80,21 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       {/* Image */}
       <Link href={`/agent/properties/${property._id}`}>
         <div className="relative md:aspect-[4/3] aspect-[17/9]  overflow-hidden">
-          <Image
+          {/* <Image
             width={400}
             height={200}
             src={primaryImage}
             alt={property.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={handleImageError}
+          /> */}
+
+          <img
+            src={primaryImage}
+            alt={property.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
+
           <div className="absolute top-3 left-3">
             <span
               className={`inline-flex capitalize items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(

@@ -2,10 +2,10 @@
 
 import React from "react";
 import { MapPinIcon, EyeIcon } from "@heroicons/react/24/outline";
-import Image from "next/image";
+// import Image from "next/image";
 import {
   getPropertyImageUrlWithFallback,
-  handleImageError,
+  // handleImageError,
 } from "@/lib/imageUtils";
 import Link from "next/link";
 import { formatPrice } from "@/utils/helperFunction";
@@ -45,13 +45,19 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
       {/* Image */}
       <Link href={`/agent/properties/${property._id}`}>
         <div className="relative aspect-[4/3] overflow-hidden">
-          <Image
+          {/* <Image
             width={400}
             height={300}
             src={getImageUrl(primaryImage)}
             alt={property.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={handleImageError}
+          /> */}
+
+          <img
+            src={getImageUrl(primaryImage)}
+            alt={property.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <div className="absolute md:top-3 md:left-3 top-2 left-2">
             <span
@@ -63,7 +69,6 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
             </span>
           </div>
           <div className="absolute md:top-3 md:right-3 top-2 right-2 flex items-center space-x-2">
-
             {property.images?.length > 1 && (
               <div className="px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs font-medium text-white">
                 +{property.images.length - 1}
@@ -88,7 +93,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
           </div>
           <div className="flex items-center text-sm text-gray-600">
             <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-            <span className="line-clamp-1">{property.location || 'N/A'}</span>
+            <span className="line-clamp-1">{property.location || "N/A"}</span>
           </div>
 
           {/* Property Details */}

@@ -7,7 +7,7 @@ import ScrollPagination from "@/components/Common/ScrollPagination";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast,showSuccessToast } from "@/utils/toastHandler";
 
 const statusStyles: { [key: string]: string } = {
   approved:
@@ -94,6 +94,7 @@ export default function Agencies() {
       const response = await deleteAgencyById(id);
       if (response.data.success) {
         setAgencies((prev) => prev.filter((c) => c._id !== id));
+        showSuccessToast("Agency deleted successfully")
       }
     } catch (error) {
       showErrorToast("Failed to delete customer:", error);

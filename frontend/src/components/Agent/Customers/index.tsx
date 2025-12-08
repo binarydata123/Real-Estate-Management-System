@@ -11,7 +11,7 @@ import SearchInput from "@/components/Common/SearchInput";
 import Link from "next/link";
 import CustomerAssistant from "./CustomerAssistant";
 import { AddCustomerSelectionModal } from "./AddCustomerSelectionModal";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import { formatPrice } from "@/utils/helperFunction";
 import { NoData } from "@/components/Common/NoData";
 import { Users } from "lucide-react";
@@ -63,6 +63,7 @@ const handleDelete = async (id: string) => {
     const response = await deleteCustomerById(id);
     if (response.data.success) {
       getAllCustomers(); // refresh list from API
+      showSuccessToast("Customer deleted successfully")
     }
   } catch (error) {
     showErrorToast("Failed to delete customer:", error);
@@ -288,11 +289,11 @@ const handleDelete = async (id: string) => {
       )}
 
       {/* --- SMALL INLINE LOADER (NO FLICKER) --- */}
-      {isFetching && customers.length > 0 && (
+      {/* {isFetching && customers.length > 0 && (
         <div className="text-center py-4">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-      )}
+      )} */}
 
       {/* Pagination */}
       {customers.length > 0 && (
