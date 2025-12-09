@@ -9,15 +9,14 @@ import { useSearchParams } from "next/navigation";
 import { showErrorToast } from "@/utils/toastHandler";
 
 const statusStyles: { [key: string]: string } = {
-  scheduled: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
-  completed:
-    "bg-pink-100 text-pink-800 dark:bg-pink-500/10 dark:text-pink-400",
+  scheduled:
+    "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
+  completed: "bg-pink-100 text-pink-800 dark:bg-pink-500/10 dark:text-pink-400",
   confirmed:
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400",
   rescheduled:
     "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
-  cancelled:
-    "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
+  cancelled: "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
 };
 
 function classNames(...classes: string[]) {
@@ -25,11 +24,11 @@ function classNames(...classes: string[]) {
 }
 
 export default function Meetings() {
-  // State to control the Add Agency modal
   const [meetings, setMeetings] = useState<MeetingFormData[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-  const [selectedMeeting, setSelectedMeeting] = useState<MeetingFormData | null>(null);
+  const [selectedMeeting, setSelectedMeeting] =
+    useState<MeetingFormData | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = "10";
@@ -37,24 +36,27 @@ export default function Meetings() {
   const [searchStatus, setSearchStatus] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
-  const searchParams = useSearchParams(); // ✅ to access query string params
-  const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
-  const [totalRecords, setTotalRecords] = useState(0);
+  const searchParams = useSearchParams();
+  const agencyId = searchParams.get("agencyId");
+  // const [totalRecords, setTotalRecords] = useState(0); // Filtered count
+  const [totalMeetingCount, setTotalMeetingCount] = useState(0); // ✅ Unfiltered total
+  const [scheduledMeetingCount, setScheduledMeetingCount] = useState(0)
 
-  // Calculate stats from mock data
-  //const totalMeetings = meetings.length;
-  const scheduleMeetings = meetings.filter((a) => a.status === "scheduled").length;
+  // Calculate stats
+  // const scheduleMeetings = meetings.filter(
+  //   (a) => a.status === "scheduled"
+  // ).length;
 
   const meetingStats = [
     {
       name: "Total Meetings",
-      value: totalRecords,
+      value: totalMeetingCount, // ✅ Shows unfiltered total from backend
       icon: Building2,
       color: "bg-blue-500",
     },
     {
       name: "Schedule",
-      value: scheduleMeetings,
+      value: scheduledMeetingCount, // ✅ FIXED: Use backend count
       icon: Calendar,
       color: "bg-indigo-500",
     },
@@ -68,20 +70,39 @@ export default function Meetings() {
     }, 400);
     return () => clearTimeout(handler);
   }, [searchTerm, searchStatus]);
+
   const handleDeleteClick = (meeting: MeetingFormData) => {
     setSelectedMeeting(meeting);
     setShowConfirmDialog(true);
   };
+
   const handleDelete = async (id: string) => {
     try {
       const response = await deleteMeetingById(id);
       if (response.data.success) {
+        
+        const deletedMeeting = meetings.find((m) => m._id === id);
+
         setMeetings((prev) => prev.filter((c) => c._id !== id));
+        // setTotalRecords((prev) => prev - 1);
+        setTotalMeetingCount((prev) => prev - 1); // ✅ Decrement total
+
+        // Decrement scheduled count if deleted meeting was scheduled/rescheduled
+          if (
+            deletedMeeting &&
+            (deletedMeeting.status === "scheduled" ||
+              deletedMeeting.status === "rescheduled")
+          ) {
+            setScheduledMeetingCount((prev) => prev - 1);
+          }
+
+
       }
     } catch (error) {
       showErrorToast("Error:", error);
     }
   };
+
   const getAllMeetings = useCallback(
     async (
       page = 1,
@@ -103,7 +124,9 @@ export default function Meetings() {
           setMeetings((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
-          setTotalRecords(res.pagination?.total ?? 0);
+          // setTotalRecords(res.pagination?.total ?? 0); // Filtered count
+          setTotalMeetingCount(res.pagination?.totalUnfiltered ?? 0); // ✅ Unfiltered total from backend
+          setScheduledMeetingCount(res.pagination?.scheduledCount ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);
@@ -147,16 +170,6 @@ export default function Meetings() {
             A list of all the meetings in the system including their name,
             members, and status.
           </p>
-        </div>
-        <div className="mt-4 sm:mt-0 sm:flex-none">
-          {/* <button
-                        type="button"
-                        onClick={() => setAddAgencyModalOpen(true)}
-                        className="inline-flex items-center justify-center rounded-md   bg-blue-600 md:px-4 px-2 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
-                    >
-                        <PlusCircle className="-ml-1 mr-2 h-5 w-5" />
-                        Add Agency
-                    </button> */}
         </div>
       </div>
 
@@ -203,11 +216,6 @@ export default function Meetings() {
           <label htmlFor="search" className="sr-only">
             Search
           </label>
-          {/* <div className="relative rounded-md shadow-sm">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <SearchInput value={searchTerm} onChange={setSearchTerm} className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                    </div> */}
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
@@ -236,11 +244,14 @@ export default function Meetings() {
       </div>
 
       <div className="mt-8 flex flex-col">
-        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        {/* <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8"> */}
+
+        <div className="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div
               id="table-listing-sec"
-              className="overflow-hidden shadow-sm  md:rounded-lg"
+              // className="overflow-hidden max-h-[80vh] shadow-sm  md:rounded-lg"
+              className="overflow-auto max-h-[80vh] shadow-sm  md:rounded-lg"
             >
               {isFetching && meetings.length === 0 ? (
                 <div className="text-center py-12">
@@ -332,12 +343,14 @@ export default function Meetings() {
                                 <div className="flex items-center">
                                   <div className="ml-4">
                                     <div className="font-medium text-gray-900 dark:text-white">
-                                        {meeting.date
-                                        ? new Date(meeting.date).toLocaleDateString("en-US", {
+                                      {meeting.date
+                                        ? new Date(
+                                            meeting.date
+                                          ).toLocaleDateString("en-US", {
                                             day: "2-digit",
                                             month: "short",
                                             year: "numeric",
-                                            })
+                                          })
                                         : "N/A"}
                                     </div>
                                   </div>
@@ -380,7 +393,6 @@ export default function Meetings() {
                       </>
                     ) : (
                       <div className="text-center py-12">
-                        {/* <UserIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" /> */}
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
                           No meetings yet
                         </h3>
@@ -389,10 +401,7 @@ export default function Meetings() {
                         </p>
                         {!debouncedSearchTerm && (
                           <div className="flex justify-center mt-4">
-                            <button
-                              // onClick={() => setShowAddForm(true)}
-                              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                            >
+                            <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                               <PlusIcon className="h-5 w-5 mr-2" />
                               Add Meeting
                             </button>
@@ -425,8 +434,6 @@ export default function Meetings() {
         </div>
       </div>
 
-      {/* Add Property Modal */}
-      {/* <AddAgencyModal isOpen={isAddAgencyModalOpen} onClose={() => setAddAgencyModalOpen(false)} /> */}
       <ConfirmDialog
         open={showConfirmDialog}
         onCancel={() => setShowConfirmDialog(false)}

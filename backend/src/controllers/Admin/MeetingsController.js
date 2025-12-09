@@ -21,6 +21,20 @@ export const getMeetings = async (req, res) => {
       matchQuery.status = { $regex: status, $options: "i" };
     }
 
+    // ✅ NEW: Get total unfiltered count (only agencyId filter)
+
+    const totalUnfilteredQuery = agencyId ? { agencyId } : {};
+    const totalUnfiltered = await Meetings.countDocuments(totalUnfilteredQuery);
+
+
+    // ✅ NEW: Get scheduled + rescheduled count
+    const scheduledQuery = agencyId 
+      ? { agencyId, status: { $in: ["scheduled", "rescheduled"] } }
+      : { status: { $in: ["scheduled", "rescheduled"] } };
+      
+    const scheduledCount = await Meetings.countDocuments(scheduledQuery);
+
+
     const pipeline = [
       { $match: matchQuery },
 
@@ -30,8 +44,8 @@ export const getMeetings = async (req, res) => {
           from: "agencies",
           localField: "agencyId",
           foreignField: "_id",
-          as: "agencyData"
-        }
+          as: "agencyData",
+        },
       },
       { $unwind: { path: "$agencyData", preserveNullAndEmptyArrays: true } },
 
@@ -41,8 +55,8 @@ export const getMeetings = async (req, res) => {
           from: "properties",
           localField: "propertyId",
           foreignField: "_id",
-          as: "propertyData"
-        }
+          as: "propertyData",
+        },
       },
       { $unwind: { path: "$propertyData", preserveNullAndEmptyArrays: true } },
 
@@ -52,12 +66,11 @@ export const getMeetings = async (req, res) => {
           from: "customers",
           localField: "customerId",
           foreignField: "_id",
-          as: "customerData"
-        }
+          as: "customerData",
+        },
       },
       { $unwind: { path: "$customerData", preserveNullAndEmptyArrays: true } },
     ];
-
 
     // 🔍 Search Logic (supports all 4 columns)
     if (search) {
@@ -67,8 +80,8 @@ export const getMeetings = async (req, res) => {
             { "customerData.fullName": { $regex: search, $options: "i" } }, // Customer Name
             { "propertyData.title": { $regex: search, $options: "i" } }, // Property Name
             { "agencyData.name": { $regex: search, $options: "i" } }, // Agency Name
-          ]
-        }
+          ],
+        },
       });
     }
 
@@ -85,7 +98,9 @@ export const getMeetings = async (req, res) => {
       success: true,
       data: results,
       pagination: {
-        total: totalCount,
+        total: totalCount, // Filtered count (changes with search/status)
+        totalUnfiltered: totalUnfiltered, // ✅ NEW: Always shows all meetings
+        scheduledCount: scheduledCount,
         page: pageNumber,
         limit: limitNumber,
         totalPages: Math.ceil(totalCount / limitNumber),
