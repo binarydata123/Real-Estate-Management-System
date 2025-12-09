@@ -260,7 +260,7 @@ export const Shares: React.FC = () => {
             setShowShareModal(false);
             setPropertyToShare(null);
             fetchSharedProperties(1); // refresh page 1\
-            
+
           }}
         />
       )}

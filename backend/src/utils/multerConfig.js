@@ -1,68 +1,74 @@
-import multer from 'multer';
+import path from 'path';
 import fs from 'fs/promises';
+import multer from 'multer';
 import sharp from 'sharp';
+import { fileURLToPath } from 'url';
+
+// Fix: Get actual backend path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// backend/src folder
+// const rootPath = __dirname;
+
+// storage folder inside backend/src/storage
+const storageRoot = path.join(__dirname, '..', 'storage');
 
 const storage = (folderName) =>
   multer.diskStorage({
-    destination: async (req, file, cb) => {
-      const folderPath = `src/storage/${folderName}/original`;
-      try {
-        await fs.mkdir(folderPath, { recursive: true });
-      return cb(null, folderPath);
-      } catch (error) {
-        return cb(error, folderPath);
-      }
+    destination: (req, file, cb) => {
+      const folderPath = path.join(storageRoot, folderName, 'original');
+
+      fs.mkdir(folderPath, { recursive: true })
+        .then(() => cb(null, folderPath))
+        .catch((error) => cb(error, folderPath));
     },
+
     filename: (req, file, cb) => {
       const safeName = file.originalname.replace(/[^\w.-]/g, "_");
       cb(null, `${Date.now()}-${safeName}`);
-    },
+    }
   });
 
-// Process and save uploaded images in multiple sizes
+// Process and save images
 const processAndSaveImages = async (file, folderName) => {
-  try {
-    const sizes = [
-      { suffix: 'extraSmall', width: 50, height: 50 },
-      { suffix: 'small', width: 200 },
-      { suffix: 'medium', width: 400 },
-    ];
+  const safeName = file.filename;
 
-    const safeName = file.filename;
-    const originalPath = `src/storage/${folderName}/original/${safeName}`;
+  const originalPath = path.join(storageRoot, folderName, 'original', safeName);
 
-    // Read file buffer
-    const buffer = await fs.readFile(file.path);
+  const buffer = await fs.readFile(file.path);
+  await fs.writeFile(originalPath, buffer);
 
-    // Save original
-    await fs.writeFile(originalPath, buffer);
+  const sizes = [
+    { suffix: 'extraSmall', width: 50, height: 50 },
+    { suffix: 'small', width: 200 },
+    { suffix: 'medium', width: 400 },
+  ];
 
-    // Save resized images
-    for (const size of sizes) {
-      const folderPath = `src/storage/${folderName}/${size.suffix}`;
-      await fs.mkdir(folderPath, { recursive: true });
-      const resizedPath = `${folderPath}/${safeName}`;
-      await sharp(buffer).resize(size.width, size.height).toFile(resizedPath);
-    }
+  for (const size of sizes) {
+    const folderPath = path.join(storageRoot, folderName, size.suffix);
+    await fs.mkdir(folderPath, { recursive: true });
 
-    return safeName;
-  } catch (error) {
-    console.error('Error processing image:', file.originalname, error);
-    throw error;
+    const resizedPath = path.join(folderPath, safeName);
+    await sharp(buffer).resize(size.width, size.height).toFile(resizedPath);
   }
+
+  return safeName;
 };
+
+
 
 // Move PDF files
 const processAndSavePDF = async (file, folderName) => {
-  const destinationFolder = `src/storage/${folderName}/pdfs`;
-  await fs.mkdir(destinationFolder, { recursive: true });
-  await fs.rename(file.path, `${destinationFolder}/${file.filename}`);
+  const folder = path.join(storageRoot, folderName, 'pdfs');
+  await fs.mkdir(folder, { recursive: true });
+  await fs.rename(file.path, path.join(folder, file.filename));
   return file.filename;
 };
 
 // Move DOC/DOCX files
 const processAndSaveDocs = async (file, folderName) => {
-  const destinationFolder = `src/storage/${folderName}/docs`;
+  const destinationFolder = path.join(storageRoot, folderName, 'docs');
   await fs.mkdir(destinationFolder, { recursive: true });
   await fs.rename(file.path, `${destinationFolder}/${file.filename}`);
   return file.filename;
@@ -77,14 +83,14 @@ export const createUpload = (folderName) => {
       upload.single(fieldName)(req, res, async (err) => {
         if (err) {
           return res.status(500).json({ message: 'Error uploading file', status: false });
-      }
+        }
         if (!req.file) {
           return next();
         }
 
         try {
           req.uploadedFilename = await processAndSaveImages(req.file, folderName);
-       return next();
+          return next();
         } catch (error) {
           console.error(error);
           return res.status(500).json({ message: 'Error processing image', status: false });
@@ -96,7 +102,7 @@ export const createUpload = (folderName) => {
       upload.array(fieldName, maxCount)(req, res, async (err) => {
         if (err) {
           return res.status(500).json({ message: 'Error uploading files', status: false });
-      }
+        }
         try {
           req.uploadedFilenames = [];
           if (req.files && req.files.length > 0) {
@@ -112,7 +118,7 @@ export const createUpload = (folderName) => {
               } else if (
                 file.mimetype === 'application/msword' ||
                 file.mimetype ===
-                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
               ) {
                 const filename = await processAndSaveDocs(file, folderName);
                 req.uploadedFilenames.push(filename);
@@ -121,7 +127,7 @@ export const createUpload = (folderName) => {
               }
             }
           }
-        return next();
+          return next();
         } catch (error) {
           console.error('File processing error:', error);
           return res.status(500).json({ message: 'Error processing files', status: false });
