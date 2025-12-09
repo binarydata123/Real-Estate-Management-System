@@ -332,6 +332,27 @@ export default function Properties() {
               </div>
             </div>
           </div>
+          {properties.length > 0 && (
+            <div className="w-full flex justify-center items-center py-4 md:py-6">
+              <ScrollPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                isLoading={isFetching}
+                hasMore={currentPage < totalPages}
+                loader={
+                  <div className="text-center py-4">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                }
+                endMessage={
+                  <div className="text-center py-8 text-green-600 font-medium">
+                    🎉 All caught up!
+                  </div>
+                }
+              />
+            </div>
+          )}
         </div>
 
         <ConfirmDialog

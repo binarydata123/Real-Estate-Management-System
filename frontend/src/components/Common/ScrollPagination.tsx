@@ -28,7 +28,7 @@ const ScrollPagination: React.FC<ScrollPaginationProps> = ({
 }) => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
-  const [showBackToTop, setShowBackToTop] = useState(true);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   // Default loader component
   const defaultLoader = (
@@ -107,9 +107,7 @@ const ScrollPagination: React.FC<ScrollPaginationProps> = ({
     };
   }, [handleIntersection, threshold]);
 
-  if (!hasMore && currentPage >= totalPages) {
-    return <div className={className}>{endMessage || defaultEndMessage}</div>;
-  }
+  const shouldShowEndMessage = !hasMore && currentPage >= totalPages;
 
   return (
     <div className={className}>
@@ -119,11 +117,13 @@ const ScrollPagination: React.FC<ScrollPaginationProps> = ({
       {/* Loader */}
       {isLoading && (loader || defaultLoader)}
 
+      {shouldShowEndMessage && (endMessage || defaultEndMessage)}
+
       {/* Back to Top Button */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-7 right-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary transition-all duration-300 z-50"
+          className="fixed bottom-20 right-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary transition-all duration-300 z-50"
           aria-label="Go to top"
         >
           <ArrowUp className="h-6 w-6" />
