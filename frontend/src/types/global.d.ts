@@ -69,13 +69,13 @@ declare global {
     description?: string;
     type: "residential" | "commercial";
     category:
-      | "plot"
-      | "flat"
-      | "showroom"
-      | "office"
-      | "villa"
-      | "land"
-      | "farmHouse";
+    | "plot"
+    | "flat"
+    | "showroom"
+    | "office"
+    | "villa"
+    | "land"
+    | "farmHouse";
     location?: string;
     price: number;
 
@@ -83,15 +83,15 @@ declare global {
     built_up_area?: number;
     carpet_area?: number;
     unit_area_type?:
-      | "sqft"
-      | "sqm"
-      | "acre"
-      | "marla"
-      | "kanal"
-      | "bigha"
-      | "sqyd"
-      | "hectare"
-      | "gaj";
+    | "sqft"
+    | "sqm"
+    | "acre"
+    | "marla"
+    | "kanal"
+    | "bigha"
+    | "sqyd"
+    | "hectare"
+    | "gaj";
 
     // Plot specific
     plot_front_area?: number;
@@ -115,15 +115,15 @@ declare global {
 
     // Facing / Overlooking
     facing?:
-      | "North"
-      | "South"
-      | "East"
-      | "West"
-      | "North-East"
-      | "North-West"
-      | "South-East"
-      | "South-West"
-      | "";
+    | "North"
+    | "South"
+    | "East"
+    | "West"
+    | "North-East"
+    | "North-West"
+    | "South-East"
+    | "South-West"
+    | "";
     overlooking?: string[];
 
     // Age / Transaction Details
@@ -175,13 +175,13 @@ declare global {
     minimumBudget?: number;
     maximumBudget?: number;
     leadSource:
-      | "website"
-      | "referral"
-      | "social_media"
-      | "advertisement"
-      | "walk_in"
-      | "cold_call"
-      | "other";
+    | "website"
+    | "referral"
+    | "social_media"
+    | "advertisement"
+    | "walk_in"
+    | "cold_call"
+    | "other";
     initialNotes?: string;
     status: string;
     assigned_agent: string;
@@ -316,6 +316,9 @@ declare global {
     data: AgencyFormData[];
     message?: string;
     pagination?: Pagination;
+    stats?: {
+      totalAgencies: number;
+    }
   }
 
   interface AgencyFormData {
