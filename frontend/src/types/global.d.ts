@@ -175,13 +175,13 @@ declare global {
     minimumBudget?: number;
     maximumBudget?: number;
     leadSource:
-    | "website"
-    | "referral"
-    | "social_media"
-    | "advertisement"
-    | "walk_in"
-    | "cold_call"
-    | "other";
+      | "website"
+      | "referral"
+      | "social_media"
+      | "advertisement"
+      | "walk_in"
+      | "cold_call"
+      | "other";
     initialNotes?: string;
     status: string;
     assigned_agent: string;
@@ -238,10 +238,13 @@ declare global {
   }
 
   interface Pagination {
+    allCustomers: number;
     total: number;
     page: number;
     limit: number;
+    totalUnfiltered?: number;
     totalPages: number;
+    scheduledCount?:number;
   }
   interface Meeting {
     _id: string;
