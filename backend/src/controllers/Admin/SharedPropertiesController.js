@@ -96,6 +96,8 @@ export const getSharedProperties = async (req, res) => {
 
     const results = await PropertyShare.aggregate(pipeline);
 
+    const totalCountForStats = await PropertyShare.countDocuments({});
+
     return res.json({
       success: true,
       data: results,
@@ -105,6 +107,9 @@ export const getSharedProperties = async (req, res) => {
         limit: limitNumber,
         totalPages: Math.ceil(totalCount / limitNumber),
       },
+      stats: {
+        totalCountForStats
+      }
     });
 
   } catch (error) {
@@ -134,12 +139,12 @@ export const updateSharedProperty = async (req, res) => {
       message: `Property share (${updatedShareProperty.name}) has been updated successfully.`,
       type: "lead_updated",
     });
-      await sendPushNotification({
-        userId: updatedShareProperty.owner,
-        title: "Property share Updated",
-        message: `Property share (${updatedShareProperty.name}) has been updated successfully.`,
-        urlPath: "Property Share",
-      });
+    await sendPushNotification({
+      userId: updatedShareProperty.owner,
+      title: "Property share Updated",
+      message: `Property share (${updatedShareProperty.name}) has been updated successfully.`,
+      urlPath: "Property Share",
+    });
     return res.json({ success: true, data: updatedShareProperty });
   } catch (error) {
     console.error("Error updating property share:", error);
@@ -151,27 +156,84 @@ export const updateSharedProperty = async (req, res) => {
 export const deleteSharedProperty = async (req, res) => {
   try {
     const sharedPropertyId = req.params.id;
-    const deletedPropertyShare = await PropertyShare.findByIdAndDelete(sharedPropertyId);
-    if (!deletedPropertyShare) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Property Share not found" });
+
+    // 1. Fetch property share with property details
+    const sharedProperty = await PropertyShare.findById(sharedPropertyId)
+      .populate("propertyId", "title name");
+
+    if (!sharedProperty) {
+      return res.status(404).json({
+        success: false,
+        message: "Property Share not found",
+      });
     }
-    await PropertyShare.deleteOne({ _id: deletedPropertyShare._id });
+
+    const propertyName =
+      sharedProperty.propertyId?.title ||
+      sharedProperty.propertyId?.name ||
+      "Property";
+
+    const sharedBy = sharedProperty.sharedByUserId;
+    const sharedWith = sharedProperty.sharedWithUserId;
+
+    // 2. Delete
+    await PropertyShare.deleteOne({ _id: sharedProperty._id });
+
+    // Detect if Admin deleted
+    const deletedByAdmin = req.user?.role === "admin";
+
+    const deletedByText = deletedByAdmin
+      ? "The admin has deleted the property share."
+      : "The property share has been deleted by the user who shared it.";
+
+    /** ---------------- Notifications ---------------- **/
+
+    // ---- Notify Shared BY User ----
+    await createNotification({
+      userId: sharedBy,
+      message: `${propertyName} share has been removed. ${deletedByText}`,
+      type: "property_share_deleted",
+    });
+
+    await sendPushNotification({
+      userId: sharedBy,
+      title: "Property Share Deleted",
+      message: `${propertyName} share has been removed. ${deletedByText}`,
+      urlPath: "Shared Properties",
+    });
+
+    // ---- Notify Shared WITH User ----
+    await createNotification({
+      userId: sharedWith,
+      message: `${propertyName} shared with you has been deleted. ${deletedByText}`,
+      type: "property_share_deleted",
+    });
+
+    await sendPushNotification({
+      userId: sharedWith,
+      title: "Shared Property Removed",
+      message: `${propertyName} that was shared with you has been deleted. ${deletedByText}`,
+      urlPath: "Shared Properties",
+    });
 
     return res.json({
       success: true,
       message: "Property Share deleted successfully",
     });
+
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
+
 
 export const getPropertyFeedbackByPropertyId = async (req, res) => {
   try {
     const propertyShareId = req.params.id;
-    const preferenceFeedback = await PreferenceFeedbacks.findOne({propertyShareId}).populate("userId").populate("propertyId");
+    const preferenceFeedback = await PreferenceFeedbacks.findOne({ propertyShareId }).populate("userId").populate("propertyId");
     if (!preferenceFeedback) {
       return res
         .status(404)
