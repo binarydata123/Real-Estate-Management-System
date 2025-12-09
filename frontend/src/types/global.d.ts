@@ -264,16 +264,16 @@ declare global {
   }
 
   interface SharedWithSchema {
-    fullName : string;
+    fullName: string;
     _id: string;
   }
 
   interface SharedBySchema {
-    createdAt : string;
-    email : string;
-    name : string;
-    phone : string;
-    _id : string;
+    createdAt: string;
+    email: string;
+    name: string;
+    phone: string;
+    _id: string;
   }
 
   interface SharePropertyFormData {
@@ -296,6 +296,9 @@ declare global {
     data: SharePropertyFormData[];
     message?: string;
     pagination?: Pagination;
+    stats?: {
+      totalCountForStats: number
+    }
   }
 
   interface PropertyResponse {
@@ -466,6 +469,7 @@ declare global {
     status?: string;
     createdAt?: string;
     updatedAt?: string;
+    agencyId?: string;
   }
 
   interface AnalyticsResponse {

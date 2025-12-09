@@ -4,7 +4,7 @@ import { PlusIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
 import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
 import { useAuth } from "@/context/AuthContext";
-import CustomerModal from "./CustomerModal";
+import CustomerModal from "../../Common/CustomerModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import SearchInput from "@/components/Common/SearchInput";
@@ -21,9 +21,9 @@ export const Customers: React.FC = () => {
   // const [customers, setCustomers] = useState<CustomerFormData[]>([]);
 
 
-const [customers, setCustomers] = useState<
-  (CustomerFormData & { isDeleted?: boolean })[]
->([]);
+  const [customers, setCustomers] = useState<
+    (CustomerFormData & { isDeleted?: boolean })[]
+  >([]);
 
 
   const [isFetching, setIsFetching] = useState(false);
@@ -58,17 +58,17 @@ const [customers, setCustomers] = useState<
     setShowConfirmDialog(true);
   };
 
-const handleDelete = async (id: string) => {
-  try {
-    const response = await deleteCustomerById(id);
-    if (response.data.success) {
-      getAllCustomers(); // refresh list from API
-      showSuccessToast("Customer deleted successfully")
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await deleteCustomerById(id);
+      if (response.data.success) {
+        getAllCustomers(); // refresh list from API
+        showSuccessToast("Customer deleted successfully")
+      }
+    } catch (error) {
+      showErrorToast("Failed to delete customer:", error);
     }
-  } catch (error) {
-    showErrorToast("Failed to delete customer:", error);
-  }
-};
+  };
 
 
   const getAllCustomers = useCallback(
@@ -347,21 +347,21 @@ const handleDelete = async (id: string) => {
           initialData={
             editingCustomer
               ? {
-                  fullName: editingCustomer.fullName,
-                  phoneNumber: editingCustomer.phoneNumber ?? "",
-                  email: editingCustomer.email ?? "",
-                  whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
-                  minimumBudget: editingCustomer.minimumBudget
-                    ? Number(editingCustomer.minimumBudget)
-                    : undefined,
-                  maximumBudget: editingCustomer.maximumBudget
-                    ? Number(editingCustomer.maximumBudget)
-                    : undefined,
-                  leadSource: editingCustomer.leadSource ?? "website",
-                  initialNotes: editingCustomer.initialNotes ?? "",
-                  showAllProperty: editingCustomer.showAllProperty ?? false,
-                  agencyId: editingCustomer.agencyId?._id ?? "",
-                }
+                fullName: editingCustomer.fullName,
+                phoneNumber: editingCustomer.phoneNumber ?? "",
+                email: editingCustomer.email ?? "",
+                whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
+                minimumBudget: editingCustomer.minimumBudget
+                  ? Number(editingCustomer.minimumBudget)
+                  : undefined,
+                maximumBudget: editingCustomer.maximumBudget
+                  ? Number(editingCustomer.maximumBudget)
+                  : undefined,
+                leadSource: editingCustomer.leadSource ?? "website",
+                initialNotes: editingCustomer.initialNotes ?? "",
+                showAllProperty: editingCustomer.showAllProperty ?? false,
+                agencyId: editingCustomer.agencyId?._id ?? "",
+              }
               : undefined
           }
           customerId={editingCustomer?._id}
