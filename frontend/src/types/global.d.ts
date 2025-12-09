@@ -175,16 +175,16 @@ declare global {
     minimumBudget?: number;
     maximumBudget?: number;
     leadSource:
-    | "website"
-    | "referral"
-    | "social_media"
-    | "advertisement"
-    | "walk_in"
-    | "cold_call"
-    | "other";
+      | "website"
+      | "referral"
+      | "social_media"
+      | "advertisement"
+      | "walk_in"
+      | "cold_call"
+      | "other";
     initialNotes?: string;
     status: string;
-    assigned_agent: string;
+    assigned_agent?: string;
     minimumBudget: number;
     agencyId?: {
       email: string;
@@ -244,7 +244,8 @@ declare global {
     limit: number;
     totalUnfiltered?: number;
     totalPages: number;
-    scheduledCount?:number;
+    scheduledCount?: number;
+    totalWithoutFilter?:number;
   }
   interface Meeting {
     _id: string;
@@ -267,16 +268,16 @@ declare global {
   }
 
   interface SharedWithSchema {
-    fullName : string;
+    fullName: string;
     _id: string;
   }
 
   interface SharedBySchema {
-    createdAt : string;
-    email : string;
-    name : string;
-    phone : string;
-    _id : string;
+    createdAt: string;
+    email: string;
+    name: string;
+    phone: string;
+    _id: string;
   }
 
   interface SharePropertyFormData {
@@ -299,6 +300,9 @@ declare global {
     data: SharePropertyFormData[];
     message?: string;
     pagination?: Pagination;
+    stats?: {
+      totalCountForStats: number
+    }
   }
 
   interface PropertyResponse {
@@ -469,6 +473,7 @@ declare global {
     status?: string;
     createdAt?: string;
     updatedAt?: string;
+    agencyId?: string;
   }
 
   interface AnalyticsResponse {
