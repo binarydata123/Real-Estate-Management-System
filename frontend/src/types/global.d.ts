@@ -184,7 +184,7 @@ declare global {
     | "other";
     initialNotes?: string;
     status: string;
-    assigned_agent: string;
+    assigned_agent?: string;
     minimumBudget: number;
     agencyId?: {
       email: string;
