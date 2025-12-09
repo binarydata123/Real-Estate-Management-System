@@ -49,7 +49,6 @@ export default function Meetings() {
 
   const [selectedCustomer, setSelectedCustomer] =
     useState<CustomerFormData | null>(null);
-
   const [selectedAgencyName, setSelectedAgencyName] = useState<string>("");
   const meetingStats = [
     {
@@ -263,52 +262,52 @@ export default function Meetings() {
                             <tr>
                               <th
                                 scope="col"
-                                className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
+                                className="py-3.5 pl-4 pr-3 text-center text-sm font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
                               >
                                 Customer
                               </th>
                               <th
                                 scope="col"
-                                className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-blue-700 sm:pl-6 dark:text-indigo-300"
+                                className="py-3.5 pl-4 pr-3 text-center text-sm font-semibold text-blue-700 sm:pl-6 dark:text-indigo-300"
                               >
                                 Property Name
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 sm:pl-6  dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 sm:pl-6  dark:text-indigo-300"
                               >
                                 Agency Name
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 sm:pl-6  dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 sm:pl-6  dark:text-indigo-300"
                               >
                                 Date
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 sm:pl-6  dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 sm:pl-6  dark:text-indigo-300"
                               >
                                 Time
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 sm:pl-6  dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 sm:pl-6  dark:text-indigo-300"
                               >
                                 Status
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 dark:text-indigo-300"
                               >
                                 Actions
                               </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900 dark:divide-gray-700">
-                            {meetings.map((meeting) => (
-                              <tr key={meeting._id}>
-                                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                            {meetings.map((meeting,index) => (
+                              <tr key={index}>
+                                <td className="whitespace-nowrap  py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
                                     <div className="ml-4">
                                       <div
@@ -326,7 +325,7 @@ export default function Meetings() {
                                   </div>
                                 </td>
 
-                                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6 flex justify-center items-center">
                                   <div className="flex items-center">
                                     <div className="ml-4">
                                       {meeting.propertyData?._id ? (

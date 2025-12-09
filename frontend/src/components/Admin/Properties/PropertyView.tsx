@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import {
+  // ArrowLeft,
   //Mail,
   //Phone,
   User,
@@ -24,9 +25,6 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
   const [propertyShares, setPropertyShares] = useState<SharedPropertiesFormData[]>([]);
   const [propertyFeedbacks, setPropertyFeedbacks] = useState<PropertyFeedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  // const [customersCurrentPage, setCustomersCurrentPage] = useState(1);
-  // const [customersTotalPages, setCustomersTotalPages] = useState(1);
-  // const [customersTotalRecords, setCustomersTotalRecords] = useState(0);
   const [meetingsCurrentPage, setMeetingsCurrentPage] = useState(1);
   const [meetingsTotalPages, setMeetingsTotalPages] = useState(1);
   const [meetingsTotalRecords, setMeetingsTotalRecords] = useState(0);
@@ -48,7 +46,6 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      //setDebouncedCustomersSearchTerm(customersSearchTerm);
       setDebouncedMeetingsSearchTerm(meetingsSearchTerm);
       setDebouncedPropertySharesSearchTerm(propertySharesSearchTerm);
       setDebouncedPropertyFeedbacksSearchTerm(propertyFeedbacksSearchTerm);
@@ -60,40 +57,36 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
     return () => clearTimeout(handler);
   }, [
     //customersSearchTerm, 
-    meetingsSearchTerm, 
-    propertySharesSearchTerm, 
+    meetingsSearchTerm,
+    propertySharesSearchTerm,
     propertyFeedbacksSearchTerm
   ]);
 
   const fetchData = useCallback(
     async (
-      page = 1, 
+      page = 1,
       //customersSearch = "", 
-      meetingsSearch = "", 
-      propertyShareSearch = "", 
-      propertyFeedbackSearch = "", 
-      append=false
+      meetingsSearch = "",
+      propertyShareSearch = "",
+      propertyFeedbackSearch = "",
+      append = false
     ) => {
       try {
         setIsLoading(true);
         const response = await getPropertyById(
-          page, limit, 
+          page, limit,
           //customersSearch, 
-          meetingsSearch, 
-          propertyShareSearch, 
-          propertyFeedbackSearch, 
+          meetingsSearch,
+          propertyShareSearch,
+          propertyFeedbackSearch,
           propertyId
         );
-        console.log(response);
+
         if (response.success) {
           setProperty(response.data.property);
-          //setCustomers((prev) => (append ? [...prev, ...response.data.customers] : response.data.customers));
           setMeetings((prev) => (append ? [...prev, ...response.data.meetings] : response.data.meetings));
           setPropertyShares((prev) => (append ? [...prev, ...response.data.propertyShare] : response.data.propertyShare));
           setPropertyFeedbacks((prev) => (append ? [...prev, ...response.data.propertyFeedback] : response.data.propertyFeedback));
-          // setCustomersCurrentPage(response.data.customersPagination?.page ?? 1);
-          // setCustomersTotalPages(response.data.customersPagination?.totalPages ?? 1);
-          // setCustomersTotalRecords(response.data.customersPagination?.total ?? 0);
           setMeetingsCurrentPage(response.data.meetingsPagination?.page ?? 1);
           setMeetingsTotalPages(response.data.meetingsPagination?.totalPages ?? 1);
           setMeetingsTotalRecords(response.data.meetingsPagination?.total ?? 0);
@@ -113,45 +106,37 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
     []
   );
 
+  // const router = useRouter();
+
   useEffect(() => {
     if (!propertyId) return;
-    //setCustomers([]);
     setMeetings([]);
     setPropertyShares([]);
     setPropertyFeedbacks([]);
     fetchData(
-      1, 
+      1,
       //debouncedCustomersSearchTerm, 
-      debouncedMeetingsSearchTerm, 
-      debouncedPropertySharesSearchTerm, 
+      debouncedMeetingsSearchTerm,
+      debouncedPropertySharesSearchTerm,
       debouncedPropertyFeedbacksSearchTerm
     );
   }, [
-    propertyId, 
-    fetchData, 
+    propertyId,
+    fetchData,
     //debouncedCustomersSearchTerm, 
-    debouncedMeetingsSearchTerm, 
-    debouncedPropertySharesSearchTerm, 
+    debouncedMeetingsSearchTerm,
+    debouncedPropertySharesSearchTerm,
     debouncedPropertyFeedbacksSearchTerm
   ]);
 
-  // const formatBudget = (min?: number, max?: number) => {
-  //   return `${formatPrice(min)} - ${formatPrice(max)}`;
-  // };
-
-  // const handleCustomersPageChange = (page: number) => {
-  //   if (page >= 1 && page <= customersTotalPages && !isLoading) {
-  //     fetchData(page, debouncedCustomersSearchTerm, debouncedMeetingsSearchTerm, debouncedPropertySharesSearchTerm, debouncedPropertyFeedbacksSearchTerm, true);
-  //   }
-  // };
   const handleMeetingsPageChange = (page: number) => {
     if (page >= 1 && page <= meetingsTotalPages && !isLoading) {
       fetchData(
-        page, 
+        page,
         //debouncedCustomersSearchTerm, 
-        debouncedMeetingsSearchTerm, 
-        debouncedPropertySharesSearchTerm, 
-        debouncedPropertyFeedbacksSearchTerm, 
+        debouncedMeetingsSearchTerm,
+        debouncedPropertySharesSearchTerm,
+        debouncedPropertyFeedbacksSearchTerm,
         true
       );
     }
@@ -159,11 +144,11 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
   const handlePropertySharesPageChange = (page: number) => {
     if (page >= 1 && page <= propertySharesTotalPages && !isLoading) {
       fetchData(
-        page, 
+        page,
         //debouncedCustomersSearchTerm, 
-        debouncedMeetingsSearchTerm, 
-        debouncedPropertySharesSearchTerm, 
-        debouncedPropertyFeedbacksSearchTerm, 
+        debouncedMeetingsSearchTerm,
+        debouncedPropertySharesSearchTerm,
+        debouncedPropertyFeedbacksSearchTerm,
         true
       );
     }
@@ -171,10 +156,10 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
   const handlePropertyFeedbacksPageChange = (page: number) => {
     if (page >= 1 && page <= propertyFeedbacksTotalPages && !isLoading) {
       fetchData(
-        page, 
+        page,
         //debouncedCustomersSearchTerm, 
-        debouncedMeetingsSearchTerm, 
-        debouncedPropertySharesSearchTerm, 
+        debouncedMeetingsSearchTerm,
+        debouncedPropertySharesSearchTerm,
         debouncedPropertyFeedbacksSearchTerm, true
       );
     }
@@ -185,6 +170,9 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
       <div className="">
         {/* Main Profile */}
         <div className="">
+          {/* <div className="p-2 w-8 rounded-4xl bg-blue-500 text-white" onClick={() => router.back()}>
+            <ArrowLeft />
+          </div> */}
           {/* Profile Header */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 md:p-6">
             <div className="flex items-start space-x-6">
@@ -202,14 +190,6 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                         <User className="w-4 h-4" />
                         <span>{property?.owner_name}</span>
                       </span>
-                      {/* <span className="flex items-center space-x-1">
-                        <Mail className="w-4 h-4" />
-                        <span>{property?.email}</span>
-                      </span>
-                      <span className="flex items-center space-x-1">
-                        <Phone className="w-4 h-4" />
-                        <span>{property?.phone}</span>
-                      </span> */}
                     </div>
                   </div>
                 </div>
@@ -242,84 +222,6 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
 
           {/* Tab Content */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 md:p-6">
-            {/* {activeTab === "customers" && (
-              <div className="space-y-3 md:space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Customers</h3>
-                  <span className="text-sm text-gray-500">
-                    Total Records: {customersTotalRecords}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <label htmlFor="search" className="sr-only">
-                    Search
-                  </label>
-                  <SearchInput
-                    value={customersSearchTerm}
-                    onChange={setCustomersSearchTerm}
-                    aria-hidden="true"
-                  />
-                </div>
-                {customers && customers.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                    {customers.map((customer, index) => (
-                      <div
-                        key={index}
-                        className="group bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 text-white flex items-center justify-center text-xl font-semibold shadow">
-                              {customer.fullName.charAt(0)}
-                            </div>
-
-                            <div>
-                              <h4 className="font-semibold text-gray-900 text-lg">
-                                {customer.fullName}
-                              </h4>
-                              <p className="text-gray-500 text-sm">{customer.email}</p>
-                              <p className="text-gray-500 text-sm">{formatBudget(customer?.minimumBudget || 0, customer?.maximumBudget || 0)}</p>
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500 border border-gray-200 px-3 py-1 rounded-full">
-                              {customer.phoneNumber}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center mt-10">
-                    <img
-                      src="/nodata.jpg"
-                      alt="No Data"
-                      className="mx-auto w-44 h-44 object-contain opacity-80"
-                    />
-                    <p className="text-gray-500 mt-3 text-lg font-medium">No customers exist.</p>
-                  </div>
-                )}
-                <ScrollPagination
-                  currentPage={customersCurrentPage}
-                  totalPages={customersTotalPages}
-                  onPageChange={handleCustomersPageChange}
-                  isLoading={isLoading}
-                  hasMore={customersCurrentPage < customersTotalPages}
-                  loader={
-                    <div className="text-center py-4">
-                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                  }
-                  endMessage={
-                    <div className="text-center py-8 text-green-600 font-medium">
-                      🎉 All caught up!
-                    </div>
-                  }
-                />
-              </div>
-            )} */}
-
             {activeTab === "property-share" && (
               <div className="space-y-6 mt-4">
                 <div className="flex items-center justify-between">
@@ -367,23 +269,25 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                     <p className="text-gray-500 mt-2">No Property Share found.</p>
                   </div>
                 )}
-                <ScrollPagination
-                  currentPage={propertySharesCurrentPage}
-                  totalPages={propertySharesTotalPages}
-                  onPageChange={handlePropertySharesPageChange}
-                  isLoading={isLoading}
-                  hasMore={propertySharesCurrentPage < propertySharesTotalPages}
-                  loader={
-                    <div className="text-center py-4">
-                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                  }
-                  endMessage={
-                    <div className="text-center py-8 text-green-600 font-medium">
-                      🎉 All caught up!
-                    </div>
-                  }
-                />
+                {propertySharesTotalRecords > 0 && (
+                  <ScrollPagination
+                    currentPage={propertySharesCurrentPage}
+                    totalPages={propertySharesTotalPages}
+                    onPageChange={handlePropertySharesPageChange}
+                    isLoading={isLoading}
+                    hasMore={propertySharesCurrentPage < propertySharesTotalPages}
+                    loader={
+                      <div className="text-center py-4">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    }
+                    endMessage={
+                      <div className="text-center py-8 text-green-600 font-medium">
+                        🎉 All caught up!
+                      </div>
+                    }
+                  />
+                )}
               </div>
             )}
             {activeTab === "property-feedback" && (
@@ -433,23 +337,25 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                     <p className="text-gray-500 mt-2">No Property Feedbacks found.</p>
                   </div>
                 )}
-                <ScrollPagination
-                  currentPage={propertyFeedbacksCurrentPage}
-                  totalPages={propertyFeedbacksTotalPages}
-                  onPageChange={handlePropertyFeedbacksPageChange}
-                  isLoading={isLoading}
-                  hasMore={propertyFeedbacksCurrentPage < propertyFeedbacksTotalPages}
-                  loader={
-                    <div className="text-center py-4">
-                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                  }
-                  endMessage={
-                    <div className="text-center py-8 text-green-600 font-medium">
-                      🎉 All caught up!
-                    </div>
-                  }
-                />
+                {propertyFeedbacksTotalRecords > 0 && (
+                  <ScrollPagination
+                    currentPage={propertyFeedbacksCurrentPage}
+                    totalPages={propertyFeedbacksTotalPages}
+                    onPageChange={handlePropertyFeedbacksPageChange}
+                    isLoading={isLoading}
+                    hasMore={propertyFeedbacksCurrentPage < propertyFeedbacksTotalPages}
+                    loader={
+                      <div className="text-center py-4">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    }
+                    endMessage={
+                      <div className="text-center py-8 text-green-600 font-medium">
+                        🎉 All caught up!
+                      </div>
+                    }
+                  />
+                )}
               </div>
             )}
             {activeTab === "meetings" && (
@@ -474,11 +380,11 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                   {meetings && meetings.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {meetings.map((meeting, index) => {
-                        const primaryImage = meeting.propertyData?.images?.length > 0 ? (() => { 
+                        const primaryImage = meeting.propertyData?.images?.length > 0 ? (() => {
                           const primary = meeting.propertyData.images.find((img) => img.isPrimary);
                           return getPropertyImageUrlWithFallback(primary?.url);
                         })() : getPropertyImageUrlWithFallback();
-                        return(
+                        return (
                           <div
                             key={index}
                             className="group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
@@ -503,15 +409,14 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                                 </h4>
 
                                 <span
-                                  className={`px-3 py-1 text-xs font-medium rounded-full capitalize ${
-                                    meeting.status === "completed"
-                                      ? "bg-green-100 text-green-700"
-                                      : meeting.status === "cancelled"
+                                  className={`px-3 py-1 text-xs font-medium rounded-full capitalize ${meeting.status === "completed"
+                                    ? "bg-green-100 text-green-700"
+                                    : meeting.status === "cancelled"
                                       ? "bg-red-100 text-red-600"
                                       : meeting.status === "rescheduled"
-                                      ? "bg-yellow-100 text-yellow-700"
-                                      : "bg-blue-100 text-blue-700"
-                                  }`}
+                                        ? "bg-yellow-100 text-yellow-700"
+                                        : "bg-blue-100 text-blue-700"
+                                    }`}
                                 >
                                   {meeting.status || 'N/A'}
                                 </span>
@@ -547,18 +452,15 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                               <div className="flex items-center justify-between pt-3 text-sm">
                                 <p className="text-gray-500">
                                   ⏱ {meeting.time} |{" "}
-                                    {meeting.date
-                                      ? new Date(meeting.date).toLocaleDateString("en-US", {
-                                          day: "2-digit",
-                                          month: "short",
-                                          year: "numeric",
-                                        })
-                                      : "N/A"
-                                    }
+                                  {meeting.date
+                                    ? new Date(meeting.date).toLocaleDateString("en-US", {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                    })
+                                    : "N/A"
+                                  }
                                 </p>
-                                {/* <button className="px-4 py-1.5 bg-primary text-white text-sm font-medium rounded-lg shadow hover:bg-primary/90 transition">
-                                  View Details
-                                </button> */}
                               </div>
                             </div>
                           </div>
@@ -575,23 +477,25 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                       <p className="text-gray-500 mt-2">No Meetings found.</p>
                     </div>
                   )}
-                  <ScrollPagination
-                    currentPage={meetingsCurrentPage}
-                    totalPages={meetingsTotalPages}
-                    onPageChange={handleMeetingsPageChange}
-                    isLoading={isLoading}
-                    hasMore={meetingsCurrentPage < meetingsTotalPages}
-                    loader={
-                      <div className="text-center py-4">
-                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      </div>
-                    }
-                    endMessage={
-                      <div className="text-center py-8 text-green-600 font-medium">
-                        🎉 All caught up!
-                      </div>
-                    }
-                  />
+                  {meetingsTotalRecords > 0 && (
+                    <ScrollPagination
+                      currentPage={meetingsCurrentPage}
+                      totalPages={meetingsTotalPages}
+                      onPageChange={handleMeetingsPageChange}
+                      isLoading={isLoading}
+                      hasMore={meetingsCurrentPage < meetingsTotalPages}
+                      loader={
+                        <div className="text-center py-4">
+                          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        </div>
+                      }
+                      endMessage={
+                        <div className="text-center py-8 text-green-600 font-medium">
+                          🎉 All caught up!
+                        </div>
+                      }
+                    />
+                  )}
                 </div>
               </div>
             )}

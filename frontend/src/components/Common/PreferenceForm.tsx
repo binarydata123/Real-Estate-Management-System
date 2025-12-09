@@ -319,7 +319,6 @@ export default function PreferenceForm() {
     return searchParams.get("customerId") ?? undefined;
   }, [searchParams]);
 
-
   const { showToast } = useToast();
   const { user } = useAuth();
   const isReadOnly = user?.role === "admin";
@@ -327,7 +326,6 @@ export default function PreferenceForm() {
   const [requestSent, setRequestSent] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [initialType, setInitialType] = useState<string | null>(null);
-  
 
   const {
     register,
@@ -359,15 +357,13 @@ export default function PreferenceForm() {
   const watchedType = watch("type");
   const watchedCategories = watch("category") || [];
 
-  
+  useEffect(() => {
+    if (isInitialLoad) return;
 
-  useEffect(()=>{
-    if(isInitialLoad) return;
-
-    if(initialType && watchedType!==initialType ){
-      setValue("category",[]);
+    if (initialType && watchedType !== initialType) {
+      setValue("category", []);
     }
-  },[watchedType,initialType,isInitialLoad,setValue])
+  }, [watchedType, initialType, isInitialLoad, setValue]);
 
   const showConfiguration = useMemo(() => {
     if (watchedType !== "residential") return false;
@@ -412,47 +408,43 @@ export default function PreferenceForm() {
     );
   }, [watchedCategories, containsOnlyPlotOrLand]);
 
+  useEffect(() => {
+    if (customerId) {
+      const fetchDetail = async () => {
+        try {
+          const res = await getPreferenceDetail(customerId);
 
+          if (res.success && res.data) {
+            reset(res.data);
+            setInitialType(res.data.type);
+            setRequestSent(res.requestSent);
 
-
-useEffect(() => {
-  if (customerId) {
-    const fetchDetail = async () => {
-      try {
-        const res = await getPreferenceDetail(customerId);
-      
-        if (res.success && res.data) {
-          reset(res.data);
-          setInitialType(res.data.type);
-          setRequestSent(res.requestSent);
-
-          setIsInitialLoad(false); // allow future type changes to reset categories
+            setIsInitialLoad(false); // allow future type changes to reset categories
+          }
+        } catch (error) {
+          if (axios.isAxiosError(error) && error.response?.status === 404) {
+            setIsInitialLoad(false);
+            return;
+          }
+          showErrorToast("Failed to fetch preferences:", error);
         }
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          setIsInitialLoad(false);
-          return;
-        }
-        showErrorToast("Failed to fetch preferences:", error);
-      }
-    };
-    fetchDetail();
-  }
-}, [customerId, reset, showToast]);
+      };
+      fetchDetail();
+    }
+  }, [customerId, reset, showToast]);
 
   const onSubmit = async (data: UserPreferenceFormData) => {
-
     const finalData = {
       ...data,
-      customerId:customerId
-    }
+      customerId: customerId,
+    };
 
     if (isReadOnly) return;
     setLoading(true);
 
     try {
       const res = await createPreference(finalData);
-      
+
       if (res.success) {
         showToast(res.message, "success");
         router.push("/agent/customers");
@@ -482,36 +474,40 @@ useEffect(() => {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-2">
-        <div>
-          <h1 className="text-3xl font-bold md:mb-2 text-gray-800">
-            Set Your Property Preferences
-          </h1>
-          <p className="text-md text-gray-600 mb-2 md:mb-6">
-            Tell us your needs, we’ll find the fit.
-          </p>
+      {isReadOnly === false ? (
+        <div className="flex justify-between items-center mb-2">
+          <div>
+            <h1 className="text-3xl font-bold md:mb-2 text-gray-800">
+              Set Your Property Preferences
+            </h1>
+            <p className="text-md text-gray-600 mb-2 md:mb-6">
+              Tell us your needs, we’ll find the fit.
+            </p>
+          </div>
+          {customerId && (
+            <button
+              onClick={sendRequest}
+              disabled={loading || requestSent}
+              className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {requestSent
+                ? "Request Sent"
+                : loading
+                ? "Sending..."
+                : "Send Request"}
+            </button>
+          )}
         </div>
-        {customerId && (
-          <button
-            onClick={sendRequest}
-            disabled={loading || requestSent}
-            className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {requestSent
-              ? "Request Sent"
-              : loading
-              ? "Sending..."
-              : "Send Request"}
-          </button>
-        )}
-      </div>
+      ) : (
+        ""
+      )}
       <form
         id="preference-form"
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-3 md:space-y-6"
       >
-        <FormSection title="About You" className="space-y-3">
-          <Field label="I am a..." error={errors.userType} required>
+        <FormSection title={isReadOnly === false ? "About You" : "About Customer"} className="space-y-3">
+          <Field label={isReadOnly === false ? "I am a..." : "They are a..."} error={errors.userType} required>
             <IconRadio
               name="userType"
               options={userTypeOptions}

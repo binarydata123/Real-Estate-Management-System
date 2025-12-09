@@ -6,10 +6,10 @@ import { getCustomers, deleteCustomerById } from "@/lib/Admin/CustomerAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
-import { FaArrowDown } from "react-icons/fa";
+import CustomerDetailsPopup from "../Common/customerPopup";
 
 // const statusStyles: { [key: string]: string } = {
 //   new: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
@@ -46,7 +46,12 @@ export default function Customers() {
   const searchParams = useSearchParams();
   const agencyId = searchParams.get("agencyId");
   const [totalRecords, setTotalRecords] = useState(0);
-  const [searchTotal,setSearchTotal] = useState(0);
+  const router = useRouter();
+  const [customerData, setCustomerData] = useState<CustomerFormData | null>(
+    null
+  );
+  const [showCustomerDetailsModal, setShowCustomerDetailsModal] =
+    useState(false);
 
   // Calculate stats from mock data
   //const totalCustomers = customers.length;
@@ -113,7 +118,6 @@ export default function Customers() {
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
           setTotalRecords(res.pagination?.allCustomers ?? 0);
-          setSearchTotal(res.pagination?.total ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);
@@ -139,6 +143,26 @@ export default function Customers() {
     if (page < 1 || page > totalPages || isFetching) return;
     const finalAgencyId = agencyId || "";
     getAllCustomers(page, debouncedSearchTerm, "", finalAgencyId, true);
+  };
+
+  const handleCustomerClick = (customer: CustomerFormData) => {
+    setCustomerData({
+      _id: customer._id,
+      agencyId: customer?.agencyId,
+      email: customer?.email,
+      fullName: customer?.fullName,
+      initialNotes: customer?.initialNotes,
+      leadSource: customer?.leadSource,
+      maximumBudget: customer?.maximumBudget,
+      minimumBudget: customer?.minimumBudget,
+      phoneNumber: customer?.phoneNumber,
+      role: customer?.role,
+      showAllProperty: customer?.showAllProperty,
+      status: customer?.status,
+      whatsAppNumber: customer?.whatsAppNumber,
+    });
+    document.body.style.overflow = 'hidden';
+    setShowCustomerDetailsModal(true);
   };
 
   return (
@@ -169,9 +193,9 @@ export default function Customers() {
           {customerStats.map((item) => (
             <div
               key={item.name}
-              className="relative rounded-lg bg-white dark:bg-gray-800 shadow p-2"
+              className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-3 border-t-4 border-blue-500 group"
             >
-              <div className="p-5 stats-card-padding-sec">
+              <div className="p-5 stats-card-padding-sec w-[100%]">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className={classNames(item.color, "rounded-lg p-3")}>
@@ -182,7 +206,7 @@ export default function Customers() {
                     </div>
                   </div>
                   <div className="ml-2 w-0 flex-1">
-                    <dt className="truncate text-sm header-tab-sec font-medium text-gray-500 dark:text-gray-400">
+                    <dt className=" text-sm header-tab-sec font-medium text-black dark:text-gray-400">
                       {item.name}
                     </dt>
                     <dd>
@@ -200,7 +224,7 @@ export default function Customers() {
         </dl>
       </div>
 
-      <hr className="mt-10" />
+      {/* <hr className="mt-10" /> */}
 
       {/* Search and Filter */}
       <div className="mt-8 sm:flex sm:items-center sm:gap-x-4">
@@ -219,7 +243,6 @@ export default function Customers() {
             aria-hidden="true"
           />
         </div>
-        <p className="mt-5 flex gap-2 !text-[15px] items-center text-center justify-center">Showing Results for {searchTotal} Customers <FaArrowDown className="!h-[12px] !w-[12px] !self-start"/></p>
         {/* <div className="mt-4 sm:mt-0 sm:w-auto">
           <label htmlFor="status" className="sr-only">
             Status
@@ -242,14 +265,10 @@ export default function Customers() {
         </div> */}
       </div>
 
-      <div className="mt-8 flex flex-col">
-        <div className="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
+      <div className="mt-8 flex flex-col mb-10">
+        <div className="overflow-x-auto">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div
-              id="table-listing-sec"
-              className="overflow-x-auto overflow-y-auto h-[70vh] shadow-sm md:rounded-lg"
-              style={{ WebkitOverflowScrolling: "touch" }}
-            >
+            <div id="table-listing-sec" className="shadow-sm md:rounded-lg">
               {isFetching && customers.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
@@ -260,36 +279,36 @@ export default function Customers() {
                   <table className="min-w-full divide-y divide-gray-300 ">
                     {customers.length > 0 ? (
                       <>
-                        <thead className="bg-gray-50  dark:bg-gray-800 sticky top-0 z-10">
+                        <thead className="bg-blue-50  dark:bg-gray-800 sticky top-0 z-10">
                           <tr>
                             <th
                               scope="col"
-                              className="py-3.5 pl-4 pr-3 text-center text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300"
+                              className="py-3.5 pl-4 pr-3 text-center text-sm font-semibold text-blue-600 sm:pl-6 dark:text-gray-300"
                             >
                               Customer
                             </th>
                             {/* <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Email</th> */}
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-blue-600 dark:text-gray-300"
                             >
                               Phone
                             </th>
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-blue-600 dark:text-gray-300"
                             >
                               Minimum Budget
                             </th>
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-blue-600 dark:text-gray-300"
                             >
                               Maximum Budget
                             </th>
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-blue-600 dark:text-gray-300"
                             >
                               Agency
                             </th>
@@ -301,22 +320,25 @@ export default function Customers() {
                             </th> */}
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-blue-600 dark:text-gray-300"
                             >
                               Actions
                             </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900 dark:divide-gray-700">
-                          {customers.map((customer,index) => (
+                          {customers.map((customer, index) => (
                             <tr key={index}>
-                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                              <td
+                                className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6"
+                                onClick={() => handleCustomerClick(customer)}
+                              >
                                 <div className="flex items-center">
                                   {/* <div className="h-10 w-10 flex-shrink-0">
                                                                         <Image width={100} height={100} className="h-10 w-10 rounded-full" src={agency.logo_url} alt={`${agency.name} logo`} />
                                                                     </div> */}
                                   <div className="ml-4">
-                                    <div className="font-medium text-gray-900 dark:text-white">
+                                    <div className="font-semibold text-blue-600 dark:text-white">
                                       {customer.fullName || "N/A"}
                                     </div>
                                   </div>
@@ -346,7 +368,16 @@ export default function Customers() {
                                   }
                                 ) || "--"}
                               </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                              <td
+                                className="whitespace-nowrap px-3 py-4 text-sm dark:text-gray-400 font-semibold text-blue-600 cursor-pointer"
+                                onClick={() => {
+                                  if (customer?.agencyId !== null) {
+                                    router.push(
+                                      `/admin/agencies/${customer?.agencyId?.id}`
+                                    );
+                                  }
+                                }}
+                              >
                                 {customer?.agencyId?.name || "N/A"}
                               </td>
                               {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -423,27 +454,36 @@ export default function Customers() {
                   </table>
                 </>
               )}
-              <ScrollPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-                isLoading={isFetching}
-                hasMore={currentPage < totalPages}
-                loader={
-                  <div className="text-center py-4">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  </div>
-                }
-                endMessage={
-                  <div className="text-center py-8 text-green-600 font-medium">
-                    🎉 All caught up!
-                  </div>
-                }
-              />
             </div>
           </div>
         </div>
+        <ScrollPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isFetching}
+          hasMore={currentPage < totalPages}
+          loader={
+            <div className="text-center py-4">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          }
+          endMessage={
+            <div className="text-center py-8 text-green-600 font-medium">
+              🎉 All caught up!
+            </div>
+          }
+        />
       </div>
+
+      {showCustomerDetailsModal && (
+        <CustomerDetailsPopup
+          isOpen={showCustomerDetailsModal}
+          onClose={() => {setShowCustomerDetailsModal(false); document.body.style.overflow = 'unset';}}
+          customerData={customerData}
+          agencyName={customerData?.agencyId?.name}
+        />
+      )}
 
       {/* Add Property Modal */}
       {/* <AddAgencyModal isOpen={isAddAgencyModalOpen} onClose={() => setAddAgencyModalOpen(false)} /> */}
@@ -453,6 +493,7 @@ export default function Customers() {
         onConfirm={() => {
           if (selectedCustomer?._id) {
             handleDelete(selectedCustomer._id);
+            getAllCustomers();
           }
           setShowConfirmDialog(false);
           setSelectedCustomer(null);
