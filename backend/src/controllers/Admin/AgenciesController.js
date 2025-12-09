@@ -39,11 +39,13 @@ export const getAgencies = async (req, res) => {
       .limit(limitNumber)
       .populate("properties")
       .populate("customers")
-      .populate({path: "users", select: "name" })
+      .populate({ path: "users", select: "name" })
       .populate("meetings")
       .populate("propertyshares");
 
     if (!agency || agency.length === 0) {
+      // Return only stats if no agencies found
+      const totalAgenciesCount = await Agency.countDocuments({ status: { $ne: "delete" } });
       return res.status(200).json({
         success: true,
         message: "No agency found",
@@ -54,8 +56,14 @@ export const getAgencies = async (req, res) => {
           limit: limitNumber,
           totalPages: 0,
         },
+        stats: {
+          totalAgencies: totalAgenciesCount
+        }
       });
     }
+
+    // Agency stats for dashboard cards
+    const totalAgenciesCount = await Agency.countDocuments({ status: { $ne: "delete" } });
 
     return res.json({
       success: true,
@@ -65,6 +73,9 @@ export const getAgencies = async (req, res) => {
         page: pageNumber,
         limit: limitNumber,
         totalPages: Math.ceil(totalAgencies / limitNumber),
+      },
+      stats: {
+        totalAgencies: totalAgenciesCount
       },
     });
   } catch (error) {
@@ -187,13 +198,13 @@ export const getAgencyById = async (req, res) => {
         searchQuery.$or.push({ fullName: { $regex: propertyShareSearch, $options: "i" } });
       }
     }
-    const agency = await Agency.findById({_id: agencyId}).populate("users");
+    const agency = await Agency.findById({ _id: agencyId }).populate("users");
     const totalTeamMembers = await User.countDocuments(searchQuery);
     const agencyTeamMembers = await User.find(searchQuery)
-        .sort({ _id: -1 })
-        .skip(skip)
-        .limit(limit)
-        .populate('agencyId');
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('agencyId');
     // PAGINATED CUSTOMERS
     const totalCustomers = await Customer.countDocuments(searchQuery);
     const agencyCustomers = await Customer.find(searchQuery)
