@@ -107,12 +107,12 @@ export const updateProperty = async (req, res) => {
       message: `Property (${updatedProperty.name}) has been updated successfully.`,
       type: "lead_updated",
     });
-      await sendPushNotification({
-        userId: updatedProperty.owner,
-        title: "Property Updated",
-        message: `Property (${updatedProperty.name}) has been updated successfully.`,
-        urlPath: "Property",
-      });
+    await sendPushNotification({
+      userId: updatedProperty.owner,
+      title: "Property Updated",
+      message: `Property (${updatedProperty.name}) has been updated successfully.`,
+      urlPath: "Property",
+    });
     return res.json({ success: true, data: updatedProperty });
   } catch (error) {
     console.error("Error updating property:", error);
@@ -157,13 +157,6 @@ export const getPropertyById = async (req, res) => {
       searchQuery._id = propertyId;
     }
 
-    // if (customersSearch) {
-    //   searchQuery.$or = [];
-    //   if (customersSearch && typeof customersSearch === "string") {
-    //     searchQuery.$or.push({ fullName: { $regex: customersSearch, $options: "i" } });
-    //   }
-    // }
-
     if (meetingsSearch) {
       searchQuery.$or = [];
       if (meetingsSearch && typeof meetingsSearch === "string") {
@@ -183,13 +176,7 @@ export const getPropertyById = async (req, res) => {
         searchQuery.$or.push({ fullName: { $regex: propertyFeedbackSearch, $options: "i" } });
       }
     }
-    const property = await Property.findById({_id: propertyId});
-    // PAGINATED CUSTOMERS
-    // const totalCustomers = await Customer.countDocuments(searchQuery);
-    // const propertyCustomers = await Customer.find(searchQuery)
-    //   .sort({ _id: -1 })
-    //   .skip(skip)
-    //   .limit(limit);
+    const property = await Property.findById({ _id: propertyId });
 
     // PAGINATED MEETINGS (AGGREGATE)
     const totalMeetings = await Meetings.countDocuments({ propertyId: propertyId }, searchQuery);
@@ -238,13 +225,6 @@ export const getPropertyById = async (req, res) => {
       message: "Property fetch successfully",
       data: {
         property: property,
-        // customers: propertyCustomers,
-        // customersPagination: {
-        //   total: totalCustomers,
-        //   page,
-        //   limit,
-        //   totalPages: Math.ceil(totalCustomers / limit),
-        // },
         meetings: propertyMeetings,
         meetingsPagination: {
           total: totalMeetings,

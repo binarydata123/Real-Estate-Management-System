@@ -30,6 +30,7 @@ const notificationSchema = new mongoose.Schema(
         "preference_request",
         "property_share",
         "property_feedback",
+        "property_share_deleted"
       ],
       default: "welcome",
     },
