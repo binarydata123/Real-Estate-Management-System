@@ -9,6 +9,7 @@ import SearchInput from "@/components/Common/SearchInput";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import CustomerDetailsPopup from "../Common/customerPopup";
 
 // const statusStyles: { [key: string]: string } = {
 //   new: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
@@ -46,9 +47,11 @@ export default function Customers() {
   const agencyId = searchParams.get("agencyId");
   const [totalRecords, setTotalRecords] = useState(0);
   const router = useRouter();
-  const [customerData, setCostumerData] = useState<CustomerFormData | null>(
+  const [customerData, setCustomerData] = useState<CustomerFormData | null>(
     null
   );
+  const [showCustomerDetailsModal, setShowCustomerDetailsModal] =
+    useState(false);
 
   // Calculate stats from mock data
   //const totalCustomers = customers.length;
@@ -142,8 +145,8 @@ export default function Customers() {
     getAllCustomers(page, debouncedSearchTerm, "", finalAgencyId, true);
   };
 
-  const handleCustomerClick = (customer:CustomerFormData) => {
-    setCostumerData({
+  const handleCustomerClick = (customer: CustomerFormData) => {
+    setCustomerData({
       _id: customer._id,
       agencyId: customer?.agencyId,
       email: customer?.email,
@@ -158,8 +161,8 @@ export default function Customers() {
       status: customer?.status,
       whatsAppNumber: customer?.whatsAppNumber,
     });
-
-    console.log(`Customer Data Is Going to be ------> ${customerData}`);
+    document.body.style.overflow = 'hidden';
+    setShowCustomerDetailsModal(true);
   };
 
   return (
@@ -192,7 +195,7 @@ export default function Customers() {
               key={item.name}
               className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-3 border-t-4 border-blue-500 group"
             >
-              <div className="p-5 stats-card-padding-sec">
+              <div className="p-5 stats-card-padding-sec w-[100%]">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className={classNames(item.color, "rounded-lg p-3")}>
@@ -203,7 +206,7 @@ export default function Customers() {
                     </div>
                   </div>
                   <div className="ml-2 w-0 flex-1">
-                    <dt className="truncate text-sm header-tab-sec font-medium text-gray-500 dark:text-gray-400">
+                    <dt className=" text-sm header-tab-sec font-medium text-black dark:text-gray-400">
                       {item.name}
                     </dt>
                     <dd>
@@ -221,7 +224,7 @@ export default function Customers() {
         </dl>
       </div>
 
-      <hr className="mt-10" />
+      {/* <hr className="mt-10" /> */}
 
       {/* Search and Filter */}
       <div className="mt-8 sm:flex sm:items-center sm:gap-x-4">
@@ -335,7 +338,7 @@ export default function Customers() {
                                                                         <Image width={100} height={100} className="h-10 w-10 rounded-full" src={agency.logo_url} alt={`${agency.name} logo`} />
                                                                     </div> */}
                                   <div className="ml-4">
-                                    <div className="font-medium text-gray-900 dark:text-white">
+                                    <div className="font-semibold text-blue-600 dark:text-white">
                                       {customer.fullName || "N/A"}
                                     </div>
                                   </div>
@@ -473,6 +476,15 @@ export default function Customers() {
         />
       </div>
 
+      {showCustomerDetailsModal && (
+        <CustomerDetailsPopup
+          isOpen={showCustomerDetailsModal}
+          onClose={() => {setShowCustomerDetailsModal(false); document.body.style.overflow = 'unset';}}
+          customerData={customerData}
+          agencyName={customerData?.agencyId?.name}
+        />
+      )}
+
       {/* Add Property Modal */}
       {/* <AddAgencyModal isOpen={isAddAgencyModalOpen} onClose={() => setAddAgencyModalOpen(false)} /> */}
       <ConfirmDialog
@@ -481,6 +493,7 @@ export default function Customers() {
         onConfirm={() => {
           if (selectedCustomer?._id) {
             handleDelete(selectedCustomer._id);
+            getAllCustomers();
           }
           setShowConfirmDialog(false);
           setSelectedCustomer(null);

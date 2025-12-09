@@ -266,43 +266,43 @@ export default function Properties() {
                             <tr>
                               <th
                                 scope="col"
-                                className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
+                                className="py-3.5 pl-4 pr-3 text-center text-sm font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
                               >
                                 Property
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 dark:text-indigo-300"
                               >
                                 Type
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 dark:text-indigo-300"
                               >
                                 Category
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 dark:text-indigo-300"
                               >
                                 Price
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 dark:text-indigo-300"
                               >
                                 Agency
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 dark:text-indigo-300"
                               >
                                 Status
                               </th>
                               <th
                                 scope="col"
-                                className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                                className="px-3 py-3.5 text-center text-sm font-semibold text-blue-700 dark:text-indigo-300"
                               >
                                 Actions
                               </th>
@@ -312,12 +312,12 @@ export default function Properties() {
                             {properties.map((property) => (
                               <tr
                                 key={property._id}
-                                className="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors"
+                                className="hover:bg-blue-50 text-center dark:hover:bg-gray-800 transition-colors"
                               >
                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
                                     <div className="ml-4">
-                                      <div className="font-semibold text-gray-900 dark:text-white">
+                                      <div className="font-semibold text-center text-gray-900 dark:text-white">
                                         {property.title || property._id}
                                       </div>
                                     </div>
@@ -343,7 +343,7 @@ export default function Properties() {
                                     className={classNames(
                                       "px-2 py-1 rounded-full text-xs font-semibold",
                                       statusStyles[property.status] ||
-                                      "bg-gray-100 text-gray-800"
+                                        "bg-gray-100 text-gray-800"
                                     )}
                                   >
                                     {property.status}
@@ -351,9 +351,7 @@ export default function Properties() {
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-4 text-sm flex gap-2">
                                   <button
-                                    onClick={() =>
-                                      handleDeleteClick(property)
-                                    }
+                                    onClick={() => handleDeleteClick(property)}
                                     className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 font-medium rounded hover:bg-red-100 hover:text-red-800 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
                                     aria-label="Delete Property"
                                     title="Delete Property"
@@ -393,30 +391,30 @@ export default function Properties() {
                     </table>
                   </>
                 )}
-                {properties.length > 0 && (
-                  <div className="w-full flex justify-center items-center py-4 md:py-6">
-                    <ScrollPagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                      isLoading={isFetching}
-                      hasMore={currentPage < totalPages}
-                      loader={
-                        <div className="text-center py-4">
-                          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                        </div>
-                      }
-                      endMessage={
-                        <div className="text-center py-8 text-green-600 font-medium">
-                          🎉 All caught up!
-                        </div>
-                      }
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
+          {properties.length > 0 && (
+            <div className="w-full flex justify-center items-center py-4 md:py-6">
+              <ScrollPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                isLoading={isFetching}
+                hasMore={currentPage < totalPages}
+                loader={
+                  <div className="text-center py-4">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                }
+                endMessage={
+                  <div className="text-center py-8 text-green-600 font-medium">
+                    🎉 All caught up!
+                  </div>
+                }
+              />
+            </div>
+          )}
         </div>
 
         <ConfirmDialog

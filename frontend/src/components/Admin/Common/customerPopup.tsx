@@ -3,7 +3,6 @@ import {
   User,
   Phone,
   MessageCircle,
-  Building,
   UserCheck,
   IndianRupee,
   Mail,
@@ -13,7 +12,6 @@ interface CustomerDetailsPopupProps {
   isOpen: boolean;
   onClose: () => void;
   customerData: CustomerFormData | null;
-  propertyName?: string;
   agencyName?:string;
 }
 
@@ -21,13 +19,12 @@ export default function CustomerDetailsPopup({
   isOpen,
   onClose,
   customerData,
-  propertyName,
   agencyName
 }: CustomerDetailsPopupProps) {
   if (!isOpen || !customerData) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed h-[100vh] w-[100vw] inset-0 z-50 overflow-y-auto overscroll-behavior-contain">
       <div
         className="fixed inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-md"
         onClick={onClose}
@@ -135,21 +132,6 @@ export default function CustomerDetailsPopup({
                 </p>
               </div>
             </div>
-
-            {/* Property Name */}
-            {propertyName && (
-              <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                <Building className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                    Property
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {propertyName}
-                  </p>
-                </div>
-              </div>
-            )}
 
             {/* Created By Agency */}
             {agencyName && (
