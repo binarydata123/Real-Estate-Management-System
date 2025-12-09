@@ -1,3 +1,4 @@
+"use client"
 import { Meetings } from '@/components/Agent/Meetings';
 import React from 'react';
 
