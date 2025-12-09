@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import { Building2, PlusIcon, UserPlus } from "lucide-react";
+// import { Building2, PlusIcon, UserPlus } from "lucide-react";
+import { Building2, PlusIcon } from "lucide-react";
 import { getCustomers, deleteCustomerById } from "@/lib/Admin/CustomerAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
@@ -8,20 +9,21 @@ import SearchInput from "@/components/Common/SearchInput";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { FaArrowDown } from "react-icons/fa";
 
-const statusStyles: { [key: string]: string } = {
-  new: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
-  interested:
-    "bg-pink-100 text-pink-800 dark:bg-pink-500/10 dark:text-pink-400",
-  negotiating:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400",
-  converted:
-    "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
-  not_interested:
-    "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
-  follow_up:
-    "bg-orange-100 text-orange-800 dark:bg-orange-500/10 dark:text-orange-400",
-};
+// const statusStyles: { [key: string]: string } = {
+//   new: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400",
+//   interested:
+//     "bg-pink-100 text-pink-800 dark:bg-pink-500/10 dark:text-pink-400",
+//   negotiating:
+//     "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400",
+//   converted:
+//     "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
+//   not_interested:
+//     "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
+//   follow_up:
+//     "bg-orange-100 text-orange-800 dark:bg-orange-500/10 dark:text-orange-400",
+// };
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -38,16 +40,17 @@ export default function Customers() {
   const [totalPages, setTotalPages] = useState(1);
   const limit = "10";
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchStatus, setSearchStatus] = useState("");
+  // const [searchStatus, setSearchStatus] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
+  // const [debouncedSearchStatus, setDebouncedSearchStatus] = useState("");
   const searchParams = useSearchParams();
   const agencyId = searchParams.get("agencyId");
   const [totalRecords, setTotalRecords] = useState(0);
+  const [searchTotal,setSearchTotal] = useState(0);
 
   // Calculate stats from mock data
   //const totalCustomers = customers.length;
-  const newCustomers = customers.filter((a) => a.status === "new").length;
+  // const newCustomers = customers.filter((a) => a.status === "new").length;
 
   const customerStats = [
     {
@@ -56,22 +59,23 @@ export default function Customers() {
       icon: Building2,
       color: "bg-blue-500",
     },
-    {
-      name: "New",
-      value: newCustomers,
-      icon: UserPlus,
-      color: "bg-indigo-500",
-    },
+    // {
+    //   name: "New",
+    //   value: newCustomers,
+    //   icon: UserPlus,
+    //   color: "bg-indigo-500",
+    // },
   ];
 
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-      setDebouncedSearchStatus(searchStatus);
+      // setDebouncedSearchStatus(searchStatus);
       setCurrentPage(1);
     }, 400);
     return () => clearTimeout(handler);
-  }, [searchTerm, searchStatus]);
+    // }, [searchTerm, searchStatus]);
+  }, [searchTerm]);
   const handleDeleteClick = (customer: CustomerFormData) => {
     setSelectedCustomer(customer);
     setShowConfirmDialog(true);
@@ -81,7 +85,7 @@ export default function Customers() {
       const response = await deleteCustomerById(id);
       if (response.data.success) {
         setCustomers((prev) => prev.filter((c) => c._id !== id));
-        showSuccessToast("Customer deleted successfully")
+        showSuccessToast("Customer deleted successfully");
       }
     } catch (error) {
       showErrorToast("Error:", error);
@@ -108,7 +112,8 @@ export default function Customers() {
           setCustomers((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
-          setTotalRecords(res.pagination?.total ?? 0);
+          setTotalRecords(res.pagination?.allCustomers ?? 0);
+          setSearchTotal(res.pagination?.total ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);
@@ -124,31 +129,24 @@ export default function Customers() {
     getAllCustomers(
       1,
       debouncedSearchTerm,
-      debouncedSearchStatus,
+      // debouncedSearchStatus,
       agencyId || ""
     );
-  }, [getAllCustomers, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
+    // }, [getAllCustomers, debouncedSearchTerm, debouncedSearchStatus, agencyId]);
+  }, [getAllCustomers, debouncedSearchTerm, agencyId]);
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || isFetching) return;
     const finalAgencyId = agencyId || "";
-    getAllCustomers(
-      page,
-      debouncedSearchTerm,
-      debouncedSearchStatus,
-      finalAgencyId,
-      true
-    );
+    getAllCustomers(page, debouncedSearchTerm, "", finalAgencyId, true);
   };
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       <div className="sm:flex sm:items-center sm:justify-between sm:gap-4">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-            Customers
-          </h1>
-          <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          <h1 className="text-2xl font-semibold text-gray-900">Customers</h1>
+          <p className="mt-2 text-sm text-gray-700">
             A list of all the customers in the system including their name,
             members, and status.
           </p>
@@ -171,7 +169,7 @@ export default function Customers() {
           {customerStats.map((item) => (
             <div
               key={item.name}
-              className="relative overflow-hidden rounded-lg bg-white shadow p-2"
+              className="relative rounded-lg bg-white dark:bg-gray-800 shadow p-2"
             >
               <div className="p-5 stats-card-padding-sec">
                 <div className="flex items-center">
@@ -202,6 +200,8 @@ export default function Customers() {
         </dl>
       </div>
 
+      <hr className="mt-10" />
+
       {/* Search and Filter */}
       <div className="mt-8 sm:flex sm:items-center sm:gap-x-4">
         <div className="flex-1">
@@ -219,7 +219,8 @@ export default function Customers() {
             aria-hidden="true"
           />
         </div>
-        <div className="mt-4 sm:mt-0 sm:w-auto">
+        <p className="mt-5 flex gap-2 !text-[15px] items-center text-center justify-center">Showing Results for {searchTotal} Customers <FaArrowDown className="!h-[12px] !w-[12px] !self-start"/></p>
+        {/* <div className="mt-4 sm:mt-0 sm:w-auto">
           <label htmlFor="status" className="sr-only">
             Status
           </label>
@@ -238,15 +239,16 @@ export default function Customers() {
             <option value={"not_interested"}>Not Interested</option>
             <option value={"follow_up"}>Follow Up</option>
           </select>
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-8 flex flex-col">
-        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div className="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div
               id="table-listing-sec"
-              className="overflow-hidden shadow-sm  md:rounded-lg"
+              className="overflow-x-auto overflow-y-auto h-[70vh] shadow-sm md:rounded-lg"
+              style={{ WebkitOverflowScrolling: "touch" }}
             >
               {isFetching && customers.length === 0 ? (
                 <div className="text-center py-12">
@@ -258,56 +260,56 @@ export default function Customers() {
                   <table className="min-w-full divide-y divide-gray-300 ">
                     {customers.length > 0 ? (
                       <>
-                        <thead className="bg-gray-50  dark:bg-gray-800">
+                        <thead className="bg-gray-50  dark:bg-gray-800 sticky top-0 z-10">
                           <tr>
                             <th
                               scope="col"
-                              className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300"
+                              className="py-3.5 pl-4 pr-3 text-center text-sm font-semibold text-gray-900 sm:pl-6 dark:text-gray-300"
                             >
                               Customer
                             </th>
                             {/* <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Email</th> */}
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
                               Phone
                             </th>
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
                               Minimum Budget
                             </th>
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
                               Maximum Budget
                             </th>
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
                               Agency
                             </th>
-                            <th
+                            {/* <th
                               scope="col"
                               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
                               Status
-                            </th>
+                            </th> */}
                             <th
                               scope="col"
-                              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300"
+                              className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-300"
                             >
                               Actions
                             </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900 dark:divide-gray-700">
-                          {customers.map((customer) => (
-                            <tr key={customer._id}>
+                          {customers.map((customer,index) => (
+                            <tr key={index}>
                               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                 <div className="flex items-center">
                                   {/* <div className="h-10 w-10 flex-shrink-0">
@@ -324,7 +326,7 @@ export default function Customers() {
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 {customer.phoneNumber || "N/A"}
                               </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                              <td className="whitespace-nowrap px-3 py-4 text-sm text-center text-gray-500 dark:text-gray-400">
                                 {customer.minimumBudget?.toLocaleString(
                                   "en-US",
                                   {
@@ -334,7 +336,7 @@ export default function Customers() {
                                   }
                                 ) || "--"}
                               </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                              <td className="whitespace-nowrap text-center px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 {customer.maximumBudget?.toLocaleString(
                                   "en-US",
                                   {
@@ -347,7 +349,7 @@ export default function Customers() {
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 {customer?.agencyId?.name || "N/A"}
                               </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                              {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 <span
                                   className={classNames(
                                     statusStyles[customer.status],
@@ -360,7 +362,7 @@ export default function Customers() {
                                       char.toUpperCase()
                                     )}
                                 </span>
-                              </td>
+                              </td> */}
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 {/* <button className="text-gray-400 hover:text-blue-600 dark:text-gray-500 dark:hover:text-blue-400"><span className="sr-only">Actions for {agency.name}</span><MoreVertical className="h-5 w-5" /></button> */}
                                 {/* <span

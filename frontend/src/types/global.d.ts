@@ -238,10 +238,13 @@ declare global {
   }
 
   interface Pagination {
+    allCustomers: number;
     total: number;
     page: number;
     limit: number;
+    totalUnfiltered?: number;
     totalPages: number;
+    scheduledCount?:number;
   }
   interface Meeting {
     _id: string;
