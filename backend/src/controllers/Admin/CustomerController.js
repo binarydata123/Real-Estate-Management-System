@@ -40,7 +40,9 @@ export const getCustomers = async (req, res) => {
       }
     }
 
-    const totalCustomers = await Customer.countDocuments(searchQuery);
+    const totalSearchedCustomers = await Customer.countDocuments(searchQuery);
+
+    const totalCustomers = await Customer.countDocuments({});
 
     const customers = await Customer.find(searchQuery)
       .sort({ _id: -1 })
@@ -54,6 +56,7 @@ export const getCustomers = async (req, res) => {
         message: "No customer found",
         data: [],
         pagination: {
+          allCustomers: totalCustomers,
           total: 0,
           page: pageNumber,
           limit: limitNumber,
@@ -66,10 +69,11 @@ export const getCustomers = async (req, res) => {
       success: true,
       data: customers,
       pagination: {
-        total: totalCustomers,
+        allCustomers: totalCustomers,
+        total: totalSearchedCustomers,
         page: pageNumber,
         limit: limitNumber,
-        totalPages: Math.ceil(totalCustomers / limitNumber),
+        totalPages: Math.ceil(totalSearchedCustomers / limitNumber),
       },
     });
   } catch (error) {
