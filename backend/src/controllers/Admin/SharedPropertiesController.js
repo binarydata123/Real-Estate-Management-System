@@ -22,6 +22,12 @@ export const getSharedProperties = async (req, res) => {
       matchQuery.status = { $regex: status, $options: "i" };
     }
 
+
+    //Getting the total property shared
+
+    const baseMatch = agencyId ? { agencyId }: {};
+    const totalWithoutFilter = await PropertyShare.countDocuments(baseMatch);
+
     // Base aggregation
     const pipeline = [
       { $match: matchQuery },
@@ -103,6 +109,7 @@ export const getSharedProperties = async (req, res) => {
       data: results,
       pagination: {
         total: totalCount,
+        totalWithoutFilter:totalWithoutFilter,
         page: pageNumber,
         limit: limitNumber,
         totalPages: Math.ceil(totalCount / limitNumber),

@@ -50,12 +50,6 @@ export default function Meetings() {
   const [selectedCustomer, setSelectedCustomer] =
     useState<CustomerFormData | null>(null);
   const [selectedAgencyName, setSelectedAgencyName] = useState<string>("");
-
-  // Calculate stats
-  // const scheduleMeetings = meetings.filter(
-  //   (a) => a.status === "scheduled"
-  // ).length;
-
   const meetingStats = [
     {
       name: "Total Meetings",
@@ -113,8 +107,11 @@ export default function Meetings() {
 
   const handleCustomerClick = (meeting: MeetingFormData) => {
     setSelectedCustomer(meeting.customerData);
+    // setSelectedPropertyName(meeting.propertyData?.title || "N/A");
     setSelectedAgencyName(meeting.agencyData?.name || "N/A");
     setIsPopupOpen(true);
+    document.body.style.overflow = "hidden";
+    
   };
 
   const getAllMeetings = useCallback(
@@ -331,13 +328,18 @@ export default function Meetings() {
                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6 flex justify-center items-center">
                                   <div className="flex items-center">
                                     <div className="ml-4">
-                                      <Link
-                                        // href={`/admin/properties/${meeting.propertyData?._id}`}
-                                        href={`/admin/properties/${meeting.propertyData?._id}`}
-                                        className="font-medium text-blue-900 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
-                                      >
-                                        {meeting.propertyData?.title || "N/A"}
-                                      </Link>
+                                      {meeting.propertyData?._id ? (
+                                        <Link
+                                          href={`/admin/properties/${meeting.propertyData._id}`}
+                                          className="font-medium text-blue-900 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
+                                        >
+                                          {meeting.propertyData.title || "N/A"}
+                                        </Link>
+                                      ) : (
+                                        <span className="font-medium text-blue-900 dark:text-gray-400  hover:underline hover:text-blue-600 cursor-pointer">
+                                          N/A
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </td>
@@ -345,12 +347,18 @@ export default function Meetings() {
                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
                                     <div className="ml-4">
-                                      <Link
-                                        className="font-medium text-blue-900 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
-                                        href={`/admin/agencies/${meeting.agencyData?._id}`}
-                                      >
-                                        {meeting.agencyData?.name || "N/A"}
-                                      </Link>
+                                      {meeting.agencyData?._id ? (
+                                        <Link
+                                          href={`/admin/agencies/${meeting.agencyData._id}`}
+                                          className="font-medium text-blue-900 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
+                                        >
+                                          {meeting.agencyData.name || "N/A"}
+                                        </Link>
+                                      ) : (
+                                        <span className="font-medium text-blue-900 dark:text-gray-400  hover:underline hover:text-blue-600 cursor-pointer">
+                                          N/A
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </td>
@@ -469,8 +477,12 @@ export default function Meetings() {
       {/* Add the popup component */}
       <CustomerDetailsPopup
         isOpen={isPopupOpen}
-        onClose={() => setIsPopupOpen(false)}
+        onClose={() => {
+          setIsPopupOpen(false);
+          document.body.style.overflow = "unset";
+        }}
         customerData={selectedCustomer}
+        // propertyName={selectedPropertyName}
         agencyName={selectedAgencyName}
       />
     </div>
