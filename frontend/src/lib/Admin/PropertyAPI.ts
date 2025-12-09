@@ -44,3 +44,36 @@ export const updateProperty = async (
 export const deletePropertyById = async (id: string) => {
   return await api.delete(`/admin/properties/delete/${id}`);
 };
+
+export const getPropertyById = async (
+  page?: number, 
+  limit?: string, 
+  //customersSearch?: string,
+  meetingsSearch?: string,
+  propertyShareSearch?: string,
+  propertyFeedbackSearch?: string,
+  id?: string
+) => {
+  const params: Record<string, string> = {};
+  if (page !== undefined) {
+    params.page = page.toString();
+  }
+  if (limit !== undefined) {
+    params.limit = limit.toString();
+  }
+  // if (customersSearch) {
+  //   params.customersSearch = customersSearch;
+  // }
+  if (meetingsSearch) {
+    params.meetingsSearch = meetingsSearch;
+  }
+  if (propertyShareSearch) {
+    params.propertyShareSearch = propertyShareSearch;
+  }
+  if (propertyFeedbackSearch) {
+    params.propertyFeedbackSearch = propertyFeedbackSearch;
+  }
+  const query = new URLSearchParams(params);
+  const response = await api.get(`/admin/properties/get-property-by-id/${id}?${query.toString()}`);
+  return response.data;
+};

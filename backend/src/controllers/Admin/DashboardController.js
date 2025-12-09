@@ -5,16 +5,15 @@ import { Property } from "../../models/Agent/PropertyModel.js";
 export const getDashboardData = async (req, res) => {
   try {
     // 1️⃣ Stats
-    const totalUsers = await User.countDocuments();
+    const currentUserId = req.user?._id;
+    const totalUsers = await User.countDocuments({ _id: { $ne: currentUserId } });
     const totalAgencies = await Agency.countDocuments();
     const totalProperties = await Property.countDocuments();
-    const pendingApprovals = await User.countDocuments({ status: "pending" });
 
     const stats = [
-      { name: "Total Users", stat: totalUsers },
-      { name: "Total Agencies", stat: totalAgencies },
-      { name: "Total Properties", stat: totalProperties },
-      { name: "Pending Approvals", stat: pendingApprovals },
+      { name: " Users", stat: totalUsers },
+      { name: " Agencies", stat: totalAgencies },
+      { name: " Properties", stat: totalProperties },
     ];
 
     // 2️⃣ User growth (last 6 months)

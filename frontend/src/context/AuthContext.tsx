@@ -13,9 +13,10 @@ import { Loader } from "lucide-react";
 import Cookies from "js-cookie";
 import { checkSession as checkSessionApi } from "@/lib/Authentication/AuthenticationAPI";
 import { AxiosError, AxiosResponse } from "axios";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, setForceLogoutFlag } from "@/utils/toastHandler";
 import { brandColor } from "@/types/global";
 import { getAgencySettings } from "@/lib/Agent/SettingsAPI";
+// import { setForceLogoutFlag } from "@/utils/toastHandler";
 
 export const AUTH_SESSION_KEY = "auth-session";
 export const ROLE_FOR_MIDDELEWARE = "role-for-middleware";
@@ -38,6 +39,7 @@ export interface User {
   role: string;
   showAllProperty: boolean;
   agency?: Agency;
+  profilePictureUrl?: string;
 }
 
 export interface Session {
@@ -60,6 +62,9 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   router: ReturnType<typeof useRouter>;
   setBrandingColor: (value: brandColor) => void;
+
+  logoutPopupMsg: string | null;
+  setLogoutPopupMsg: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -81,6 +86,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [brandColors, setBrandingColor] = useState<brandColor>()
+  // const [logoutPopup, setLogoutPopup] = useState<string | null>(null);
+
+  const [logoutPopupMsg, setLogoutPopupMsg] = useState<string | null>(null);
+
+
   const router = useRouter();
 
   console.log(user)
@@ -90,6 +100,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setSession(null);
     Cookies.remove(AUTH_SESSION_KEY);
     Cookies.remove(ROLE_FOR_MIDDELEWARE);
+    localStorage.clear();
   }, []);
 
   useEffect(() => {
@@ -119,8 +130,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           // If no session is in storage, ensure state is cleared.
           clearSession();
         }
-      } catch (error) {
-        showErrorToast("Session check failed, signing out.", error);
+      } catch (error: unknown) {
+        const axiosError = error as AxiosError<{
+          forceLogout?: boolean;
+          message?: string;
+        }>;
+
+        const data = axiosError.response?.data;
+
+        if (data?.forceLogout) {
+          return;
+        }
+        // Otherwise, this is a normal session failure
+        showErrorToast("Session check failed, signing out.");
         clearSession();
       } finally {
         setLoading(false);
@@ -188,6 +210,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [brandColors, user]);
 
   const signOut = async () => {
+    setForceLogoutFlag(false);
     clearSession();
     router.push("/auth/login");
   };
@@ -201,9 +224,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       completeSignIn,
       signOut,
       router,
-      setBrandingColor
+      setBrandingColor,
+      
+      logoutPopupMsg,
+      setLogoutPopupMsg,
+      
     }),
-    [user, session, loading, router, signIn, completeSignIn]
+    [user, session, loading, router, signIn, completeSignIn,logoutPopupMsg]
   );
 
   if (loading) {

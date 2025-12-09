@@ -94,6 +94,12 @@ const customerSchema = new mongoose.Schema({
     ref: "Agency",
     required: [true, "Agency reference is required"],
   },
+
+  //
+  isDeleted:{
+    type:Boolean,
+    default:false,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

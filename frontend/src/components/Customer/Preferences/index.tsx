@@ -3,6 +3,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useForm,
@@ -32,6 +33,7 @@ import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { showErrorToast } from "@/utils/toastHandler";
 import { formatPrice } from "@/utils/helperFunction";
+import { useRouter } from "next/navigation";
 
 const lookingForOptions = [
   { value: "buy", label: "Buy" },
@@ -306,8 +308,14 @@ export default function PreferenceForm() {
   const { user } = useAuth();
   const isReadOnly = user?.role === "admin";
   const [loading, setLoading] = React.useState(false);
-  //const [requestSent, setRequestSent] = useState(false);
-  const [initialType, setInitialType] = useState<string | null>(null);
+  const router = useRouter();
+
+  // const [initialType, setInitialType] = useState<string | null>(null);
+
+  const [initialType, setInitialType] = useState<string | null | undefined>(
+    null
+  );
+
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const customerId = user?._id;
@@ -405,8 +413,25 @@ export default function PreferenceForm() {
       };
       fetchDetail();
     }
-  }, [user, reset]);
+  }, [customerId, reset, showToast, user]);
 
+  // useEffect(() => {
+  //   if (isInitialLoad) return;
+  //   if (initialType && watchedType !== initialType) {
+  //     setValue("category", []);
+  //   }
+  // }, [watchedType, initialType, isInitialLoad, setValue]);
+
+  useEffect(() => {
+    if (isInitialLoad) {
+      setInitialType(watchedType);
+      setIsInitialLoad(false);
+    } else {
+      if (initialType && watchedType !== initialType) {
+        setValue("category", []);
+      }
+    }
+  }, [watchedType, initialType, isInitialLoad, setValue]);
 
   useEffect(() => {
     if (isInitialLoad) return;
@@ -415,12 +440,18 @@ export default function PreferenceForm() {
     }
   }, [watchedType, initialType, isInitialLoad, setValue]);
   const onSubmit = async (data: UserPreferenceFormData) => {
+    const finalData = {
+      ...data,
+      customerId: customerId,
+    };
     if (isReadOnly) return;
     setLoading(true);
     try {
-      const res = await createPreference(data);
+      const res = await createPreference(finalData);
+
       if (res.success) {
         showToast(res.message, "success");
+        router.push("/customer/dashboard");
       }
     } catch (err) {
       showErrorToast("Error", err);

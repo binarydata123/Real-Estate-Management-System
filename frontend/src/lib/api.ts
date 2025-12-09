@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { AUTH_SESSION_KEY, type Session } from '@/context/AuthContext';
-import { showErrorToast } from '@/utils/toastHandler';
+import { showErrorToast, setForceLogoutFlag } from "@/utils/toastHandler";
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -9,7 +9,6 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
 });
-
 api.interceptors.request.use(
     (config) => {
         // For file uploads, let the browser set the Content-Type header.
@@ -35,6 +34,32 @@ api.interceptors.request.use(
     (error) => {
         return Promise.reject(error);
     },
+);
+
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const url = error?.config?.url || "";
+
+    if (url.includes("/auth/login") || url.includes("/auth/select-agency")) {
+      return Promise.reject(error);
+    }
+
+    if (error.response?.data?.forceLogout) {
+        setForceLogoutFlag(true);
+      // Dispatch custom event
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("FORCE_LOGOUT", {
+            detail: { message: error.response.data.message },
+          })
+        );
+      }
+    }
+
+    return Promise.reject(error);
+  }
 );
 
 export default api;

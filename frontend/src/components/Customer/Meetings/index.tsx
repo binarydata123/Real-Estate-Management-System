@@ -216,9 +216,11 @@ export const Meetings: React.FC = () => {
           </div>
         }
         endMessage={
+          
           <div className="text-center py-8 text-green-600 font-medium">
             🎉 All caught up!
           </div>
+
         }
       />
     </div>

@@ -140,26 +140,39 @@ export const getMeetingsByAgency = async (req, res) => {
     const total = await Meetings.countDocuments(query);
 
     const meetings = await Meetings.find(query)
-      .populate("customerId", "fullName")
+      .populate("customerId", "fullName isDeleted")
       .populate("propertyId", "title")
       .skip(skip)
       .limit(limit)
       .sort({ date: status === "past" ? -1 : 1 })
       .lean();
 
-    const formattedMeetings = meetings.map((m) => ({
-      ...m,
-      customer: m.customerId,
-      customerId: undefined,
-      isPast: status === "past",
-      // property: m.propertyId,
-      // propertyId: undefined,
-    }));
+    // const formattedMeetings = meetings.map((m) => ({
+    //   ...m,
+    //   customer: m.customerId,
+    //   customerId: undefined,
+    //   isPast: status === "past",
+    //   // property: m.propertyId,
+    //   // propertyId: undefined,
+    // }));
+
+    const formattedMeetings = meetings
+      .filter((m) => !m.customerId?.isDeleted)
+      .map((m) => ({
+        ...m,
+        customer: m.customerId
+          ? {
+              fullName: m.customerId.fullName,
+            }
+          : null,
+        customerId: undefined,
+        isPast: status === "past",
+      }));
 
     res.json({
       success: true,
       data: formattedMeetings,
-      total,
+      total: formattedMeetings.length,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -7,10 +7,12 @@ import {
   updateAgencySettings,
 } from "@/lib/Agent/SettingsAPI";
 import { useAuth } from "@/context/AuthContext";
+import { showSuccessToast } from "@/utils/toastHandler";
 
 export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState("security");
   const { setBrandingColor } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [agencySettings, setAgencySettings] = useState<AgencySettingsType>({
     _id: "",
     agencySettings: {
@@ -32,7 +34,7 @@ export const Settings: React.FC = () => {
     },
     security: {
       twoFactorAuth: false,
-      sessionTimeout: "7 days",
+      // sessionTimeout: "7 days",
       loginNotifications: true,
     },
     createdAt: new Date().toISOString(),
@@ -75,7 +77,7 @@ export const Settings: React.FC = () => {
 
   const noChanges = JSON.stringify(settings) === JSON.stringify(agencySettings);
   if (noChanges) return;
-
+  setLoading(true);
   await updateAgencySettings(agencySettings);
 
   if (agencySettings.branding) {
@@ -83,6 +85,8 @@ export const Settings: React.FC = () => {
   }
 
   getSettings();
+  showSuccessToast("Changes Saved Successfully!");
+  setLoading(false);
 };
 
   return (
@@ -136,7 +140,7 @@ export const Settings: React.FC = () => {
                 className="px-4 py-1.5 bg-primary/90 text-white text-sm rounded-md hover:bg-primary/80 transition-colors"
                 onClick={handleUpdateSettings}
               >
-                Save Changes
+                {loading === true ? "Loading..." : "Save Changes"}
               </button>
             </div>
           </div>

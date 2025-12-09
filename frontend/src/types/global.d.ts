@@ -69,13 +69,13 @@ declare global {
     description?: string;
     type: "residential" | "commercial";
     category:
-      | "plot"
-      | "flat"
-      | "showroom"
-      | "office"
-      | "villa"
-      | "land"
-      | "farmHouse";
+    | "plot"
+    | "flat"
+    | "showroom"
+    | "office"
+    | "villa"
+    | "land"
+    | "farmHouse";
     location?: string;
     price: number;
 
@@ -83,15 +83,15 @@ declare global {
     built_up_area?: number;
     carpet_area?: number;
     unit_area_type?:
-      | "sqft"
-      | "sqm"
-      | "acre"
-      | "marla"
-      | "kanal"
-      | "bigha"
-      | "sqyd"
-      | "hectare"
-      | "gaj";
+    | "sqft"
+    | "sqm"
+    | "acre"
+    | "marla"
+    | "kanal"
+    | "bigha"
+    | "sqyd"
+    | "hectare"
+    | "gaj";
 
     // Plot specific
     plot_front_area?: number;
@@ -115,15 +115,15 @@ declare global {
 
     // Facing / Overlooking
     facing?:
-      | "North"
-      | "South"
-      | "East"
-      | "West"
-      | "North-East"
-      | "North-West"
-      | "South-East"
-      | "South-West"
-      | "";
+    | "North"
+    | "South"
+    | "East"
+    | "West"
+    | "North-East"
+    | "North-West"
+    | "South-East"
+    | "South-West"
+    | "";
     overlooking?: string[];
 
     // Age / Transaction Details
@@ -175,13 +175,13 @@ declare global {
     minimumBudget?: number;
     maximumBudget?: number;
     leadSource:
-      | "website"
-      | "referral"
-      | "social_media"
-      | "advertisement"
-      | "walk_in"
-      | "cold_call"
-      | "other";
+    | "website"
+    | "referral"
+    | "social_media"
+    | "advertisement"
+    | "walk_in"
+    | "cold_call"
+    | "other";
     initialNotes?: string;
     status: string;
     assigned_agent: string;
@@ -197,6 +197,44 @@ declare global {
     };
     role?: string;
     showAllProperty?: boolean;
+  }
+
+  interface MeetingResponse {
+    success: boolean;
+    data: MeetingFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface MeetingFormData {
+    _id: string;
+    customerId: string;
+    propertyId: string;
+    agencyId?: string;
+    date?: string;
+    time?: string;
+    status: string;
+    createdAt: string;
+    customerData: CustomerFormData;
+    propertyData: Property;
+    agencyData: AgencyFormData;
+  }
+
+  interface SharedPropertyResponse {
+    success: boolean;
+    data: SharedPropertiesFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface SharedPropertiesFormData {
+    _id: string;
+    agencyId?: AgencyFormData;
+    propertyId: Property;
+    sharedsharedWithUserId: CustomerFormData;
+    sharedByUserId: UserData;
+    message?: string;
+    createdAt: string;
   }
 
   interface Pagination {
@@ -226,14 +264,18 @@ declare global {
   }
 
   interface SharePropertyFormData {
-    propertyId: Property;
-    sharedWithUserId: CustomerFormData;
+    propertyId: string;
+    sharedWithUserId: string;
     message?: string;
-    sharedByUserId: UserRef;
+    sharedByUserId: string;
     agencyId: string;
     _id: string;
     status: string;
     createdAt: string;
+    agencyData: AgencyFormData;
+    propertyData: Property;
+    customerData: CustomerFormData;
+    userData: UserData;
   }
 
   interface sharePropertyResponse {
@@ -259,6 +301,9 @@ declare global {
     data: AgencyFormData[];
     message?: string;
     pagination?: Pagination;
+    stats?: {
+      totalAgencies: number;
+    }
   }
 
   interface AgencyFormData {
@@ -273,6 +318,11 @@ declare global {
     createdAt: Date;
     updatedAt: Date;
     properties?: [];
+    users?: UserData;
+    customers?: CustomerFormData[];
+    meetings?: [];
+    propertyshares?: [];
+    whatsAppNumber?: string;
   }
 
   interface PropertyResponse {
@@ -290,6 +340,37 @@ declare global {
   }
 
   interface AgentFormData {
+    _id: string;
+    name: string;
+    email: string | "";
+    phone?: string;
+    password?: string;
+    role?: string;
+    status: string;
+    profilePictureUrl?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    agencyId?: {
+      email: string;
+      id: string;
+      members: number;
+      name: string;
+      phone: string;
+      status: string;
+      _id: string;
+    };
+    customersCount?: number;
+    propertiesCount?: number;
+  }
+
+  interface TeamMemberResponse {
+    success: boolean;
+    data: TeamMemberFormData[];
+    message?: string;
+    pagination?: Pagination;
+  }
+
+  interface TeamMemberFormData {
     _id: string;
     name: string;
     email: string | "";
@@ -467,6 +548,16 @@ declare global {
     notificationLoginAlert?: boolean;
     notificationUpdatesAlert?: boolean;
     notificationSecurityAlert?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+  }
+  interface PropertyFeedback {
+    _id?: string;
+    userId?: UserData;
+    propertyId?: Property;
+    liked?: boolean;
+    reason?: string;
+    notes?: string;
     createdAt?: string;
     updatedAt?: string;
   }

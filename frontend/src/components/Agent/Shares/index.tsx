@@ -114,7 +114,7 @@ export const Shares: React.FC = () => {
 
       {/* Shares List */}
       <div className="space-y-2">
-        {filteredShares.map((share) => (
+        {filteredShares?.map((share) => (
           <article
             key={share._id}
             className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
@@ -260,7 +260,7 @@ export const Shares: React.FC = () => {
             setShowShareModal(false);
             setPropertyToShare(null);
             fetchSharedProperties(1); // refresh page 1\
-            
+
           }}
         />
       )}

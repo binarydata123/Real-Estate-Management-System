@@ -2,7 +2,8 @@ import express from "express";
 import {
   getProperties,
   updateProperty,
-  deleteProperty
+  deleteProperty,
+  getPropertyById
 } from "../../../controllers/Admin/PropertyController.js";
 import { protect } from "../../../middleware/authMiddleware.js";
 
@@ -31,6 +32,12 @@ router.delete(
   "/delete/:id",
   protect(["admin", "agent", "customer"]),
   deleteProperty
+);
+
+router.get(
+  "/get-property-by-id/:id",
+  protect(["admin", "agent", "customer"]),
+  getPropertyById
 );
 
 export default router;

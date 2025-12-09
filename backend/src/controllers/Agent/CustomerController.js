@@ -4,6 +4,7 @@ import CustomerSettings from "../../models/Customer/SettingsModel.js";
 import { User } from "../../models/Common/UserModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
+import { Meetings } from "../../models/Agent/MeetingModel.js";
 
 // Create a new customer
 export const createCustomer = async (req, res) => {
@@ -35,6 +36,7 @@ export const createCustomer = async (req, res) => {
     const existingCustomer = await Customer.findOne({
       phoneNumber: customerData.phoneNumber,
       agencyId: customerData.agencyId,
+      isDeleted: false,
     });
 
     if (existingCustomer) {
@@ -48,8 +50,23 @@ export const createCustomer = async (req, res) => {
     const customer = new Customer(customerData);
     const savedCustomer = await customer.save();
 
+    const customers = await Customer.find({
+      phoneNumber: customerData.phoneNumber,
+    });
+
+    const customerSettings = await CustomerSettings.find({
+      userId: customers[0]?._id,
+    });
+
+    const Has2FA = customerSettings.some(
+      (settings) => settings?.security?.twoFactorAuth === true
+    );
+
     await CustomerSettings.create({
-      userId: savedCustomer._id
+      userId: savedCustomer._id,
+      security: {
+        twoFactorAuth: Has2FA,
+      },
     });
 
     // Send notification to the agent/agency who created the customer
@@ -73,7 +90,6 @@ export const createCustomer = async (req, res) => {
         type: "welcome",
       });
     }
-
 
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
@@ -108,17 +124,23 @@ export const getCustomers = async (req, res) => {
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
+
+    const baseQuery = {
+      agencyId: agencyId,
+      isDeleted: false,
+    };
+
     const searchQuery = search
       ? {
-        agencyId: agencyId,
-        $or: [
-          { fullName: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-          { whatsAppNumber: { $regex: search, $options: "i" } },
-          { phoneNumber: { $regex: search, $options: "i" } },
-        ],
-      }
-      : { agencyId: agencyId };
+          ...baseQuery,
+          $or: [
+            { fullName: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { whatsAppNumber: { $regex: search, $options: "i" } },
+            { phoneNumber: { $regex: search, $options: "i" } },
+          ],
+        }
+      : baseQuery;
 
     const totalCustomers = await Customer.countDocuments(searchQuery);
 
@@ -167,7 +189,10 @@ export const getCustomersForDropDown = async (req, res) => {
       });
     }
 
-    const customers = await Customer.find({ agencyId: agencyId });
+    const customers = await Customer.find({
+      agencyId: agencyId,
+      isDeleted: { $ne: true },
+    });
 
     if (!customers || customers.length === 0) {
       return res.status(200).json({
@@ -258,21 +283,26 @@ export const updateCustomer = async (req, res) => {
   }
 };
 
-// Delete a customer
 export const deleteCustomer = async (req, res) => {
   try {
     const customerId = req.params.id;
-    const deletedCustomer = await Customer.findByIdAndDelete(customerId);
-    if (!deletedCustomer) {
+
+    const updatedCustomer = await Customer.findByIdAndUpdate(
+      customerId,
+      { isDeleted: true },
+      { new: true }
+    );
+    if (!updatedCustomer) {
       return res
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    await User.deleteOne({ email: deletedCustomer.email });
+    //Soft delete related meetings so meeting count stays correct and hidden in UI
+    await Meetings.updateMany({ customerId }, { isDeleted: true });
 
     return res.json({
       success: true,
-      message: "Customer and user deleted successfully",
+      message: "Customer marked as deleted (soft deleted)",
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });

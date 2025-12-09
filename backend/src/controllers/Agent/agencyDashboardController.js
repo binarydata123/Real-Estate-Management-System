@@ -4,6 +4,7 @@ import { Property } from "../../models/Agent/PropertyModel.js";
 export const agencyDashboardData = async (req, res) => {
   try {
     const agencyId = req.user?.agencyId?._id;
+    
     if (!agencyId) {
       return res.status(400).json({
         success: false,
@@ -11,11 +12,14 @@ export const agencyDashboardData = async (req, res) => {
       });
     }
 
+    
     const startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
 
     const endOfDay = new Date();
     endOfDay.setUTCHours(23, 59, 59, 999);
+
+  
 const minValue = 500;
     const [
       totalProperties,
@@ -26,38 +30,45 @@ const minValue = 500;
       recentProperties,
     ] = await Promise.all([
       Property.countDocuments({ agencyId }),
-      Customer.countDocuments({ agencyId }),
-      Meetings.countDocuments({ agencyId ,date:{ $gte:startOfDay}, status: {$ne:"cancelled"} }),
+      Customer.countDocuments({ agencyId, isDeleted: false }),
+      Meetings.countDocuments({
+        agencyId,
+        isDeleted: false ,
+        date: { $gte: startOfDay },
+        status: { $ne: "cancelled" },
+      }),
       Meetings.find({
         agencyId,
+        isDeleted: false ,
         date: { $gte: startOfDay, $lte: endOfDay },
-        status :{$ne:"cancelled"}
-      }).limit(3).populate("customerId propertyId"),
+        status: { $ne: "cancelled" },
+      })
+        .limit(3)
+        .populate("customerId propertyId"),
 
-  Customer.aggregate([
-  {
-    $match: {
-      agencyId,
-    },
-  },
-  {
-    $addFields: {
-      maxBudgetNum: { $toDouble: "$maximumBudget" },
-    },
-  },
-  {
-    $match: {
-      maxBudgetNum: { $gt: minValue },
-    },
-  },
-  {
-    $sort: { maxBudgetNum: -1 },
-  },
-  { $limit: 3 },
-]),
-   Property.find({ agencyId })
-  .sort({ createdAt: -1 })
-  .limit(2)
+      Customer.aggregate([
+        {
+          $match: {
+            agencyId,
+            isDeleted: false,
+          },
+        },
+        {
+          $addFields: {
+            maxBudgetNum: { $toDouble: "$maximumBudget" },
+          },
+        },
+        {
+          $match: {
+            maxBudgetNum: { $gt: minValue },
+          },
+        },
+        {
+          $sort: { maxBudgetNum: -1 },
+        },
+        { $limit: 3 },
+      ]),
+      Property.find({ agencyId }).sort({ createdAt: -1 }).limit(2),
     ]);
 
     const data = {

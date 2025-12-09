@@ -10,7 +10,7 @@ import {
   AdjustmentsHorizontalIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
-import Image from "next/image";
+// import Image from "next/image";
 import { showErrorToast } from "@/utils/toastHandler";
 import Link from "next/link";
 import { formatPrice } from "@/utils/helperFunction";
@@ -51,6 +51,7 @@ export default function CustomerDashboard() {
   const getDashboardData = async () => {
     try {
       const res = await customerDashboard();
+      
       if (res.success) {
         setDashboardData(res.data);
       }
@@ -58,9 +59,21 @@ export default function CustomerDashboard() {
       showErrorToast("Error:", error);
     }
   };
+  // useEffect(() => {
+  //   getDashboardData();
+  // }, []);
+
+
   useEffect(() => {
-    getDashboardData();
-  }, []);
+    if (user?._id) {
+      getDashboardData();
+    }
+  }, [user]);
+
+
+
+
+
   const userStats = [
     {
       title: "Properties ",
@@ -174,7 +187,7 @@ export default function CustomerDashboard() {
             <div className="p-3 md:p-6">
               <div className="space-y-2 md:space-y-4">
                 {dashboardData?.recentActivity &&
-                  dashboardData.recentActivity.length > 0 ? (
+                dashboardData.recentActivity.length > 0 ? (
                   dashboardData.recentActivity.map((activity) => (
                     <Link
                       href={"/customer/notifications"}
@@ -213,20 +226,30 @@ export default function CustomerDashboard() {
             <div className="p-3 md:p-6">
               <div className="space-y-2 md:space-y-4">
                 {dashboardData?.latestSharedProperties &&
-                  dashboardData.latestSharedProperties.length > 0 ? (
+                dashboardData.latestSharedProperties.length > 0 ? (
                   dashboardData.latestSharedProperties.map((property) => (
                     <Link
                       href={`/customer/properties/${property?.propertyId?._id}`}
                       key={property.propertyId?._id}
                       className="flex items-center space-x-4 p-3 bg-white border border-gray-200 rounded-xl hover:shadow-md hover:border-blue-300 transition-all duration-300 group"
                     >
-                      <Image
+                      {/* <Image
                         width={60}
                         height={60}
                         src={getImageUrl(property.propertyId?.images?.[0]?.url || "/placeholder.jpg")}
                         alt={property.propertyId?.title as string}
                         className="h-15 w-15 object-cover rounded-lg flex-shrink-0"
+                      /> */}
+
+                      <img
+                        src={getImageUrl(
+                          property.propertyId?.images?.[0]?.url ||
+                            "/placeholder.jpg"
+                        )}
+                        alt={property.propertyId?.title as string}
+                        className="h-15 w-15 object-cover rounded-lg flex-shrink-0"
                       />
+
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors truncate">
                           {property.propertyId?.title}
@@ -237,11 +260,12 @@ export default function CustomerDashboard() {
                             {property.propertyId?.location || "N/A"}
                           </span>
                         </div>
-                        {property.propertyId?.price && property.propertyId?.price > 0 && (
-                          <p className="text-lg font-bold text-blue-700 mt-1">
-                            {formatPrice(property.propertyId?.price)}
-                          </p>
-                        )}
+                        {property.propertyId?.price &&
+                          property.propertyId?.price > 0 && (
+                            <p className="text-lg font-bold text-blue-700 mt-1">
+                              {formatPrice(property.propertyId?.price)}
+                            </p>
+                          )}
                       </div>
                     </Link>
                   ))

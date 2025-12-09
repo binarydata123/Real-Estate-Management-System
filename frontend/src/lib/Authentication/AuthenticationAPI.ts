@@ -20,7 +20,7 @@ export const loginUser = async (data: LoginData): Promise<AxiosResponse> => {
 };
 
 export const selectCustomerAgency = async (
-  customerId: string
+  customerId: string,
 ): Promise<AxiosResponse> => {
   return api.post("/auth/select-customer-agency", { customerId });
 };
@@ -37,3 +37,11 @@ export const changePassword = async (
 ): Promise<AxiosResponse> => {
   return api.post("/auth/change-password", data);
 };
+
+export const otpHandler = async (data: { phone: string | undefined; otp: string; resend: boolean }) => {
+  return api.post("/auth/check-otp", data);
+}
+
+export const otpGenerator = async (phone: string | undefined ) => {
+  return api.post("/auth/otp", { phone });
+}
