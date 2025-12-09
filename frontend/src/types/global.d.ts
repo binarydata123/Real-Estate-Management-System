@@ -238,6 +238,7 @@ declare global {
   }
 
   interface Pagination {
+    allCustomers: number;
     total: number;
     page: number;
     limit: number;
