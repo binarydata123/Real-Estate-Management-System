@@ -244,7 +244,8 @@ declare global {
     limit: number;
     totalUnfiltered?: number;
     totalPages: number;
-    scheduledCount?:number;
+    scheduledCount?: number;
+    totalWithoutFilter?:number;
   }
   interface Meeting {
     _id: string;
