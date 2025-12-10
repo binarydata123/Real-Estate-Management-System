@@ -1,21 +1,28 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { Building2 } from "lucide-react";
-import { getSharedProperties, deleteSharedPropertiesById } from "@/lib/Admin/SharedPropertyAPI";
+import {
+  getSharedProperties,
+  deleteSharedPropertiesById,
+} from "@/lib/Admin/SharedPropertyAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
 import { useSearchParams } from "next/navigation";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import Link from "next/link";
 import { formatDate } from "@/utils/dateFunction/dateFormate";
+import CustomerDetailsPopup from "../Common/customerPopup";
 
 export default function SharedProperties() {
   // State to control the Add Agency modal
-  const [sharedProperties, setSharedProperties] = useState<SharePropertyFormData[]>([]);
+  const [sharedProperties, setSharedProperties] = useState<
+    SharePropertyFormData[]
+  >([]);
   const [isFetching, setIsFetching] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-  const [selectedSharedProperty, setSelectedSharedProperty] = useState<SharePropertyFormData | null>(null);
+  const [selectedSharedProperty, setSelectedSharedProperty] =
+    useState<SharePropertyFormData | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = "10";
@@ -24,6 +31,13 @@ export default function SharedProperties() {
   const searchParams = useSearchParams(); // ✅ to access query string params
   const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
   const [totalRecords, setTotalRecords] = useState(1);
+  // const [open, setOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<CustomerFormData | null>(null);
+
+  const [selectedAgencyName, setSelectedAgencyName] = useState<string>("");
 
   const sharedPropertyStats = [
     {
@@ -31,7 +45,7 @@ export default function SharedProperties() {
       value: totalRecords,
       icon: Building2,
       color: "bg-blue-500",
-    }
+    },
   ];
 
   useEffect(() => {
@@ -51,18 +65,14 @@ export default function SharedProperties() {
       const response = await deleteSharedPropertiesById(id);
       if (response.data.success) {
         setSharedProperties((prev) => prev.filter((c) => c._id !== id));
+        showSuccessToast("Shared property deleted successfully");
       }
     } catch (error) {
       showErrorToast("Error:", error);
     }
   };
   const getAllSharedProperties = useCallback(
-    async (
-      page = 1,
-      search = "",
-      agencyIdParam = "",
-      append = false
-    ) => {
+    async (page = 1, search = "", agencyIdParam = "", append = false) => {
       try {
         setIsFetching(true);
         const res = await getSharedProperties(
@@ -73,7 +83,9 @@ export default function SharedProperties() {
           agencyIdParam
         );
         if (res.success) {
-          setSharedProperties((prev) => (append ? [...prev, ...res.data] : res.data));
+          setSharedProperties((prev) =>
+            append ? [...prev, ...res.data] : res.data
+          );
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
           setTotalRecords(res.stats?.totalCountForStats ?? 0);
@@ -89,22 +101,21 @@ export default function SharedProperties() {
 
   useEffect(() => {
     setSharedProperties([]); // Clear meetings on filter change
-    getAllSharedProperties(
-      1,
-      debouncedSearchTerm,
-      agencyId || ""
-    );
+    getAllSharedProperties(1, debouncedSearchTerm, agencyId || "");
   }, [getAllSharedProperties, debouncedSearchTerm, agencyId]);
+
+  const handleCustomerClick = (sharedProperties: SharePropertyFormData) => {
+    setSelectedCustomer(sharedProperties.customerData);
+    // setSelectedPropertyName(meeting.propertyData?.title || "N/A");
+    setSelectedAgencyName(sharedProperties.agencyData?.name || "N/A");
+    setIsPopupOpen(true);
+    document.body.style.overflow = "hidden";
+  };
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || isFetching) return;
     const finalAgencyId = agencyId || "";
-    getAllSharedProperties(
-      page,
-      debouncedSearchTerm,
-      finalAgencyId,
-      true
-    );
+    getAllSharedProperties(page, debouncedSearchTerm, finalAgencyId, true);
   };
 
   return (
@@ -123,10 +134,17 @@ export default function SharedProperties() {
       {/* Stats Cards */}
       <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4 mt-2">
         {sharedPropertyStats.map((item) => (
-          <div key={item.name} className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-2 border-t-4 border-blue-500 group">
+          <div
+            key={item.name}
+            className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-2 border-t-4 border-blue-500 group"
+          >
             <div className="">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{item.name}</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">{item.value}</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                {item.name}
+              </p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                {item.value}
+              </p>
             </div>
             <div className=" bg-blue-500 dark:bg-indigo-600 rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform">
               <item.icon className="h-7 w-7 text-white" aria-hidden="true" />
@@ -169,59 +187,118 @@ export default function SharedProperties() {
                         <>
                           <thead className="bg-blue-50 dark:bg-gray-800">
                             <tr>
-                              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6">Shared By</th>
-                              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6">Shared With</th>
-                              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6">Property</th>
-                              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6">Shared On</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300">Actions</th>
+                              <th
+                                scope="col"
+                                className="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
+                              >
+                                Shared By
+                              </th>
+                              <th
+                                scope="col"
+                                className="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
+                              >
+                                Shared With
+                              </th>
+                              <th
+                                scope="col"
+                                className="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
+                              >
+                                Property
+                              </th>
+                              <th
+                                scope="col"
+                                className="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
+                              >
+                                Shared On
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-3 py-3.5 text-left text-xs font-semibold text-blue-700 dark:text-indigo-300"
+                              >
+                                Actions
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
                             {sharedProperties.map((sharedProperty) => (
-                              <tr key={sharedProperty._id} className="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors">
+                              <tr
+                                key={sharedProperty._id}
+                                className="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors"
+                              >
                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
                                     <div className="ml-4">
-                                      <div className="font-semibold text-blue-700 dark:text-white">
+                                      {sharedProperty.userData?.agencyId ? (
                                         <Link
                                           href={`/admin/agencies/${sharedProperty.userData?.agencyId}`}
+                                          className="font-semibold text-blue-600 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
                                         >
-                                          {sharedProperty.userData?.name || "N/A"}
+                                          {sharedProperty.userData?.name ||
+                                            "N/A"}
                                         </Link>
-                                      </div>
+                                      ) : (
+                                        <span className="font-medium text-gray-900 dark:text-gray-400 hover:text-gray-1000 cursor-pointer">
+                                          N/A
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </td>
                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
                                     <div className="ml-4">
-                                      <div className="font-medium text-gray-900 dark:text-white">{sharedProperty.customerData?.fullName || "N/A"}</div>
+                                      {sharedProperty.customerData?.fullName ? (
+                                        <div
+                                          className="font-semibold text-blue-600 dark:text-white
+                                                      transition-all duration-200 cursor-pointer
+                                                        hover:underline"
+                                          onClick={() =>
+                                            handleCustomerClick(sharedProperty)
+                                          }
+                                        >
+                                          {sharedProperty.customerData.fullName}
+                                        </div>
+                                      ) : (
+                                        <span className="font-medium text-gray-900 dark:text-gray-900 hover:text-gray-1000 cursor-pointer">
+                                          N/A
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </td>
                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
                                     <div className="ml-4">
-                                      <div className="font-medium text-blue-700 dark:text-indigo-300">
+                                      {sharedProperty.propertyData?._id ? (
                                         <Link
-                                          href={`/admin/properties/${sharedProperty.propertyData?._id}`}
+                                          href={`/admin/properties/${sharedProperty.propertyData._id}`}
+                                          className="font-semibold text-blue-600 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
                                         >
-                                          {sharedProperty.propertyData?.title || "N/A"}
+                                          {sharedProperty.propertyData.title ||
+                                            "N/A"}
                                         </Link>
-                                      </div>
+                                      ) : (
+                                        <span className="font-medium text-gray-900 dark:text-gray-900">
+                                          N/A
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </td>
                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
                                     <div className="ml-4">
-                                      <div className="font-medium text-gray-900 dark:text-white">{formatDate(sharedProperty.createdAt)}</div>
+                                      <div className="font-medium text-gray-900 dark:text-white">
+                                        {formatDate(sharedProperty.createdAt)}
+                                      </div>
                                     </div>
                                   </div>
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-4 text-sm flex gap-2">
                                   <button
-                                    onClick={() => handleDeleteClick(sharedProperty)}
+                                    onClick={() =>
+                                      handleDeleteClick(sharedProperty)
+                                    }
                                     className="inline-flex items-center text-xs px-2 py-1 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 hover:text-red-800 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
                                     aria-label="Delete Shared Property"
                                     title="Delete Shared Property"
@@ -239,8 +316,12 @@ export default function SharedProperties() {
                             <td colSpan={6} className="text-center py-16">
                               <div className="flex flex-col items-center justify-center">
                                 <Building2 className="h-16 w-16 text-blue-400 dark:text-indigo-400 mb-4" />
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No shared property yet</h3>
-                                <p className="text-gray-500 dark:text-gray-400 mb-6">Start building your shared property base</p>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                  No shared property yet
+                                </h3>
+                                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                                  Start building your shared property base
+                                </p>
                               </div>
                             </td>
                           </tr>
@@ -250,23 +331,22 @@ export default function SharedProperties() {
                   </div>
                 </>
               )}
-              <ScrollPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-                isLoading={isFetching}
-                hasMore={currentPage < totalPages}
-                loader={
-                  <div className="text-center py-4">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  </div>
-                }
-                endMessage={
-                  <div className="text-center py-8 text-green-600 font-medium">
-                    🎉 All caught up!
-                  </div>
-                }
-              />
+              {sharedProperties.length > 0 && (
+                <div className="w-full flex justify-center items-center my-4 md:my-6">
+                  <ScrollPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    isLoading={isFetching}
+                    hasMore={currentPage < totalPages}
+                    loader={
+                      <div className="text-center py-4">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    }
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -287,6 +367,17 @@ export default function SharedProperties() {
         confirmText="Delete"
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"
+      />
+
+      <CustomerDetailsPopup
+        isOpen={isPopupOpen}
+        onClose={() => {
+          setIsPopupOpen(false);
+          document.body.style.overflow = "unset";
+        }}
+        customerData={selectedCustomer}
+        // propertyName={selectedPropertyName}
+        agencyName={selectedAgencyName}
       />
     </div>
   );
