@@ -214,15 +214,17 @@ export default function Agencies() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
-                          {agencies.map((agency) => (
-                            <tr key={agency._id} className="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors">
+                          {agencies.map((agency,index) => (
+                            <tr key={index} className="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors">
                               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                 <div className="flex items-center">
                                   <div className="ml-4">
                                     <div className="font-semibold text-gray-900 dark:text-white">
-                                      <Link href={`/admin/agencies/${agency._id}`} className="text-blue-700 dark:text-indigo-400 hover:text-blue-500 dark:hover:text-indigo-300">
+                                      {agency._id ? (
+                                        <Link href={`/admin/agencies/${agency._id}`} className="text-blue-700 dark:text-indigo-400 hover:text-blue-500 dark:hover:text-indigo-300">
                                         {agency.name}
                                       </Link>
+                                      ): "N/A"}
                                     </div>
                                   </div>
                                 </div>
@@ -307,29 +309,6 @@ export default function Agencies() {
                       </tbody>
                     )}
                   </table>
-
-                </div>
-              )}
-              {/* Show pagination only if there are records */}
-              {agencies.length > 0 && (
-                <div className="w-full flex justify-center items-center py-4 md:py-6">
-                  <ScrollPagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                    isLoading={isFetching && agencies.length > 0} // Only show spinner when loading subsequent pages
-                    hasMore={currentPage < totalPages}
-                    loader={
-                      <div className="text-center py-4">
-                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      </div>
-                    }
-                    endMessage={
-                      <div className="text-center py-8 text-green-600 font-medium">
-                        🎉 All caught up!
-                      </div>
-                    }
-                  />
                 </div>
               )}
             </div>
@@ -345,11 +324,6 @@ export default function Agencies() {
                 loader={
                   <div className="text-center py-4">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  </div>
-                }
-                endMessage={
-                  <div className="text-center py-8 text-green-600 font-medium">
-                    🎉 All caught up!
                   </div>
                 }
               />
