@@ -77,7 +77,7 @@ export default function Meetings() {
   const handleDeleteClick = (meeting: MeetingFormData) => {
     setSelectedMeeting(meeting);
     setShowConfirmDialog(true);
-   
+
   };
 
   const handleDelete = async (id: string) => {
@@ -89,7 +89,7 @@ export default function Meetings() {
         setMeetings((prev) => prev.filter((c) => c._id !== id));
         // setTotalRecords((prev) => prev - 1);
         setTotalMeetingCount((prev) => prev - 1); // ✅ Decrement total
-         showSuccessToast("Meeting deleted successfully");
+        showSuccessToast("Meeting deleted successfully");
 
         // Decrement scheduled count if deleted meeting was scheduled/rescheduled
         if (
@@ -111,7 +111,7 @@ export default function Meetings() {
     setSelectedAgencyName(meeting.agencyData?.name || "N/A");
     setIsPopupOpen(true);
     document.body.style.overflow = "hidden";
-    
+
   };
 
   const getAllMeetings = useCallback(
@@ -305,7 +305,7 @@ export default function Meetings() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900 dark:divide-gray-700">
-                            {meetings.map((meeting,index) => (
+                            {meetings.map((meeting, index) => (
                               <tr key={index}>
                                 <td className="whitespace-nowrap  py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
@@ -368,12 +368,12 @@ export default function Meetings() {
                                       <div className="font-medium text-gray-900 dark:text-white">
                                         {meeting.date
                                           ? new Date(
-                                              meeting.date
-                                            ).toLocaleDateString("en-US", {
-                                              day: "2-digit",
-                                              month: "short",
-                                              year: "numeric",
-                                            })
+                                            meeting.date
+                                          ).toLocaleDateString("en-US", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                          })
                                           : "N/A"}
                                       </div>
                                     </div>
@@ -415,22 +415,28 @@ export default function Meetings() {
                           </tbody>
                         </>
                       ) : (
-                        <div className="text-center py-12">
-                          <h3 className="text-lg font-medium text-gray-900 mb-2">
-                            No meetings yet
-                          </h3>
-                          <p className="text-gray-500 mb-6">
-                            Start building your meeting base
-                          </p>
-                          {!debouncedSearchTerm && (
-                            <div className="flex justify-center mt-4">
-                              <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                <PlusIcon className="h-5 w-5 mr-2" />
-                                Add Meeting
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        <tbody>
+                          <tr>
+                            <td colSpan={7} className="text-center py-12">
+                              <div>
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                  No meetings yet
+                                </h3>
+                                <p className="text-gray-500 mb-6">
+                                  Start building your meeting base
+                                </p>
+                                {!debouncedSearchTerm && (
+                                  <div className="flex justify-center mt-4">
+                                    <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                      <PlusIcon className="h-5 w-5 mr-2" />
+                                      Add Meeting
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
                       )}
                     </table>
                   </>

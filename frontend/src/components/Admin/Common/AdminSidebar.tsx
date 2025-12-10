@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, BarChart4, Settings, X, Building2, Users, House, UserCog, Layers, CalendarCheck } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 
 const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: Home },
@@ -25,6 +27,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
+    const { signOut } = useAuth();
 
     const isActive = (href: string) => pathname === href;
 
@@ -38,9 +41,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         >
             <div className="flex justify-between items-center border-b border-gray-200">
                 {/* Admin Panel Branding */}
-                <div className="flex items-center p-5">
+                <div className="flex items-center p-2">
                     <div className="flex items-center space-x-3">
-                        <div className="h-10 w-10 rounded-lg bg-gray-800 flex items-center justify-center text-white font-bold text-xl">
+                        <div className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold bg-primary">
                             A
                         </div>
                         <div>
@@ -87,11 +90,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 })}
             </nav>
 
-            {/* REAMS Branding */}
-            <div className="p-4 border-t border-gray-200">
-                <div className="flex items-center justify-center text-gray-400">
-                    <span className="text-xs font-medium">Powered by REAMS</span>
-                </div>
+            {/* Logout Button */}
+            <div className="md:px-3 md:py-4 border-t border-gray-200 text-center mx-auto w-full">
+                <button
+                    onClick={() => signOut()}
+                    className="flex w-full justify-center text-red-500 items-center px-2 py-2 text-sm font-medium rounded-lg  hover:bg-red-50 hover:text-red-700 transition-colors"
+                >
+                    <ArrowRightOnRectangleIcon
+                        className="mr-1 h-5 w-5"
+                        aria-hidden="true"
+                    />
+                    Sign Out
+                </button>
             </div>
         </div>
     );
