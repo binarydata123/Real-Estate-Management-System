@@ -44,7 +44,7 @@ const ScrollPagination: React.FC<ScrollPaginationProps> = ({
   const defaultEndMessage = (
     <div
       className="
-      text-center py-10 text-gray-500 text-sm 
+      text-center text-gray-500 text-sm 
       animate-fadeIn
     "
     >
