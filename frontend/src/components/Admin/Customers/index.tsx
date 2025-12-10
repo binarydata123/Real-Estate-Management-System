@@ -351,9 +351,18 @@ export default function Customers() {
                               </td>
                               {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{customer.email || 'N/A'}</td> */}
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {customer.phoneNumber || "N/A"}
+                                <span className="inline-flex items-center px-3 py-1.5 bg-yellow-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-yellow-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400">
+
+                                <a href={`tel:${customer.phoneNumber}` } >
+                                  {customer.phoneNumber || "No phone"}
+                                </a>
+                                </span>
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-center text-gray-500 dark:text-gray-400">
+
+                               {/* <span className="inline-flex items-center px-3 py-1.5 bg-violet-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-violet-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400"> */}
+
+
                                 {customer.minimumBudget?.toLocaleString(
                                   "en-US",
                                   {
@@ -362,16 +371,19 @@ export default function Customers() {
                                     maximumFractionDigits: 0,
                                   }
                                 ) || "--"}
+                                {/* </span> */}
                               </td>
-                              <td className="whitespace-nowrap text-center px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {customer.maximumBudget?.toLocaleString(
-                                  "en-US",
-                                  {
-                                    style: "currency",
-                                    currency: "USD",
-                                    maximumFractionDigits: 0,
-                                  }
-                                ) || "--"}
+                              <td className="whitespace-nowrap text-center px-3 py-4 text-sm">
+                                {/* <span className="inline-flex items-center px-3 py-1.5 bg-yellow-50 font-semibold text-gray-600 font-medium rounded hover:bg-yellow-100 hover:text-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400"> */}
+                                  {customer.maximumBudget?.toLocaleString(
+                                    "en-US",
+                                    {
+                                      style: "currency",
+                                      currency: "USD",
+                                      maximumFractionDigits: 0,
+                                    }
+                                  ) || "--"}
+                                {/* </span> */}
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm">
                                 <div className="flex items-center">
@@ -379,7 +391,7 @@ export default function Customers() {
                                     {customer?.agencyId?.id ? (
                                       <Link
                                         href={`/admin/agencies/${customer.agencyId.id}`}
-                                        className="font-semibold text-blue-600 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
+                                        className="inline-flex items-center px-3 py-1.5 bg-violet-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-violet-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400"
                                       >
                                         {customer.agencyId.name || "N/A"}
                                       </Link>
@@ -429,7 +441,7 @@ export default function Customers() {
                                                                 >
                                                                 View
                                                                 </span>*/}
-                                <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                                <span className="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 font-medium rounded hover:bg-green-100 hover:text-green-800 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400">
                                   <Link
                                     href={`/admin/preference?customerId=${customer._id}`}
                                   >

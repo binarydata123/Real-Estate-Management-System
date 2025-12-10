@@ -2,6 +2,7 @@ import { Property } from "../../models/Agent/PropertyModel.js";
 import { Notification } from "../../models/Common/NotificationModel.js"; // Assuming this is the correct path
 import { sendPushNotification } from "../../utils/pushService.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
+import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 
 // Utility: Convert invalid numbers to null
 const cleanNumber = (value) => {

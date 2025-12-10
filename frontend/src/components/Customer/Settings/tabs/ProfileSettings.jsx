@@ -43,7 +43,7 @@ export const ProfileSettings = ({ user }) => {
           </label>
           <input
             type="tel"
-            placeholder="Enter your WhatsApp number"
+            placeholder="Enter WhatsApp number"
             className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg 
                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
                        text-gray-900 placeholder-gray-400"
