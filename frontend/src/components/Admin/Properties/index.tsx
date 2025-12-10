@@ -243,11 +243,14 @@ export default function Properties() {
                               <div className="flex items-center">
                                 <div className="ml-4">
                                   <div className="font-semibold text-gray-900 dark:text-white">
-                                    <Link
+                                    {property._id ? (
+                                      <Link
+                                      className="text-blue-600 font-semibold"
                                       href={`/admin/properties/${property._id}`}
                                     >
                                       {property.title || property._id}
                                     </Link>
+                                    ) : "N/A"}
                                   </div>
                                 </div>
                               </div>
@@ -261,12 +264,14 @@ export default function Properties() {
                             <td className="whitespace-nowrap px-3 py-4 text-sm text-blue-700 dark:text-indigo-300 font-semibold">
                               ${property.price?.toLocaleString()}
                             </td>
-                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                              <Link href={`/admin/agencies/${property.agencyId?._id}`} className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 font-medium rounded hover:bg-blue-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            <td className="text-center whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                              {property?.agencyId?._id ? (
+                                <Link href={`/admin/agencies/${property.agencyId?._id}`} className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 font-medium rounded hover:bg-blue-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 aria-label="View Agency"
                                 title="View Agency">
-                                {property.agencyId?.name || 'N/A'}
+                                {property.agencyId?.name}
                               </Link>
+                              ) : "N/A"}
                             </td>
                             <td className="whitespace-nowrap px-3 py-4 text-sm flex gap-2">
                               <button
@@ -308,32 +313,11 @@ export default function Properties() {
                     </tbody>
                   )}
                 </table>
-                {properties.length > 0 && (
-                  <div className="w-full flex justify-center items-center py-4 md:py-6">
-                    <ScrollPagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                      isLoading={isFetching}
-                      hasMore={currentPage < totalPages}
-                      loader={
-                        <div className="text-center py-4">
-                          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                        </div>
-                      }
-                      endMessage={
-                        <div className="text-center py-8 text-green-600 font-medium">
-                          🎉 All caught up!
-                        </div>
-                      }
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
           {properties.length > 0 && (
-            <div className="w-full flex justify-center items-center py-4 md:py-6">
+            <div className="w-full flex justify-center items-center my-4 md:my-6">
               <ScrollPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -343,11 +327,6 @@ export default function Properties() {
                 loader={
                   <div className="text-center py-4">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  </div>
-                }
-                endMessage={
-                  <div className="text-center py-8 text-green-600 font-medium">
-                    🎉 All caught up!
                   </div>
                 }
               />

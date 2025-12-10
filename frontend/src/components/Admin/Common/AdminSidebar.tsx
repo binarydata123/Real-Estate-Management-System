@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { forwardRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, BarChart4, Settings, X, Building2, Users, House, UserCog, Layers, CalendarCheck } from "lucide-react";
@@ -25,7 +25,7 @@ interface SidebarProps {
     isOpen: boolean;
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export const AdminSidebar = forwardRef<HTMLDivElement, SidebarProps>(({ isOpen, onClose }, ref) => {
     const pathname = usePathname();
     const { signOut } = useAuth();
 
@@ -33,6 +33,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
     return (
         <div
+        ref={ref}
             className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
@@ -105,4 +106,5 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
         </div>
     );
-}
+});
+AdminSidebar.displayName = "AdminSidebar"

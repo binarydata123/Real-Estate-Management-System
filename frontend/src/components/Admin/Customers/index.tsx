@@ -6,7 +6,7 @@ import { getCustomers, deleteCustomerById } from "@/lib/Admin/CustomerAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
-import { useRouter, useSearchParams } from "next/navigation";
+import {useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import CustomerDetailsPopup from "../Common/customerPopup";
@@ -46,7 +46,7 @@ export default function Customers() {
   const searchParams = useSearchParams();
   const agencyId = searchParams.get("agencyId");
   const [totalRecords, setTotalRecords] = useState(0);
-  const router = useRouter();
+
   const [customerData, setCustomerData] = useState<CustomerFormData | null>(
     null
   );
@@ -161,7 +161,7 @@ export default function Customers() {
       status: customer?.status,
       whatsAppNumber: customer?.whatsAppNumber,
     });
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     setShowCustomerDetailsModal(true);
   };
 
@@ -265,7 +265,7 @@ export default function Customers() {
         </div> */}
       </div>
 
-      <div className="mt-8 flex flex-col mb-10">
+      <div className="mt-8 flex flex-col">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div id="table-listing-sec" className="shadow-sm md:rounded-lg">
@@ -329,18 +329,23 @@ export default function Customers() {
                         <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900 dark:divide-gray-700">
                           {customers.map((customer, index) => (
                             <tr key={index}>
-                              <td
-                                className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6"
-                                onClick={() => handleCustomerClick(customer)}
-                              >
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                 <div className="flex items-center">
-                                  {/* <div className="h-10 w-10 flex-shrink-0">
-                                                                        <Image width={100} height={100} className="h-10 w-10 rounded-full" src={agency.logo_url} alt={`${agency.name} logo`} />
-                                                                    </div> */}
                                   <div className="ml-4">
-                                    <div className="font-semibold text-blue-600 dark:text-white">
-                                      {customer.fullName || "N/A"}
-                                    </div>
+                                    {customer.fullName ? (
+                                      <div
+                                        className="font-semibold text-blue-600 dark:text-white hover:cursor-pointer hover:underline"
+                                        onClick={() =>
+                                          handleCustomerClick(customer)
+                                        }
+                                      >
+                                        {customer.fullName}
+                                      </div>
+                                    ) : (
+                                      <span className="font-medium text-gray-400 dark:text-gray-500">
+                                        N/A
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </td>
@@ -368,18 +373,25 @@ export default function Customers() {
                                   }
                                 ) || "--"}
                               </td>
-                              <td
-                                className="whitespace-nowrap px-3 py-4 text-sm dark:text-gray-400 font-semibold text-blue-600 cursor-pointer"
-                                onClick={() => {
-                                  if (customer?.agencyId !== null) {
-                                    router.push(
-                                      `/admin/agencies/${customer?.agencyId?.id}`
-                                    );
-                                  }
-                                }}
-                              >
-                                {customer?.agencyId?.name || "N/A"}
+                              <td className="whitespace-nowrap px-3 py-4 text-sm">
+                                <div className="flex items-center">
+                                  <div className="ml-4">
+                                    {customer?.agencyId?.id ? (
+                                      <Link
+                                        href={`/admin/agencies/${customer.agencyId.id}`}
+                                        className="font-semibold text-blue-600 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
+                                      >
+                                        {customer.agencyId.name || "N/A"}
+                                      </Link>
+                                    ) : (
+                                      <span className="font-medium text-gray-400 dark:text-gray-500">
+                                        N/A
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
                               </td>
+
                               {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 <span
                                   className={classNames(
@@ -404,7 +416,7 @@ export default function Customers() {
                                                                 </span> */}
                                 <span
                                   onClick={() => handleDeleteClick(customer)}
-                                  className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
+                                  className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 font-medium rounded hover:bg-red-100 hover:text-red-800 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
                                 >
                                   Delete
                                 </span>
@@ -457,29 +469,31 @@ export default function Customers() {
             </div>
           </div>
         </div>
-        <ScrollPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          isLoading={isFetching}
-          hasMore={currentPage < totalPages}
-          loader={
-            <div className="text-center py-4">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          }
-          endMessage={
-            <div className="text-center py-8 text-green-600 font-medium">
-              🎉 All caught up!
-            </div>
-          }
-        />
+        {customers.length > 0 && (
+          <div className="w-full flex justify-center items-center my-4 md:my-6">
+            <ScrollPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              isLoading={isFetching}
+              hasMore={currentPage < totalPages}
+              loader={
+                <div className="text-center py-4">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              }
+            />
+          </div>
+        )}
       </div>
 
       {showCustomerDetailsModal && (
         <CustomerDetailsPopup
           isOpen={showCustomerDetailsModal}
-          onClose={() => {setShowCustomerDetailsModal(false); document.body.style.overflow = 'unset';}}
+          onClose={() => {
+            setShowCustomerDetailsModal(false);
+            document.body.style.overflow = "unset";
+          }}
           customerData={customerData}
           agencyName={customerData?.agencyId?.name}
         />

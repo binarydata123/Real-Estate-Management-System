@@ -77,7 +77,6 @@ export default function Meetings() {
   const handleDeleteClick = (meeting: MeetingFormData) => {
     setSelectedMeeting(meeting);
     setShowConfirmDialog(true);
-
   };
 
   const handleDelete = async (id: string) => {
@@ -111,7 +110,6 @@ export default function Meetings() {
     setSelectedAgencyName(meeting.agencyData?.name || "N/A");
     setIsPopupOpen(true);
     document.body.style.overflow = "hidden";
-
   };
 
   const getAllMeetings = useCallback(
@@ -307,20 +305,25 @@ export default function Meetings() {
                           <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900 dark:divide-gray-700">
                             {meetings.map((meeting, index) => (
                               <tr key={index}>
-                                <td className="whitespace-nowrap  py-4 pl-4 pr-3 text-sm sm:pl-6">
+                                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
                                     <div className="ml-4">
-                                      <div
-                                        className="font-medium text-blue-900 dark:text-white
-                                                     transition-all duration-200 cursor-pointer
-                                                       hover:underline"
-                                        onClick={() =>
-                                          handleCustomerClick(meeting)
-                                        }
-                                      >
-                                        {meeting.customerData?.fullName ||
-                                          "N/A"}
-                                      </div>
+                                      {meeting.customerData?.fullName ? (
+                                        <div
+                                          className="font-semibold text-blue-600 dark:text-white
+                                                      transition-all duration-200 cursor-pointer
+                                                        hover:underline"
+                                          onClick={() =>
+                                            handleCustomerClick(meeting)
+                                          }
+                                        >
+                                          {meeting.customerData.fullName}
+                                        </div>
+                                      ) : (
+                                        <span className="font-medium text-gray-900 dark:text-gray-900 hover:text-gray-1000 cursor-pointer">
+                                          N/A
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </td>
@@ -331,12 +334,12 @@ export default function Meetings() {
                                       {meeting.propertyData?._id ? (
                                         <Link
                                           href={`/admin/properties/${meeting.propertyData._id}`}
-                                          className="font-medium text-blue-900 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
+                                          className="font-semibold text-blue-600 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
                                         >
                                           {meeting.propertyData.title || "N/A"}
                                         </Link>
                                       ) : (
-                                        <span className="font-medium text-blue-900 dark:text-gray-400  hover:underline hover:text-blue-600 cursor-pointer">
+                                        <span className="font-medium text-gray-900 dark:text-gray-900 hover:text-gray-1000 cursor-pointer">
                                           N/A
                                         </span>
                                       )}
@@ -350,12 +353,12 @@ export default function Meetings() {
                                       {meeting.agencyData?._id ? (
                                         <Link
                                           href={`/admin/agencies/${meeting.agencyData._id}`}
-                                          className="font-medium text-blue-900 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
+                                          className="font-semibold text-blue-600 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
                                         >
                                           {meeting.agencyData.name || "N/A"}
                                         </Link>
                                       ) : (
-                                        <span className="font-medium text-blue-900 dark:text-gray-400  hover:underline hover:text-blue-600 cursor-pointer">
+                                        <span className="font-medium text-gray-900 dark:text-gray-400 hover:text-gray-1000 cursor-pointer">
                                           N/A
                                         </span>
                                       )}
@@ -405,7 +408,7 @@ export default function Meetings() {
                                 <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                   <span
                                     onClick={() => handleDeleteClick(meeting)}
-                                    className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
+                                    className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 font-medium rounded hover:bg-red-100 hover:text-red-800 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
                                   >
                                     Delete
                                   </span>
@@ -444,23 +447,22 @@ export default function Meetings() {
               </div>
             </div>
           </div>
-          <ScrollPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            isLoading={isFetching}
-            hasMore={currentPage < totalPages}
-            loader={
-              <div className="text-center py-4">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            }
-            endMessage={
-              <div className="text-center py-8 text-green-600 font-medium">
-                🎉 All caught up!
-              </div>
-            }
-          />
+          {meetings.length > 0 && (
+            <div className="w-full flex justify-center items-center my-4 md:my-6">
+              <ScrollPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                isLoading={isFetching}
+                hasMore={currentPage < totalPages}
+                loader={
+                  <div className="text-center py-4">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                }
+              />
+            </div>
+          )}
         </div>
 
         <ConfirmDialog
