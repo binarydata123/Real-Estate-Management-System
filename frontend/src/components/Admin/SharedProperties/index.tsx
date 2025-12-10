@@ -104,10 +104,9 @@ export default function SharedProperties() {
     getAllSharedProperties(1, debouncedSearchTerm, agencyId || "");
   }, [getAllSharedProperties, debouncedSearchTerm, agencyId]);
 
-  const handleCustomerClick = (sharedProperties: SharePropertyFormData) => {
-    setSelectedCustomer(sharedProperties.customerData);
-    // setSelectedPropertyName(meeting.propertyData?.title || "N/A");
-    setSelectedAgencyName(sharedProperties.agencyData?.name || "N/A");
+  const handleCustomerClick = (property: SharePropertyFormData) => {
+    setSelectedCustomer(property.customerData);
+    setSelectedAgencyName(property.agencyData?.name || "N/A");
     setIsPopupOpen(true);
     document.body.style.overflow = "hidden";
   };
@@ -221,8 +220,7 @@ export default function SharedProperties() {
                           </thead>
                           <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
                             {sharedProperties.map((sharedProperty) => (
-                              <tr
-                                key={sharedProperty._id}
+                              <tr key={sharedProperty._id}
                                 className="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors"
                               >
                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
