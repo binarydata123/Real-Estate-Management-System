@@ -371,12 +371,12 @@ export default function Meetings() {
                                       <div className="font-medium text-gray-900 dark:text-white">
                                         {meeting.date
                                           ? new Date(
-                                              meeting.date
-                                            ).toLocaleDateString("en-US", {
-                                              day: "2-digit",
-                                              month: "short",
-                                              year: "numeric",
-                                            })
+                                            meeting.date
+                                          ).toLocaleDateString("en-US", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                          })
                                           : "N/A"}
                                       </div>
                                     </div>
@@ -418,22 +418,28 @@ export default function Meetings() {
                           </tbody>
                         </>
                       ) : (
-                        <div className="text-center py-12">
-                          <h3 className="text-lg font-medium text-gray-900 mb-2">
-                            No meetings yet
-                          </h3>
-                          <p className="text-gray-500 mb-6">
-                            Start building your meeting base
-                          </p>
-                          {!debouncedSearchTerm && (
-                            <div className="flex justify-center mt-4">
-                              <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                <PlusIcon className="h-5 w-5 mr-2" />
-                                Add Meeting
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        <tbody>
+                          <tr>
+                            <td colSpan={7} className="text-center py-12">
+                              <div>
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                  No meetings yet
+                                </h3>
+                                <p className="text-gray-500 mb-6">
+                                  Start building your meeting base
+                                </p>
+                                {!debouncedSearchTerm && (
+                                  <div className="flex justify-center mt-4">
+                                    <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                      <PlusIcon className="h-5 w-5 mr-2" />
+                                      Add Meeting
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
                       )}
                     </table>
                   </>

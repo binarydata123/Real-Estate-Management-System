@@ -175,13 +175,13 @@ declare global {
     minimumBudget?: number;
     maximumBudget?: number;
     leadSource:
-      | "website"
-      | "referral"
-      | "social_media"
-      | "advertisement"
-      | "walk_in"
-      | "cold_call"
-      | "other";
+    | "website"
+    | "referral"
+    | "social_media"
+    | "advertisement"
+    | "walk_in"
+    | "cold_call"
+    | "other";
     initialNotes?: string;
     status: string;
     assigned_agent?: string;
@@ -245,7 +245,7 @@ declare global {
     totalUnfiltered?: number;
     totalPages: number;
     scheduledCount?: number;
-    totalWithoutFilter?:number;
+    totalWithoutFilter?: number;
   }
   interface Meeting {
     _id: string;
@@ -481,6 +481,7 @@ declare global {
     data: {
       stats: AnalyticsStats;
       monthlyUsers: AnalyticsMonthlyUsers[];
+      monthlyCustomers: AnalyticsMonthlyUsers[];
       monthlyRevenue: AnalyticsMonthlyRevenue[];
       recentActivities: AnalyticsRecentActivities[];
       topAgents: AnalyticsTopAgents[];
@@ -494,6 +495,7 @@ declare global {
     totalProperties: number;
     totalMeetings: number;
     totalRevenue: number;
+    totalSharedProperties: number;
   }
 
   interface AnalyticsMonthlyRevenue {
@@ -510,7 +512,11 @@ declare global {
   }
   interface FormattedMonthlyUsers {
     name: string;
-    signups: number;
+    signUps: number;
+  }
+  interface FormattedMonthlyCustomers {
+    name: string;
+    customers: number;
   }
   interface AnalyticsRecentActivities {
     id: string;

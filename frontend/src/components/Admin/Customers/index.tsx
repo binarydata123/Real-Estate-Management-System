@@ -6,7 +6,7 @@ import { getCustomers, deleteCustomerById } from "@/lib/Admin/CustomerAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import SearchInput from "@/components/Common/SearchInput";
-import {useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import CustomerDetailsPopup from "../Common/customerPopup";
