@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import AdminSidebar from '@/components/Admin/Common/AdminSidebar';
+import { AdminSidebar } from '@/components/Admin/Common/AdminSidebar';
 import { Header } from '@/components/Admin/Common/Header';
 import { Calendar, CalendarIcon, LayoutDashboard, MoreVertical, Loader } from 'lucide-react';
 import { BuildingOfficeIcon } from '@heroicons/react/24/outline';
@@ -87,13 +87,13 @@ export default function Layout({ children }: LayoutProps) {
                     onClick={() => setIsSidebarOpen(false)}
                 ></div>
             )}
-            <AdminSidebar isOpen={isSidebarOpen} onClose={() => {
+            <AdminSidebar isOpen={isSidebarOpen} ref={sideBarRef} onClose={() => {
                 setIsSidebarOpen(false);
             }} />
             <div className="flex-1 flex flex-col overflow-hidden">
                 <Header onMenuButtonClick={() => setIsSidebarOpen(true)} />
 
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+                <main className="flex-1 mb-[50px] overflow-x-hidden overflow-y-auto bg-gray-50">
                     {children}
                 </main>
                 {/* Footer Links */}
