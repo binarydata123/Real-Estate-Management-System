@@ -1,215 +1,224 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Users,
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import {
+    Users,
     Home,
-    DollarSign,
     Activity,
     UserPlus,
     Star,
     Building2,
+    Layers,
 } from 'lucide-react';
 import Image from 'next/image';
 import { getAllAnalyticsData } from "@/lib/Admin/AnalyticsAPI";
 import { showErrorToast } from '@/utils/toastHandler';
 
-
-// --- Mock Data (replace with your actual data fetching) ---
-// const monthlySignups = [
-//     { name: 'Jan', signups: 40 },
-//     { name: 'Feb', signups: 30 },
-//     { name: 'Mar', signups: 50 },
-//     { name: 'Apr', signups: 45 },
-//     { name: 'May', signups: 60 },
-//     { name: 'Jun', signups: 70 },
-// ];
-
-// const revenueData = [
-//     { name: 'Jan', revenue: 4000 },
-//     { name: 'Feb', revenue: 3000 },
-//     { name: 'Mar', revenue: 5000 },
-//     { name: 'Apr', revenue: 4500 },
-//     { name: 'May', revenue: 6000 },
-//     { name: 'Jun', revenue: 7500 },
-// ];
-
-// const recentActivities = [
-//     { id: 1, user: 'Alice Johnson', action: 'listed a new property', time: '2h ago', icon: Home },
-//     { id: 2, user: 'Bob Williams', action: 'closed a deal', time: '5h ago', icon: DollarSign },
-//     { id: 3, user: 'Charlie Brown', action: 'joined the platform', time: '1d ago', icon: UserPlus },
-//     { id: 4, user: 'Diana Prince', action: 'updated her profile', time: '2d ago', icon: Activity },
-// ];
-
-// const topAgents = [
-//     { id: 1, name: 'John Doe', deals: 12, avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-//     { id: 2, name: 'Jane Smith', deals: 9, avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-//     { id: 3, name: 'Sam Wilson', deals: 7, avatar: 'https://randomuser.me/api/portraits/men/34.jpg' },
-// ];
-
-// --- Reusable Components ---
-
 interface StatCardProps {
     title: string;
     value: string;
     icon: React.ElementType;
-    //change: string;
-    //changeType: 'increase' | 'decrease';
+    color: 'blue' | 'green' | 'purple' | 'red' | 'yellow';
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 analytics-stats-tab-sec rounded-lg shadow-md flex items-center justify-between transition-all hover:shadow-xl hover:-translate-y-1">
-        <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
-            {/* <div className={`text-xs flex items-center mt-1 ${changeType === 'increase' ? 'text-green-500' : 'text-red-500'}`}>
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span>{change} vs last month</span>
-            </div> */}
+const colorVariants = {
+    blue: {
+        border: 'border-blue-500',
+        bg: 'bg-blue-500',
+        darkBg: 'dark:bg-indigo-600',
+    },
+    green: {
+        border: 'border-green-500',
+        bg: 'bg-green-500',
+        darkBg: 'dark:bg-green-600',
+    },
+    purple: {
+        border: 'border-purple-500',
+        bg: 'bg-purple-500',
+        darkBg: 'dark:bg-purple-600',
+    },
+    red: {
+        border: 'border-red-500',
+        bg: 'bg-red-500',
+        darkBg: 'dark:bg-red-600',
+    },
+    yellow: {
+        border: 'border-yellow-500',
+        bg: 'bg-yellow-500',
+        darkBg: 'dark:bg-yellow-600',
+    },
+};
+
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color }) => {
+    const variants = colorVariants[color];
+    return (
+        <div key={title} className={`flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-2 border-t-4 ${variants.border} group`}>
+            <div className="">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{title}</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
+            </div>
+            <div className={`${variants.bg} ${variants.darkBg} rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform`}>
+                <Icon className="w-6 h-6 text-white" />
+            </div>
         </div>
-        <div className="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-full p-3">
-            <Icon className="w-6 h-6" />
+    );
+};
+
+const AnalyticsSkeleton = () => (
+    <div className="p-2 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-900 min-h-screen animate-pulse">
+        <div className="h-9 bg-gray-300 dark:bg-gray-700 rounded w-1/3 mb-3"></div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-3">
+            {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-24 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+            ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="h-80 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+            <div className="h-80 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
         </div>
     </div>
-);
+)
 
 export default function Analytics() {
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState<AnalyticsStats | null>(null);
-    const [revenueData, setRevenueData] = useState<FormattedMonthlyRevenue[]>([]);
-    const [monthlySignups, setMonthlySignups] = useState<FormattedMonthlyUsers[]>([]);
+    const [monthlySignUps, setMonthlySignUps] = useState<FormattedMonthlyUsers[]>([]);
     const [topAgents, setTopAgents] = useState<AnalyticsTopAgents[]>([]);
     const [recentActivities, setRecentActivities] = useState<AnalyticsRecentActivities[]>([]);
+    const [monthlyCustomers, setMonthlyCustomers] = useState<FormattedMonthlyCustomers[]>([]);
+
     useEffect(() => {
         const fetchData = async () => {
-        try {
-            const res = await getAllAnalyticsData();
-            if (res.success) {
-                setStats(res.data.stats);
-                const formattedRevenue = res.data.monthlyRevenue.map((item: AnalyticsMonthlyRevenue) => ({
-                    name: new Date(2025, item._id - 1).toLocaleString('default', { month: 'short' }),
-                    revenue: item.total,
-                }));
-                setRevenueData(formattedRevenue);
-                const formattedUsers = res.data.monthlyUsers.map((item: AnalyticsMonthlyUsers) => ({
-                    name: new Date(2025, item._id - 1).toLocaleString('default', { month: 'short' }),
-                    signups: item.count || 0,
-                }));
-                setMonthlySignups(formattedUsers);
-                setTopAgents(res.data.topAgents);
-                setRecentActivities(res.data.recentActivities);
+            try {
+                const res = await getAllAnalyticsData();
+                if (res.success) {
+                    setStats(res.data.stats);
+                    const formattedUsers = res.data.monthlyUsers.map((item: AnalyticsMonthlyUsers) => ({
+                        name: new Date(2025, item._id - 1).toLocaleString('default', { month: 'short' }),
+                        signUps: item.count || 0,
+                    }));
+                    const formattedCustomers = res.data.monthlyCustomers.map((item: AnalyticsMonthlyUsers) => ({
+                        name: new Date(2025, item._id - 1).toLocaleString('default', { month: 'short' }),
+                        customers: item.count || 0,
+                    }));
+                    setMonthlySignUps(formattedUsers);
+                    setTopAgents(res.data.topAgents);
+                    setMonthlyCustomers(formattedCustomers);
+                    setRecentActivities(res.data.recentActivities);
+                }
+            } catch (error) {
+                showErrorToast('Error fetching analytics:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            showErrorToast('Error fetching analytics:', error);
-        } finally {
-            setLoading(false);
-        }
         };
         fetchData();
     }, []);
 
     if (loading) {
-        return <div className="p-10 text-center text-gray-500">Loading analytics...</div>;
+        return <AnalyticsSkeleton />;
     }
-    const formattedRevenue = stats?.totalRevenue?.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-    });
+
     const iconsMap: Record<string, React.ElementType> = {
         HOME: Home,
-        DOLLARSIGN: DollarSign,
-        USERPLUS: UserPlus,
+        USER: UserPlus,
+        MEETING: Activity,
     };
+
     return (
-        <div className="p-4 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-900 min-h-screen">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Admin Analytics Dashboard</h1>
+        <div className="p-2 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-900 min-h-screen">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Admin Analytics Dashboard</h1>
 
             {/* Stat Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <StatCard title="Total Users" value={stats?.totalUsers?.toString() || '0'} icon={Users}/>
-                <StatCard title="Agencies" value={stats?.totalAgencies?.toString() || '0'} icon={Building2}/>
-                <StatCard title="Customers" value={stats?.totalCustomers?.toString() || '0'} icon={UserPlus}/>
-                <StatCard title="Properties" value={stats?.totalProperties?.toString() || '0'} icon={Home}/>
-                <StatCard title="Meetings" value={stats?.totalMeetings?.toString() || '0'} icon={Activity}/>
-                <StatCard title="Total Revenue" value={formattedRevenue || '$0'} icon={DollarSign}/>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-3">
+                <StatCard title="Total Users" value={stats?.totalUsers?.toString() || '0'} icon={Users} color="blue" />
+                <StatCard title="Agencies" value={stats?.totalAgencies?.toString() || '0'} icon={Building2} color="blue" />
+                <StatCard title="Customers" value={stats?.totalCustomers?.toString() || '0'} icon={UserPlus} color="blue" />
+                <StatCard title="Properties" value={stats?.totalProperties?.toString() || '0'} icon={Home} color="blue" />
+                <StatCard title="Meetings" value={stats?.totalSharedProperties?.toString() || '0'} icon={Activity} color="blue" />
+                <StatCard title="Shared Properties" value={stats?.totalMeetings?.toString() || '0'} icon={Layers} color="blue" />
             </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                {/* Monthly Signups Chart */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            {/* Main Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {/* Monthly Sign-ups Chart */}
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 flex items-center">
                         <UserPlus className="w-5 h-5 mr-2" />
                         Monthly Sign-ups
                     </h2>
-                    <ResponsiveContainer width="100%" height={300} className="monthly-signup-chart-sec">
-                        <BarChart data={monthlySignups}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(128, 128, 128, 0.2)" />
-                            <XAxis dataKey="name" stroke="#9ca3af" />
-                            <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
-                            <Tooltip contentStyle={{ backgroundColor: 'rgba(31, 41, 55, 0.8)', borderColor: 'rgba(128, 128, 128, 0.5)', color: '#ffffff' }} />
+                    <ResponsiveContainer width="100%" height={350}>
+                        <BarChart data={monthlySignUps}>
+                            <defs>
+                                <linearGradient id="colorSignups" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.2} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(128, 128, 128, 0.1)" />
+                            <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: 'rgba(10, 20, 30, 0.8)',
+                                    borderColor: 'rgba(128, 128, 128, 0.2)',
+                                    color: '#ffffff',
+                                    borderRadius: '0.5rem'
+                                }}
+                                cursor={{ fill: 'rgba(156, 163, 175, 0.1)' }}
+                            />
                             <Legend />
-                            <Bar dataKey="signups" fill="#3B82F6" />
+                            <Bar dataKey="signUps" name="Sign-ups" fill="url(#colorSignups)" radius={[4, 4, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
+
                 </div>
 
-                {/* Revenue Chart */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                {/* Monthly New Customers Chart */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                        <DollarSign className="w-5 h-5 mr-2" />
-                        Revenue Over Time
+                        <Users className="w-5 h-5 mr-2" />
+                        Monthly New Customers
                     </h2>
-                    <ResponsiveContainer width="100%" height={300} className="monthly-revenue-chart-sec">
-                        <LineChart data={revenueData} margin={{ top: 20, right: 30, left: 70, bottom: 20 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(128, 128, 128, 0.2)" />
-                            <XAxis dataKey="name" stroke="#9ca3af" />
-                            <YAxis
-                                tick={{ fontSize: 12 }}
-                                stroke="#9ca3af"
-                                tickFormatter={(value) =>
-                                    value.toLocaleString('en-US', {
-                                    style: 'currency',
-                                    currency: 'USD',
-                                    maximumFractionDigits: 0,
-                                    })
-                                }
-                            />
+                    <ResponsiveContainer width="100%" height={350}>
+                        <AreaChart data={monthlyCustomers}>
+                            <defs>
+                                <linearGradient id="colorCustomers" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(128, 128, 128, 0.1)" />
+                            <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                             <Tooltip
-                                formatter={(value: number) =>
-                                    value.toLocaleString('en-IN', {
-                                        style: 'currency',
-                                        currency: 'INR',
-                                        //maximumFractionDigits: 0,
-                                    })
-                                }
                                 contentStyle={{
-                                    backgroundColor: 'rgba(31, 41, 55, 0.8)',
-                                    borderColor: 'rgba(128, 128, 128, 0.5)',
+                                    backgroundColor: 'rgba(10, 20, 30, 0.8)',
+                                    borderColor: 'rgba(128, 128, 128, 0.2)',
                                     color: '#ffffff',
+                                    borderRadius: '0.5rem'
                                 }}
+                                cursor={{ fill: 'rgba(156, 163, 175, 0.1)' }}
                             />
                             <Legend />
-                            <Line type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={2} />
-                        </LineChart>
+                            <Area type="monotone" dataKey="customers" name="Customers" stroke="#10B981" fill="url(#colorCustomers)" />
+                        </AreaChart>
                     </ResponsiveContainer>
                 </div>
-            </div>
 
-            {/* Recent Activity and Top Agents */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Recent Activity */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 flex items-center">
                         <Activity className="w-5 h-5 mr-2" />
                         Recent Activity
                     </h2>
-                    <ul className="space-y-4">
+                    <ul className="space-y-1">
                         {recentActivities.map((activity, index) => {
-                            const Icon = iconsMap[activity.icon.toUpperCase()] || Activity; // assign the component to a capitalized variable
+                            const Icon = iconsMap[activity.icon.toUpperCase()] || Activity;
                             return (
-                                <li key={`${activity.id}-${index}`} className="flex items-center">
-                                    <div className="bg-gray-100 dark:bg-gray-700 rounded-full p-2 mr-4">
-                                        <Icon />  {/* Now React treats it as a component */}
+                                <li key={`${activity.id}-${index}`} className="flex items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                    <div className="bg-gray-100 dark:bg-gray-700 rounded-full p-2.5 mr-4">
+                                        <Icon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-800 dark:text-gray-200">
@@ -222,16 +231,18 @@ export default function Analytics() {
                         })}
                     </ul>
                 </div>
+            </div>
 
+            <div className="mt-3">
                 {/* Top Performing Agents */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 flex items-center">
                         <Star className="w-5 h-5 mr-2" />
                         Top Performing Agents
                     </h2>
-                    <ul className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {topAgents.map(agent => (
-                            <li key={agent.id} className="flex items-center justify-between">
+                            <div key={agent.id} className="flex items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                 <div className="flex items-center">
                                     <Image
                                         width={50}
@@ -246,11 +257,11 @@ export default function Analytics() {
                                     </div>
                                 </div>
                                 <div className="text-yellow-500">
-                                    <Star className="w-5 h-5 fill-current" />
+                                    <Star className="w-5 h-5 fill-current ml-auto" />
                                 </div>
-                            </li>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>

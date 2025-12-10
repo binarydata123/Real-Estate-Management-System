@@ -93,7 +93,7 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex-1 flex flex-col overflow-hidden">
                 <Header onMenuButtonClick={() => setIsSidebarOpen(true)} />
 
-                <main className="flex-1 mb-[50px] overflow-x-hidden overflow-y-auto bg-gray-50">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 mb-12">
                     {children}
                 </main>
                 {/* Footer Links */}

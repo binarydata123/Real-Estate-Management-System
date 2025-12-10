@@ -3,6 +3,7 @@ import { Agency } from "../../models/Agent/AgencyModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
+import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 
 export const getAnalyticsData = async (req, res) => {
   try {
@@ -12,12 +13,7 @@ export const getAnalyticsData = async (req, res) => {
     const totalCustomers = await Customer.countDocuments();
     const totalProperties = await Property.countDocuments();
     const totalMeetings = await Meetings.countDocuments();
-
-    const revenueResult = await Property.aggregate([
-        { $group: { _id: null, totalRevenue: { $sum: "$price" } } }
-    ]);
-
-    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+    const totalSharedProperties = await PropertyShare.countDocuments();
 
     // --- Monthly User Signups (for line/bar chart) ---
     const monthlyUsers = await User.aggregate([
@@ -30,16 +26,17 @@ export const getAnalyticsData = async (req, res) => {
       { $sort: { "_id": 1 } },
     ]);
 
-    // --- Monthly Revenue Example (assuming property.price = revenue proxy) ---
-    const monthlyRevenue = await Property.aggregate([
+    // --- Monthly Customer Signups (for line/bar chart) ---
+    const monthlyCustomers = await Customer.aggregate([
       {
         $group: {
           _id: { $month: "$createdAt" },
-          total: { $sum: "$price" },
+          count: { $sum: 1 },
         },
       },
       { $sort: { "_id": 1 } },
     ]);
+
 
     const activities = [];
 
@@ -49,16 +46,18 @@ export const getAnalyticsData = async (req, res) => {
       .limit(3)
       .populate('owner', 'title');
 
-    recentProperties.forEach(async (p) => {
-        const agencyData = await Agency.findOne({_id: p.agencyId}).populate('owner');
+    for (const p of recentProperties) {
+      const agencyData = await Agency.findOne({ _id: p.agencyId }).populate('owner');
+      if (agencyData && agencyData.owner) {
         activities.push({
-            id: p._id,
-            user: agencyData.owner.name || 'Unknown User',
-            action: 'listed a new property',
-            time: timeAgo(p.createdAt),
-            icon: 'Home',
+          id: p._id,
+          user: agencyData.owner.name || 'Unknown User',
+          action: 'listed a new property',
+          time: timeAgo(p.createdAt),
+          icon: 'Home',
         });
-    });
+      }
+    }
 
     // ✅ 2. Closed deals
     const recentDeals = await Property.find()
@@ -66,16 +65,18 @@ export const getAnalyticsData = async (req, res) => {
       .limit(3)
       .populate('owner', 'name');
 
-    recentDeals.forEach(async (d) => {
-        const agencyData = await Agency.findOne({_id: d.agencyId}).populate('owner');
+    for (const d of recentDeals) {
+      const agencyData = await Agency.findOne({ _id: d.agencyId }).populate('owner');
+      if (agencyData && agencyData.owner) {
         activities.push({
-            id: d._id,
-            user: agencyData.owner.name || 'Unknown Agent',
-            action: 'closed a deal',
-            time: timeAgo(d.createdAt),
-            icon: 'DollarSign',
+          id: d._id,
+          user: agencyData.owner.name || 'Unknown Agent',
+          action: 'closed a deal',
+          time: timeAgo(d.createdAt),
+          icon: 'DollarSign',
         });
-    });
+      }
+    }
 
     // ✅ 3. New users joined
     const recentUsers = await User.find()
@@ -99,27 +100,27 @@ export const getAnalyticsData = async (req, res) => {
 
     // --- Top Agents (by number of properties listed) ---
     const topAgents = await Property.aggregate([
-        { $group: { _id: "$owner", totalProperties: { $sum: 1 } } },
-        { $sort: { totalProperties: -1 } },
-        { $limit: 5 },
-        {
-            $lookup: {
-            from: "users",
-            localField: "_id",
-            foreignField: "_id",
-            as: "user",
-            },
+      { $group: { _id: "$owner", totalProperties: { $sum: 1 } } },
+      { $sort: { totalProperties: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
         },
-        { $unwind: "$user" },
-        {
-            $project: {
-            _id: 0,
-            id: "$user._id",
-            name: "$user.name",
-            deals: "$totalProperties",
-            avatar: "$user.profilePictureUrl", // rename to match your frontend
-            },
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          _id: 0,
+          id: "$user._id",
+          name: "$user.name",
+          deals: "$totalProperties",
+          avatar: "$user.profilePictureUrl", // rename to match your frontend
         },
+      },
     ]);
 
     res.status(200).json({
@@ -131,10 +132,10 @@ export const getAnalyticsData = async (req, res) => {
           totalCustomers,
           totalProperties,
           totalMeetings,
-          totalRevenue,
+          totalSharedProperties
         },
         monthlyUsers,
-        monthlyRevenue,
+        monthlyCustomers,
         recentActivities,
         topAgents,
       },
@@ -146,7 +147,7 @@ export const getAnalyticsData = async (req, res) => {
 };
 
 // 🕒 Utility to show “x time ago”
-function timeAgo (date) {
+function timeAgo(date) {
   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
   const intervals = [
     { label: 'y', seconds: 31536000 },

@@ -46,7 +46,7 @@ export default function AdminProfile() {
                 setShowForm(false);
             }
         } catch (err) {
-            showErrorToast("Error:",err);
+            showErrorToast("Error:", err);
         }
     };
 
@@ -65,7 +65,7 @@ export default function AdminProfile() {
                     });
                 }
             } catch (err) {
-            showErrorToast("Error",err);
+                showErrorToast("Error", err);
             }
         };
         fetchAdminProfile();
@@ -79,92 +79,17 @@ export default function AdminProfile() {
         );
     }
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-10 px-6 lg:px-16">
-        {/* Page Header */}
-        <div className="max-w-6xl mx-auto mb-10">
-            <h1 className="text-3xl font-bold text-gray-900">Profile Overview</h1>
-            <p className="text-gray-500 mt-1">Manage your profile and account settings</p>
-        </div>
-
-        {/* Profile Card */}
-        {/* {!showForm && (
-            <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-8 transition hover:shadow-md">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-6 border-b pb-8"> */}
-                    {/* Profile Info */}
-                    {/* <div className="flex items-center gap-6">
-                        <div className="relative w-28 h-28">
-                            <Image
-                                src={admin.profilePictureUrl || '/default-avatar-profile-new-img.png'}
-                                alt={admin.name || ''}
-                                fill
-                                className="rounded-full object-cover border-4 border-gray-200 shadow-md"
-                            />
-                            {admin.status === "active" ? (
-                                <CheckCircle2 className="absolute bottom-1 right-1 text-green-500 bg-white rounded-full w-6 h-6" />
-                            ) : (
-                                <XCircle className="absolute bottom-1 right-1 text-red-500 bg-white rounded-full w-6 h-6" />
-                            )}
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-semibold text-gray-900">{admin.name}</h2>
-                            <p className="text-gray-500 capitalize">{admin.role}</p>
-                            <p
-                                className={`mt-1 text-sm font-medium ${
-                                admin.status === "active" ? "text-green-600" : "text-red-600"
-                                }`}
-                            >
-                                {admin.status ? admin.status.toUpperCase() : ''}
-                            </p>
-                        </div>
-                    </div> */}
-                    {/* Edit Button */}
-                    {/* <button
-                        onClick={toggleForm}
-                        className="inline-flex items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow transition-all"
-                    >
-                        <Edit className="w-4 h-4 mr-2" />
-                        {showForm ? "Cancel" : "Edit Profile"}
-                    </button>
-                </div> */}
-                {/* Profile Details Section */}
-                {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div className="flex items-center gap-3">
-                        <Mail className="text-gray-500 w-5 h-5" />
-                        <span className="text-gray-800 font-medium">{admin.email}</span>
-                    </div>
-
-                    {admin.phone
-                        ?
-                            <div className="flex items-center gap-3">
-                                <Phone className="text-gray-500 w-5 h-5" />
-                                <span className="text-gray-800 font-medium">{admin.phone}</span>
-                            </div>
-                        :
-                            ''
-                    }
-
-                    <div className="flex items-center gap-3">
-                        <Shield className="text-gray-500 w-5 h-5" />
-                        <span className="text-gray-800 font-medium capitalize">{admin.role}</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <CalendarDays className="text-gray-500 w-5 h-5" />
-                        <span className="text-gray-800 font-medium">
-                            Joined:{" "}
-                            {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString("en-IN", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                            }) : ''}
-                        </span>
-                    </div>
-                </div>
+    return (
+        <div className="min-h-screen bg-gray-50 py-3 px-3 lg:px-16">
+            {/* Page Header */}
+            <div className="max-w-6xl mx-auto mb-3">
+                <h1 className="text-3xl font-bold text-gray-900">Profile Overview</h1>
+                <p className="text-gray-500 mt-1">Manage your profile and account settings</p>
             </div>
-        )} */}
-        {/* Inline Edit Form */}
-        {/* {showForm && ( */}
+
+
+            {/* Inline Edit Form */}
+            {/* {showForm && ( */}
             <form onSubmit={handleUpdate} className="border-t border-gray-200 pt-6 space-y-6 bg-white rounded-2xl p-6 shadow-sm mt-4">
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Update Profile Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -252,10 +177,10 @@ export default function AdminProfile() {
                     </button>
                 </div>
             </form>
-        {/* )} */}
+            {/* )} */}
 
-        {/* Account Settings Card */}
-        {/* <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-8 mt-10 transition hover:shadow-md">
+            {/* Account Settings Card */}
+            {/* <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-8 mt-10 transition hover:shadow-md">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Account Settings</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -273,6 +198,6 @@ export default function AdminProfile() {
                 </button>
             </div>
         </div> */}
-    </div>
-  );
+        </div>
+    );
 }

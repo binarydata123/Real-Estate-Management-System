@@ -28,9 +28,9 @@ export default function AdminSettings() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
-    const handleCheckboxChange = (key: keyof typeof formData) => {
-        setFormData(prev => ({ ...prev, [key]: !prev[key] }));
-    };
+    // const handleCheckboxChange = (key: keyof typeof formData) => {
+    //     setFormData(prev => ({ ...prev, [key]: !prev[key] }));
+    // };
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         const data = new FormData();
@@ -56,7 +56,7 @@ export default function AdminSettings() {
             data.append("faviconUrl", formData.faviconFile);
         } else if (formData.removedFavicon) {
             data.append("faviconUrl", ""); // Remove favicon in DB
-        } 
+        }
         try {
             const response = await saveAdminSettings(user?._id || '', data);
             if (response.data.success) {
@@ -70,7 +70,7 @@ export default function AdminSettings() {
                 removedFavicon: false
             }));
         } catch (err) {
-            showErrorToast("Error:",err);
+            showErrorToast("Error:", err);
         }
     };
     useEffect(() => {
@@ -81,16 +81,16 @@ export default function AdminSettings() {
                     const d = response.data;
                     setFormData(prev => ({
                         ...prev,
-                        footerContent: d.footerContent || "",
+                        footerContent: d?.footerContent || "",
                         currentPassword: "",
                         newPassword: "",
                         confirmPassword: "",
-                        logoUrl: d.logoUrl || "",
-                        faviconUrl: d.faviconUrl || "",
-                        notificationEmailAlert: d.notificationEmailAlert ?? false,
-                        notificationLoginAlert: d.notificationLoginAlert ?? false,
-                        notificationUpdatesAlert: d.notificationUpdatesAlert ?? false,
-                        notificationSecurityAlert: d.notificationSecurityAlert ?? false,
+                        logoUrl: d?.logoUrl || "",
+                        faviconUrl: d?.faviconUrl || "",
+                        notificationEmailAlert: d?.notificationEmailAlert ?? false,
+                        notificationLoginAlert: d?.notificationLoginAlert ?? false,
+                        notificationUpdatesAlert: d?.notificationUpdatesAlert ?? false,
+                        notificationSecurityAlert: d?.notificationSecurityAlert ?? false,
                     }));
                 }
             } catch (err) {
@@ -100,16 +100,16 @@ export default function AdminSettings() {
         fetchAdminSettings();
     }, []);
     return (
-        <div className="min-h-screen bg-gray-50 py-10 px-6 lg:px-16">
+        <div className="min-h-screen bg-gray-50 py-3 px-3 lg:px-16">
             {/* Page Header */}
-            <div className="max-w-6xl mx-auto mb-10">
+            <div className="max-w-6xl mx-auto mb-3">
                 <h1 className="text-3xl font-bold text-gray-900">Admin Settings</h1>
                 <p className="text-gray-500 mt-1">Manage system-wide configuration</p>
             </div>
-            <div className="max-w-6xl mx-auto space-y-10">
+            <div className="max-w-6xl mx-auto space-y-3">
                 {/* Logo Upload */}
                 <form onSubmit={handleSave}>
-                    <div className="bg-white rounded-2xl shadow-sm p-8 mb-3 hover:shadow-md transition">
+                    <div className="bg-white rounded-2xl shadow-sm p-3 mb-3 hover:shadow-md transition">
                         <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">
                             {/* <Image className="text-blue-600 w-5 h-5" /> Website Logo */}
                             Website Logo
@@ -154,8 +154,8 @@ export default function AdminSettings() {
                                                 height={130}
                                             />
                                         </div> */}
-                                        {/* ❌ REMOVE LOGO */}
-                                        {/* <button
+                        {/* ❌ REMOVE LOGO */}
+                        {/* <button
                                             type="button"
                                             onClick={() =>
                                                 setFormData(prev => ({
@@ -170,7 +170,7 @@ export default function AdminSettings() {
                                         >
                                             <X size={14} />
                                         </button> */}
-                                    {/* </>
+                        {/* </>
                                 ) : (
                                     <div className="w-32 h-32 border rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden shadow-inner">
                                         <span className="text-gray-400">No Logo</span>
@@ -199,7 +199,7 @@ export default function AdminSettings() {
                         </div> */}
                     </div>
                     {/* Favicon Upload */}
-                    <div className="bg-white rounded-2xl shadow-sm p-8 mb-3 hover:shadow-md transition">
+                    <div className="bg-white rounded-2xl shadow-sm p-3 mb-3 hover:shadow-md transition">
                         <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">
                             {/* <Image className="text-blue-600 w-5 h-5"/> Website Favicon */}
                             Website Favicon
@@ -244,8 +244,8 @@ export default function AdminSettings() {
                                                 height={60}
                                             />
                                         </div> */}
-                                        {/* ❌ REMOVE FAVICON */}
-                                        {/* <button
+                        {/* ❌ REMOVE FAVICON */}
+                        {/* <button
                                             type="button"
                                             onClick={() =>
                                                 setFormData(prev => ({
@@ -288,13 +288,13 @@ export default function AdminSettings() {
                         </div> */}
                     </div>
                     {/* Password Change */}
-                    <div className="bg-white rounded-2xl shadow-sm p-8 mb-3 hover:shadow-md transition">
+                    <div className="bg-white rounded-2xl shadow-sm p-3 mb-3 hover:shadow-md transition">
                         <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">
                             {/* <Lock className="text-blue-600 w-5 h-5" /> Change Password */}
                             Change Password
                         </h3>
                         <p className="text-gray-500 text-sm mt-1">Update your login credentials</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
                             <input
                                 type="password"
                                 name="currentPassword"
@@ -322,7 +322,7 @@ export default function AdminSettings() {
                         </div>
                     </div>
                     {/* Footer Content */}
-                    <div className="bg-white rounded-2xl shadow-sm p-8 mb-3 hover:shadow-md transition">
+                    <div className="bg-white rounded-2xl shadow-sm p-3 mb-3 hover:shadow-md transition">
                         <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">
                             {/* <FileText className="text-blue-600 w-5 h-5" /> Footer Copyright */}
                             Footer Copyright
@@ -336,36 +336,11 @@ export default function AdminSettings() {
                             className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         />
                     </div>
-                    {/* Notifications */}
-                    <div className="bg-white rounded-2xl shadow-sm p-8 mb-3 hover:shadow-md transition">
-                        <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">
-                            {/* <Bell className="text-blue-600 w-5 h-5" /> Notification Preferences */}
-                            Notification Preferences
-                        </h3>
-                        <p className="text-gray-500 text-sm mt-1">Choose alert types</p>
-                        <div className="mt-6 space-y-4">
-                            {([
-                                ["notificationEmailAlert", "Email Alerts"],
-                                ["notificationLoginAlert", "Login Notifications"],
-                                ["notificationUpdatesAlert", "System Updates"],
-                                ["notificationSecurityAlert", "Security Warnings"]
-                            ] as [keyof typeof formData, string][]).map(([key, label]) => (
-                                <label key={key} className="flex items-center gap-3 text-gray-800">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData[key] as boolean}
-                                        onChange={() => handleCheckboxChange(key)}
-                                        className="w-5 h-5"
-                                    />
-                                    {label}
-                                </label>
-                            ))}
-                        </div>
-                    </div>
+
                     {/* Save Button */}
                     <div className="flex justify-end">
                         <button
-                        type="submit"
+                            type="submit"
                             className="flex px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm font-medium transition"
                         >
                             Save Settings
