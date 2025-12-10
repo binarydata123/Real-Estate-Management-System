@@ -2,6 +2,7 @@ import { Property } from "../../models/Agent/PropertyModel.js";
 import { Notification } from "../../models/Common/NotificationModel.js"; // Assuming this is the correct path
 import { sendPushNotification } from "../../utils/pushService.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
+import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 
 // Utility: Convert invalid numbers to null
 const cleanNumber = (value) => {
@@ -391,6 +392,14 @@ export const getProperties = async (req, res) => {
 
 export const deleteProperty = async (req, res) => {
   try {
+    const sharedProperty = await PropertyShare.find({
+      propertyId: req.params.id
+    });
+    if (sharedProperty) {
+      await PropertyShare.deleteMany({
+        propertyId: req.params.id
+      });
+    }
     const property = await Property.findByIdAndDelete(req.params.id);
     if (!property) {
       return res.status(404).json({
