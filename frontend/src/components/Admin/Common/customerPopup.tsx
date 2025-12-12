@@ -40,7 +40,7 @@ export default function CustomerDetailsPopup({
                 <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Customer Details
+                {customerData?.role === "customer" ? "Customer" : "Agent"} Details
               </h3>
             </div>
             <button
@@ -58,10 +58,10 @@ export default function CustomerDetailsPopup({
               <User className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
               <div className="flex-1">
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                  Customer Name
+                  {customerData?.role === "customer" ? "Customer" : "Agent"} Name
                 </p>
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {customerData.fullName || "N/A"}
+                  {customerData.fullName || customerData.name || "N/A"}
                 </p>
               </div>
             </div>
@@ -70,7 +70,7 @@ export default function CustomerDetailsPopup({
               <Mail className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
               <div className="flex-1">
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                  Customer Email
+                  {customerData?.role === "customer" ? "Customer" : "Agent"} Email
                 </p>
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">
                   {customerData.email || "N/A"}
@@ -97,7 +97,7 @@ export default function CustomerDetailsPopup({
                 )}
 
                 {/* Phone Number */}
-                {customerData.phoneNumber && (
+                {(customerData.phoneNumber || customerData.phone) && (
                   <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                     <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     <div className="flex-1">
@@ -105,7 +105,7 @@ export default function CustomerDetailsPopup({
                         Phone Number
                       </p>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {customerData.phoneNumber}
+                        {customerData.phoneNumber || customerData.phone}
                       </p>
                     </div>
                   </div>
@@ -114,7 +114,8 @@ export default function CustomerDetailsPopup({
             </div>
 
             {/* Budget Range */}
-            <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+            {customerData?.role === "customer" ? (
+              <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
               <div className="flex-1">
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
                   <IndianRupee className="!h-3 !w-3" />
@@ -132,6 +133,7 @@ export default function CustomerDetailsPopup({
                 </p>
               </div>
             </div>
+            ): ""}
 
             {/* Created By Agency */}
             {agencyName && (

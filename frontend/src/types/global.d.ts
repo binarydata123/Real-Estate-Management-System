@@ -170,11 +170,13 @@ declare global {
     _id: string;
     email: string | "";
     fullName: string;
+    name?: string;
     whatsAppNumber?: string;
     phoneNumber?: string;
+    phone?: string;
     minimumBudget?: number;
     maximumBudget?: number;
-    leadSource:
+    leadSource?:
     | "website"
     | "referral"
     | "social_media"
@@ -183,9 +185,9 @@ declare global {
     | "cold_call"
     | "other";
     initialNotes?: string;
-    status: string;
+    status?: string;
     assigned_agent?: string;
-    minimumBudget: number;
+    minimumBudget?: number;
     agencyId?: {
       email: string;
       id: string;
@@ -197,6 +199,7 @@ declare global {
     };
     role?: string;
     showAllProperty?: boolean;
+    createdAt?: string;
   }
 
   interface MeetingResponse {
@@ -443,7 +446,7 @@ declare global {
 
   interface RecentUserData {
     _id: string;
-    name: string;
+    fullName: string;
     email: string;
     role: string;
     createdAt: string;

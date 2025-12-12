@@ -22,6 +22,7 @@ import {
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
 import { showErrorToast } from "@/utils/toastHandler";
+import CustomerDetailsPopup from "../Common/customerPopup";
 
 ChartJS.register(
   CategoryScale,
@@ -40,9 +41,13 @@ export default function AdminDashboard() {
   const [propertyGrowthData, setPropertyGrowthData] = useState<
     PropertyGrowthData[]
   >([]);
-  const [recentUsers, setRecentUsers] = useState<RecentUserData[]>([]);
+  const [recentUsers, setRecentUsers] = useState<CustomerFormData[]>([]);
   const [recentAgencies, setRecentAgencies] = useState<AgencyData[]>([]);
   const [isLoading, setIsLoading] = useState(true); // New loading state
+  const [showUserDetailsModal, setShowUserDetailsModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<CustomerFormData | null>(
+    null
+  );
 
   useEffect(() => {
     async function fetchData() {
@@ -197,11 +202,11 @@ export default function AdminDashboard() {
                   <Link
                     key={item.name}
                     href={
-                      item.name === " Agencies"
+                      item.name === "Agencies"
                         ? "/admin/agencies"
-                        : item.name === " Properties"
+                        : item.name === "Properties"
                         ? "/admin/properties"
-                        : "#"
+                        : "/admin/customers"
                     }
                   >
                     <div className="flex justify-between items-center rounded-xl bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 p-2 border-t-4 border-blue-500 group">
@@ -305,6 +310,10 @@ export default function AdminDashboard() {
                     <tr
                       key={user._id}
                       className="hover:bg-blue-50 transition-colors"
+                      onClick={() => {
+                        setShowUserDetailsModal(true);
+                        setSelectedUser(user);
+                      }}
                     >
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                         {user.name}
@@ -313,7 +322,9 @@ export default function AdminDashboard() {
                         {user.role}
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {new Date(user.createdAt).toLocaleDateString()}
+                        {new Date(
+                          user.createdAt as string
+                        ).toLocaleDateString()}
                       </td>
                     </tr>
                   ))}
@@ -398,6 +409,13 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+      {showUserDetailsModal === true && (
+        <CustomerDetailsPopup
+          isOpen={showUserDetailsModal}
+          onClose={() => setShowUserDetailsModal(false)}
+          customerData={selectedUser}
+        />
+      )}
     </div>
   );
 }
