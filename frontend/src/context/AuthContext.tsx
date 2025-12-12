@@ -16,6 +16,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import { showErrorToast, setForceLogoutFlag } from "@/utils/toastHandler";
 import { brandColor } from "@/types/global";
 import { getAgencySettings } from "@/lib/Agent/SettingsAPI";
+import { getCustomerSettings } from "@/lib/Customer/SettingsAPI";
 // import { setForceLogoutFlag } from "@/utils/toastHandler";
 
 export const AUTH_SESSION_KEY = "auth-session";
@@ -193,13 +194,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     router.push(`/${userData.role}/dashboard`);
   };
   const getSettings = async () => {
-    try {
-      const res = await getAgencySettings();
+  try {
+    let res;
+
+    if (user?.role === "agent") {
+      res = await getAgencySettings();
       setBrandingColor(res.branding);
-    } catch (error) {
-      showErrorToast("Error", error);
+    } else if(user?.role === 'customer') {
+      res = await getCustomerSettings();
     }
+
+    return res;
+  } catch (error) {
+    showErrorToast("Error", error);
+    return null;
   }
+};
+
 
   useEffect(() => {
     if(user?._id) getSettings();

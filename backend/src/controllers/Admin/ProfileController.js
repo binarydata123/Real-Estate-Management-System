@@ -36,7 +36,7 @@ export const updateAdminProfile = async (req, res) => {
 
         // Handle profile picture
         if (req.file) {
-            updatedFields.profilePictureUrl = `/uploads/profiles/${req.file.filename}`;
+            updatedFields.profilePictureUrl = req.file.filename;
         }
 
         const updatedAdmin = await User.findByIdAndUpdate(

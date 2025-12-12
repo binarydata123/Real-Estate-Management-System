@@ -73,6 +73,25 @@ export default function AdminSettings() {
             showErrorToast("Error:", err);
         }
     };
+
+    const getImageUrl = (imageUrl?: string, type?: string): string | undefined => {
+        if (!imageUrl) {
+            return;
+        }
+    
+        // If it's already a full URL, return as is
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            return imageUrl;
+        }
+    
+        // If it's a relative path, construct the full URL
+        const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
+        if(type==="logo") { 
+            return `${baseUrl}/logo/medium/${imageUrl}`;
+        } else if (type === "favicon") {
+            return `${baseUrl}/favicon/extraSmall/${imageUrl}`;
+        }
+    };
     useEffect(() => {
         const fetchAdminSettings = async () => {
             try {
@@ -85,8 +104,8 @@ export default function AdminSettings() {
                         currentPassword: "",
                         newPassword: "",
                         confirmPassword: "",
-                        logoUrl: d?.logoUrl || "",
-                        faviconUrl: d?.faviconUrl || "",
+                        logoUrl: getImageUrl(d?.logoUrl,"logo") || "",
+                        faviconUrl: getImageUrl(d?.faviconUrl,"favicon") || "",
                         notificationEmailAlert: d?.notificationEmailAlert ?? false,
                         notificationLoginAlert: d?.notificationLoginAlert ?? false,
                         notificationUpdatesAlert: d?.notificationUpdatesAlert ?? false,

@@ -40,13 +40,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
   const settingsResponse = await getSettingsData();
   const settingsData = settingsResponse?.data || null;
   return (
     <html lang="en" className={`${inter.variable}`}>
       {settingsData?.faviconUrl
         ?
-          <link rel="icon" href={settingsData.faviconUrl} sizes="256x256" type="image/x-icon"/>
+          <link rel="icon" href={`${baseUrl}/favicon/extraSmall/${settingsData.faviconUrl}`} className="rounded-4xl" sizes="256x256" type="image/x-icon"/>
         :
           ''
       }
