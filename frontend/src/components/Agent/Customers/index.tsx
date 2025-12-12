@@ -236,10 +236,10 @@ export const Customers: React.FC = () => {
                     <div className="hidden md:block">
                       <span
                         className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          customer?.status
+                          customer?.status as string
                         )}`}
                       >
-                        {customer?.status}
+                        {customer?.status as string}
                       </span>
                     </div>
 
