@@ -1749,7 +1749,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                   ))}
                 </FormSection>
 
-                {/* <FormSection title="Owner Details (Private)">
+                <FormSection title="Owner Details (Private)">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {StepOneConditionFields.filter(
                       (f) => f.name === "owner_name"
@@ -1783,7 +1783,7 @@ export const AddPropertyForm: React.FC<Props> = ({ propertyId }) => {
                       </Field>
                     ))}
                   </div>
-                </FormSection> */}
+                </FormSection> 
 
                 {isEditMode && (
                   <FormSection title="Description">
