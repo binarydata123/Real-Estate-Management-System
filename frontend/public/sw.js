@@ -1,8 +1,16 @@
-/* public/sw.js */
+self.API_URL = null;
+
+// Receive environment variables
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SET_ENV") {
+    self.API_URL = event.data.API_URL;
+  }
+});
+
+// Push event
 self.addEventListener("push", function (event) {
   const data = event.data.json();
 
-  // Show notification with actions
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
@@ -13,7 +21,6 @@ self.addEventListener("push", function (event) {
     })
   );
 
-  // Send message to clients
   event.waitUntil(
     (async () => {
       const allClients = await clients.matchAll({ includeUncontrolled: true });
@@ -26,17 +33,16 @@ self.addEventListener("push", function (event) {
     })()
   );
 });
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// Handle notification clicks
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   const { meetingId, token } = event.notification.data;
-  console.log(event.action);
 
   if (event.action === "confirm") {
     event.waitUntil(
-      fetch(`${API_BASE_URL}/agent/meetings/update-status/${meetingId}`, {
+      fetch(`${self.API_URL}/agent/meetings/update-status/${meetingId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -47,7 +53,7 @@ self.addEventListener("notificationclick", (event) => {
     );
   } else if (event.action === "cancel") {
     event.waitUntil(
-      fetch(`${API_BASE_URL}/agent/meetings/update-status/${meetingId}`, {
+      fetch(`${self.API_URL}/agent/meetings/update-status/${meetingId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

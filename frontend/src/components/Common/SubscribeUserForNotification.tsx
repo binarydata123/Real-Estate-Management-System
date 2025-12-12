@@ -33,6 +33,15 @@ export function usePushSubscription() {
           scope: "/",
         });
 
+        const sw = registration.active || registration.waiting || registration.installing;
+
+        if (sw) {
+          sw.postMessage({
+            type: "SET_ENV",
+            API_URL: process.env.NEXT_PUBLIC_API_URL,
+          });
+        }
+
         // ✅ Check for existing subscription
         let subscription = await registration.pushManager.getSubscription();
         if (!subscription) {
