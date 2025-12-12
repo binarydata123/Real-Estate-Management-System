@@ -26,10 +26,9 @@
    getPropertyImageUrlWithFallback,
    handleImageError,
  } from "@/lib/imageUtils";
+import Link from "next/link";
 
- // ==========================================
  // SearchInput Component (Fixed)
- // ==========================================
  interface SearchInputProps {
    value: string;
    onChange: (value: string) => void;
@@ -63,10 +62,7 @@
      />
    </div>
  );
-
- // ==========================================
  // Main Component
- // ==========================================
  export default function AgencyView({ agencyId }: { agencyId: string }) {
    const [activeTab, setActiveTab] = useState("team-members");
    const [agency, setAgency] = useState<AgencyFormData | null>(null);
@@ -298,9 +294,7 @@
      return `${formatPrice(min)} - ${formatPrice(max)}`;
    };
 
-   // ==========================================
    // Pagination Handlers
-   // ==========================================
    const handleTeamMembersPageChange = (page: number) => {
      if (page >= 1 && page <= teamMembersTotalPages && !isLoading) {
        fetchData(
@@ -371,9 +365,7 @@
      }
    };
 
-   // ==========================================
    // Skeleton Components
-   // ==========================================
    const CardSkeleton = () => (
      <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm animate-pulse">
        <div className="flex items-center space-x-3">
@@ -439,9 +431,7 @@
      </div>
    );
 
-   // ==========================================
    // Meeting Card Component
-   // ==========================================
    const MeetingCard: React.FC<{ meeting: MeetingFormData }> = ({
      meeting,
    }) => {
@@ -1040,9 +1030,13 @@
 
                              {/* View Details Button */}
                              <div className="pt-4">
-                               <button className="w-full bg-blue-600 dark:bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 dark:hover:bg-indigo-700 transition-colors shadow-lg shadow-blue-200/50 dark:shadow-indigo-900/50">
-                                 View Full Details
-                               </button>
+                               <Link
+                                 href={`/admin/properties/${property?._id}`}
+                               >
+                                 <button className="w-full bg-blue-600 dark:bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 dark:hover:bg-indigo-700 transition-colors shadow-lg shadow-blue-200/50 dark:shadow-indigo-900/50 cursor-pointer">
+                                   View Full Details
+                                 </button>
+                               </Link>
                              </div>
                            </div>
                          </div>

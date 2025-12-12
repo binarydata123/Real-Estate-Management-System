@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import { Building2, PlusIcon, Calendar } from "lucide-react";
+import { Building2, Calendar } from "lucide-react";
 import { getMeetings, deleteMeetingById } from "@/lib/Admin/MeetingAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
@@ -10,6 +10,7 @@ import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 // import PropertyView from "../Properties/PropertyView";
 import Link from "next/link";
 import CustomerDetailsPopup from "../Common/customerPopup";
+import hourFormatter from "@/helper/hourFormatter";
 
 const statusStyles: { [key: string]: string } = {
   scheduled:
@@ -385,7 +386,7 @@ export default function Meetings() {
                                   <div className="flex items-center">
                                     <div className="ml-4">
                                       <div className="font-medium text-gray-900 dark:text-white">
-                                        {meeting.time || "N/A"}
+                                        {hourFormatter(meeting.time as string) || "N/A"}
                                       </div>
                                     </div>
                                   </div>
@@ -427,14 +428,14 @@ export default function Meetings() {
                                 <p className="text-gray-500 mb-6">
                                   Start building your meeting base
                                 </p>
-                                {!debouncedSearchTerm && (
+                                {/* {!debouncedSearchTerm && (
                                   <div className="flex justify-center mt-4">
                                     <button className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                                       <PlusIcon className="h-5 w-5 mr-2" />
                                       Add Meeting
                                     </button>
                                   </div>
-                                )}
+                                )} */}
                               </div>
                             </td>
                           </tr>

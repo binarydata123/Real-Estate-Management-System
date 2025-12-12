@@ -689,15 +689,17 @@ export default function PreferenceForm() {
           </div>
         </FormSection>
 
-        <div className="flex justify-end pb-1">
+        {isReadOnly === false ? (
+          <div className="flex justify-end pb-1">
           <button
             type="submit"
-            disabled={loading || isReadOnly}
+            disabled={loading}
             className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Saving..." : "Save Preferences"}
           </button>
         </div>
+        ) : ""}
       </form>
     </>
   );

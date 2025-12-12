@@ -392,6 +392,14 @@ export const getProperties = async (req, res) => {
 
 export const deleteProperty = async (req, res) => {
   try {
+    const sharedProperty = await PropertyShare.find({
+      propertyId: req.params.id
+    });
+    if (sharedProperty) {
+      await PropertyShare.deleteMany({
+        propertyId: req.params.id
+      });
+    }
     const property = await Property.findByIdAndDelete(req.params.id);
     if (!property) {
       return res.status(404).json({

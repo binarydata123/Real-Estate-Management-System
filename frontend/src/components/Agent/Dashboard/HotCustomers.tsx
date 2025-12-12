@@ -9,6 +9,7 @@ export interface Customer {
   fullName: string;
   maximumBudget?: number;
   minimumBudget?: number;
+  phoneNumber?: string;
 }
 
 export interface HotCustomersProps {
@@ -69,11 +70,18 @@ const HotCustomers: React.FC<HotCustomersProps> = ({ customers }) => {
                   </div>
                 </div>
 
-                <div className="flex items-stretch">
+                <div className="flex items-center">
                   <div className="flex flex-col justify-between flex-1">
                     <div className="text-right flex items-start gap-1 justify-end">
                       <span className="md:mt-2 text-primary hover:text-primary">
-                        <PhoneIcon className="h-4 w-4" />
+                        <PhoneIcon
+                          onClick={(e) => {
+                            e.preventDefault(); // stop parent link / button action
+                            e.stopPropagation(); // (optional) stop bubble if inside another clickable item
+                            window.location.href = `tel:${customer?.phoneNumber}`;
+                          }}
+                          className="h-4 w-4 cursor-pointer"
+                        />
                       </span>
                     </div>
                   </div>

@@ -1,19 +1,19 @@
-import { User } from "../../models/Common/UserModel.js";
 import { Agency } from "../../models/Agent/AgencyModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js";
+import { Customer } from "../../models/Agent/CustomerModel.js";
+import { User } from "../../models/Common/UserModel.js";
 
 export const getDashboardData = async (req, res) => {
   try {
     // 1️⃣ Stats
-    const currentUserId = req.user?._id;
-    const totalUsers = await User.countDocuments({ _id: { $ne: currentUserId } });
+    const totalCustomers = await Customer.countDocuments();
     const totalAgencies = await Agency.countDocuments();
     const totalProperties = await Property.countDocuments();
 
     const stats = [
-      { name: " Users", stat: totalUsers },
-      { name: " Agencies", stat: totalAgencies },
-      { name: " Properties", stat: totalProperties },
+      { name: "Customers", stat: totalCustomers },
+      { name: "Agencies", stat: totalAgencies },
+      { name: "Properties", stat: totalProperties },
     ];
 
     // 2️⃣ User growth (last 6 months)
@@ -51,7 +51,7 @@ export const getDashboardData = async (req, res) => {
     const recentUsers = await User.find({ role: { $in: ["agent", "customer"] } })
       .sort({ createdAt: -1 })
       .limit(5)
-      .select("_id name email role createdAt");
+      .select("_id name email phone role createdAt");
 
     // 4️⃣ Recent Agencies (last 5)
     const recentAgencies = await Agency.find()
