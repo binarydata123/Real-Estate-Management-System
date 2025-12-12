@@ -4,7 +4,7 @@ import Image from 'next/image';
 //import { Edit, Mail, Phone, Shield, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 import { getAdminProfile, updateAdminProfile } from "@/lib/Admin/ProfileAPI";
 import { useAuth } from "@/context/AuthContext";
-import { showErrorToast } from '@/utils/toastHandler';
+import { showErrorToast, showSuccessToast } from '@/utils/toastHandler';
 
 export default function AdminProfile() {
     const [admin, setAdmin] = useState<UserData | null>(null);
@@ -44,6 +44,7 @@ export default function AdminProfile() {
             if (response.data.success) {
                 setAdmin(response.data.data);
                 setShowForm(false);
+                showSuccessToast("Profile Updated Sucessfully!");
             }
         } catch (err) {
             showErrorToast("Error:", err);
