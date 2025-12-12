@@ -52,6 +52,21 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     fetchNotifications();
   }, [user]);
 
+   const getImageUrl = (imageUrl?: string): string | undefined => {
+        if (!imageUrl) {
+            return;
+        }
+    
+        // If it's already a full URL, return as is
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            return imageUrl;
+        }
+    
+        // If it's a relative path, construct the full URL
+        const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
+            return `${baseUrl}/ProfilePicture/extraSmall/${imageUrl}`;
+    };
+
   // Count unread notifications
   const unreadCount = notifications.filter(n => !n.read).length;
   return (
@@ -184,7 +199,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
               <Menu as="div" className="relative">
                 <Menu.Button className="flex items-center cursor-pointer">
                   <img
-                    src={user?.profilePictureUrl || "/default-avatar-profile-new-img.png"}
+                    src={getImageUrl(user?.profilePictureUrl) || "/default-avatar-profile-new-img.png"}
                     alt="avatar"
                     className="w-9 h-9 rounded-full border border-gray-300 shadow-sm object-cover"
                   />
@@ -212,7 +227,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                     <div className="px-4 py-4 bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
                       <div className="flex items-center space-x-3">
                         <Image
-                          src={user?.profilePictureUrl || "/default-avatar-profile-new-img.png"}
+                          src={getImageUrl(user?.profilePictureUrl) || "/default-avatar-profile-new-img.png"}
                           alt="Profile Picture"
                           width={12}
                           height={12}
