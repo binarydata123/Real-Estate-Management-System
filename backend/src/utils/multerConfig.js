@@ -8,33 +8,16 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// backend/src folder
-// const rootPath = __dirname;
-
 // storage folder inside backend/src/storage
 const storageRoot = path.join(__dirname, '..', 'storage');
 
-const storage = (folderName) =>
-  multer.diskStorage({
-    destination: (req, file, cb) => {
-      const folderPath = path.join(storageRoot, folderName, 'original');
+// ============================================
+// File Processors
+// ============================================
 
-      fs.mkdir(folderPath, { recursive: true })
-        .then(() => cb(null, folderPath))
-        .catch((error) => cb(error, folderPath));
-    },
-
-    filename: (req, file, cb) => {
-      const safeName = file.originalname.replace(/[^\w.-]/g, "_");
-      cb(null, `${Date.now()}-${safeName}`);
-    }
-  });
-
-// Process and save images
-const processAndSaveImages = async (file, folderName) => {
+const processAndSaveImages = async (file, folder) => {
   const safeName = file.filename;
-
-  const originalPath = path.join(storageRoot, folderName, 'original', safeName);
+  const originalPath = path.join(storageRoot, folder, 'original', safeName);
 
   const buffer = await fs.readFile(file.path);
   await fs.writeFile(originalPath, buffer);
@@ -46,7 +29,7 @@ const processAndSaveImages = async (file, folderName) => {
   ];
 
   for (const size of sizes) {
-    const folderPath = path.join(storageRoot, folderName, size.suffix);
+    const folderPath = path.join(storageRoot, folder, size.suffix);
     await fs.mkdir(folderPath, { recursive: true });
 
     const resizedPath = path.join(folderPath, safeName);
@@ -56,83 +39,139 @@ const processAndSaveImages = async (file, folderName) => {
   return safeName;
 };
 
-
-
-// Move PDF files
-const processAndSavePDF = async (file, folderName) => {
-  const folder = path.join(storageRoot, folderName, 'pdfs');
-  await fs.mkdir(folder, { recursive: true });
-  await fs.rename(file.path, path.join(folder, file.filename));
+const processAndSavePDF = async (file, folder) => {
+  const folderPath = path.join(storageRoot, folder, 'pdfs');
+  await fs.mkdir(folderPath, { recursive: true });
+  await fs.rename(file.path, path.join(folderPath, file.filename));
   return file.filename;
 };
 
-// Move DOC/DOCX files
-const processAndSaveDocs = async (file, folderName) => {
-  const destinationFolder = path.join(storageRoot, folderName, 'docs');
-  await fs.mkdir(destinationFolder, { recursive: true });
-  await fs.rename(file.path, `${destinationFolder}/${file.filename}`);
+const processAndSaveDocs = async (file, folder) => {
+  const dest = path.join(storageRoot, folder, 'docs');
+  await fs.mkdir(dest, { recursive: true });
+  await fs.rename(file.path, path.join(dest, file.filename));
   return file.filename;
 };
 
-// Create Multer upload handlers
-export const createUpload = (folderName) => {
-  const upload = multer({ storage: storage(folderName) });
+// ============================================
+// createUpload() with backward compatibility
+// ============================================
 
+export const createUpload = (folderNameOrMap) => {
+  const isMap = typeof folderNameOrMap === "object";
+  const folderMap = isMap ? folderNameOrMap : null;
+  const defaultFolder = isMap ? null : folderNameOrMap;
+
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: async (req, file, cb) => {
+        try {
+          const folder = isMap ? folderMap[file.fieldname] : defaultFolder;
+          const folderPath = path.join(storageRoot, folder, "original");
+          await fs.mkdir(folderPath, { recursive: true });
+          return cb(null, folderPath);
+        } catch (e) {
+          return cb(e);
+        }
+      },
+
+      filename: (req, file, cb) => {
+        const safeName = file.originalname.replace(/[^\w.-]/g, "_");
+        cb(null, `${Date.now()}-${safeName}`);
+      }
+    })
+  });
+
+  // ========================================
+  // SINGLE
+  // ========================================
   return {
     single: (fieldName) => async (req, res, next) => {
       upload.single(fieldName)(req, res, async (err) => {
-        if (err) {
-          return res.status(500).json({ message: 'Error uploading file', status: false });
-        }
-        if (!req.file) {
-          return next();
-        }
+        if (err) return res.status(500).json({ message: "Error uploading file", status: false });
+        if (!req.file) return next();
 
         try {
-          req.uploadedFilename = await processAndSaveImages(req.file, folderName);
+          const folder = isMap ? folderMap[fieldName] : defaultFolder;
+          req.uploadedFilename = await processAndSaveImages(req.file, folder);
           return next();
         } catch (error) {
           console.error(error);
-          return res.status(500).json({ message: 'Error processing image', status: false });
+          return res.status(500).json({ message: "Error processing image", status: false });
         }
       });
     },
 
+    // ========================================
+    // MULTIPLE FILES
+    // ========================================
     multiple: (fieldName, maxCount) => async (req, res, next) => {
       upload.array(fieldName, maxCount)(req, res, async (err) => {
-        if (err) {
-          return res.status(500).json({ message: 'Error uploading files', status: false });
-        }
+        if (err) return res.status(500).json({ message: "Error uploading files", status: false });
+
         try {
           req.uploadedFilenames = [];
-          if (req.files && req.files.length > 0) {
-            for (const file of req.files) {
-              console.log('Processing file:', file.originalname, 'Type:', file.mimetype);
+          const folder = isMap ? folderMap[fieldName] : defaultFolder;
 
-              if (file.mimetype.startsWith('image/')) {
-                const filename = await processAndSaveImages(file, folderName);
-                req.uploadedFilenames.push(filename);
-              } else if (file.mimetype === 'application/pdf') {
-                const filename = await processAndSavePDF(file, folderName);
-                req.uploadedFilenames.push(filename);
-              } else if (
-                file.mimetype === 'application/msword' ||
-                file.mimetype ===
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-              ) {
-                const filename = await processAndSaveDocs(file, folderName);
-                req.uploadedFilenames.push(filename);
-              } else {
-                console.log('Unsupported file type:', file.mimetype);
-              }
+          for (const file of req.files || []) {
+            let filename;
+
+            if (file.mimetype.startsWith("image/")) {
+              filename = await processAndSaveImages(file, folder);
+            } else if (file.mimetype === "application/pdf") {
+              filename = await processAndSavePDF(file, folder);
+            } else {
+              filename = await processAndSaveDocs(file, folder);
             }
+
+            req.uploadedFilenames.push(filename);
           }
+
           return next();
         } catch (error) {
-          console.error('File processing error:', error);
-          return res.status(500).json({ message: 'Error processing files', status: false });
+          console.error(error);
+          return res.status(500).json({ message: "Error processing files", status: false });
         }
       });
     },
+
+    // ========================================
+    // MULTIPLE FIELDS (logo + favicon etc.)
+    // ========================================
+    fields: (fieldsArray) => async (req, res, next) => {
+      upload.fields(fieldsArray)(req, res, async (err) => {
+        if (err)
+          return res.status(500).json({ message: "Error uploading files", status: false });
+
+        try {
+          req.uploadedFiles = {};
+
+          for (const fieldName of Object.keys(req.files || {})) {
+            req.uploadedFiles[fieldName] = [];
+
+            const folder = isMap ? folderMap[fieldName] : defaultFolder;
+
+            for (const file of req.files[fieldName]) {
+              let filename;
+
+              if (file.mimetype.startsWith("image/")) {
+                filename = await processAndSaveImages(file, folder);
+              } else if (file.mimetype === "application/pdf") {
+                filename = await processAndSavePDF(file, folder);
+              } else {
+                filename = await processAndSaveDocs(file, folder);
+              }
+
+              req.uploadedFiles[fieldName].push(filename);
+            }
+          }
+
+          return next();
+        } catch (error) {
+          console.error(error);
+          return res.status(500).json({ message: "Error processing files", status: false });
+        }
+      });
+    }
   };
 };

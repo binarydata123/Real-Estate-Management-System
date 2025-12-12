@@ -10,10 +10,10 @@ export const saveAdminSettings = async (req, res) => {
         // Handle logo and favicon upload
         if (req.files) {
             if (req.files.logoUrl && req.files.logoUrl[0]) {
-                updatedFields.logoUrl = `/uploads/adminSettingsImages/${req.files.logoUrl[0].filename}`;
+                updatedFields.logoUrl = req.files.logoUrl[0].filename;
             }
             if (req.files.faviconUrl && req.files.faviconUrl[0]) {
-                updatedFields.faviconUrl = `/uploads/adminSettingsImages/${req.files.faviconUrl[0].filename}`;
+                updatedFields.faviconUrl = req.files.faviconUrl[0].filename;
             }
         }
 
