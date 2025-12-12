@@ -316,6 +316,8 @@ declare global {
       pages: number;
       totalPages: number;
       totalProperties: number;
+      totalUnfiltered:number;
+      total:number;
     };
   }
 

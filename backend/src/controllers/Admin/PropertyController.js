@@ -9,6 +9,7 @@ import { sendPushNotification } from "../../utils/pushService.js";
 
 
 // Get all properties
+
 export const getProperties = async (req, res) => {
   try {
     const { page = 1, limit = 10, search, status, agencyId } = req.query;
@@ -21,6 +22,10 @@ export const getProperties = async (req, res) => {
     if (agencyId) {
       searchQuery.agencyId = agencyId;
     }
+
+    // Calculate totalUnfiltered FIRST (before any search logic)
+    const totalUnfilteredQuery = agencyId ? { agencyId } : {};
+    const totalUnfiltered = await Property.countDocuments(totalUnfilteredQuery);
 
     if (search || status) {
       searchQuery.$or = [];
@@ -46,7 +51,7 @@ export const getProperties = async (req, res) => {
       }
     }
 
-    const totalProperties = await Property.countDocuments(searchQuery);
+    const totalFiltered = await Property.countDocuments(searchQuery);
 
     const property = await Property.find(searchQuery)
       .sort({ _id: -1 })
@@ -54,9 +59,10 @@ export const getProperties = async (req, res) => {
       .limit(limitNumber)
       .populate({
         path: "agencyId",
-        select: "name email phone status logoUrl", // pick the fields you need
+        select: "name email phone status logoUrl",
       });
 
+    // Include totalUnfiltered even when no results
     if (!property || property.length === 0) {
       return res.status(200).json({
         success: true,
@@ -64,6 +70,7 @@ export const getProperties = async (req, res) => {
         data: [],
         pagination: {
           total: 0,
+          totalUnfiltered: totalUnfiltered, 
           page: pageNumber,
           limit: limitNumber,
           totalPages: 0,
@@ -75,10 +82,11 @@ export const getProperties = async (req, res) => {
       success: true,
       data: property,
       pagination: {
-        totalProperties: totalProperties,
+        total: totalFiltered,
+        totalUnfiltered: totalUnfiltered,
         page: pageNumber,
         limit: limitNumber,
-        totalPages: Math.ceil(totalProperties / limitNumber),
+        totalPages: Math.ceil(totalFiltered / limitNumber),
       },
     });
   } catch (error) {
