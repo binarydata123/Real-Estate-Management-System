@@ -202,8 +202,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   useEffect(() => {
-    getSettings();
-  }, []);
+    if(user?._id) getSettings();
+  }, [user]);
 
   useEffect(() => {
     document.documentElement.style.setProperty("--primary", brandColors?.primaryColor || "#1e41f1");
