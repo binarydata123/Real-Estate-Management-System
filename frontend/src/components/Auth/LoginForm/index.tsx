@@ -213,15 +213,38 @@ export const LoginForm = () => {
     fetchSettings();
   }, []);
 
+  const getImageUrl = (imageUrl?: string): string | undefined => {
+        if (!imageUrl) {
+            return;
+        }
+    
+        // If it's already a full URL, return as is
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            return imageUrl;
+        }
+    
+        // If it's a relative path, construct the full URL
+        const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
+            return `${baseUrl}/logo/medium/${imageUrl}`;
+    };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-200 to-purple-200 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl md:p-8 p-6 transition-all duration-300">
         {/* Logo */}
         <div className="text-center md:mb-8 mb-2">
           {settingsData?.logoUrl ? (
-            <div style={{ display: "inline-block" }}>
+            <div
+              style={{
+                borderRadius: "50%",
+                overflow: "hidden",
+                width: "70px",
+                height: "70px",
+                display: "inline-block",
+              }}
+            >
               <Image
-                src={settingsData.logoUrl}
+                src={getImageUrl(settingsData.logoUrl) as string}
                 alt="Logo"
                 width={70}
                 height={70}

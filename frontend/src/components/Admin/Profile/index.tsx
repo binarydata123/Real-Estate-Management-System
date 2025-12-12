@@ -51,6 +51,21 @@ export default function AdminProfile() {
         }
     };
 
+    const getImageUrl = (imageUrl?: string, fallback?: string): string | undefined => {
+        if (!imageUrl) {
+            return fallback;
+        }
+    
+        // If it's already a full URL, return as is
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            return imageUrl;
+        }
+    
+        // If it's a relative path, construct the full URL
+        const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
+        return `${baseUrl}/ProfilePicture/medium/${imageUrl}`;
+    };
+
     useEffect(() => {
         const fetchAdminProfile = async () => {
             try {
@@ -61,7 +76,7 @@ export default function AdminProfile() {
                         name: response.data.name || "",
                         email: response.data.email || "",
                         phone: response.data.phone || "",
-                        profilePictureUrl: response.data.profilePictureUrl || "",
+                        profilePictureUrl: getImageUrl(response.data.profilePictureUrl) || "",
                         profilePictureFile: null as File | null,
                     });
                 }
