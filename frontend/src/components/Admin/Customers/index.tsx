@@ -351,17 +351,14 @@ export default function Customers() {
                               </td>
                               {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{customer.email || 'N/A'}</td> */}
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                <span className="inline-flex items-center px-3 py-1.5 bg-yellow-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-yellow-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400">
-
-                                <a href={`tel:${customer.phoneNumber}` } >
-                                  {customer.phoneNumber || "No phone"}
-                                </a>
+                                <span className="inline-flex items-center px-3 py-1.5 bg-blue-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-blue-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                  <a href={`tel:${customer.phoneNumber}`}>
+                                    {customer.phoneNumber || "No phone"}
+                                  </a>
                                 </span>
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-center text-gray-500 dark:text-gray-400">
-
-                               {/* <span className="inline-flex items-center px-3 py-1.5 bg-violet-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-violet-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400"> */}
-
+                                {/* <span className="inline-flex items-center px-3 py-1.5 bg-violet-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-violet-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400"> */}
 
                                 {customer.minimumBudget?.toLocaleString(
                                   "en-US",
@@ -373,16 +370,16 @@ export default function Customers() {
                                 ) || "--"}
                                 {/* </span> */}
                               </td>
-                              <td className="whitespace-nowrap text-center px-3 py-4 text-sm">
+                              <td className="whitespace-nowrap text-gray-500 dark:text-gray-400 text-center px-3 py-4 text-sm">
                                 {/* <span className="inline-flex items-center px-3 py-1.5 bg-yellow-50 font-semibold text-gray-600 font-medium rounded hover:bg-yellow-100 hover:text-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400"> */}
-                                  {customer.maximumBudget?.toLocaleString(
-                                    "en-US",
-                                    {
-                                      style: "currency",
-                                      currency: "USD",
-                                      maximumFractionDigits: 0,
-                                    }
-                                  ) || "--"}
+                                {customer.maximumBudget?.toLocaleString(
+                                  "en-US",
+                                  {
+                                    style: "currency",
+                                    currency: "USD",
+                                    maximumFractionDigits: 0,
+                                  }
+                                ) || "--"}
                                 {/* </span> */}
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm">

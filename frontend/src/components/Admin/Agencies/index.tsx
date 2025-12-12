@@ -219,7 +219,7 @@ export default function Agencies() {
                               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                 <div className="flex items-center">
                                   <div className="ml-4">
-                                    <div className="font-semibold text-gray-900 dark:text-white">
+                                    <div className="font-semibold text-gray-900 dark:text-white hover:underline">
                                       {agency._id ? (
                                         <Link href={`/admin/agencies/${agency._id}`} className="text-blue-700 dark:text-indigo-400 hover:text-blue-500 dark:hover:text-indigo-300">
                                         {agency.name}

@@ -97,7 +97,10 @@ export default function TeamMembers() {
       <div className="sm:flex sm:items-center sm:justify-between sm:gap-4">
         <div className="sm:flex-auto">
           <div className="flex items-center gap-3">
-            <div className="p-2 w-8 rounded-4xl bg-blue-500 text-white" onClick={() => router.back()}>
+            <div
+              className="p-2 w-8 rounded-4xl bg-blue-500 text-white"
+              onClick={() => router.back()}
+            >
               <ArrowLeft />
             </div>
             <div>
@@ -121,8 +124,12 @@ export default function TeamMembers() {
               className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-3 border-t-4 border-blue-500 group"
             >
               <div className="">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{item.name}</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{item.value}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  {item.name}
+                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {item.value}
+                </p>
               </div>
               <div className=" bg-blue-500 dark:bg-indigo-600 rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform">
                 <item.icon className="h-7 w-7 text-white" aria-hidden="true" />
@@ -142,7 +149,7 @@ export default function TeamMembers() {
             value={searchTerm}
             onChange={setSearchTerm}
             aria-label="Search team members"
-          // className=" focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+            // className=" focus:ring-blue-500 focus:border-blue-500 shadow-sm"
           />
         </div>
       </div>
@@ -154,7 +161,9 @@ export default function TeamMembers() {
               {isFetching && teamMembers.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
-                  <p className="text-gray-600 dark:text-gray-300">Loading Team Members...</p>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Loading Team Members...
+                  </p>
                 </div>
               ) : (
                 <>
@@ -163,32 +172,83 @@ export default function TeamMembers() {
                       <>
                         <thead className="bg-blue-50 dark:bg-gray-800">
                           <tr>
-                            <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"> Name</th>
-                            <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6">Agency Name</th>
-                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300">Email</th>
-                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300">Phone</th>
-                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300">Actions</th>
+                            <th
+                              scope="col"
+                              className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
+                            >
+                              {" "}
+                              Name
+                            </th>
+                            <th
+                              scope="col"
+                              className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300 sm:pl-6"
+                            >
+                              Agency Name
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                            >
+                              Email
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                            >
+                              Phone
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-3 py-3.5 text-left text-sm font-semibold text-blue-700 dark:text-indigo-300"
+                            >
+                              Actions
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
                           {teamMembers.map((teamMember) => (
-                            <tr key={teamMember._id} className="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors">
+                            <tr
+                              key={teamMember._id}
+                              className="hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors"
+                            >
                               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                 <div className="flex items-center">
                                   <div className="ml-4">
-                                    <div className="font-semibold text-gray-900 dark:text-white">{teamMember.name || "N/A"}</div>
+                                    <div className="font-semibold text-gray-900 dark:text-white">
+                                      {teamMember.name || "N/A"}
+                                    </div>
                                   </div>
                                 </div>
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 dark:text-white font-medium">
                                 {teamMember?.agencyId?.name || "N/A"}
                               </td>
+                             
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-blue-700 dark:text-indigo-300 font-semibold">
-                                {teamMember?.email || "N/A"}
+                                {teamMember?.email ? (
+                                  <a
+                                    href={`mailto:${teamMember.email}`}
+                                    className="hover:underline"
+                                  >
+                                    {teamMember.email || "N/A"}
+                                  </a>
+                                ) : (
+                                  "N/A"
+                                )}
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-blue-700 dark:text-indigo-300 font-semibold">
-                                {teamMember.phone || "N/A"}
+                                {teamMember.phone ? (
+                                  <a
+                                    href={`tel:${teamMember.phone}`}
+                                    className="hover:underline"
+                                  >
+                                    {teamMember.phone}
+                                  </a>
+                                ) : (
+                                  "N/A"
+                                )}
                               </td>
+
                               <td className="whitespace-nowrap px-3 py-4 text-sm flex gap-2">
                                 <button
                                   onClick={() => handleDeleteClick(teamMember)}
@@ -209,8 +269,12 @@ export default function TeamMembers() {
                           <td colSpan={6} className="text-center py-16">
                             <div className="flex flex-col items-center justify-center">
                               <Building2 className="h-16 w-16 text-blue-300 mb-4" />
-                              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No team members yet</h3>
-                              <p className="text-gray-500 dark:text-gray-400 mb-6">Start building your team member base.</p>
+                              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                No team members yet
+                              </h3>
+                              <p className="text-gray-500 dark:text-gray-400 mb-6">
+                                Start building your team member base.
+                              </p>
                             </div>
                           </td>
                         </tr>
@@ -264,6 +328,6 @@ export default function TeamMembers() {
         cancelText="Back"
         confirmColor="bg-red-600 hover:bg-red-700"
       />
-    </div >
+    </div>
   );
 }
