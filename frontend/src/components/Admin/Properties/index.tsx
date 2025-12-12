@@ -24,20 +24,21 @@ export default function Properties() {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
+  // const [totalRecords, setTotalRecords] = useState(0);
   const limit = "10";
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const searchParams = useSearchParams();
   const agencyId = searchParams.get("agencyId");
+   const [totalUnfiltered, setTotalUnfiltered] = useState(0); 
 
   const propertyStats = [
     {
       name: "Total Properties",
-      value: totalRecords,
+      value: totalUnfiltered,
       icon: Building2,
       color: "bg-blue-500",
-    }
+    },
   ];
 
   useEffect(() => {
@@ -57,6 +58,8 @@ export default function Properties() {
     try {
       const response = await deletePropertyById(id);
       if (response.data.success) {
+        //  setTotalRecords((prev) => prev - 1);
+        setTotalUnfiltered((prev) => prev - 1);
         setProperties((prev) => prev.filter((c) => c._id !== id));
         showSuccessToast("Property deleted successfully");
       }
@@ -69,6 +72,7 @@ export default function Properties() {
     async (
       page = 1,
       search = "",
+      status= "",
       agencyIdParam = "",
       append = false
     ) => {
@@ -85,7 +89,8 @@ export default function Properties() {
           setProperties((prev) => (append ? [...prev, ...res.data] : res.data));
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
-          setTotalRecords(res.pagination?.totalProperties ?? 0);
+          // setTotalRecords(res.pagination?.total ?? 0); // ✅ CHANGED: Now uses 'total'
+          setTotalUnfiltered(res.pagination?.totalUnfiltered ?? 0); // ✅ NEW: Set totalUnfiltered
         }
       } catch (error) {
         showErrorToast("Error:", error);
@@ -102,11 +107,7 @@ export default function Properties() {
       finalAgencyId = agencyId;
     }
     setProperties([]);
-    getAllProperty(
-      1,
-      debouncedSearchTerm,
-      finalAgencyId || ""
-    );
+    getAllProperty(1, debouncedSearchTerm, "", finalAgencyId || "", false);
   }, [getAllProperty, debouncedSearchTerm, agencyId]);
 
   const handlePageChange = (page: number) => {
@@ -115,6 +116,7 @@ export default function Properties() {
     getAllProperty(
       page,
       debouncedSearchTerm,
+      "", 
       finalAgencyId,
       true
     );
