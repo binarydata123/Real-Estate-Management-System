@@ -72,9 +72,19 @@ export default function CustomerDetailsPopup({
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                   {customerData?.role === "customer" ? "Customer" : "Agent"} Email
                 </p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {customerData.email || "N/A"}
-                </p>
+
+                {customerData.email ? (
+                  <a
+                    href={`mailto:${customerData.email}`}
+                    className="text-sm font-semibold text-gray-900 dark:text-white hover:underline"
+                  >
+                    {customerData.email}
+                  </a>
+                ) : (
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    N/A
+                  </p>
+                )}
               </div>
             </div>
 
@@ -83,7 +93,12 @@ export default function CustomerDetailsPopup({
               <div className="grid grid-cols-1 gap-3">
                 {/* WhatsApp Number */}
                 {customerData.whatsAppNumber && (
-                  <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <a
+                    href={`tel:${customerData.whatsAppNumber}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800"
+                  >
                     <MessageCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <div className="flex-1">
                       <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -93,12 +108,15 @@ export default function CustomerDetailsPopup({
                         {customerData.whatsAppNumber}
                       </p>
                     </div>
-                  </div>
+                  </a>
                 )}
 
                 {/* Phone Number */}
-                {(customerData.phoneNumber || customerData.phone) && (
-                  <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                {customerData.phoneNumber && (
+                  <a
+                    href={`tel:${customerData.phoneNumber}`}
+                    className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
+                  >
                     <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     <div className="flex-1">
                       <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -108,7 +126,7 @@ export default function CustomerDetailsPopup({
                         {customerData.phoneNumber || customerData.phone}
                       </p>
                     </div>
-                  </div>
+                  </a>
                 )}
               </div>
             </div>

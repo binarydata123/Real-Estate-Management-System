@@ -185,12 +185,14 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                     <p className="text-lg text-gray-600 mb-3">
                       {/* {agency.title} */}
                     </p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <span className="flex items-center space-x-1">
-                        <User className="w-4 h-4" />
-                        <span>{property?.owner_name}</span>
-                      </span>
-                    </div>
+                    {property?.owner_name && (
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <span className="flex items-center space-x-1">
+                          <User className="w-4 h-4" />
+                          <span>{property.owner_name}</span>
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -209,10 +211,11 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 py-4 px-6 text-center font-medium transition-colors ${activeTab === tab.id
-                    ? "bg-primary/10 text-primary border-b-2 border-primary"
-                    : "text-gray-600 hover:text-gray-900"
-                    }`}
+                  className={`flex-1 py-4 px-6 text-center font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? "bg-primary/10 text-primary border-b-2 border-primary"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
                 >
                   {tab.label}
                 </button>
@@ -228,7 +231,9 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                   <h3 className="text-lg font-semibold text-gray-900">
                     Property Share
                   </h3>
-                  <span className="text-sm text-gray-500">Total Records: {propertySharesTotalRecords}</span>
+                  <span className="text-sm text-gray-500">
+                    Total Records: {propertySharesTotalRecords}
+                  </span>
                 </div>
                 <div className="flex-1">
                   <label htmlFor="search" className="sr-only">
@@ -266,7 +271,9 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                       alt="No Data"
                       className="mx-auto w-48 h-48 object-contain"
                     />
-                    <p className="text-gray-500 mt-2">No Property Share found.</p>
+                    <p className="text-gray-500 mt-2">
+                      No Property Share found.
+                    </p>
                   </div>
                 )}
                 {propertySharesTotalRecords > 0 && (
@@ -275,7 +282,9 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                     totalPages={propertySharesTotalPages}
                     onPageChange={handlePropertySharesPageChange}
                     isLoading={isLoading}
-                    hasMore={propertySharesCurrentPage < propertySharesTotalPages}
+                    hasMore={
+                      propertySharesCurrentPage < propertySharesTotalPages
+                    }
                     loader={
                       <div className="text-center py-4">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -296,7 +305,9 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                   <h3 className="text-lg font-semibold text-gray-900">
                     Property Feedback
                   </h3>
-                  <span className="text-sm text-gray-500">Total Records: {propertyFeedbacksTotalRecords}</span>
+                  <span className="text-sm text-gray-500">
+                    Total Records: {propertyFeedbacksTotalRecords}
+                  </span>
                 </div>
                 <div className="flex-1">
                   <label htmlFor="search" className="sr-only">
@@ -334,7 +345,9 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                       alt="No Data"
                       className="mx-auto w-48 h-48 object-contain"
                     />
-                    <p className="text-gray-500 mt-2">No Property Feedbacks found.</p>
+                    <p className="text-gray-500 mt-2">
+                      No Property Feedbacks found.
+                    </p>
                   </div>
                 )}
                 {propertyFeedbacksTotalRecords > 0 && (
@@ -343,7 +356,9 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                     totalPages={propertyFeedbacksTotalPages}
                     onPageChange={handlePropertyFeedbacksPageChange}
                     isLoading={isLoading}
-                    hasMore={propertyFeedbacksCurrentPage < propertyFeedbacksTotalPages}
+                    hasMore={
+                      propertyFeedbacksCurrentPage < propertyFeedbacksTotalPages
+                    }
                     loader={
                       <div className="text-center py-4">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -361,7 +376,9 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
             {activeTab === "meetings" && (
               <div className="space-y-3 md:space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Meetings</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Meetings
+                  </h3>
                   <span className="text-sm text-gray-500">
                     Total Records: {meetingsTotalRecords}
                   </span>
@@ -380,10 +397,18 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                   {meetings && meetings.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {meetings.map((meeting, index) => {
-                        const primaryImage = meeting.propertyData?.images?.length > 0 ? (() => {
-                          const primary = meeting.propertyData.images.find((img) => img.isPrimary);
-                          return getPropertyImageUrlWithFallback(primary?.url);
-                        })() : getPropertyImageUrlWithFallback();
+                        const primaryImage =
+                          meeting.propertyData?.images?.length > 0
+                            ? (() => {
+                                const primary =
+                                  meeting.propertyData.images.find(
+                                    (img) => img.isPrimary
+                                  );
+                                return getPropertyImageUrlWithFallback(
+                                  primary?.url
+                                );
+                              })()
+                            : getPropertyImageUrlWithFallback();
                         return (
                           <div
                             key={index}
@@ -405,27 +430,43 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                               {/* Customer Info */}
                               <div className="flex items-center justify-between">
                                 <h4 className="text-lg font-semibold text-gray-900">
-                                  {meeting.customerData?.fullName || 'N/A'}
+                                  {meeting.customerData?.fullName || "N/A"}
                                 </h4>
 
                                 <span
-                                  className={`px-3 py-1 text-xs font-medium rounded-full capitalize ${meeting.status === "completed"
-                                    ? "bg-green-100 text-green-700"
-                                    : meeting.status === "cancelled"
+                                  className={`px-3 py-1 text-xs font-medium rounded-full capitalize ${
+                                    meeting.status === "completed"
+                                      ? "bg-green-100 text-green-700"
+                                      : meeting.status === "cancelled"
                                       ? "bg-red-100 text-red-600"
                                       : meeting.status === "rescheduled"
-                                        ? "bg-yellow-100 text-yellow-700"
-                                        : "bg-blue-100 text-blue-700"
-                                    }`}
+                                      ? "bg-yellow-100 text-yellow-700"
+                                      : "bg-blue-100 text-blue-700"
+                                  }`}
                                 >
-                                  {meeting.status || 'N/A'}
+                                  {meeting.status || "N/A"}
                                 </span>
                               </div>
 
                               {/* Contact */}
                               <div className="space-y-1 text-sm text-gray-600">
-                                {meeting.customerData?.email && (<p>📧 {meeting.customerData?.email}</p>)}
-                                {meeting.customerData?.phoneNumber && (<p>📱 {meeting.customerData?.phoneNumber}</p>)}
+                                {meeting.customerData?.email && (
+                                  <p>
+                                    <a
+                                      href={`mailto:${meeting.customerData.email}`}
+                                      className="hover:underline"
+                                    >
+                                      📧 {meeting.customerData.email}
+                                    </a>
+                                  </p>
+                                )}
+                                {meeting.customerData?.phoneNumber && (
+                                  <p>
+                                    <a href= {`tel:${meeting.customerData.phoneNumber}`}>
+                                      📱 {meeting.customerData?.phoneNumber}
+                                    </a>
+                                  </p>
+                                )}
                               </div>
 
                               {/* Divider */}
@@ -434,7 +475,7 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                               {/* Property Info */}
                               <div>
                                 <h5 className="font-medium text-gray-900">
-                                  {meeting.propertyData?.title || 'N/A'}
+                                  {meeting.propertyData?.title || "N/A"}
                                 </h5>
                                 {meeting.propertyData?.location && (
                                   <p className="text-gray-600 text-sm">
@@ -443,7 +484,8 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                                 )}
                                 {meeting.propertyData?.price && (
                                   <p className="text-primary font-semibold text-sm mt-1">
-                                    ₹ {meeting.propertyData?.price?.toLocaleString()}
+                                    ₹{" "}
+                                    {meeting.propertyData?.price?.toLocaleString()}
                                   </p>
                                 )}
                               </div>
@@ -453,18 +495,20 @@ export default function PropertyView({ propertyId }: { propertyId: string }) {
                                 <p className="text-gray-500">
                                   ⏱ {meeting.time} |{" "}
                                   {meeting.date
-                                    ? new Date(meeting.date).toLocaleDateString("en-US", {
-                                      day: "2-digit",
-                                      month: "short",
-                                      year: "numeric",
-                                    })
-                                    : "N/A"
-                                  }
+                                    ? new Date(meeting.date).toLocaleDateString(
+                                        "en-US",
+                                        {
+                                          day: "2-digit",
+                                          month: "short",
+                                          year: "numeric",
+                                        }
+                                      )
+                                    : "N/A"}
                                 </p>
                               </div>
                             </div>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   ) : (

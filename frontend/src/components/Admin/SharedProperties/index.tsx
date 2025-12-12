@@ -244,7 +244,7 @@ export default function SharedProperties() {
                                 </td>
                                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                                   <div className="flex items-center">
-                                    <div className="ml-4">
+                                    <div className="inline-flex items-center px-3 py-1.5 bg-blue-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-blue-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400" >
                                       {sharedProperty.customerData?.fullName ? (
                                         <div
                                           className="font-semibold text-blue-600 dark:text-white

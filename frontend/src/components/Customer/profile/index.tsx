@@ -158,7 +158,7 @@ export default function Profile() {
           </label>
           <input
             type="tel"
-            placeholder="Enter your WhatsApp number"
+            placeholder="Enter WhatsApp number"
             {...register("whatsapp")}
             className={`w-full px-4 py-2.5 border ${
               errors.whatsapp ? "border-red-500" : "border-gray-200"

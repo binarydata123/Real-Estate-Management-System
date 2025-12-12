@@ -245,7 +245,7 @@ export default function Properties() {
                                   <div className="font-semibold text-gray-900 dark:text-white">
                                     {property._id ? (
                                       <Link
-                                      className="text-blue-600 font-semibold"
+                                      className="text-blue-600 font-semibold hover:underline"
                                       href={`/admin/properties/${property._id}`}
                                     >
                                       {property.title || property._id}

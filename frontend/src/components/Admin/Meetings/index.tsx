@@ -335,8 +335,7 @@ export default function Meetings() {
                                       {meeting.propertyData?._id ? (
                                         <Link
                                           href={`/admin/properties/${meeting.propertyData._id}`}
-                                          className="font-semibold text-blue-600 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
-                                        >
+                                          className="inline-flex items-center px-3 py-1.5 bg-blue-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-blue-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">
                                           {meeting.propertyData.title || "N/A"}
                                         </Link>
                                       ) : (
@@ -354,7 +353,7 @@ export default function Meetings() {
                                       {meeting.agencyData?._id ? (
                                         <Link
                                           href={`/admin/agencies/${meeting.agencyData._id}`}
-                                          className="font-semibold text-blue-600 dark:text-white hover:underline hover:text-blue-600 cursor-pointer"
+                                          className="inline-flex items-center px-3 py-1.5 bg-violet-50 font-semibold text-blue-600 font-medium rounded hover:underline hover:bg-violet-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400"
                                         >
                                           {meeting.agencyData.name || "N/A"}
                                         </Link>
@@ -372,12 +371,12 @@ export default function Meetings() {
                                       <div className="font-medium text-gray-900 dark:text-white">
                                         {meeting.date
                                           ? new Date(
-                                            meeting.date
-                                          ).toLocaleDateString("en-US", {
-                                            day: "2-digit",
-                                            month: "short",
-                                            year: "numeric",
-                                          })
+                                              meeting.date
+                                            ).toLocaleDateString("en-US", {
+                                              day: "2-digit",
+                                              month: "short",
+                                              year: "numeric",
+                                            })
                                           : "N/A"}
                                       </div>
                                     </div>
