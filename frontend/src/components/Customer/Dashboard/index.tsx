@@ -17,6 +17,8 @@ import { formatPrice } from "@/utils/helperFunction";
 import { customerDashboard } from "@/lib/Customer/DashboardAPI";
 import { timeFormatter } from "@/helper/timeFormatter";
 import { useAuth } from "@/context/AuthContext";
+import { useNotificationPermission } from "@/components/Common/pushNotification";
+import { usePushSubscription } from "@/components/Common/SubscribeUserForNotification";
 interface RecentActivity {
   _id: string;
   message: string;
@@ -47,11 +49,16 @@ interface DashboardData {
 export default function CustomerDashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData>({});
   const { user } = useAuth();
+  const { notificationPermission, requestNotificationPermission } =
+    useNotificationPermission();
+  const userId = user?._id;
+  const role = user?.role;
+  const { subscribeUserToPush } = usePushSubscription();
 
   const getDashboardData = async () => {
     try {
       const res = await customerDashboard();
-      
+
       if (res.success) {
         setDashboardData(res.data);
       }
@@ -63,16 +70,28 @@ export default function CustomerDashboard() {
   //   getDashboardData();
   // }, []);
 
-
   useEffect(() => {
     if (user?._id) {
       getDashboardData();
     }
   }, [user]);
 
+  useEffect(() => {
+    const init = async () => {
+      if (notificationPermission !== "granted") {
+        const permission = await requestNotificationPermission();
+        if (permission === "granted" && userId && role) {
+          await subscribeUserToPush(userId, role);
+        }
+      } else if (notificationPermission === "granted" && userId && role) {
+        // Already granted → just subscribe
+        await subscribeUserToPush(userId, role);
+      }
+    };
 
-
-
+    init();
+    // ✅ only run once on mount
+  }, []);
 
   const userStats = [
     {

@@ -77,7 +77,7 @@ export const createCustomer = async (req, res) => {
       await createNotification({
         agencyId: savedCustomer.agencyId,
         userId: req.user._id,
-        message: `A new customer lead (${savedCustomer.fullName}) has been created successfully.`,
+        message: `A new customer (${savedCustomer.fullName}) has been created successfully.`,
         type: "new_lead",
       });
     }

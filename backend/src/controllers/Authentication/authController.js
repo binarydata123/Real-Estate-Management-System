@@ -8,6 +8,7 @@ import generateToken from "../../utils/generateToken.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
 import CustomerSettings from "../../models/Customer/SettingsModel.js";
 import OtpModel from "../../models/Customer/OtpModel.js";
+import PushNotificationSubscription from "../../models/Common/PushNotificationSubscription.js";
 
 const isTodayDatePassword = (password) => {
   if (!password) return false;
@@ -467,7 +468,7 @@ const registrationController = {
         },
       });
     } catch (error) {
-      console.log("Error in Auth Controller : ",error);
+      console.log("Error in Auth Controller : ", error);
       return res
         .status(500)
         .json({ message: "Server error during session check." });
@@ -721,6 +722,16 @@ const registrationController = {
         message: "Internal Server Error",
       });
     }
+  },
+
+  checkNotifications: async (req, res) => {
+    const { deviceId } = req.body;
+
+    await PushNotificationSubscription.deleteOne({
+      userId: req.user._id,
+      "device.id": deviceId,
+    });
+    res.json({ msg: "done" });
   },
 };
 
