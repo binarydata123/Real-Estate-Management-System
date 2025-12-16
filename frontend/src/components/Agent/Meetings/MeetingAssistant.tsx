@@ -91,14 +91,14 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
 
       const sessionRes = await startMeetingSession({
         assistantId: AssistantId as string,
-        userId: user?._id as string,
+        userId: user?.agency?._id as string,
       });
 
       const sessionData = sessionRes?.data ?? sessionRes;
       if (!sessionData?.sessionId) throw new Error("Session creation failed");
 
       await vapi.start(AssistantId, {
-        metadata: { userId: user?._id, token: token },
+        metadata: { userId: user?.agency?._id, token: token },
       });
     } catch (err) {
       showErrorToast("❌ Failed to start meeting assistant:", err);
