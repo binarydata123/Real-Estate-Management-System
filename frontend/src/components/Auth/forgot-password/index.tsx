@@ -69,8 +69,14 @@ export default function ForgotPassword() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white rounded-lg md:rounded-2xl shadow-xl md:p-8 p-4">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 flex items-center justify-center p-4">
+            <Link href="/" className="fixed top-4 left-4 text-gray-600 hover:text-gray-900 font-medium transition-colors flex items-center gap-2 z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                <span className="hidden sm:inline">Back to Home</span>
+            </Link>
+            <div className="max-w-md w-full bg-white rounded-2xl shadow-xl md:p-8 p-6 border border-gray-100">
                 {/* Logo */}
                 <div className="text-center md:mb-8 mb-4">
                     {settingsData?.logoUrl
@@ -88,9 +94,9 @@ export default function ForgotPassword() {
                                 <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
                             </div>
                     }
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Forgot Password</h1>
-                    <p className="text-gray-600 mt-1">
-                        Enter your email to receive a reset link.
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Reset Your Password</h1>
+                    <p className="text-gray-600 mt-2 md:mt-3">
+                        Enter your email address and we'll send you a link to reset your password.
                     </p>
                 </div>
 
@@ -133,9 +139,31 @@ export default function ForgotPassword() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full flex items-center justify-center bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                        {loading ? "Sending..." : "Send Reset Link"}
+                        {loading && (
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                        )}
+                        {loading ? "Sending Link..." : "Send Reset Link"}
                     </button>
                 </form>
 

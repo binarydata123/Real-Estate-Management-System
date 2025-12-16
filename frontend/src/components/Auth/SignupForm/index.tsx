@@ -135,8 +135,14 @@ const SignupForm = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-200 to-purple-200 flex items-center justify-center p-4">
-      <div className="max-w-lg w-full bg-white/80  rounded-2xl shadow-2xl md:p-8 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 flex items-center justify-center p-4">
+      <Link href="/" className="fixed top-4 left-4 text-gray-600 hover:text-gray-900 font-medium transition-colors flex items-center gap-2 z-10">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        <span className="hidden sm:inline">Back to Home</span>
+      </Link>
+      <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl md:p-8 p-6 border border-gray-100">
         {/* Logo */}
         <div className="text-center md:mb-8 mb-3">
           {settingsData?.logoUrl
@@ -155,10 +161,10 @@ const SignupForm = () => {
               </div>
           }
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Create Your Agency
+            Create Your Agency Account
           </h1>
           <p className="text-gray-600 md:mt-2 hidden md:block">
-            Start managing your real estate business
+            Join thousands of successful real estate professionals
           </p>
         </div>
 
@@ -280,7 +286,6 @@ const SignupForm = () => {
               Sign In
             </Link>
           </p>
-          message
         </div>
       </div>
     </div>
