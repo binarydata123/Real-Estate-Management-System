@@ -51,6 +51,7 @@ const customerSchema = new mongoose.Schema({
     type: String,
     enum: {
       values: [
+        "manual",
         "website",
         "referral",
         "social_media",
@@ -60,7 +61,7 @@ const customerSchema = new mongoose.Schema({
         "other",
       ],
       message:
-        "Lead source must be one of: website, referral, social_media, advertisement, walk_in, cold_call, other",
+        "Lead source must be one of: manual, website, referral, social_media, advertisement, walk_in, cold_call, other",
     },
   },
   initialNotes: { type: String },

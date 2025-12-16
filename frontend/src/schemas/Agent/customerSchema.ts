@@ -31,6 +31,7 @@ export const customerSchema = z
 
     leadSource: z
       .enum([
+        "manual",
         "website",
         "referral",
         "social_media",

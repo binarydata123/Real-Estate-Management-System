@@ -109,3 +109,34 @@ export const getMeetingById = async (req, res) => {
 };
 
 
+// Customer: update meeting status (cancel / reschedule)
+export const updateMeetingStatusByCustomer = async (req,res)=>{
+  try{
+    const customerId = req.user._id;
+    const {status} = req.body;
+
+    if(!status){
+      return res.status(400).json({
+        success:false,
+        message:"Status is required"
+
+      });
+    }
+
+    const meeting = await Meetings.findOneAndUpdate({
+      id: req.params.id,
+      customerId,    //customer can update only their meeting
+    },{status},{new:true,runValidators:true});
+    if(!meeting){
+      return res.status(404).json({
+        success:false,
+        message:"Meeting not found or unauthorized",
+      })
+    }
+    return res.json({success:true,data:meeting});
+  }catch(error){
+    return res.status(400).json({success:false,message:error.messsage})
+  }
+  }
+
+

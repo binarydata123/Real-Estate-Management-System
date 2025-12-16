@@ -7,7 +7,6 @@ import { PreferenceFeedbacks } from "../../models/Agent/PreferenceFeedbackModel.
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
-
 // Get all properties
 
 export const getProperties = async (req, res) => {
@@ -70,7 +69,7 @@ export const getProperties = async (req, res) => {
         data: [],
         pagination: {
           total: 0,
-          totalUnfiltered: totalUnfiltered, 
+          totalUnfiltered: totalUnfiltered,
           page: pageNumber,
           limit: limitNumber,
           totalPages: 0,
@@ -168,32 +167,47 @@ export const getPropertyById = async (req, res) => {
     if (meetingsSearch) {
       searchQuery.$or = [];
       if (meetingsSearch && typeof meetingsSearch === "string") {
-        searchQuery.$or.push({ fullName: { $regex: meetingsSearch, $options: "i" } });
+        searchQuery.$or.push({
+          fullName: { $regex: meetingsSearch, $options: "i" },
+        });
       }
     }
 
     if (propertyShareSearch) {
       searchQuery.$or = [];
       if (propertyShareSearch && typeof propertyShareSearch === "string") {
-        searchQuery.$or.push({ fullName: { $regex: propertyShareSearch, $options: "i" } });
+        searchQuery.$or.push({
+          fullName: { $regex: propertyShareSearch, $options: "i" },
+        });
       }
     }
     if (propertyFeedbackSearch) {
       searchQuery.$or = [];
-      if (propertyFeedbackSearch && typeof propertyFeedbackSearch === "string") {
-        searchQuery.$or.push({ fullName: { $regex: propertyFeedbackSearch, $options: "i" } });
+      if (
+        propertyFeedbackSearch &&
+        typeof propertyFeedbackSearch === "string"
+      ) {
+        searchQuery.$or.push({
+          fullName: { $regex: propertyFeedbackSearch, $options: "i" },
+        });
       }
     }
     const property = await Property.findById({ _id: propertyId });
 
     // PAGINATED MEETINGS (AGGREGATE)
-    const totalMeetings = await Meetings.countDocuments({ propertyId: propertyId }, searchQuery);
-    let propertyMeetings = await Meetings.find({ propertyId: propertyId }, searchQuery)
+    const totalMeetings = await Meetings.countDocuments(
+      { propertyId: propertyId },
+      searchQuery
+    );
+    let propertyMeetings = await Meetings.find(
+      { propertyId: propertyId },
+      searchQuery
+    )
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('customerId')
-      .populate('propertyId')
+      .populate("customerId")
+      .populate("propertyId")
       .lean();
 
     propertyMeetings = propertyMeetings.map((item) => ({
@@ -204,23 +218,35 @@ export const getPropertyById = async (req, res) => {
       propertyId: undefined,
     }));
 
-    const totalPropertyShares = await PropertyShare.countDocuments({ propertyId: propertyId }, searchQuery);
-    const propertyShares = await PropertyShare.find({ propertyId: propertyId }, searchQuery)
+    const totalPropertyShares = await PropertyShare.countDocuments(
+      { propertyId: propertyId },
+      searchQuery
+    );
+    const propertyShares = await PropertyShare.find(
+      { propertyId: propertyId },
+      searchQuery
+    )
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('propertyId')
-      .populate('sharedWithUserId')
-      .populate('sharedByUserId')
+      .populate("propertyId")
+      .populate("sharedWithUserId")
+      .populate("sharedByUserId")
       .lean();
 
-    const totalPropertyFeedbacks = await PreferenceFeedbacks.countDocuments({ propertyId: propertyId }, searchQuery);
-    const propertyFeedbacks = await PreferenceFeedbacks.find({ propertyId: propertyId }, searchQuery)
+    const totalPropertyFeedbacks = await PreferenceFeedbacks.countDocuments(
+      { propertyId: propertyId },
+      searchQuery
+    );
+    const propertyFeedbacks = await PreferenceFeedbacks.find(
+      { propertyId: propertyId },
+      searchQuery
+    )
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('propertyId')
-      .populate('userId')
+      .populate("propertyId")
+      .populate("userId")
       .lean();
 
     if (!property) {
@@ -253,8 +279,8 @@ export const getPropertyById = async (req, res) => {
           page,
           limit,
           totalPages: Math.ceil(totalPropertyFeedbacks / limit),
-        }
-      }
+        },
+      },
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });

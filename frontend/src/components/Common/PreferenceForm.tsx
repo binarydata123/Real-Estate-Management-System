@@ -457,11 +457,13 @@ export default function PreferenceForm() {
   };
 
   const sendRequest = async () => {
+     setLoading(true); 
     try {
       const res = await sendRequestToCustomer(customerId as string);
 
       if (res.success) {
         showToast(res.message, "success");
+        setRequestSent(true);
         // Show warning if push notification failed
         if (res.customerPushNotificationResult) {
           showToast(res.customerPushNotificationResult, "warning");
@@ -469,6 +471,8 @@ export default function PreferenceForm() {
       }
     } catch (error) {
       showErrorToast("Error:", error);
+    } finally {
+      setLoading(false); // ✅ Always stop loading
     }
   };
 
@@ -490,10 +494,10 @@ export default function PreferenceForm() {
               disabled={loading || requestSent}
               className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {requestSent
-                ? "Request Sent"
-                : loading
+              {loading
                 ? "Sending..."
+                : requestSent
+                ? "Request Sent ✓"
                 : "Send Request"}
             </button>
           )}
@@ -506,8 +510,15 @@ export default function PreferenceForm() {
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-3 md:space-y-6"
       >
-        <FormSection title={isReadOnly === false ? "About You" : "About Customer"} className="space-y-3">
-          <Field label={isReadOnly === false ? "I am a..." : "They are a..."} error={errors.userType} required>
+        <FormSection
+          title={isReadOnly === false ? "About You" : "About Customer"}
+          className="space-y-3"
+        >
+          <Field
+            label={isReadOnly === false ? "I am a..." : "They are a..."}
+            error={errors.userType}
+            required
+          >
             <IconRadio
               name="userType"
               options={userTypeOptions}
@@ -691,15 +702,17 @@ export default function PreferenceForm() {
 
         {isReadOnly === false ? (
           <div className="flex justify-end pb-1">
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Saving..." : "Save Preferences"}
-          </button>
-        </div>
-        ) : ""}
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Saving..." : "Save Preferences"}
+            </button>
+          </div>
+        ) : (
+          ""
+        )}
       </form>
     </>
   );

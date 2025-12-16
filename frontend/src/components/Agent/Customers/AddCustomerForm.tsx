@@ -46,11 +46,15 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
 
   useEffect(() => {
     if (initialData) {
-      reset(initialData);
-      setShowMoreInfo(true); // Open more info section when editing
-    } else {
-      reset({ leadSource: "website" });
-    }
+    reset({
+      ...initialData,
+      //If no whatsapp number than use by default phone
+      whatsAppNumber: initialData.whatsAppNumber || initialData.phoneNumber,
+    });
+    setShowMoreInfo(true); // Open more info section when editing
+  } else {
+    reset({ leadSource: "website" });
+  }
   }, [initialData, reset]);
 
   const onSubmit: SubmitHandler<CustomerFormDataSchema> = async (data) => {
@@ -202,6 +206,31 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                     </p>
                   )}
                 </div>
+                {/* <div>
+                  <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
+                    WhatsApp Number
+                  </label>
+                  <input
+                    type="tel"
+                    {...register("whatsAppNumber", {
+                      onChange: (e) => {
+                        e.target.value = e.target.value.replace(/[^\d+]/g, "");
+                      },
+                    })}
+                    maxLength={13}
+                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
+                    placeholder="Enter WhatsApp number"
+                  />
+                  {errors.whatsAppNumber && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.whatsAppNumber.message}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Used for deduplication and communication
+                  </p>
+                </div> */}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
                     WhatsApp Number
@@ -303,6 +332,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   <option value="" disabled>
                     Select lead source...
                   </option>
+                  <option value="manual">Manual</option>
                   <option value="website">Website</option>
                   <option value="referral">Referral</option>
                   <option value="social_media">Social Media</option>
@@ -339,7 +369,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                   <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
                 </div>
                 <span className="ml-2 text-sm text-gray-700">
-                  Show More Info
+                  Show All Property
                 </span>
               </label>
             </div>
