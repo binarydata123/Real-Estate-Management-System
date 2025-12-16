@@ -15,6 +15,7 @@ import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import { formatPrice } from "@/utils/helperFunction";
 import { NoData } from "@/components/Common/NoData";
 import { Users } from "lucide-react";
+import { AddMeetingForm } from "@/components/Agent/Meetings/AddMeetingForm";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -44,6 +45,9 @@ export const Customers: React.FC = () => {
   const limit = 10;
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [openMeetingModal, setOpenMeetingModal] = useState(false);
+  const [meetingCustomer, setMeetingCustomer] =
+    useState<CustomerFormData | null>(null);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -257,6 +261,17 @@ export const Customers: React.FC = () => {
                       >
                         Delete
                       </span>
+
+                      <span
+                        className="cursor-pointer text-purple-600 p-1 rounded hover:text-purple-700 text-sm font-medium"
+                        onClick={() => {
+                          setMeetingCustomer(customer);
+                          setOpenMeetingModal(true);
+                        }}
+                      >
+                        Meeting
+                      </span>
+
                       <span
                         onClick={() => {
                           setViewCustomer(customer);
@@ -347,21 +362,21 @@ export const Customers: React.FC = () => {
           initialData={
             editingCustomer
               ? {
-                fullName: editingCustomer.fullName,
-                phoneNumber: editingCustomer.phoneNumber ?? "",
-                email: editingCustomer.email ?? "",
-                whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
-                minimumBudget: editingCustomer.minimumBudget
-                  ? Number(editingCustomer.minimumBudget)
-                  : undefined,
-                maximumBudget: editingCustomer.maximumBudget
-                  ? Number(editingCustomer.maximumBudget)
-                  : undefined,
-                leadSource: editingCustomer.leadSource ?? "website",
-                initialNotes: editingCustomer.initialNotes ?? "",
-                showAllProperty: editingCustomer.showAllProperty ?? false,
-                agencyId: editingCustomer.agencyId?._id ?? "",
-              }
+                  fullName: editingCustomer.fullName,
+                  phoneNumber: editingCustomer.phoneNumber ?? "",
+                  email: editingCustomer.email ?? "",
+                  whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
+                  minimumBudget: editingCustomer.minimumBudget
+                    ? Number(editingCustomer.minimumBudget)
+                    : undefined,
+                  maximumBudget: editingCustomer.maximumBudget
+                    ? Number(editingCustomer.maximumBudget)
+                    : undefined,
+                  leadSource: editingCustomer.leadSource ?? "website",
+                  initialNotes: editingCustomer.initialNotes ?? "",
+                  showAllProperty: editingCustomer.showAllProperty ?? false,
+                  agencyId: editingCustomer.agencyId?._id ?? "",
+                }
               : undefined
           }
           customerId={editingCustomer?._id}
@@ -390,6 +405,23 @@ export const Customers: React.FC = () => {
         onClose={() => setOpen(false)}
         customer={viewCustomer}
       />
+
+      {openMeetingModal && meetingCustomer && (
+        <AddMeetingForm
+          onClose={() => {
+            setOpenMeetingModal(false);
+            setMeetingCustomer(null);
+          }}
+          selectedCustomer={{
+            id: meetingCustomer._id,
+            name: meetingCustomer.fullName,
+          }}
+          onSuccess={() => {
+            setOpenMeetingModal(false);
+            setMeetingCustomer(null);
+          }}
+        />
+      )}
     </div>
   );
 };
