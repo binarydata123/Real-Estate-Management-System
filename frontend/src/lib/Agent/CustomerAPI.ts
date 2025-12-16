@@ -47,7 +47,7 @@ export const deleteCustomerById = async (id: string) => {
 
 export const getCustomersForDropDown = async (userId: string) => {
   const response = await api.get<CustomerResponse>(
-    `/agent/customers/get-all-for-dropDown?userId=${userId}`,
+    `/agent/customers/get-all-for-dropDown/${userId}`,
   );
   return response.data;
 };

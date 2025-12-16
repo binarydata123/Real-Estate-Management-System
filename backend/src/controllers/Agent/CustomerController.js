@@ -180,7 +180,7 @@ export const getCustomers = async (req, res) => {
 
 export const getCustomersForDropDown = async (req, res) => {
   try {
-    const agencyId = req.user.agencyId._id;
+    const agencyId = req.params.id;
 
     if (!agencyId) {
       return res.status(400).json({

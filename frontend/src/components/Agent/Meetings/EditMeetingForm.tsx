@@ -85,7 +85,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   useEffect(() => {
     const init = async () => {
       if (user?._id) {
-        const result = await getCustomersForDropDown(user?._id);
+        const result = await getCustomersForDropDown(user?.agency?._id as string);
 
         // extract only _id and fullName
         const filtered = result.data
