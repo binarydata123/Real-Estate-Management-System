@@ -43,7 +43,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
     const init = async () => {
       if (user?._id) {
         // Fetch customers
-        const result = await getCustomersForDropDown(user?._id);
+        const result = await getCustomersForDropDown(user?.agency?._id as string);
         const filteredCustomers = result.data
           .map((c: CustomerFormData) => ({
             id: c._id,
@@ -117,7 +117,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   useEffect(() => {
     const init = async () => {
       if (user?._id) {
-        const result = await getCustomersForDropDown(user?._id);
+        const result = await getCustomersForDropDown(user?.agency?._id as string);
 
         // extract only _id and fullName
         const filtered = result.data
