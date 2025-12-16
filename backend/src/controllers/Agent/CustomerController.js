@@ -181,7 +181,7 @@ export const getCustomers = async (req, res) => {
 export const getCustomersForDropDown = async (req, res) => {
   try {
     const agencyId = req.params.id;
-
+    console.log("API CALLED");
     if (!agencyId) {
       return res.status(400).json({
         success: false,
@@ -193,7 +193,7 @@ export const getCustomersForDropDown = async (req, res) => {
       agencyId: agencyId,
       isDeleted: { $ne: true },
     });
-
+    console.log(customers);
     if (!customers || customers.length === 0) {
       return res.status(200).json({
         success: true,

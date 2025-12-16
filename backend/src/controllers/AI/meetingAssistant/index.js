@@ -35,8 +35,6 @@ export const createMeetingRecord = async (req, res) => {
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
     }
-    console.log("Auth", req.user);
-    console.log("🔍 RAW BODY:", JSON.stringify(req.body, null, 2));
 
     // -------------------------------
     // HELPERS

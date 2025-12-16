@@ -91,7 +91,7 @@ export default function MeetingAssistant({ onClose }: MeetingAssistantProps) {
 
       const sessionRes = await startMeetingSession({
         assistantId: AssistantId as string,
-        userId: user?._id as string,
+        userId: user?.agency?._id as string,
       });
 
       const sessionData = sessionRes?.data ?? sessionRes;

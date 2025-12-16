@@ -16,7 +16,7 @@ router.post(
 );
 router.post(
   "/schedule-meeting",
-  protect(["agent", "admin"]),
+  // protect(["agent", "admin"]),
   createMeetingRecord
 );
 router.post(
