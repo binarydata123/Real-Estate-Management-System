@@ -3,6 +3,7 @@ import { Notification } from "../../models/Common/NotificationModel.js"; // Assu
 import { sendPushNotification } from "../../utils/pushService.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
 import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
+import CustomerSettings from "../../models/Customer/SettingsModel.js";
 
 // Utility: Convert invalid numbers to null
 const cleanNumber = (value) => {
@@ -39,7 +40,7 @@ const handlePostCreationNotifications = async (user, property) => {
           userId: user._id,
           title: "New Property Added",
           message: `A new property "${property.title}" has been successfully added.`,
-          urlPath: `/agent/properties/view/${property._id}`,
+          urlPath: `/agent/properties/${property._id}`,
         })
       );
     }
@@ -349,11 +350,14 @@ export const getProperties = async (req, res) => {
     // 🔹 Add new filters (skip empty strings)
     if (type && type !== "") filter.type = type;
     if (category && category !== "") filter.category = category;
-    if (unit_area_type && unit_area_type !== "") filter.unit_area_type = unit_area_type;
+    if (unit_area_type && unit_area_type !== "")
+      filter.unit_area_type = unit_area_type;
     if (facing && facing !== "") filter.facing = facing;
-    if (plot_dimension_unit && plot_dimension_unit !== "") filter.plot_dimension_unit = plot_dimension_unit;
+    if (plot_dimension_unit && plot_dimension_unit !== "")
+      filter.plot_dimension_unit = plot_dimension_unit;
     if (rera_status && rera_status !== "") filter.rera_status = rera_status;
-    if (transaction_type && transaction_type !== "") filter.transaction_type = transaction_type;
+    if (transaction_type && transaction_type !== "")
+      filter.transaction_type = transaction_type;
 
     // Handle boolean filter (normalize to 'yes'/'no')
     if (typeof is_corner_plot !== "undefined" && is_corner_plot !== "") {
@@ -393,11 +397,12 @@ export const getProperties = async (req, res) => {
 export const deleteProperty = async (req, res) => {
   try {
     const sharedProperty = await PropertyShare.find({
-      propertyId: req.params.id
+      propertyId: req.params.id,
     });
+    console.log("SHared Property is : ", sharedProperty);
     if (sharedProperty) {
       await PropertyShare.deleteMany({
-        propertyId: req.params.id
+        propertyId: req.params.id,
       });
     }
     const property = await Property.findByIdAndDelete(req.params.id);
@@ -426,6 +431,32 @@ export const deleteProperty = async (req, res) => {
         message: `The property "${property.title}" has been successfully deleted.`,
         urlPath: `/agent/properties/view/${property._id}`,
       });
+
+    if (sharedProperty) {
+      const customerSettings = await CustomerSettings.findOne({
+            userId: sharedProperty?.sharedWithUserId,
+          });
+
+          console.log("Customer Settings are : ",customerSettings);
+
+      if (customerSettings?.notifications?.pushNotifications) {
+        await sendPushNotification({
+          userId: sharedProperty?.sharedWithUserId,
+          title: "Property Deleted",
+          message: `The property "${property.title}" shared with you has been deleted.`,
+          urlPath: `/customer/properties/${property._id}`,
+        });
+      }
+
+      if (customerSettings?.notifications?.propertyUpdates)
+      await Notification.create({
+        userId: sharedProperty?.sharedWithUserId,
+        agencyId: property.agencyId,
+        message: `Property "${property.title}" has been deleted.`,
+        type: "property_deleted",
+        link: `/agent/properties/${property._id}`,
+      });
+    }
 
     return res.status(200).json({
       success: true,

@@ -11,7 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
 import Cookies from "js-cookie";
-import { checkSession as checkSessionApi } from "@/lib/Authentication/AuthenticationAPI";
+import { checkSession as checkSessionApi, removeNotifications } from "@/lib/Authentication/AuthenticationAPI";
 import { AxiosError, AxiosResponse } from "axios";
 import { showErrorToast, setForceLogoutFlag } from "@/utils/toastHandler";
 import { brandColor } from "@/types/global";
@@ -222,6 +222,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     setForceLogoutFlag(false);
+    const deviceId = Cookies.get("deviceId");
+    await removeNotifications(session?.access_token as string,deviceId as string); 
     clearSession();
     router.push("/auth/login");
   };

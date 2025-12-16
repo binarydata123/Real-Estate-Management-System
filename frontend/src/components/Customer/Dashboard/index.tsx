@@ -16,6 +16,8 @@ import { formatPrice } from "@/utils/helperFunction";
 import { customerDashboard } from "@/lib/Customer/DashboardAPI";
 import { timeFormatter } from "@/helper/timeFormatter";
 import { useAuth } from "@/context/AuthContext";
+import { useNotificationPermission } from "@/components/Common/pushNotification";
+import { usePushSubscription } from "@/components/Common/SubscribeUserForNotification";
 
 interface RecentActivity {
   _id: string;
@@ -51,6 +53,11 @@ interface DashboardData {
 export default function CustomerDashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData>({});
   const { user } = useAuth();
+  const { notificationPermission, requestNotificationPermission } =
+    useNotificationPermission();
+  const userId = user?._id;
+  const role = user?.role;
+  const { subscribeUserToPush } = usePushSubscription();
 
   const getDashboardData = async () => {
     try {
@@ -70,28 +77,22 @@ export default function CustomerDashboard() {
     }
   }, [user]);
 
-  // Refetch dashboard data when showAllProperty toggle changes
   useEffect(() => {
-    if (user?._id) {
-      getDashboardData();
-    }
-  }, [user?.showAllProperty]);
+    const init = async () => {
+      if (notificationPermission !== "granted") {
+        const permission = await requestNotificationPermission();
+        if (permission === "granted" && userId && role) {
+          await subscribeUserToPush(userId, role);
+        }
+      } else if (notificationPermission === "granted" && userId && role) {
+        // Already granted → just subscribe
+        await subscribeUserToPush(userId, role);
+      }
+    };
 
-  // Calculate property count based on showAllProperty toggle
-  // const getPropertyCount = () => {
-  //   // Option 1: Use unified field (recommended)
-  //   // if (dashboardData?.totalProperties !== undefined) {
-  //   //   return dashboardData.totalProperties;
-  //   // }
-
-  //   // Option 2: Fallback to conditional logic
-  //   if (user?.showAllProperty === true) {
-  //     return dashboardData?.totalAllProperties || 0;
-  //   } 
-  //   else {
-  //     return dashboardData?.totalSharedProperties || 0;
-  //   }
-  // };
+    init();
+    // ✅ only run once on mount
+  }, []);
 
   const userStats = [
     {

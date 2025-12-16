@@ -9,15 +9,17 @@ import CustomerSettings from "../../models/Customer/SettingsModel.js";
 export const createPreference = async (req, res) => {
   try {
     const userId = req.body.customerId;
-    if(!userId){
+    const role = req.user.role;
+    if (!userId) {
       return res.status(400).json({
-        success:false,
-        message:"userId is required",
-
-      })
+        success: false,
+        message: "userId is required",
+      });
     }
-    
+
     const preferenceData = req.body;
+    console.log("Req.User : ", req.user);
+    console.log("preferenceData : ", preferenceData);
 
     // Use findOneAndUpdate with upsert to create a new preference if one doesn't exist,
     // or update the existing one. This is ideal for managing user preferences.
@@ -25,17 +27,71 @@ export const createPreference = async (req, res) => {
       { userId: userId }, // find a document with this filter
       { ...preferenceData, userId: userId }, // document to insert when nothing is found
       {
-        new: true, 
+        new: true,
         upsert: true,
         runValidators: true,
         setDefaultsOnInsert: true,
       } // options
     );
-    if(!savedPreference){
+    if (!savedPreference) {
       return res.status(400).json({
-        success:"false",
-        message:"Failed to saved preference"
-      })
+        success: "false",
+        message: "Failed to saved preference",
+      });
+    }
+
+    const agencySettings =
+      role === "agent"
+        ? await AgencySettings.findOne({
+            userId: req.user._id,
+          })
+        : "";
+    const customerSettings = await CustomerSettings.findOne({
+      userId: preferenceData?.customerId,
+    });
+
+    const customer = await Customer.findById(preferenceData?.customerId);
+
+    if (customerSettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: preferenceData?.customerId,
+        title: "Preference Updation",
+        message: role === 'agent' ? `Your Preferences Have Been Updated By ${req.user.agencyId.name}` : role === 'customer' ? `Your Preferences Have Been Updated Successfully!` : ``,
+        urlPath: "/customer/preferences",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+    if (agencySettings !== '' && agencySettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Preference Updation",
+        message: `Preferences of Customer ${customer.fullName} Have Been Updated Successfully!`,
+        urlPath: "/agent/preferences",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+
+    if (agencySettings !== '' && agencySettings?.notifications?.meetingReminders) {
+      await createNotification({
+        agencyId: req.user.agencyId._id,
+        userId: req.user._id,
+        message: `Preferences of Customer ${customer.fullName} Have Been Updated Successfully!`,
+        type: "meeting_scheduled",
+      });
+    }
+
+    if (customerSettings?.notifications?.meetingReminders) {
+      await createNotification({
+        userId: preferenceData?.customerId,
+        message: role === 'agent' ? `Your Preferences Have Been Updated By ${req.user.agencyId.name}` : role === 'customer' ? `Your Preferences Have Been Updated Successfully!` : ``,
+        type: "meeting_scheduled",
+      });
     }
 
     res.status(200).json({
@@ -62,7 +118,6 @@ export const getPreferenceDetail = async (req, res) => {
       sentToUserId: userId,
       sentByUserId: req.user._id,
     });
-
 
     res.status(200).json({
       success: true,

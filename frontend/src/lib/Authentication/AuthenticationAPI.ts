@@ -1,4 +1,4 @@
-import { AxiosResponse } from "axios";
+import { AxiosPromise, AxiosResponse } from "axios";
 import api from "../api";
 import { LoginData } from "@/components/Auth/LoginForm";
 
@@ -32,6 +32,14 @@ export const checkSession = async (token: string): Promise<AxiosResponse> => {
     },
   });
 };
+export const removeNotifications = async (token:string,deviceId:string): Promise<AxiosPromise> => {
+  return api.post("/auth/remove-notifications",
+    { deviceId }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
 export const changePassword = async (
   data: changePasswordData
 ): Promise<AxiosResponse> => {

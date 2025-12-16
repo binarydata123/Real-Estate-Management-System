@@ -38,7 +38,7 @@ export const createMeeting = async (req, res) => {
     if (customerSettings?.notifications?.meetingReminders) {
       await createNotification({
         userId: customer._id,
-        message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+        message: `${user.agencyId.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
         type: "meeting_scheduled",
       });
     }
@@ -47,11 +47,11 @@ export const createMeeting = async (req, res) => {
         userId: user._id,
         title: "Meeting Scheduled",
         message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
-        urlPath: "/meetings",
+        urlPath: "/agent/meetings",
         data: { meetingId: savedMeeting._id, token: agentToken },
         actions: [
-          { action: "confirm", title: "👍 Confirm" },
-          { action: "cancel", title: "👎 Cancel" },
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
         ],
       });
 
@@ -59,12 +59,12 @@ export const createMeeting = async (req, res) => {
       await sendPushNotification({
         userId: customer._id,
         title: "New Meeting Invitation",
-        message: `${user.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
-        urlPath: "/meetings",
+        message: `${user.agencyId.name} has scheduled a meeting with you on ${req.body.date} at ${req.body.time}.`,
+        urlPath: "/customer/meetings",
         data: { meetingId: savedMeeting._id, token: customerToken },
         actions: [
-          { action: "confirm", title: "👍 Confirm" },
-          { action: "cancel", title: "👎 Cancel" },
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
         ],
       });
 
@@ -213,7 +213,7 @@ export const updateMeeting = async (req, res) => {
     propertyId: correctPropertyId,
     status,
     time
-  }
+  };
   console.log("New Body is : ", newBody);
   try {
     const updatedMeeting = await Meetings.findByIdAndUpdate(
@@ -226,6 +226,57 @@ export const updateMeeting = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Meeting not found" });
+    }
+
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
+    });
+    const customerSettings = await CustomerSettings.findOne({
+      userId: customerId,
+    });
+
+    const customer = await Customer.findById(customerId);
+
+    if (customerSettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: customerId,
+        title: "Meeting Updation",
+        message: `${req.user.agencyId.name} has Updated your meeting to be on ${newBody.date} at ${newBody.time}.`,
+        urlPath: "/customer/meetings",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+    if (agencySettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Meeting Updation",
+        message: `Your meeting with ${customer.fullName} has been updated to be on ${newBody.date} at ${newBody.time}.`,
+        urlPath: "/agent/meetings",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+
+      if (agencySettings?.notifications?.meetingReminders) {
+      await createNotification({
+        agencyId: agencyId,
+        userId: req.user._id,
+        message: `Your meeting with ${customer.fullName} has been updated to be on ${newBody.date} at ${newBody.time}.`,
+        type: "meeting_scheduled",
+      });
+    }
+
+    if (customerSettings?.notifications?.meetingReminders) {
+      await createNotification({
+        userId: customerId,
+        message: `${req.user.agencyId.name} has Updated your meeting to be on ${newBody.date} at ${newBody.time}.`,
+        type: "meeting_scheduled",
+      });
     }
 
     return res.json({ success: true, data: updatedMeeting });
@@ -256,6 +307,57 @@ export const updateMeetingStatus = async (req, res) => {
         .json({ success: false, message: "Meeting not found" });
     }
 
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
+    });
+    const customerSettings = await CustomerSettings.findOne({
+      userId: updatedMeeting.customerId,
+    });
+
+    const customer = await Customer.findById(updatedMeeting.customerId);
+
+    if (customerSettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: updatedMeeting.customerId,
+        title: "Meeting Cancellation",
+        message: `Your meeting on ${updatedMeeting.date.toISOString().split("T")[0]} at ${updatedMeeting.time} has been ${status} by ${req.user.agencyId.name}.`,
+        urlPath: "/customer/meetings",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+    if (agencySettings?.notifications?.pushNotifications)
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Meeting Cancellation",
+        message: `Your meeting with ${customer.fullName} has been successfully ${status}.`,
+        urlPath: "/agent/meetings",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+
+      if (agencySettings?.notifications?.meetingReminders) {
+      await createNotification({
+        agencyId: updatedMeeting.agencyId,
+        userId: req.user._id,
+        message: `Your meeting with ${customer.fullName} has been successfully ${status}.`,
+        type: "meeting_scheduled",
+      });
+    }
+
+    if (customerSettings?.notifications?.meetingReminders) {
+      await createNotification({
+        userId: updatedMeeting.customerId,
+        message: `Your meeting on ${updatedMeeting.date.toISOString().split("T")[0]} at ${updatedMeeting.time} has been ${status} by ${req.user.agencyId.name}.`,
+        type: "meeting_scheduled",
+      });
+    }
+
     return res.json({ success: true, data: updatedMeeting });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
@@ -271,6 +373,7 @@ export const deleteMeeting = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Meeting not found" });
     }
+    console.log(deletedMeeting);
     return res.json({ success: true, message: "Meeting deleted successfully" });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
