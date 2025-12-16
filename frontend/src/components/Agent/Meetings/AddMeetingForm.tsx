@@ -13,15 +13,21 @@ import { useAuth } from "@/context/AuthContext";
 import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
 import { getProperties } from "@/lib/Agent/PropertyAPI";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { useRouter } from "next/navigation";
 
 interface AddMeetingFormProps {
   onClose: () => void;
   onSuccess?: () => void;
+  selectedCustomer?: {
+    id: string;
+    name: string;
+  };
 }
 
 export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   onClose,
   onSuccess,
+  selectedCustomer,
 }) => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -31,6 +37,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   const [properties, setProperties] = useState<{ id: string; title: string }[]>(
     []
   );
+  const router = useRouter();
 
   useEffect(() => {
     const init = async () => {
@@ -63,6 +70,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<MeetingFormData>({
     resolver: zodResolver(meetingSchema),
@@ -71,6 +79,12 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
       agencyId: user?.agency?._id,
     },
   });
+
+  useEffect(() => {
+    if (selectedCustomer?.id) {
+      setValue("customerId", selectedCustomer.id);
+    }
+  }, [selectedCustomer, setValue]);
 
   const onSubmit: SubmitHandler<MeetingFormData> = async (data) => {
     setLoading(true);
@@ -85,7 +99,9 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
       };
       await createMeeting(payload);
       showSuccessToast("Meeting scheduled successfully!");
+      router.push("/agent/meetings");
       onSuccess?.();
+
       onClose();
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -146,7 +162,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
               <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
                 Customer Name *
               </label>
-              <select
+              {/* <select
                 {...register("customerId")}
                 className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
               >
@@ -156,7 +172,39 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
                     {customer.name}
                   </option>
                 ))}
-              </select>
+              </select> */}
+
+              {selectedCustomer ? (
+                <>
+                  {/* Read-only visible field (NO ARROW) */}
+                  <input
+                    type="text"
+                    value={selectedCustomer.name}
+                    readOnly
+                    className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg
+                 bg-gray-100 cursor-not-allowed"
+                  />                  
+                  <input
+                    type="hidden"
+                    {...register("customerId")}
+                    value={selectedCustomer.id}
+                  />
+                </>
+              ) : (
+                <select
+                  {...register("customerId")}
+                  className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg
+               focus:ring-1 focus:ring-primary focus:border-primary"
+                >
+                  <option value="">Select a customer</option>
+                  {customers.map((customer) => (
+                    <option key={customer.id} value={customer.id}>
+                      {customer.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+
               {errors.customerId && (
                 <p className="text-red-600 text-sm mt-1">
                   {errors.customerId.message}
@@ -204,7 +252,7 @@ export const AddMeetingForm: React.FC<AddMeetingFormProps> = ({
                 <input
                   type="date"
                   {...register("date")}
-                   min={new Date().toISOString().split("T")[0]}
+                  min={new Date().toISOString().split("T")[0]}
                   className="w-full pl-8 md:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
                 />
               </div>

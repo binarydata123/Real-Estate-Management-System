@@ -129,7 +129,7 @@ export const Meetings: React.FC = () => {
 
                     <div className="w-full md:w-auto">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        Meeting with {meeting?.agencyId?.name}
+                        Meeting with {meeting?.agencyId?.name} 
                       </h3>
                     </div>
                   </div>
