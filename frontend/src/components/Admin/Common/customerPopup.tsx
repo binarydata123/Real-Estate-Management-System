@@ -112,9 +112,9 @@ export default function CustomerDetailsPopup({
                 )}
 
                 {/* Phone Number */}
-                {customerData.phoneNumber && (
+                {(customerData.phoneNumber || customerData.phone) && (
                   <a
-                    href={`tel:${customerData.phoneNumber}`}
+                    href={`tel:${customerData.phoneNumber || customerData.phone}`}
                     className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
                   >
                     <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />

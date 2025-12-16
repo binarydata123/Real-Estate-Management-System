@@ -177,6 +177,7 @@ declare global {
     minimumBudget?: number;
     maximumBudget?: number;
     leadSource?:
+      "manual"
     | "website"
     | "referral"
     | "social_media"

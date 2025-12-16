@@ -77,7 +77,7 @@ export const createCustomer = async (req, res) => {
       await createNotification({
         agencyId: savedCustomer.agencyId,
         userId: req.user._id,
-        message: `A new customer lead (${savedCustomer.fullName}) has been created successfully.`,
+        message: `A new customer (${savedCustomer.fullName}) has been created successfully.`,
         type: "new_lead",
       });
     }
@@ -180,7 +180,7 @@ export const getCustomers = async (req, res) => {
 
 export const getCustomersForDropDown = async (req, res) => {
   try {
-    const agencyId = req.user.agencyId._id;
+    const agencyId = req.params.id;
 
     if (!agencyId) {
       return res.status(400).json({
