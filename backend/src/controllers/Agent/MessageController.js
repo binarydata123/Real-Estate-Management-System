@@ -9,6 +9,8 @@ import { User } from "../../models/Common/UserModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Message } from "../../models/Agent/MessagesModel.js";
 import { Notifications } from "../../models/Agent/NotificationModel.js";
+import CustomerSettings from "../../models/Customer/SettingsModel.js";
+import { sendPushNotification } from "../../utils/pushService.js";
 
 // Helper function to create a notification
 export const createNotification = async (db, data) => {
@@ -141,8 +143,9 @@ export const getConversations = async (req, res) => {
         let avatar = "";
         if (otherParticipant?.role === "customer") {
           if (profile?.profilePhoto?.medium) {
-            avatar = `${process.env.BACKEND_URL || ""}${profile.profilePhoto.medium
-              }`;
+            avatar = `${process.env.BACKEND_URL || ""}${
+              profile.profilePhoto.medium
+            }`;
           }
         } else if (otherParticipant?.role === "agent") {
           if (profile?.logo?.medium) {
@@ -154,17 +157,17 @@ export const getConversations = async (req, res) => {
           ...conv,
           otherParticipant: otherParticipant
             ? {
-              _id: otherParticipant._id,
-              name: `${otherParticipant.fullName}`,
-              email: otherParticipant.email,
-              phone: otherParticipant.phoneNumber,
-              role: otherParticipant.role,
-              userId: otherParticipant.userId,
-              position: profile?.jobTitle || profile?.companyName,
-              avatar,
-              status,
-              application: applicationInfo,
-            }
+                _id: otherParticipant._id,
+                name: `${otherParticipant.fullName}`,
+                email: otherParticipant.email,
+                phone: otherParticipant.phoneNumber,
+                role: otherParticipant.role,
+                userId: otherParticipant.userId,
+                position: profile?.jobTitle || profile?.companyName,
+                avatar,
+                status,
+                application: applicationInfo,
+              }
             : null,
         };
       })
@@ -249,6 +252,7 @@ export const sendMessage = async (req, res) => {
 
     // ✅ Fetch receiver details first (required for both email + plan check)
     const receiver = await Customer.findOne({ _id: new ObjectId(receiverId) });
+    console.log("AGency is : ", req.user);
 
     if (!receiver) {
       return res.status(404).json({
@@ -273,8 +277,8 @@ export const sendMessage = async (req, res) => {
       content?.trim() !== ""
         ? content
         : attachments?.length
-          ? "📎 Attachment"
-          : "";
+        ? "📎 Attachment"
+        : "";
 
     // Update conversation metadata
     await Conversation.updateOne(
@@ -318,6 +322,29 @@ export const sendMessage = async (req, res) => {
     //     upgradeUrl
     //   );
     // }
+
+    const customerSettings = await CustomerSettings.findOne({
+      userId: receiver?._id,
+    });
+
+    if (customerSettings?.notifications?.pushNotifications) {
+      await sendPushNotification({
+        userId: receiver?._id,
+        title: "New Message",
+        role: "customer",
+        message: `${req?.user?.agencyId?.name} has sent a message ${
+          content
+            ? `"${
+                content.length > 15 ? `${content.slice(0, 15)}...` : content
+              }"`
+            : ""
+        }
+ ${
+   attachments.length > 0 ? `with ${attachments.length} attachments` : ""
+ } to you`,
+        urlPath: "/customer/messages",
+      });
+    }
 
     // Send response immediately
     res.status(201).json({
@@ -400,8 +427,8 @@ export const startConversation = async (req, res) => {
         content?.trim() !== ""
           ? content
           : attachments?.length
-            ? "📎 Attachment"
-            : "";
+          ? "📎 Attachment"
+          : "";
 
       // Update conversation metadata
       await Conversation.updateOne(
@@ -451,8 +478,9 @@ export const startConversation = async (req, res) => {
         title: "New Message",
         message: `You have a new message from ${req.user.name}`,
         priority: "medium",
-        actionUrl: `/${receiver.role === "agent" ? "customer" : "agent"
-          }/messages?conversationId=${conversationId}`,
+        actionUrl: `/${
+          receiver.role === "agent" ? "customer" : "agent"
+        }/messages?conversationId=${conversationId}`,
       });
     }
     if (req.user.role === "admin") {

@@ -1,7 +1,7 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
 import CustomerSettings from "../../models/Customer/SettingsModel.js";
-import { User } from "../../models/Common/UserModel.js";
+// import { User } from "../../models/Common/UserModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
@@ -227,16 +227,16 @@ export const updateCustomer = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Customer not found" });
     }
-    const updatedUser = await User.findOneAndUpdate(
-      { email: updatedCustomer.email },
-      {
-        name: updatedCustomer.fullName,
-        email: updatedCustomer.email,
-        phone: updatedCustomer.phoneNumber,
-        agencyId: updatedCustomer.agencyId,
-      },
-      { new: true }
-    );
+    // const updatedUser = await User.findOneAndUpdate(
+    //   { email: updatedCustomer.email },
+    //   {
+    //     name: updatedCustomer.fullName,
+    //     email: updatedCustomer.email,
+    //     phone: updatedCustomer.phoneNumber,
+    //     agencyId: updatedCustomer.agencyId,
+    //   },
+    //   { new: true }
+    // );
     const agencySettings = await AgencySettings.findOne({
       userId: req.user._id,
     });
@@ -255,24 +255,24 @@ export const updateCustomer = async (req, res) => {
         userId: req.user._id,
         title: "Customer Updated",
         message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
-        urlPath: "customers",
+        urlPath: "/agent/customers",
       });
 
-    if (updatedUser?._id) {
+    if (updatedCustomer?._id) {
       await createNotification({
-        userId: updatedUser._id,
-        message: `Hello ${updatedUser.name}, your profile details have been updated successfully.`,
+        userId: updatedCustomer._id,
+        message: `Hello ${updatedCustomer.name}, your profile details have been updated successfully.`,
         type: "lead_updated",
       });
       const customerSettings = await CustomerSettings.findOne({
-        userId: updatedUser._id,
+        userId: updatedCustomer._id
       });
       if (customerSettings?.notifications?.pushNotifications)
         await sendPushNotification({
-          userId: updatedUser._id,
+          userId: updatedCustomer._id,
           title: "Profile Updated",
-          message: `Hi ${updatedUser.name}, your profile details have been updated successfully.`,
-          urlPath: "profile",
+          message: `Hi ${updatedCustomer.fullName}, your profile details have been updated successfully.`,
+          urlPath: "/customer/profile",
         });
     }
 

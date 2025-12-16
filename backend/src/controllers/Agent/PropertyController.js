@@ -399,7 +399,6 @@ export const deleteProperty = async (req, res) => {
     const sharedProperty = await PropertyShare.find({
       propertyId: req.params.id,
     });
-    console.log("SHared Property is : ", sharedProperty);
     if (sharedProperty) {
       await PropertyShare.deleteMany({
         propertyId: req.params.id,
@@ -434,14 +433,12 @@ export const deleteProperty = async (req, res) => {
 
     if (sharedProperty) {
       const customerSettings = await CustomerSettings.findOne({
-            userId: sharedProperty?.sharedWithUserId,
+            userId: sharedProperty[0] ?.sharedWithUserId,
           });
-
-          console.log("Customer Settings are : ",customerSettings);
 
       if (customerSettings?.notifications?.pushNotifications) {
         await sendPushNotification({
-          userId: sharedProperty?.sharedWithUserId,
+          userId: sharedProperty[0]?.sharedWithUserId,
           title: "Property Deleted",
           message: `The property "${property.title}" shared with you has been deleted.`,
           urlPath: `/customer/properties/${property._id}`,
@@ -450,7 +447,7 @@ export const deleteProperty = async (req, res) => {
 
       if (customerSettings?.notifications?.propertyUpdates)
       await Notification.create({
-        userId: sharedProperty?.sharedWithUserId,
+        userId: sharedProperty[0]?.sharedWithUserId,
         agencyId: property.agencyId,
         message: `Property "${property.title}" has been deleted.`,
         type: "property_deleted",
