@@ -231,11 +231,11 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         {/* Image Gallery */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="relative aspect-[4/3] bg-gray-100">
-            {imageLoading && !isVideo(selectedImage?.url || "") && (
+            {/* {imageLoading && !isVideo(selectedImage?.url || "") && (
               <div className="absolute inset-0 z-10 flex animate-pulse items-center justify-center bg-gray-200">
                 <HomeIcon className="h-16 w-16 text-gray-400" />
               </div>
-            )}
+            )} */}
 
             {selectedImage?.url ? (
               isVideo(selectedImage.url) ? (
@@ -262,9 +262,15 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                 />
               )
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                <HomeIcon className="h-16 w-16 text-gray-400" />
-              </div>
+              // <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                <Image
+                  src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
+                  alt="Default Property Image"
+                  fill
+                  // className="rounded-lg border-4 border-blue-500 object-cover"
+                  priority={true}
+                />
+              // </div>
             )}
 
             {/* Navigation Arrows */}
@@ -539,7 +545,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         )}
 
         {/* Floor & Configuration (Conditional) */}
-        {isPlotOrLand && (
+        {!isPlotOrLand && (
           <InfoCard title="Floor & Configuration">
             <div className="space-y-1">
               {hasValue(propertyData.floor_number) && (

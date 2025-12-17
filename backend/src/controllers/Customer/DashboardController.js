@@ -3,10 +3,12 @@ import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
 import { Property } from "../../models/Agent/PropertyModel.js"; // Add Property model import
 import { Customer } from "../../models/Agent/CustomerModel.js";
+import mongoose from "mongoose";
 
 export const customerDashboardData = async (req, res) => {
   try {
     const customerId = req.user.id;
+    console.log("____________",customerId);
    
     const showAllProperty = req.user.showAllProperty; // Get toggle state from user
     // console.log("showAllProperty:", showAllProperty);
@@ -71,7 +73,7 @@ export const customerDashboardData = async (req, res) => {
       latestPropertiesQuery,
       // Unread notifications count
       Notification.countDocuments({
-        userId: customerId,
+        userId: new mongoose.Types.ObjectId(customerId),
         isRead: false,
       }),
       // Recent activity

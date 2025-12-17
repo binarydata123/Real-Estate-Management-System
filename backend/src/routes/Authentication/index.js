@@ -39,7 +39,6 @@ router.post(
 );
 router.post(
   "/remove-notifications",
-  protect(["agent","admin","customer"]),
   registrationController.checkNotifications
 );
 

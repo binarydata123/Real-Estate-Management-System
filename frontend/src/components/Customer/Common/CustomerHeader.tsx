@@ -95,7 +95,7 @@ export const CustomerHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => 
                                     </Transition>
                                 </Menu>
                             )} */}
-                            <InstallButton />
+                            <InstallButton isFrom="Header"/>
                             {/* Notifications */}
                             <span
                                 onClick={() => setShowNotifications(true)}

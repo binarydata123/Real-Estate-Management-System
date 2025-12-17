@@ -63,7 +63,7 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
 
             {/* Right Side */}
             <div className="flex items-center space-x-1 md:space-x-4">
-              <InstallButton />
+              <InstallButton isFrom="Header"/>
               {/* Notifications */}
               <span
                 onClick={() => setShowNotifications(true)}

@@ -23,7 +23,7 @@ interface Notification {
   agencyId: string;
   message: string;
   type: string;
-  read: boolean;
+  isRead: boolean;
   link: string;
   createdAt: string;
 }
@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     };
 
   // Count unread notifications
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.isRead).length;
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200">

@@ -39,7 +39,7 @@ export const getNotifications = async (userId) => {
 // Get unread notifications for a user
 export const getUnread = async (userId) => {
   try {
-    return await Notification.find({ user: userId, read: false })
+    return await Notification.find({ user: userId, isRead: false })
       .sort({ createdAt: -1 })
       .lean();
   } catch (error) {
@@ -53,7 +53,7 @@ export const markRead = async (id) => {
   try {
     return await Notification.findByIdAndUpdate(
       id,
-      { read: true },
+      { isRead: true },
       { new: true }
     );
   } catch (error) {
@@ -66,8 +66,8 @@ export const markRead = async (id) => {
 export const markAllRead = async (userId) => {
   try {
     const result = await Notification.updateMany(
-      { user: userId, read: false },
-      { $set: { read: true } }
+      { user: userId, isRead: false },
+      { $set: { isRead: true } }
     );
     return result.modifiedCount;
   } catch (error) {

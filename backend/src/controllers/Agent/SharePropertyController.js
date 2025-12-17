@@ -4,6 +4,7 @@ import { createNotification } from "../../utils/apiFunctions/Notifications/index
 import { sendPushNotification } from "../../utils/pushService.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
 import CustomerSettings from "../../models/Customer/SettingsModel.js";
+import { Customer } from "../../models/Agent/CustomerModel.js";
 
 export const shareProperty = async (req, res) => {
   try {
@@ -16,6 +17,30 @@ export const shareProperty = async (req, res) => {
         .json({ error: "All required fields must be provided" });
     }
 
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
+    });
+
+    const alreadyExistingShare = await PropertyShare.findOne({
+      propertyId,
+      sharedWithUserId,
+      sharedByUserId,
+    });
+
+    const customer = await Customer.findById(sharedWithUserId)
+      .populate('agencyId','name');
+
+    if (alreadyExistingShare) {
+      if (agencySettings?.notifications?.pushNotifications)
+ await sendPushNotification({
+        userId: agencyId,
+        title: "Property Already Shared",
+        message: `You have Already Shared This Property With Customer (${customer?.fullName}).`,
+        urlPath: "/agent/shares",
+      });
+      return res.status(200).json({message:"You Have Already Shared this Property with this Customer"});
+    }
+
     const newShare = new PropertyShare({
       agencyId: new mongoose.Types.ObjectId(agencyId),
       propertyId: new mongoose.Types.ObjectId(propertyId),
@@ -26,9 +51,6 @@ export const shareProperty = async (req, res) => {
 
     const savedShare = await newShare.save();
 
-    const agencySettings = await AgencySettings.findOne({
-      userId: req.user._id,
-    });
     const customerSettings = await CustomerSettings.findOne({
       userId: sharedWithUserId,
     });
@@ -37,14 +59,14 @@ export const shareProperty = async (req, res) => {
  await sendPushNotification({
         userId: agencyId,
         title: "Property Shared Successfully",
-        message: "You have shared a property successfully.",
+        message: `You have shared a property with Customer (${customer.fullName}) successfully.`,
         urlPath: "/agent/shares",
       });
       if (agencySettings?.notifications?.propertyUpdates) {
         await createNotification({
       agencyId,
       userId: agencyId,
-      message: `Property has been shared successfully.`,
+      message: `You have shared a property with Customer (${customer.fullName}) successfully.`,
       type: "property_share",
     });
 
@@ -53,13 +75,13 @@ export const shareProperty = async (req, res) => {
 await sendPushNotification({
         userId: sharedWithUserId,
         title: "New Property Shared",
-        message: "A property has been shared with you. Check it out!",
-        urlPath: "/agent/shares",
+        message: `A property has been shared with you By ${customer?.agencyId?.name}. Check it out!`,
+        urlPath: "/customer/properties",
       });
     if (customerSettings?.notifications?.propertyUpdates) {
       await createNotification({
       userId: sharedWithUserId,
-      message: `A property has been shared with you.`,
+      message: `A property has been shared with you By ${customer?.agencyId?.name}. Check it out!`,
       type: "property_share",
     });
 

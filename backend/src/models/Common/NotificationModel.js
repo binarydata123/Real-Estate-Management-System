@@ -34,7 +34,7 @@ const notificationSchema = new mongoose.Schema(
       ],
       default: "welcome",
     },
-    read: {
+    isRead: {
       type: Boolean,
       default: false,
     },
