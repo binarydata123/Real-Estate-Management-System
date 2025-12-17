@@ -230,8 +230,12 @@ export const LoginForm = () => {
     };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-200 to-purple-200 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl md:p-8 p-6 transition-all duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 flex items-center justify-center p-4">
+      <Link href="/" className="fixed top-4 left-4 text-gray-600 hover:text-gray-900 font-medium transition-colors flex items-center gap-2 z-10">
+        <ArrowLeftIcon className="h-4 w-4" />
+        <span className="hidden sm:inline">Back to Home</span>
+      </Link>
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl md:p-8 p-6 transition-all duration-300 border border-gray-100">
         {/* Logo */}
         <div className="text-center md:mb-8 mb-2">
           {settingsData?.logoUrl ? (
@@ -307,7 +311,7 @@ export const LoginForm = () => {
             <div className="grid grid-cols-1 gap-4">
               <button
                 onClick={() => handleRoleSelect("agency")}
-                className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1"
+                className="group w-full flex items-center gap-4 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
               >
                 <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-blue-100 rounded-lg">
                   <BuildingOffice2Icon className="h-6 w-6 text-blue-600" />
@@ -324,10 +328,10 @@ export const LoginForm = () => {
               </button>
               <button
                 onClick={() => handleRoleSelect("customer")}
-                className="group w-full flex items-center gap-4 p-4 bg-white/60 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1"
+                className="group w-full flex items-center gap-4 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
               >
-                <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-purple-100 rounded-lg">
-                  <UserIcon className="h-6 w-6 text-purple-600" />
+                <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-green-100 rounded-lg">
+                  <UserIcon className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-semibold text-gray-800 text-left">
@@ -337,7 +341,7 @@ export const LoginForm = () => {
                     Find your dream home.
                   </p>
                 </div>
-                <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-purple-600 transition-transform duration-300 transform group-hover:translate-x-1" />
+                <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-green-600 transition-transform duration-300 transform group-hover:translate-x-1" />
               </button>
             </div>
             <div className="text-center pt-2">
