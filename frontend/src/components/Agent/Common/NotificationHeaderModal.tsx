@@ -187,7 +187,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 <div
                   key={notification._id}
                   className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                    !notification.read ? "bg-blue-50" : ""
+                    !notification.isRead ? "bg-blue-50" : ""
                   }`}
                   onClick={() => handleMarkAsRead(notification._id)}
                 >
@@ -199,14 +199,14 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                       <div className="flex items-center justify-between">
                         <p
                           className={`text-sm font-medium ${
-                            !notification.read
+                            !notification.isRead
                               ? "text-gray-900"
                               : "text-gray-700"
                           }`}
                         >
                           {notification.type}
                         </p>
-                        {!notification.read && (
+                        {!notification.isRead && (
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
                         )}
                       </div>

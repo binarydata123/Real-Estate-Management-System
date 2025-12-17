@@ -6,7 +6,8 @@ import { getSinglePropertyDetail } from "@/lib/Customer/PropertyAPI";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 import { showErrorToast } from "@/utils/toastHandler";
-import PropertyVoiceAgent from "@/components/Common/PropertyVoiceAgent";
+import { capitalizeFirstLetter } from "@/helper/capitalizeFirstLetter";
+// import PropertyVoiceAgent from "@/components/Common/PropertyVoiceAgent";
 
 interface Images {
   _id?: string;
@@ -57,198 +58,349 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     return `${process.env.NEXT_PUBLIC_IMAGE_URL}/Properties/original/${url}`;
   };
   return (
-    <div className="max-w-6xl mx-auto ">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
-        {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all duration-200"
-        >
-          <ArrowLeftIcon className="h-5 w-5" />
-          <span>Back to Properties</span>
-        </button>
-      </div>
-      <div className="md:p-6 p-3 bg-white shadow-lg rounded-xl">
-        {/* Main Image */}
-
-        <div className="mb-4 relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px]">
-          {selectedImage?.url ? (
-            <Image
-              src={getImageUrl(selectedImage.url)}
-              alt={selectedImage.alt || propertyData?.title || "Property Image"}
-              fill
-              className="rounded-lg border-4 border-blue-500 object-cover"
-              priority={true}
-            />
-          ) : (
-            <Image
-              src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
-              alt="Default Property Image"
-              fill
-              className="rounded-lg border-4 border-blue-500 object-cover"
-              priority={true}
-            />
-          )}
-
-          {/* Prev Button */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-6 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          {/* Back Button */}
           <button
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded"
-            onClick={() => {
-              if (!propertyData?.images?.length || !selectedImage) return;
-              const idx = propertyData.images.findIndex(
-                (img) => img._id === selectedImage._id
-              );
-              const prevIdx =
-                (idx - 1 + propertyData.images.length) %
-                propertyData.images.length;
-              setSelectedImage(propertyData.images[prevIdx]);
-            }}
+            onClick={() => router.back()}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-blue-600 text-gray-700 hover:text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-blue-600"
           >
-            ❮
-          </button>
-
-          {/* Next Button */}
-          <button
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded"
-            onClick={() => {
-              if (!propertyData?.images?.length || !selectedImage) return;
-              const idx = propertyData.images.findIndex(
-                (img) => img._id === selectedImage._id
-              );
-              const nextIdx = (idx + 1) % propertyData.images.length;
-              setSelectedImage(propertyData.images[nextIdx]);
-            }}
-          >
-            ❯
+            <ArrowLeftIcon className="h-5 w-5" />
+            <span>Back to Properties</span>
           </button>
         </div>
-
-        {/* Basic Info */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2 text-gray-800">
-            {propertyData?.title}
-          </h1>
-
-          {/* AI Assistant Section */}
-          {propertyData?._id && (
-            <PropertyVoiceAgent propertyId={propertyData._id} />
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-600">
-            <p>
-              Type:{" "}
-              <span className="font-semibold text-gray-800">
-                {propertyData?.type}
-              </span>
-            </p>
-            <p>
-              Category:{" "}
-              <span className="font-semibold text-gray-800">
-                {propertyData?.category}
-              </span>
-            </p>
-            <p>
-              Location:{" "}
-              <span className="font-semibold text-gray-800">
-                {propertyData?.location}
-              </span>
-            </p>
-            <p>
-              Price:{" "}
-              <span className="font-semibold text-gray-800">
-                ₹{propertyData?.price}
-              </span>
-            </p>
-            <p>
-              Status:{" "}
-              <span className="font-semibold text-gray-800">
-                {propertyData?.status}
-              </span>
-            </p>
-          </div>
-          <p className="text-gray-700 mt-4">{propertyData?.description}</p>
-        </div>
-
-        {/* Area & Configuration */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-800">
-            Area & Configuration
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700">
-            <p>
-              Built-up Area: {propertyData?.built_up_area}{" "}
-              {propertyData?.unit_area_type}
-            </p>
-            <p>
-              Carpet Area: {propertyData?.carpet_area}{" "}
-              {propertyData?.unit_area_type}
-            </p>
-            {propertyData?.plot_front_area && (
-              <p>
-                Plot Front: {propertyData.plot_front_area}{" "}
-                {propertyData.plot_dimension_unit}
-              </p>
+        <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+          {/* Main Image */}
+          <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px] bg-gray-100">
+            {selectedImage?.url ? (
+              <Image
+                src={getImageUrl(selectedImage.url)}
+                alt={selectedImage.alt || propertyData?.title || "Property Image"}
+                fill
+                className="object-cover"
+                priority={true}
+              />
+            ) : (
+              <Image
+                src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
+                alt="Default Property Image"
+                fill
+                className="object-cover"
+                priority={true}
+              />
             )}
-            {propertyData?.plot_depth_area && (
-              <p>
-                Plot Depth: {propertyData.plot_depth_area}{" "}
-                {propertyData.plot_dimension_unit}
-              </p>
+
+            {propertyData?.images && propertyData?.images?.length > 1 && (
+              <>
+            {/* Prev Button */}
+            <button
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-blue-600 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+              onClick={() => {
+                if (!propertyData?.images?.length || !selectedImage) return;
+                const idx = propertyData.images.findIndex(
+                  (img) => img._id === selectedImage._id
+                );
+                const prevIdx =
+                  (idx - 1 + propertyData.images.length) %
+                  propertyData.images.length;
+                setSelectedImage(propertyData.images[prevIdx]);
+              }}
+            >
+              ❮
+            </button>
+
+            {/* Next Button */}
+            <button
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-blue-600 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+              onClick={() => {
+                if (!propertyData?.images?.length || !selectedImage) return;
+                const idx = propertyData.images.findIndex(
+                  (img) => img._id === selectedImage._id
+                );
+                const nextIdx = (idx + 1) % propertyData.images.length;
+                setSelectedImage(propertyData.images[nextIdx]);
+              }}
+            >
+              ❯
+            </button>
+            </>
             )}
-            {propertyData?.is_corner_plot && (
-              <p>Corner Plot: {propertyData?.is_corner_plot}</p>
-            )}
-            <p>Bedrooms: {propertyData?.bedrooms}</p>
-            <p>Bathrooms: {propertyData?.bathrooms}</p>
-            <p>Balconies: {propertyData?.balconies}</p>
-            <p>Floor Number: {propertyData?.floor_number}</p>
-            <p>Total Floors: {propertyData?.total_floors}</p>
           </div>
-        </div>
 
-        {/* Facing & Overlooking */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-800">
-            Facing & Overlooking
-          </h2>
-          <p className="text-gray-700">Facing: {propertyData?.facing}</p>
-          <p className="text-gray-700">
-            Overlooking: {propertyData?.overlooking?.join(", ")}
-          </p>
-        </div>
+          <div className="p-6 md:p-8">
+            {/* Basic Info */}
+            <div className="mb-8 pb-8 border-b border-gray-200">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+                {propertyData?.title}
+              </h1>
 
-        {/* Additional Info */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-800">
-            Additional Info
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700">
-            <p>Property Age: {propertyData?.property_age}</p>
-            <p>Transaction Type: {propertyData?.transaction_type}</p>
-            <p>
-              Gated Community:{" "}
-              {propertyData?.gated_community
-                ? propertyData?.gated_community
-                : "No"}
-            </p>
-            <p>Furnishing: {propertyData?.furnishing}</p>
-            <p>Flooring Type: {propertyData?.flooring_type}</p>
-            <p>Amenities: {propertyData?.amenities?.join(", ")}</p>
-            <p>Features: {propertyData?.features?.join(", ")}</p>
-            <p>Water Source: {propertyData?.water_source?.join(", ")}</p>
-            <p>Power Backup: {propertyData?.power_backup}</p>
-            <p>RERA Status: {propertyData?.rera_status}</p>
-          </div>
-        </div>
+              {/* AI Assistant Section */}
+              {/* {propertyData?._id && (
+                <PropertyVoiceAgent propertyId={propertyData._id} />
+              )} */}
 
-        {/* Owner Details */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-800">
-            Owner Details
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700">
-            <p>Name: {propertyData?.owner_name}</p>
-            <p>Contact: {propertyData?.owner_contact}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">Type</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {capitalizeFirstLetter(propertyData?.type)}
+                  </p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">Category</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {capitalizeFirstLetter(propertyData?.category)}
+                  </p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">Location</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {propertyData?.location || "N/A"}
+                  </p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">Price</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {propertyData?.price ? `₹ ${propertyData?.price}` : "N/A"}
+                  </p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">Status</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {propertyData?.status}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 bg-gray-50 rounded-lg p-5 border border-gray-200">
+                <p className="text-gray-700 leading-relaxed">{propertyData?.description}</p>
+              </div>
+            </div>
+
+            {/* Area & Configuration */}
+            <div className="mb-8 pb-8 border-b border-gray-200">
+              <h2 className="text-2xl font-bold mb-5 text-gray-900 flex items-center gap-2">
+                <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
+                Area & Configuration
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Built-up Area</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.built_up_area ? `${propertyData?.built_up_area} ${propertyData?.unit_area_type}` : "N/A"}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Carpet Area</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.carpet_area ? `${propertyData?.carpet_area} ${propertyData?.unit_area_type}` : "N/A"}</p>
+                  </div>
+                </div>
+                {propertyData?.plot_front_area && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Plot Front</p>
+                      <p className="text-gray-900 font-medium">{propertyData.plot_front_area} {propertyData.plot_dimension_unit}</p>
+                    </div>
+                  </div>
+                )}
+                {propertyData?.plot_depth_area && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Plot Depth</p>
+                      <p className="text-gray-900 font-medium">{propertyData.plot_depth_area} {propertyData.plot_dimension_unit}</p>
+                    </div>
+                  </div>
+                )}
+                {propertyData?.is_corner_plot && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Corner Plot</p>
+                      <p className="text-gray-900 font-medium">{propertyData?.is_corner_plot}</p>
+                    </div>
+                  </div>
+                )}
+                {propertyData?.bedrooms && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Bedrooms</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.bedrooms}</p>
+                  </div>
+                </div>
+                )}
+                {propertyData?.bathrooms && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Bathrooms</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.bathrooms}</p>
+                  </div>
+                </div>
+                )}
+                {propertyData?.balconies && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Balconies</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.balconies}</p>
+                  </div>
+                </div>
+                )}
+                {propertyData?.floor_number && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Floor Number</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.floor_number}</p>
+                  </div>
+                </div>
+                )}
+                {propertyData?.total_floors && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Total Floors</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.total_floors}</p>
+                  </div>
+                </div>
+                )}
+              </div>
+            </div>
+
+            {/* Facing & Overlooking */}
+            <div className="mb-8 pb-8 border-b border-gray-200">
+              <h2 className="text-2xl font-bold mb-5 text-gray-900 flex items-center gap-2">
+                <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
+                Facing & Overlooking
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-5 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-2">Facing</p>
+                  <p className="text-gray-900 font-semibold text-lg">{propertyData?.facing ? propertyData?.facing : "N/A"}</p>
+                </div>
+                <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-5 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-2">Overlooking</p>
+                  <p className="text-gray-900 font-semibold text-lg">{propertyData?.overlooking ? propertyData?.overlooking?.join(", ") : "N/A"}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Info */}
+            <div className="mb-8 pb-8 border-b border-gray-200">
+              <h2 className="text-2xl font-bold mb-5 text-gray-900 flex items-center gap-2">
+                <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
+                Additional Info
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {propertyData?.property_age && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Property Age</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.property_age}</p>
+                  </div>
+                </div>
+                )}
+                {propertyData?.transaction_type && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Transaction Type</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.transaction_type}</p>
+                  </div>
+                </div>
+                )}
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Gated Community</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.gated_community ? propertyData?.gated_community : "No"}</p>
+                  </div>
+                </div>
+                {propertyData?.furnishing && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Furnishing</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.furnishing}</p>
+                  </div>
+                </div>
+                )}
+                {propertyData?.flooring_type && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Flooring Type</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.flooring_type}</p>
+                  </div>
+                </div>
+                )}
+                {propertyData?.power_backup && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">Power Backup</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.power_backup}</p>
+                  </div>
+                </div>
+                )}
+                {propertyData?.rera_status && (
+                <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <span className="text-blue-600 font-semibold">•</span>
+                  <div>
+                    <p className="text-sm text-gray-600">RERA Status</p>
+                    <p className="text-gray-900 font-medium">{propertyData?.rera_status}</p>
+                  </div>
+                </div>
+                )}
+              </div>
+              <div className="mt-6 space-y-4">
+                <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-2">Amenities</p>
+                  {propertyData?.amenities?.map((amenity,index) => (
+                    <span key={index}>{capitalizeFirstLetter(amenity)}, </span>
+                  ))}
+                </div>
+                <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-2">Features</p>
+                  {propertyData?.features?.map((feature,index) => (
+                    <span key={index}>{capitalizeFirstLetter(feature)}, </span>
+                  ))}
+                </div>
+                <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-2">Water Source</p>
+                  {propertyData?.water_source?.map((source,index) => (
+                    <span key={index}>{capitalizeFirstLetter(source)}, </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Owner Details */}
+            {/* <div>
+              <h2 className="text-2xl font-bold mb-5 text-gray-900 flex items-center gap-2">
+                <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
+                Owner Details
+              </h2>
+              <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-6 border border-blue-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm text-blue-600 font-medium mb-1">Name</p>
+                    <p className="text-gray-900 font-semibold text-lg">{propertyData?.owner_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-blue-600 font-medium mb-1">Contact</p>
+                    <p className="text-gray-900 font-semibold text-lg">{propertyData?.owner_contact}</p>
+                  </div>
+                </div>
+              </div>
+            </div> */}
           </div>
         </div>
       </div>

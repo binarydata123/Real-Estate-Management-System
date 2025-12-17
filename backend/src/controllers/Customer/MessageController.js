@@ -8,6 +8,8 @@ import { Conversation } from "../../models/Agent/ConversationsModel.js";
 import { User } from "../../models/Common/UserModel.js";
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Message } from "../../models/Agent/MessagesModel.js";
+import AgencySettings from "../../models/Agent/settingsModel.js";
+import { sendPushNotification } from "../../utils/pushService.js";
 
 // Helper function to create a notification
 export const createNotification = async (db, data) => {
@@ -141,8 +143,9 @@ export const getConversations = async (req, res) => {
         let avatar = "";
         if (otherParticipant?.role === "customer") {
           if (profile?.profilePhoto?.medium) {
-            avatar = `${process.env.BACKEND_URL || ""}${profile.profilePhoto.medium
-              }`;
+            avatar = `${process.env.BACKEND_URL || ""}${
+              profile.profilePhoto.medium
+            }`;
           }
         } else if (otherParticipant?.role === "agent") {
           if (profile?.logo?.medium) {
@@ -167,17 +170,17 @@ export const getConversations = async (req, res) => {
           ...conv,
           otherParticipant: otherParticipant
             ? {
-              _id: otherParticipant._id,
-              name: `${otherParticipant.agencyId?.name}`,
-              email: encryptOneTwo(otherParticipant.email),
-              phone: encryptOneTwo(otherParticipant.phone),
-              role: otherParticipant.role,
-              userId: otherParticipant.userId,
-              position: profile?.jobTitle || profile?.companyName,
-              avatar,
-              status,
-              application: applicationInfo,
-            }
+                _id: otherParticipant._id,
+                name: `${otherParticipant.agencyId?.name}`,
+                email: encryptOneTwo(otherParticipant.email),
+                phone: encryptOneTwo(otherParticipant.phone),
+                role: otherParticipant.role,
+                userId: otherParticipant.userId,
+                position: profile?.jobTitle || profile?.companyName,
+                avatar,
+                status,
+                application: applicationInfo,
+              }
             : null,
         };
       })
@@ -287,8 +290,8 @@ export const sendMessage = async (req, res) => {
       content?.trim() !== ""
         ? content
         : attachments?.length
-          ? "📎 Attachment"
-          : "";
+        ? "📎 Attachment"
+        : "";
 
     // Update conversation metadata
     await Conversation.updateOne(
@@ -332,6 +335,27 @@ export const sendMessage = async (req, res) => {
     //     upgradeUrl
     //   );
     // }
+
+    const agencySettings = await AgencySettings.findOne({
+      userId: receiver?._id,
+    });
+
+    if (agencySettings?.notifications?.pushNotifications) {
+      await sendPushNotification({
+        userId: receiver?._id,
+        title: "New Message",
+        message: `${req?.user?.fullName} has sent a message ${
+          content
+            ? `"${
+                content.length > 15 ? `${content.slice(0, 15)}...` : content
+              }"`
+            : ""
+        }${
+          attachments.length > 0 ? `with ${attachments.length} attachments` : ""
+        } to you`,
+        urlPath: "/agent/messages",
+      });
+    }
 
     // Send response immediately
     res.status(201).json({
@@ -420,8 +444,8 @@ export const startConversation = async (req, res) => {
         content?.trim() !== ""
           ? content
           : attachments?.length
-            ? "📎 Attachment"
-            : "";
+          ? "📎 Attachment"
+          : "";
 
       // Update conversation metadata
       await Conversation.updateOne(

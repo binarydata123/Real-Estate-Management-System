@@ -10,7 +10,7 @@ interface Notification {
     title: string;
     message: string;
     type: 'meeting_reminder' | 'property_shared' | 'customer_activity' | 'system_update' | string;
-    read: string | null;
+    isRead: string | null;
     createdAt: string;
 }
 
@@ -50,7 +50,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
            setNotifications(prev =>
             prev.map(notif =>
                 notif._id === notificationId
-                    ? { ...notif, read: new Date().toISOString() }
+                    ? { ...notif, isRead: new Date().toISOString() }
                     : notif,
             ),
         );
@@ -144,7 +144,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                             {notifications.map(notification => (
                                 <div
                                     key={notification._id}
-                                    className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!notification.read ? 'bg-blue-50' : ''
+                                    className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!notification.isRead ? 'bg-blue-50' : ''
                                         }`}
                                     onClick={() => handelMarkAsRead(notification._id)}
                                 >
@@ -152,10 +152,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                                         <span className="text-lg">{getNotificationIcon(notification.type)}</span>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between">
-                                                <p className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
+                                                <p className={`text-sm font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'}`}>
                                                     {notification.title}
                                                 </p>
-                                                {!notification.read && (
+                                                {!notification.isRead && (
                                                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                                                 )}
                                             </div>

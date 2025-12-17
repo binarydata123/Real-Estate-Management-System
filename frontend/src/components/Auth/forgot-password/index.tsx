@@ -68,6 +68,22 @@ export default function ForgotPassword() {
         fetchSettings();
     }, []);
 
+       const getImageUrl = (imageUrl?: string): string | undefined => {
+        if (!imageUrl) {
+            return;
+        }
+    
+        // If it's already a full URL, return as is
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            return imageUrl;
+        }
+    
+        // If it's a relative path, construct the full URL
+        const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
+            return `${baseUrl}/logo/medium/${imageUrl}`;
+    };
+
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 flex items-center justify-center p-4">
             <Link href="/" className="fixed top-4 left-4 text-gray-600 hover:text-gray-900 font-medium transition-colors flex items-center gap-2 z-10">
@@ -83,7 +99,7 @@ export default function ForgotPassword() {
                         ?
                             <div style={{ display: 'inline-block' }}>
                                 <Image
-                                    src={settingsData.logoUrl}
+                                    src={getImageUrl(settingsData.logoUrl) as string}
                                     alt="Logo"
                                     width={70}
                                     height={70}
@@ -96,7 +112,7 @@ export default function ForgotPassword() {
                     }
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Reset Your Password</h1>
                     <p className="text-gray-600 mt-2 md:mt-3">
-                        Enter your email address and we'll send you a link to reset your password.
+                        Enter your email address and we&npos;ll send you a link to reset your password.
                     </p>
                 </div>
 

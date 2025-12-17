@@ -29,6 +29,7 @@ import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import OtpModal from "./OtpModal";
 import { getSettingsData } from "../../../lib/Common/Settings";
 import Image from "next/image";
+import InstallButton from "@/components/Common/InstallButton";
 
 const agencyLoginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -354,6 +355,7 @@ export const LoginForm = () => {
                 </Link>
               </p>
             </div>
+            < InstallButton isFrom="Login"/>
           </div>
         ) : (
           // Login Form
@@ -570,6 +572,7 @@ export const LoginForm = () => {
                 </Link>
               </div>
             </div>
+            {/* Add this after the "Create Agency" link section */}
           </>
         )}
       </div>

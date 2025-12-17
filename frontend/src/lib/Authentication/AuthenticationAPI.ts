@@ -32,13 +32,9 @@ export const checkSession = async (token: string): Promise<AxiosResponse> => {
     },
   });
 };
-export const removeNotifications = async (token:string,deviceId:string): Promise<AxiosPromise> => {
+export const removeNotifications = async (userId:string,deviceId:string): Promise<AxiosPromise> => {
   return api.post("/auth/remove-notifications",
-    { deviceId }, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+    { deviceId,userId })
 }
 export const changePassword = async (
   data: changePasswordData

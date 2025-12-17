@@ -437,7 +437,7 @@ export default function CustomerDashboard() {
                       <img
                         src={getImageUrl(
                           property.propertyId?.images?.[0]?.url ||
-                            "/placeholder.jpg"
+                            "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
                         )}
                         alt={property.propertyId?.title as string}
                         className="h-15 w-15 object-cover rounded-lg flex-shrink-0"

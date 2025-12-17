@@ -117,7 +117,7 @@ export default function AgentLayout({ children }: LayoutProps) {
         )}
         <main
           className={`flex-1 ${!isConditionalPage ? "p-2" : ""} md:p-6 ${
-            !isMessagesPage && "mb-12"
+            !isMessagesPage ? "mb-12": "mb-10"
           }`}
         >
           {children}
