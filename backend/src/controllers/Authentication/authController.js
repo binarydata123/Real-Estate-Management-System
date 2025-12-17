@@ -725,13 +725,13 @@ const registrationController = {
   },
 
   checkNotifications: async (req, res) => {
-    const { deviceId } = req.body;
+    const { deviceId, userId } = req.body;
 
     await PushNotificationSubscription.deleteOne({
-      userId: req.user._id,
+      userId: userId,
       "device.id": deviceId,
     });
-    res.json({ msg: "done" });
+    res.json({ success: true, msg: "done" });
   },
 };
 

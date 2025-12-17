@@ -68,6 +68,22 @@ export default function ForgotPassword() {
         fetchSettings();
     }, []);
 
+       const getImageUrl = (imageUrl?: string): string | undefined => {
+        if (!imageUrl) {
+            return;
+        }
+    
+        // If it's already a full URL, return as is
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            return imageUrl;
+        }
+    
+        // If it's a relative path, construct the full URL
+        const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
+            return `${baseUrl}/logo/medium/${imageUrl}`;
+    };
+
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-lg md:rounded-2xl shadow-xl md:p-8 p-4">
@@ -77,7 +93,7 @@ export default function ForgotPassword() {
                         ?
                             <div style={{ display: 'inline-block' }}>
                                 <Image
-                                    src={settingsData.logoUrl}
+                                    src={getImageUrl(settingsData.logoUrl) as string}
                                     alt="Logo"
                                     width={70}
                                     height={70}

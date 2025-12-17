@@ -5,6 +5,7 @@ import CustomerSettings from "../../models/Customer/SettingsModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
+import PushNotificationSubscription from "../../models/Common/PushNotificationSubscription.js";
 
 // Create a new customer
 export const createCustomer = async (req, res) => {
@@ -261,7 +262,7 @@ export const updateCustomer = async (req, res) => {
     if (updatedCustomer?._id) {
       await createNotification({
         userId: updatedCustomer._id,
-        message: `Hello ${updatedCustomer.name}, your profile details have been updated successfully.`,
+        message: `Hello ${updatedCustomer.fullName}, your profile details have been updated successfully.`,
         type: "lead_updated",
       });
       const customerSettings = await CustomerSettings.findOne({
@@ -271,7 +272,7 @@ export const updateCustomer = async (req, res) => {
         await sendPushNotification({
           userId: updatedCustomer._id,
           title: "Profile Updated",
-          message: `Hi ${updatedCustomer.fullName}, your profile details have been updated successfully.`,
+          message: `Hi ${updatedCustomer.fullName}, your profile details have been updated by ${req.user.agencyId.name}.`,
           urlPath: "/customer/profile",
         });
     }
@@ -299,6 +300,8 @@ export const deleteCustomer = async (req, res) => {
     }
     //Soft delete related meetings so meeting count stays correct and hidden in UI
     await Meetings.updateMany({ customerId }, { isDeleted: true });
+
+    await PushNotificationSubscription.deleteMany({ userId: customerId});
 
     return res.json({
       success: true,

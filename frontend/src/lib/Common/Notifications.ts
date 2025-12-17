@@ -20,7 +20,7 @@ export type NotificationType = {
     | "property_share"
     | "property_feedback"
     | "unread";
-  read: boolean;
+  isRead: boolean;
   link: string;
   createdAt: string;
 };

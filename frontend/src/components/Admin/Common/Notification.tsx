@@ -11,7 +11,7 @@ interface Notification {
     agencyId: string;
     message: string;
     type: 'meeting_reminder' | 'property_shared' | 'customer_activity' | 'system_update' | string;
-    read: boolean;
+    isRead: boolean;
     link: string;
     createdAt: string;
 }
@@ -44,7 +44,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
         try {
             await markAsRead(notificationId);
             setNotifications(prev =>
-                prev.map(n => n._id === notificationId ? { ...n, read: true } : n),
+                prev.map(n => n._id === notificationId ? { ...n, isRead: true } : n),
             );
         } catch (err) {
             showErrorToast("Error",err);
@@ -55,7 +55,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
         await markAllAsRead();
         setNotifications(prev =>
             //prev.map(notif => ({ ...notif, read: new Date().toISOString() }))
-            prev.map(n => ({ ...n, read: true })),
+            prev.map(n => ({ ...n, isRead: true })),
         );
     };
 
@@ -74,7 +74,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
         }
     };
 
-    const unreadCount = notifications.filter(n => !n.read).length;
+    const unreadCount = notifications.filter(n => !n.isRead).length;
 
     if (!isOpen) return null;
 
@@ -120,7 +120,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                         <div
                             key={notification._id}
                             className={`p-3 hover:bg-gray-50 cursor-pointer transition ${
-                                !notification.read ? "bg-blue-50" : ""
+                                !notification.isRead ? "bg-blue-50" : ""
                             }`}
                             onClick={() => markAsReadNotification(notification._id)}
                         >
@@ -131,13 +131,13 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                                             <span className="text-lg">{getNotificationIcon(notification.type)}</span>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between">
-                                                    <p className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
+                                                    <p className={`text-sm font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'}`}>
                                                         {notification.type
                                                             .split('_')
                                                             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                                                             .join(' ')}
                                                     </p>
-                                                    {!notification.read && (
+                                                    {!notification.isRead && (
                                                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                                                     )}
                                                 </div>
@@ -153,13 +153,13 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                                         <span className="text-lg">{getNotificationIcon(notification.type)}</span>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between">
-                                                <p className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
+                                                <p className={`text-sm font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'}`}>
                                                     {notification.type
                                                         .split('_')
                                                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                                                         .join(' ')}
                                                 </p>
-                                                {!notification.read && (
+                                                {!notification.isRead && (
                                                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                                                 )}
                                             </div>

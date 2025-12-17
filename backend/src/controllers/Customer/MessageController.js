@@ -248,8 +248,6 @@ export const sendMessage = async (req, res) => {
     const conversationId = req.params.id;
     const { content, attachments } = req.body;
 
-    console.log("User is ", req.user);
-
     const conversation = await Conversation.findOne({
       _id: new ObjectId(conversationId),
       participants: senderId,
@@ -346,7 +344,6 @@ export const sendMessage = async (req, res) => {
       await sendPushNotification({
         userId: receiver?._id,
         title: "New Message",
-        role: "agent",
         message: `${req?.user?.fullName} has sent a message ${
           content
             ? `"${

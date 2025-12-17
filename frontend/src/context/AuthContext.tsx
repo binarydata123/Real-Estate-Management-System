@@ -223,7 +223,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signOut = async () => {
     setForceLogoutFlag(false);
     const deviceId = Cookies.get("deviceId");
-    await removeNotifications(session?.access_token as string,deviceId as string); 
+    await removeNotifications(user?._id as string,deviceId as string); 
     clearSession();
     router.push("/auth/login");
   };

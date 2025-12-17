@@ -246,13 +246,14 @@ export const sendMessage = async (req, res) => {
       receiverId = conversation.participants.find(
         (id) => id.toString() !== senderId.toString()
       );
+      console.log("Receiver's Id Is :: ",receiverId);
     } else {
       receiverId = conversationId;
+      console.log("Receiver's Id Is(Else AAla) :: ",receiverId);
     }
 
     // ✅ Fetch receiver details first (required for both email + plan check)
     const receiver = await Customer.findOne({ _id: new ObjectId(receiverId) });
-    console.log("AGency is : ", req.user);
 
     if (!receiver) {
       return res.status(404).json({
@@ -473,7 +474,7 @@ export const startConversation = async (req, res) => {
       messageResult = await Message.insertOne(message);
 
       await createNotification(req.db, {
-        userId: new ObjectId(receiverId),
+        userId: receiverId,
         type: "message",
         title: "New Message",
         message: `You have a new message from ${req.user.name}`,
@@ -482,6 +483,22 @@ export const startConversation = async (req, res) => {
           receiver.role === "agent" ? "customer" : "agent"
         }/messages?conversationId=${conversationId}`,
       });
+
+      const customerSettings = await CustomerSettings.findOne({
+        userId: receiverId,
+      });
+
+      if (customerSettings?.notifications?.pushNotifications) {
+        await sendPushNotification({
+          userid: receiverId,
+          role: "customer",
+          title: "New Conversation Message",
+          message: `You have a new message from ${req.user.agencyId.name}`,
+          urlPath: `/${
+          receiver.role === "agent" ? "customer" : "agent"
+        }/messages?conversationId=${conversationId}`,
+        });
+      }
     }
     if (req.user.role === "admin") {
       const userData = {
