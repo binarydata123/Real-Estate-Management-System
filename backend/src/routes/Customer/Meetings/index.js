@@ -1,7 +1,9 @@
 import express from "express";
 import {
   getMeetingById,
-  getMeetingsByCustomer
+  getMeetingsByCustomer,
+  updateMeetingByCustomer,
+  updateMeetingStatusByCustomer,
 } from "../../../controllers/Customer/MeetingsController.js";
 import { protect } from "../../../middleware/authMiddleware.js";
 
@@ -21,6 +23,18 @@ router.get(
   getMeetingById
 );
 
+
+router.put(
+  "/update-status/:id",
+  protect(["admin", "customer"]),
+  updateMeetingStatusByCustomer
+);
+
+router.put(
+  "/update/:id",
+  protect(["admin", "customer"]),
+  updateMeetingByCustomer
+);
 
 
 export default router;
