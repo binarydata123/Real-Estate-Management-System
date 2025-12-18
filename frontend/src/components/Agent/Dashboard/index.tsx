@@ -73,7 +73,7 @@ export const AgentDashboard = () => {
     };
 
     init();
-    // ✅ only run once on mount
+    //only run once on mount
   }, []);
 
   return (
