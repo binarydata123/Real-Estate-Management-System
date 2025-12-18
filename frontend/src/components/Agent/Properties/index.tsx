@@ -24,19 +24,20 @@ interface PropertyListFilters {
 
 const PropertyCardSkeleton = () => (
   <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
-    <div className="bg-gray-200 md:aspect-[4/3] aspect-[17/9]"></div>
-    <div className="md:p-4 p-2">
-      <div className="h-5 bg-gray-300 rounded w-3/4 mb-3"></div>
-      <div className="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
-      <div className="grid grid-cols-2 gap-2">
-        <div className="h-4 bg-gray-300 rounded"></div>
-        <div className="h-4 bg-gray-300 rounded"></div>
+    <div className="bg-gray-200 aspect-[16/10] md:aspect-[4/3]"></div>
+    <div className="p-3 md:p-4">
+      <div className="h-4 md:h-5 bg-gray-300 rounded w-3/4 mb-2"></div>
+      <div className="h-4 md:h-5 bg-gray-300 rounded w-1/3 mb-3"></div>
+      <div className="h-3 md:h-4 bg-gray-200 rounded w-1/2 mb-3"></div>
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="h-3 md:h-4 bg-gray-200 rounded"></div>
+        <div className="h-3 md:h-4 bg-gray-200 rounded"></div>
       </div>
-      <div className="mt-4 pt-3 border-t border-gray-200 flex space-x-2">
-        <div className="h-9 bg-gray-300 rounded-lg flex-1"></div>
-        <div className="h-9 w-10 bg-gray-300 rounded-lg"></div>
-        <div className="h-9 w-10 bg-gray-300 rounded-lg"></div>
-        <div className="h-9 w-10 bg-gray-300 rounded-lg"></div>
+      <div className="pt-2.5 border-t border-gray-100 flex gap-1.5 md:gap-2">
+        <div className="h-9 md:h-10 bg-gray-300 rounded-lg flex-1"></div>
+        <div className="h-9 md:h-10 w-9 md:w-10 bg-gray-300 rounded-lg"></div>
+        <div className="h-9 md:h-10 w-9 md:w-10 bg-gray-300 rounded-lg"></div>
+        <div className="h-9 md:h-10 w-9 md:w-10 bg-gray-300 rounded-lg"></div>
       </div>
     </div>
   </div>
@@ -100,19 +101,22 @@ export const Properties: React.FC = () => {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3 md:space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Properties</h1>
-          <p className="text-gray-600 md:mt-1 hidden md:block">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl md:text-3xl font-bold text-gray-900 truncate">
+            Properties
+          </h1>
+          <p className="text-sm text-gray-600 mt-0.5 md:mt-1 hidden sm:block">
             Manage your property listings
           </p>
         </div>
-        <Link href="/agent/add-property">
-          <span className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors cursor-pointer">
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add Property
+        <Link href="/agent/add-property" className="flex-shrink-0">
+          <span className="flex items-center px-3 md:px-4 py-2 md:py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 active:bg-primary/80 transition-colors cursor-pointer text-sm md:text-base font-medium whitespace-nowrap">
+            <PlusIcon className="h-4 w-4 md:h-5 md:w-5 mr-1.5 md:mr-2" />
+            <span className="hidden sm:inline">Add Property</span>
+            <span className="sm:hidden">Add</span>
           </span>
         </Link>
       </div>
@@ -125,7 +129,7 @@ export const Properties: React.FC = () => {
       )}
 
       {isFetching && properties.length === 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
           {Array.from({ length: limit }).map((_, index) => (
             <PropertyCardSkeleton key={index} />
           ))}
@@ -133,7 +137,7 @@ export const Properties: React.FC = () => {
       ) : properties.length > 0 ? (
         <>
           {/* Properties Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
             {properties.map((property) => (
               <PropertyCard
                 key={property._id}
@@ -144,9 +148,9 @@ export const Properties: React.FC = () => {
             ))}
           </div>
 
-          {/* Pagination outside the grid */}
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-6 flex justify-center">
+            <div className="mt-4 md:mt-6 flex justify-center">
               <ScrollPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -155,12 +159,12 @@ export const Properties: React.FC = () => {
                 hasMore={currentPage < totalPages}
                 loader={
                   <div className="text-center py-4">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <div className="inline-block animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-primary"></div>
                   </div>
                 }
                 endMessage={
-                  <div className="text-center py-8 text-green-600 font-medium">
-                    🎉 All caught up!
+                  <div className="text-center py-6 md:py-8 text-green-600 font-medium text-sm md:text-base">
+                    All caught up!
                   </div>
                 }
               />
@@ -168,14 +172,14 @@ export const Properties: React.FC = () => {
           )}
         </>
       ) : (
-        <div className="text-center py-12">
-          <div className="w-24 h-24 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-            <BuildingOfficeIcon className="h-12 w-12 text-gray-400" />
+        <div className="text-center py-8 md:py-12 px-4">
+          <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-full mx-auto mb-3 md:mb-4 flex items-center justify-center">
+            <BuildingOfficeIcon className="h-10 w-10 md:h-12 md:w-12 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-base md:text-lg font-medium text-gray-900 mb-1.5 md:mb-2">
             No properties found
           </h3>
-          <p className="text-gray-500 mb-6">
+          <p className="text-sm md:text-base text-gray-500 mb-4 md:mb-6">
             Try adjusting your filters or add a new property.
           </p>
         </div>

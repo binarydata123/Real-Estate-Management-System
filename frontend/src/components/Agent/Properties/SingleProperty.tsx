@@ -170,7 +170,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     val !== null && val !== undefined && val !== "";
 
   return (
-    <div className="max-w-6xl mx-auto pb-6">
+    <div className="max-w-6xl mx-auto pb-4 md:pb-6">
       {/* Share Modal */}
       {showShareModal && propertyData && (
         <SharePropertyModal
@@ -195,42 +195,47 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
       />
 
       {/* Header with Back and Actions */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 mb-4">
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-3 md:px-4 py-2.5 md:py-3 mb-3 md:mb-4">
         <div className="flex items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-xl transition-all duration-200"
+            className="flex items-center gap-1.5 md:gap-2 p-1.5 md:p-2 hover:bg-gray-100 active:bg-gray-200 rounded-lg md:rounded-xl transition-all"
           >
-            <ArrowLeftIcon className="h-5 w-5 text-gray-700" />
-            <span className="font-medium text-gray-700">Back</span>
+            <ArrowLeftIcon className="h-4 w-4 md:h-5 md:w-5 text-gray-700" />
+            <span className="text-sm md:text-base font-medium text-gray-700">Back</span>
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2">
             <button
               onClick={() => setShowShareModal(true)}
-              className="p-2 bg-blue-50 text-primary rounded-xl hover:bg-blue-100 transition-all"
+              className="p-2 md:p-2.5 bg-blue-50 text-primary rounded-lg md:rounded-xl hover:bg-blue-100 active:bg-blue-200 transition-all"
+              title="Share"
             >
-              <ShareIcon className="h-5 w-5" />
+              <ShareIcon className="h-4 w-4 md:h-5 md:w-5" />
             </button>
             <Link href={`/agent/edit-property/${propertyId}`}>
-              <button className="p-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-all">
-                <PencilIcon className="h-5 w-5" />
+              <button
+                className="p-2 md:p-2.5 bg-green-50 text-green-600 rounded-lg md:rounded-xl hover:bg-green-100 active:bg-green-200 transition-all"
+                title="Edit"
+              >
+                <PencilIcon className="h-4 w-4 md:h-5 md:w-5" />
               </button>
             </Link>
             <button
               onClick={() => setShowConfirmDialog(true)}
-              className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"
+              className="p-2 md:p-2.5 bg-red-50 text-red-600 rounded-lg md:rounded-xl hover:bg-red-100 active:bg-red-200 transition-all"
+              title="Delete"
             >
-              <TrashIcon className="h-5 w-5" />
+              <TrashIcon className="h-4 w-4 md:h-5 md:w-5" />
             </button>
           </div>
         </div>
       </div>
 
-      <div className="px-4 space-y-6">
+      <div className="px-3 md:px-4 space-y-3 md:space-y-6">
         {/* Image Gallery */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="relative aspect-[4/3] bg-gray-100">
+        <div className="bg-white rounded-lg md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="relative aspect-[16/10] md:aspect-[4/3] bg-gray-100">
             {/* {imageLoading && !isVideo(selectedImage?.url || "") && (
               <div className="absolute inset-0 z-10 flex animate-pulse items-center justify-center bg-gray-200">
                 <HomeIcon className="h-16 w-16 text-gray-400" />
@@ -277,7 +282,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
             {propertyData.images.length > 1 && (
               <>
                 <button
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 text-gray-800 p-2 rounded-full shadow-lg hover:bg-white transition-all active:scale-95"
+                  className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 bg-white/90 text-gray-800 p-1.5 md:p-2 rounded-full shadow-lg hover:bg-white active:scale-95 transition-all"
                   onClick={() => {
                     setImageLoading(true);
                     const idx = propertyData.images.findIndex(
@@ -289,10 +294,10 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                     setSelectedImage(propertyData.images[prevIdx]);
                   }}
                 >
-                  <ChevronLeftIcon className="h-5 w-5" />
+                  <ChevronLeftIcon className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
                 <button
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 text-gray-800 p-2 rounded-full shadow-lg hover:bg-white transition-all active:scale-95"
+                  className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-white/90 text-gray-800 p-1.5 md:p-2 rounded-full shadow-lg hover:bg-white active:scale-95 transition-all"
                   onClick={() => {
                     setImageLoading(true);
                     const idx = propertyData.images.findIndex(
@@ -302,14 +307,14 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                     setSelectedImage(propertyData.images[nextIdx]);
                   }}
                 >
-                  <ChevronRightIcon className="h-5 w-5" />
+                  <ChevronRightIcon className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
               </>
             )}
 
             {/* Image Counter */}
             {propertyData.images.length > 1 && (
-              <div className="absolute top-3 right-3 bg-black/70 text-white px-2 py-1 rounded-full text-sm">
+              <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-black/70 text-white px-2 md:px-2.5 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-medium">
                 {propertyData.images.findIndex(
                   (img) => img._id === selectedImage?._id
                 ) + 1}{" "}
@@ -320,8 +325,8 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
 
           {/* Thumbnails */}
           {propertyData.images.length > 1 && (
-            <div className="p-3 bg-gray-50 border-t border-gray-100">
-              <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="p-2 md:p-3 bg-gray-50 border-t border-gray-100">
+              <div className="flex gap-1.5 md:gap-2 overflow-x-auto pb-1 md:pb-2 scrollbar-thin">
                 {propertyData.images.map((image, index) => (
                   <button
                     key={image._id || index}
@@ -329,16 +334,16 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                       setImageLoading(true);
                       setSelectedImage(image);
                     }}
-                    className={`flex-shrink-0 relative rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                    className={`flex-shrink-0 relative rounded-md md:rounded-lg overflow-hidden border-2 transition-all ${
                       selectedImage?._id === image._id
-                        ? "border-primary ring-2 ring-primary"
-                        : "border-gray-200 hover:border-gray-400"
+                        ? "border-primary ring-1 md:ring-2 ring-primary"
+                        : "border-gray-200 hover:border-gray-400 active:border-gray-500"
                     }`}
                   >
-                    <div className="relative h-14 w-16">
+                    <div className="relative h-12 w-14 md:h-14 md:w-16">
                       {isVideo(image.url) ? (
                         <div className="w-full h-full bg-black flex items-center justify-center">
-                          <PlayCircleIcon className="h-5 w-5 text-white" />
+                          <PlayCircleIcon className="h-4 w-4 md:h-5 md:w-5 text-white" />
                         </div>
                       ) : (
                         <Image
@@ -358,35 +363,35 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         </div>
 
         {/* Basic Info Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-          <div className="mb-4">
-            <div className="flex items-start justify-between mb-3">
-              <h1 className="text-2xl font-bold text-gray-900 pr-2">
+        <div className="bg-white rounded-lg md:rounded-2xl shadow-sm border border-gray-100 p-3 md:p-5">
+          <div className="mb-3 md:mb-4">
+            <div className="flex items-start justify-between gap-2 mb-2 md:mb-3">
+              <h1 className="text-lg md:text-2xl font-bold text-gray-900 leading-tight">
                 {propertyData.title}
               </h1>
-              <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap">
+              <div className="bg-green-50 text-green-700 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium whitespace-nowrap flex-shrink-0">
                 {propertyData.status}
               </div>
             </div>
 
-            <div className="flex items-center gap-1 text-gray-600 mb-4">
-              <MapPinIcon className="h-4 w-4" />
-              <span className="text-sm">{propertyData.location || "N/A"}</span>
+            <div className="flex items-center gap-1 text-gray-600 mb-3 md:mb-4">
+              <MapPinIcon className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="text-xs md:text-sm">{propertyData.location || "N/A"}</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg md:rounded-xl p-3 md:p-4 border border-blue-100">
               {hasValue(propertyData.price) &&
                 propertyData.price &&
                 propertyData.price > 0 && (
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                  <div className="text-lg md:text-2xl font-bold text-gray-900 mb-1 md:mb-1.5">
                     {formatPrice(propertyData.price)}
                   </div>
                 )}
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <span className="bg-white px-2 py-1 rounded-lg border border-gray-200 capitalize">
+              <div className="flex items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-600 flex-wrap">
+                <span className="bg-white px-2 py-1 rounded-md md:rounded-lg border border-gray-200 capitalize">
                   {capitalizeFirstLetter(propertyData.type)}
                 </span>
-                <span className="bg-white px-2 py-1 rounded-lg border border-gray-200">
+                <span className="bg-white px-2 py-1 rounded-md md:rounded-lg border border-gray-200">
                   {capitalizeFirstLetter(propertyData.category)}
                 </span>
               </div>
@@ -394,27 +399,27 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
           </div>
 
           {/* Key Features Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4 border-y border-gray-100">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3 py-3 md:py-4 border-y border-gray-100">
             {isResidential && hasValue(propertyData.bedrooms) && (
               <div className="text-center">
-                <div className="bg-blue-50 p-2 rounded-xl inline-block mb-1">
-                  <BedIcon className="h-5 w-5 text-primary" />
+                <div className="bg-blue-50 p-1.5 md:p-2 rounded-lg md:rounded-xl inline-block mb-1">
+                  <BedIcon className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                 </div>
-                <div className="text-sm font-semibold text-gray-900">
+                <div className="text-xs md:text-sm font-semibold text-gray-900">
                   {propertyData.bedrooms}
                 </div>
-                <div className="text-xs text-gray-500">Beds</div>
+                <div className="text-[10px] md:text-xs text-gray-500">Beds</div>
               </div>
             )}
             {isResidential && hasValue(propertyData.bathrooms) && (
               <div className="text-center">
-                <div className="bg-green-50 p-2 rounded-xl inline-block mb-1">
-                  <BathIcon className="h-5 w-5 text-green-600" />
+                <div className="bg-green-50 p-1.5 md:p-2 rounded-lg md:rounded-xl inline-block mb-1">
+                  <BathIcon className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
                 </div>
-                <div className="text-sm font-semibold text-gray-900">
+                <div className="text-xs md:text-sm font-semibold text-gray-900">
                   {propertyData.bathrooms}
                 </div>
-                <div className="text-xs text-gray-500">Baths</div>
+                <div className="text-[10px] md:text-xs text-gray-500">Baths</div>
               </div>
             )}
             {isCommercial && hasValue(propertyData.washrooms) && (

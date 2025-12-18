@@ -77,24 +77,16 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
-      {/* Image */}
       <Link href={`/agent/properties/${property._id}`}>
-        <div className="relative md:aspect-[4/3] aspect-[17/9]  overflow-hidden">
-          {/* <Image
-            width={400}
-            height={200}
-            
-            onError={handleImageError}
-          /> */}
+        <div className="relative aspect-[16/10] md:aspect-[4/3] overflow-hidden">
           <img
             src={primaryImage}
             alt={property.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
-
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-2 left-2 md:top-3 md:left-3">
             <span
-              className={`inline-flex capitalize items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+              className={`inline-flex capitalize items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
                 property.status
               )}`}
             >
@@ -103,84 +95,85 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           </div>
         </div>
       </Link>
-      {/* Content */}
-      <div className="md:p-4 p-2 flex flex-col flex-grow">
-        <div className="">
-          <div className="flex items-start justify-between mb-1">
-            <Link href={`/agent/properties/${property._id}`}>
-              <h3 className="font-semibold text-gray-800 text-base md:text-lg leading-tight group-hover:text-primary transition-colors">
-                {property.title}
-              </h3>
-            </Link>
-            {(property.price ?? 0) > 0 && (
-              <p className="text-xl md:text-2xl font-bold text-primary">
-                {formatPrice(property.price as number)}
-              </p>
-            )}
-          </div>
-          {property.location && (
-            <div className="flex items-center text-sm text-gray-500 mt-1">
-              <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span className="truncate">{property.location}</span>
-            </div>
-          )}
-        </div>
 
-        <div className="flex-grow mb-2 md:mb-4">
+      <div className="p-3 md:p-4 flex flex-col flex-grow">
+        <Link href={`/agent/properties/${property._id}`} className="mb-2">
+          <h3 className="font-semibold text-gray-800 text-base md:text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2">
+            {property.title}
+          </h3>
+        </Link>
+
+        {(property.price ?? 0) > 0 && (
+          <p className="text-lg md:text-xl font-bold text-primary mb-2">
+            {formatPrice(property.price as number)}
+          </p>
+        )}
+
+        {property.location && (
+          <div className="flex items-center text-xs md:text-sm text-gray-500 mb-3">
+            <MapPinIcon className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1 flex-shrink-0" />
+            <span className="truncate">{property.location}</span>
+          </div>
+        )}
+
+        <div className="flex-grow mb-3">
           {hasKeyDetails ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
+            <div className="grid grid-cols-2 gap-2 text-xs md:text-sm text-gray-700">
               {(property.built_up_area ?? 0) > 0 && (
-                <div className="flex items-center">
-                  <RulerIcon className="h-4 w-4 mr-1 text-gray-500" />
-                  <span>
+                <div className="flex items-center gap-1">
+                  <RulerIcon className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 flex-shrink-0" />
+                  <span className="truncate">
                     {property.built_up_area} {property.unit_area_type}
                   </span>
                 </div>
               )}
               {(property.bedrooms ?? 0) > 0 && (
-                <div className="flex items-center">
-                  <BedDoubleIcon className="h-4 w-4 mr-1 text-gray-500" />
+                <div className="flex items-center gap-1">
+                  <BedDoubleIcon className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 flex-shrink-0" />
                   <span>{property.bedrooms} BHK</span>
                 </div>
               )}
               {(property.bathrooms ?? 0) > 0 && (
-                <div className="flex items-center">
-                  <BathIcon className="h-4 w-4 mr-1 text-gray-500" />
+                <div className="flex items-center gap-1">
+                  <BathIcon className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 flex-shrink-0" />
                   <span>{property.bathrooms} Bath</span>
                 </div>
               )}
               {property.furnishing && (
-                <div className="flex items-center">
-                  <Armchair className="h-4 w-4 mr-1 text-gray-500" />
-                  <span className="capitalize">{property.furnishing}</span>
+                <div className="flex items-center gap-1">
+                  <Armchair className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 flex-shrink-0" />
+                  <span className="capitalize truncate">{property.furnishing}</span>
                 </div>
               )}
             </div>
           ) : (
-            <p className="text-sm text-gray-600 line-clamp-2">
+            <p className="text-xs md:text-sm text-gray-600 line-clamp-2">
               {property.description ||
                 "No description available for this property."}
             </p>
           )}
         </div>
 
-        <div className="mt-auto pt-3 border-t border-gray-100">
-          <div className="flex space-x-2">
-            <Link href={`/agent/properties/${property._id}`}>
-              <button className="flex-1 flex items-center justify-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors text-sm">
-                <EyeIcon className="h-4 w-4 mr-2" />
-                <span className="hidden md:inline">View Details</span>
-                <span className="md:hidden">View</span>
+        <div className="mt-auto pt-2.5 border-t border-gray-100">
+          <div className="flex gap-1.5 md:gap-2">
+            <Link href={`/agent/properties/${property._id}`} className="flex-1">
+              <button className="w-full flex items-center justify-center px-3 md:px-4 py-2 md:py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 active:bg-primary/80 transition-colors text-xs md:text-sm font-medium">
+                <EyeIcon className="h-4 w-4 mr-1.5" />
+                <span>View</span>
               </button>
             </Link>
             <button
               onClick={() => onShare?.(property)}
-              className="flex items-center justify-center md:px-4 px-2 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-center p-2 md:p-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              title="Share"
             >
               <ShareIcon className="h-4 w-4" />
             </button>
             <Link href={`/agent/edit-property/${property._id}`}>
-              <button className="flex items-center justify-center md:px-4 px-2 py-2 border border-blue-300 text-blue-400 rounded-lg hover:bg-gray-50 transition-colors">
+              <button
+                className="flex items-center justify-center p-2 md:p-2.5 border border-blue-300 text-blue-500 rounded-lg hover:bg-blue-50 active:bg-blue-100 transition-colors"
+                title="Edit"
+              >
                 <PencilIcon className="h-4 w-4" />
               </button>
             </Link>
@@ -189,7 +182,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                 setSelectedProperty(property._id as string);
                 setShowConfirmDialog(true);
               }}
-              className="flex items-center justify-center md:px-4 px-2 py-2 border border-red-300 text-red-400 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-center p-2 md:p-2.5 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 active:bg-red-100 transition-colors"
+              title="Delete"
             >
               <TrashIcon className="h-4 w-4" />
             </button>
