@@ -33,19 +33,27 @@ const minValue = 500;
       Customer.countDocuments({ agencyId, isDeleted: false }),
       Meetings.countDocuments({
         agencyId,
-        isDeleted: false ,
-        date: { $gte: startOfDay },
-        status: { $ne: "cancelled" },
+        isDeleted: false,
+        status: { $nin: ["cancelled", "past"] }, // Use $nin for multiple values
+        $or: [
+          { date: { $gt: endOfDay } }, // Future dates
+          {
+            date: { $gte: startOfDay, $lte: endOfDay }, // Today
+            time: { $exists: true }, // Make sure time exists
+          },
+        ],
       }),
+
+      // Today's upcoming meetings only
       Meetings.find({
         agencyId,
-        isDeleted: false ,
+        isDeleted: false,
         date: { $gte: startOfDay, $lte: endOfDay },
-        status: { $ne: "cancelled" },
+        status: { $nin: ["cancelled", "past"] }, // Exclude cancelled and past
       })
+        .sort({ time: 1 }) // Sort by time ascending
         .limit(3)
         .populate("customerId propertyId"),
-
       Customer.aggregate([
         {
           $match: {

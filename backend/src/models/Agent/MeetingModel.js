@@ -31,7 +31,7 @@ const meetingSchema = new mongoose.Schema({
         "confirmed",
       ],
       message:
-        "Status must be one of: scheduled, completed, cancelled, rescheduled,confirmed",
+        "Status must be one of: scheduled, completed, cancelled, rescheduled, confirmed",
     },
     default: "scheduled",
   },
@@ -43,13 +43,22 @@ const meetingSchema = new mongoose.Schema({
     ],
     default: null,
   },
-
-  isDeleted:{
-    type:Boolean,
-    default:false,
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-  createdAt: { type: Date, default: Date.now },
+// ✅ FIX: Add this middleware to handle partial updates
+meetingSchema.pre("findOneAndUpdate", function (next) {
+  // Disable validation for updates (only validate provided fields)
+  this.options.runValidators = true;
+  this.options.context = "query";
+  next();
 });
 
 export const Meetings = mongoose.model("Meetings", meetingSchema);

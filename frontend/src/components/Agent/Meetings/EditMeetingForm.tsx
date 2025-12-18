@@ -1,14 +1,26 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   XMarkIcon,
   CalendarIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import { meetingSchema, MeetingFormData } from "@/schemas/Agent/meetingSchema";
+
+import {
+  meetingSchema,
+  customerMeetingSchema,
+  MeetingFormData,
+  CustomerMeetingFormData,
+} from "@/schemas/Agent/meetingSchema";
 import { updateMeeting, getMeetingById } from "@/lib/Agent/MeetingAPI";
+import {
+  // updateMeetingStatus,
+  updateMeeting as updateMeetingCustomer,
+  getMeetingById as getMeetingByIdCustomer,
+} from "@/lib/Customer/MeetingAPI";
+
 import { useAuth } from "@/context/AuthContext";
 import { getCustomersForDropDown } from "@/lib/Agent/CustomerAPI";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
@@ -21,106 +33,210 @@ interface EditMeetingFormProps {
   onSuccess?: () => void;
 }
 
+interface FormData {
+  date: string;
+  time: string;
+  meetingId:string|null;
+  customerId:string|null;
+  propertyId:string|null;
+  agencyId:string|null;
+  status:string|null;
+} 
+
 export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   meetingId,
   meetingStatus,
   onClose,
   onSuccess,
 }) => {
+  const { user } = useAuth();
+  const isCustomer = user?.role === "customer";
+
   const [loading, setLoading] = useState(false);
   const [initialData, setInitialData] = useState<MeetingFormData | null>(null);
-  const { user } = useAuth();
   const [customers, setCustomers] = useState<{ id: string; name: string }[]>(
     []
   );
   const [properties, setProperties] = useState<Property[]>([]);
+
   const {
     register,
     handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<MeetingFormData>({
-    resolver: zodResolver(meetingSchema),
+    // setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<MeetingFormData | CustomerMeetingFormData>({
+    resolver: zodResolver(isCustomer ? customerMeetingSchema : meetingSchema),
+    mode: "onSubmit", // Only validate on submit
   });
 
-  // Fetch existing meeting data
+  // DEBUG: Watch form values and errors
+  const formValues = watch();
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!meetingId) return;
-        const result = await getMeetingById(meetingId);
+        if (!meetingId) {
+          console.log("❌ No meeting ID provided");
+          return;
+        }
+
+        setLoading(true);
+
+        const result = isCustomer
+          ? await getMeetingByIdCustomer(meetingId)
+          : await getMeetingById(meetingId);
+
         const meeting = result.data.data;
+        console.log("✅ Meeting data loaded:", meeting);
         setInitialData(meeting);
-        // Format date for <input type="date">
+
         const formattedDate = meeting.date
           ? new Date(meeting.date).toISOString().split("T")[0]
           : "";
 
-        setValue("customerId", meeting.customerId);
-        setValue("propertyId", meeting.propertyId || "");
-        setValue("agencyId", meeting.agencyId);
-        setValue("date", formattedDate);
-        setValue("time", meeting.time || "");
-        setValue("status", meetingStatus || meeting.status);
+        // Build the form data object
+        const formData: FormData = {
+          date: formattedDate,
+          time: meeting.time || "",
+          meetingId: meeting._id,
+          customerId: meeting.customerId,
+          propertyId: meeting.propertyId || "",
+          agencyId: meeting.agencyId, 
+          status: meetingStatus || meeting.status,
+        };
+
+        // For customers, don't include fields that cause validation errors
+        if (!isCustomer) {
+          formData.customerId = meeting.customerId;
+          formData.propertyId = meeting.propertyId || "";
+          formData.agencyId = meeting.agencyId;
+          formData.status = meetingStatus || meeting.status;
+        }
+
+        // Reset form with all values at once
+        reset(formData);
+        console.log("✅ Form reset with values:", formData);
       } catch (err) {
-        showErrorToast("Failed to load meeting:", err);
+        console.error("❌ Error fetching meeting:", err);
+        showErrorToast("Failed to load meeting", err);
         onClose();
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, [meetingId, setValue, onClose]);
+  }, [meetingId, isCustomer, reset, onClose, meetingStatus]);
 
+
+  //LOAD CUSTOMERS (AGENT ONLY)
+  
   useEffect(() => {
-    const loadProps = async () => {
-      if (!user?.agency?._id) return;
+    if (isCustomer || !user?._id) return;
 
-      const { data } = await getProperties({ agencyId: user.agency._id });
-      setProperties(data);
-    };
-
-    loadProps();
-  }, [user?.agency?._id]);
-
-  useEffect(() => {
     const init = async () => {
-      if (user?._id) {
-        const result = await getCustomersForDropDown(user?.agency?._id as string);
-
-        // extract only _id and fullName
+      try {
+        const result = await getCustomersForDropDown(user._id);
         const filtered = result.data
           .map((c: CustomerFormData) => ({
             id: c._id,
             name: c.fullName,
           }))
           .sort((a, b) => a.name.localeCompare(b.name));
-
         setCustomers(filtered);
+      } catch (err) {
+        console.error("❌ Error loading customers:", err);
       }
     };
-    init();
-  }, [user?._id]);
 
-  const onSubmit: SubmitHandler<MeetingFormData> = async (data) => {
+    init();
+  }, [user?._id, isCustomer]);
+
+  
+   // LOAD PROPERTIES (AGENT ONLY)
+
+  useEffect(() => {
+    if (isCustomer || !user?.agency?._id) return;
+
+    const loadProps = async () => {
+      try {
+        const { data } = await getProperties({ agencyId: user.agency!._id });
+        setProperties(data);
+      } catch (err) {
+        console.error("❌ Error loading properties:", err);
+      }
+    };
+
+    loadProps();
+  }, [user?.agency?._id, isCustomer]);
+
+ 
+   // SUBMIT HANDLER
+  const onSubmit = async (data: MeetingFormData | CustomerMeetingFormData) => {
+    
+
     setLoading(true);
     try {
-      const payload: MeetingFormData = {
-        ...data,
-        agencyId: user?.agency?._id,
-      };
-      if (meetingId) await updateMeeting(meetingId, payload);
-      showSuccessToast("Meeting updated successfully!");
+      if (!meetingId) {
+        // console.error("❌ No meeting ID!");
+        showErrorToast("Meeting ID is missing");
+        return;
+      }
+
+      if (isCustomer) {
+        // Prepare customer payload
+        const customerPayload = {
+          date: data.date,
+          time: data.time,
+        };
+        console.log("📤 Sending customer payload:", customerPayload);
+
+        // Update date & time
+        const updateResult = await updateMeetingCustomer(
+          meetingId,
+          customerPayload
+        );
+        console.log("✅ Update Response:", updateResult);
+
+        showSuccessToast("Meeting updated successfully!");
+      } else {
+        console.log("🏢 Agent Update Flow");
+        // Type guard to ensure we have agent fields
+        if (!("customerId" in data)) {
+          showErrorToast("Invalid form data for agent");
+          return;
+        }
+
+        const payload: MeetingFormData = {
+          ...(data as MeetingFormData),
+          agencyId: user?.agency?._id,
+        };
+        console.log("📤 Sending agent payload:", payload);
+        const result = await updateMeeting(meetingId, payload);
+        console.log("✅ Agent Update Response:", result);
+        showSuccessToast("Meeting updated successfully!");
+      }
+
       onSuccess?.();
       onClose();
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        showErrorToast("Failed to update meeting:", error);
-      } else {
-        showErrorToast("Failed to update meeting:", error);
-      }
+      console.error("❌ Submit Error:", error);
+      showErrorToast("Failed to update meeting", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // MANUAL SUBMIT FOR DEBUGGING
+  const handleManualSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("MANUAL SUBMIT CLICKED");
+    console.log(" Form Values:", formValues);
+    console.log("Form Errors:", errors);
+
+    // Try to trigger the form submission
+    await handleSubmit(onSubmit)(e);
   };
 
   if (!initialData) {
@@ -168,6 +284,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
     );
   }
 
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -175,7 +292,9 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
         <div className="sticky top-0 bg-white border-b border-gray-200 md:p-6 p-2">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
-              Edit Meeting
+              {meetingStatus === "scheduled"
+                ? "Edit Meeting"
+                : "Reschedule Meeting"}
             </h2>
             <span
               onClick={onClose}
@@ -188,57 +307,60 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
 
         {/* Form */}
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleManualSubmit}
           className="md:p-6 p-2 md:space-y-6 space-y-2"
         >
-          {/* Customer & Property */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-                Customer Name *
-              </label>
-              <select
-                {...register("customerId")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
-              >
-                <option value="">Select a customer</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.name}
-                  </option>
-                ))}
-              </select>
-              {errors.customerId && (
-                <p className="text-red-600 text-sm mt-1">
-                  {errors.customerId.message}
-                </p>
-              )}
-            </div>
+          {/* CUSTOMER & PROPERTY (AGENT ONLY) */}
+          {!isCustomer && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
+                  Customer Name *
+                </label>
+                <select
+                  {...register("customerId")}
+                  className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
+                >
+                  <option value="">Select a customer</option>
+                  {customers.map((customer) => (
+                    <option key={customer.id} value={customer.id}>
+                      {customer.name}
+                    </option>
+                  ))}
+                </select>
+                {/* {errors.customerId as String && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.customerId.message}
+                  </p>
+                )}*/}
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-                Property (Optional)
-              </label>
-              <select
-                {...register("propertyId")}
-                className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
-              >
-                <option value="">Select a Property</option>
-                {properties.map((property) => (
-                  <option key={property._id} value={property._id}>
-                    {property.title}
-                  </option>
-                ))}
-              </select>
-              {errors.propertyId && (
-                <p className="text-red-600 text-sm mt-1">
-                  {errors.propertyId.message}
-                </p>
-              )}
-            </div>
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
+                  Property (Optional)
+                </label>
+                <select
+                  {...register("propertyId")}
+                  className="w-full md:px-4 px-2 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary"
+                >
+                  <option value="">Select a Property</option>
+                  {properties.map((property) => (
+                    <option key={property._id} value={property._id}>
+                      {property.title}
+                    </option>
+                  ))}
+                </select>
 
-          {/* Date & Time */}
+                {/* {errors.propertyId && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.propertyId.message}
+                  </p>
+                )} */}
+              </div>
+            </div>
+          )}
+
+          {/* ✅ DATE & TIME */}
           <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
@@ -262,7 +384,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
-                Time
+                Time *
               </label>
               <div className="relative">
                 <ClockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -284,17 +406,23 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
           <div className="flex justify-end space-x-2 md:space-x-4 md:pt-6 pt-2 border-t border-gray-200">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {          
+                onClose();
+              }}
               className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isSubmitting}
               className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Updating..." : "Update Meeting"}
+              {loading || isSubmitting
+                ? "Updating..."
+                : meetingStatus === "scheduled"
+                ? "Update Meeting"
+                : "Reschedule Meeting"}
             </button>
           </div>
         </form>
@@ -302,3 +430,4 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
     </div>
   );
 };
+
