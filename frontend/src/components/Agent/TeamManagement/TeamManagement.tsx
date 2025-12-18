@@ -69,33 +69,38 @@ export const TeamManagement: React.FC = () => {
       </div>
 
       {/* Team Members */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="px-3 md:px-6 py-2 md:py-4 border-b border-gray-200">
-          <h4 className="font-medium text-gray-900">
-            Team Members ({teamMember?.length || 0})
-          </h4>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h4 className="font-semibold text-gray-900 text-lg">
+              Team Members
+            </h4>
+            <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
+              {teamMember?.length || 0} {teamMember?.length === 1 ? 'member' : 'members'}
+            </span>
+          </div>
         </div>
 
         <div className="divide-y divide-gray-200">
           {teamMember?.map((member) => (
             <div
               key={member._id}
-              className="px-3 md:px-6 py-2 md:py-4 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4"
+              className="px-3 md:px-6 py-2 md:py-4 flex md:flex-row md:items-center justify-between gap-3 md:gap-4"
             >
               {/* Member Info */}
               <div className="flex items-start space-x-3 md:space-x-4">
-                <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                  <UsersIcon className="h-6 w-6 text-gray-600" />
+                <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <UsersIcon className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium text-gray-900 truncate">
+                  <p className="font-bold text-black truncate">
                     {member.name}
                   </p>
                   <p className="text-sm text-gray-600 truncate">
                     {member.email}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Created : {new Date(member.createdAt).toLocaleDateString()}
+                    <span className="text-purple-600">Created</span> : {new Date(member.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -105,15 +110,15 @@ export const TeamManagement: React.FC = () => {
                 <div className="flex space-x-1">
                   <button
                     onClick={() => handleUpdate(member)}
-                    className="p-1 text-gray-400 hover:text-gray-600"
+                    className="p-1 text-gray-400"
                   >
-                    <PencilIcon className="h-4 w-4" />
+                    <PencilIcon className="h-4 w-4 text-green-600" />
                   </button>
                   <button
                     onClick={() => handleDelete(member._id)}
-                    className="p-1 text-gray-400 hover:text-red-600"
+                    className="p-1 text-gray-400"
                   >
-                    <TrashIcon className="h-4 w-4" />
+                    <TrashIcon className="h-4 w-4 text-red-600" />
                   </button>
                 </div>
               </div>
