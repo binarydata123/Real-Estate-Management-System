@@ -1,8 +1,9 @@
 import { Meetings } from "../../models/Agent/MeetingModel.js";
 import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 import { Notification } from "../../models/Common/NotificationModel.js";
-import { Property } from "../../models/Agent/PropertyModel.js";
+import { Property } from "../../models/Agent/PropertyModel.js"; // Add Property model import
 // import { Customer } from "../../models/Agent/CustomerModel.js";
+import mongoose from "mongoose";
 
 export const customerDashboardData = async (req, res) => {
   try {
@@ -103,7 +104,7 @@ export const customerDashboardData = async (req, res) => {
       propertyCountQuery,
       latestPropertiesQuery,
       Notification.countDocuments({
-        userId: customerId,
+        userId: new mongoose.Types.ObjectId(customerId),
         isRead: false,
       }),
       Notification.find({

@@ -289,7 +289,7 @@ const NotificationsPage: React.FC = () => {
                   <div
                     key={notification?._id}
                     onClick={() =>
-                      !notification.read &&
+                      !notification.isRead &&
                       handleReadNotification(notification?._id)
                     }
                     className={`relative flex items-start p-4 border-l-4 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer ${config.border}`}

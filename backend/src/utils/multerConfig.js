@@ -11,9 +11,7 @@ const __dirname = path.dirname(__filename);
 // storage folder inside backend/src/storage
 const storageRoot = path.join(__dirname, '..', 'storage');
 
-// ============================================
 // File Processors
-// ============================================
 
 const processAndSaveImages = async (file, folder) => {
   const safeName = file.filename;
@@ -53,9 +51,7 @@ const processAndSaveDocs = async (file, folder) => {
   return file.filename;
 };
 
-// ============================================
 // createUpload() with backward compatibility
-// ============================================
 
 export const createUpload = (folderNameOrMap) => {
   const isMap = typeof folderNameOrMap === "object";
@@ -82,9 +78,7 @@ export const createUpload = (folderNameOrMap) => {
     })
   });
 
-  // ========================================
   // SINGLE
-  // ========================================
   return {
     single: (fieldName) => async (req, res, next) => {
       upload.single(fieldName)(req, res, async (err) => {
@@ -102,9 +96,7 @@ export const createUpload = (folderNameOrMap) => {
       });
     },
 
-    // ========================================
     // MULTIPLE FILES
-    // ========================================
     multiple: (fieldName, maxCount) => async (req, res, next) => {
       upload.array(fieldName, maxCount)(req, res, async (err) => {
         if (err) return res.status(500).json({ message: "Error uploading files", status: false });
@@ -135,9 +127,7 @@ export const createUpload = (folderNameOrMap) => {
       });
     },
 
-    // ========================================
     // MULTIPLE FIELDS (logo + favicon etc.)
-    // ========================================
     fields: (fieldsArray) => async (req, res, next) => {
       upload.fields(fieldsArray)(req, res, async (err) => {
         if (err)

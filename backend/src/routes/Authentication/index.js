@@ -37,5 +37,9 @@ router.post(
   "/otp",
   registrationController.otpGenerator
 );
+router.post(
+  "/remove-notifications",
+  registrationController.checkNotifications
+);
 
 export default router;

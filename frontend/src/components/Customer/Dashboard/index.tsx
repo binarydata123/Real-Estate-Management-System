@@ -16,6 +16,8 @@ import { formatPrice } from "@/utils/helperFunction";
 import { customerDashboard } from "@/lib/Customer/DashboardAPI";
 import { timeFormatter } from "@/helper/timeFormatter";
 import { useAuth } from "@/context/AuthContext";
+import { useNotificationPermission } from "@/components/Common/pushNotification";
+import { usePushSubscription } from "@/components/Common/SubscribeUserForNotification";
 
 interface RecentActivity {
   _id: string;
@@ -51,6 +53,11 @@ interface DashboardData {
 export default function CustomerDashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData>({});
   const { user } = useAuth();
+  const { notificationPermission, requestNotificationPermission } =
+    useNotificationPermission();
+  const userId = user?._id;
+  const role = user?.role;
+  const { subscribeUserToPush } = usePushSubscription();
 
   const getDashboardData = async () => {
     try {
@@ -70,13 +77,22 @@ export default function CustomerDashboard() {
     }
   }, [user]);
 
-  // Refetch dashboard data when showAllProperty toggle changes
   useEffect(() => {
-    if (user?._id) {
-      getDashboardData();
-    }
-  }, [user?.showAllProperty]);
+    const init = async () => {
+      if (notificationPermission !== "granted") {
+        const permission = await requestNotificationPermission();
+        if (permission === "granted" && userId && role) {
+          await subscribeUserToPush(userId, role);
+        }
+      } else if (notificationPermission === "granted" && userId && role) {
+        // Already granted → just subscribe
+        await subscribeUserToPush(userId, role);
+      }
+    };
 
+    init();
+    // ✅ only run once on mount
+  }, []);
 
   const userStats = [
     {
@@ -243,7 +259,7 @@ export default function CustomerDashboard() {
                       <img
                         src={getImageUrl(
                           property.propertyId?.images?.[0]?.url ||
-                            "/placeholder.jpg"
+                            "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
                         )}
                         alt={property.propertyId?.title as string}
                         className="h-15 w-15 object-cover rounded-lg flex-shrink-0"

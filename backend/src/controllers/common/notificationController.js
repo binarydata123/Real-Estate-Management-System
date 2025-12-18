@@ -33,7 +33,7 @@ export const getUserNotifications = async (req, res) => {
 
     if (type) {
       if (type === "unread") {
-        query.read = false;
+        query.isRead = false;
       } else if (type !== "all") {
         // Only filter by type if NOT "all"
         query.type = type;
@@ -71,7 +71,7 @@ export const getUnreadNotifications = async (req, res) => {
 
     const notifications = await Notification.countDocuments({
       userId: userId,
-      read: false,
+      isRead: false,
     })
       .sort({ createdAt: -1 })
       .lean();
@@ -91,7 +91,7 @@ export const markAsRead = async (req, res) => {
 
     const notification = await Notification.findOneAndUpdate(
       { _id: id, userId },
-      { read: true },
+      { isRead: true },
     );
 
     if (!notification) {
@@ -134,8 +134,8 @@ export const markAllAsRead = async (req, res) => {
     const userId = req.user._id;
 
     const result = await Notification.updateMany(
-      { userId: userId, read: false },
-      { $set: { read: true } }
+      { userId: userId, isRead: false },
+      { $set: { isRead: true } }
     );
 
     res.json({

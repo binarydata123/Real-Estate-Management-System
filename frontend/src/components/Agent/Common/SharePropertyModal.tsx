@@ -55,7 +55,7 @@ const SharePropertyModal: React.FC<SharePropertyModalProps> = ({
      return;
     const fetchAll = async () => {
       try {
-        const res = await getCustomersForDropDown(user?._id);
+        const res = await getCustomersForDropDown(user?.agency?._id as string);
         
         setOptions(res.data || []);
       } catch (err) {

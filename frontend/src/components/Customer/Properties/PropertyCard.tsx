@@ -85,14 +85,18 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 {property.title}
               </h3>
             </Link>
-            <p className="text-xl md:text-2xl font-bold text-blue-700">
+            {property.price && (
+              <p className="text-xl md:text-2xl font-bold text-blue-700">
               {formatPrice(property.price as number)}
             </p>
+            )}
           </div>
-          <div className="flex items-center text-sm text-gray-500 mt-1">
+          {property.location && (
+            <div className="flex items-center text-sm text-gray-500 mt-1">
             <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
             <span className="truncate">{property.location}</span>
           </div>
+          )}
         </div>
 
         <div className="flex-grow mb-2 md:mb-4">
