@@ -159,7 +159,7 @@ export const Customers: React.FC = () => {
         </div>
       </div>
 
-      {/* ----------- EMPTY STATE ----------- */}
+  
       {customers.length === 0 && !isFetching && (
         <NoData
           icon={<Users size={40} />}
@@ -168,8 +168,8 @@ export const Customers: React.FC = () => {
                 return any results.`}
         />
       )}
-      {/*  */}
-      {/* ----------- MAIN CUSTOMER LIST (UI unchanged) ----------- */}
+     
+      
       {customers.length > 0 && (
         <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="hidden md:grid md:grid-cols-6 gap-4 text-sm font-medium text-gray-600 px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -195,10 +195,10 @@ export const Customers: React.FC = () => {
                         <UserIcon className="h-6 w-6 text-blue-600" />
                       </div>
                       <div>
-                        {/* <p className="font-medium text-gray-900">
+{/* <p className="font-medium text-gray-900">
                         {customer?.fullName}
                       </p> */}
-
+                       
                         <p className="font-medium text-gray-900">
                           {customer.fullName}{" "}
                           {(customer as { isDeleted?: boolean }).isDeleted && (
@@ -303,13 +303,13 @@ export const Customers: React.FC = () => {
         </div>
       )}
 
-      {/* --- SMALL INLINE LOADER (NO FLICKER) --- */}
+{/* --- SMALL INLINE LOADER (NO FLICKER) --- */}
       {/* {isFetching && customers.length > 0 && (
         <div className="text-center py-4">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       )} */}
-
+      
       {/* Pagination */}
       {customers.length > 0 && (
         <ScrollPagination

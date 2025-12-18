@@ -1,6 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { PlusIcon, CalendarIcon } from "@heroicons/react/24/outline";
+import {
+  PlusIcon,
+  CalendarIcon,
+  // CheckCircleIcon,
+} from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { AddMeetingForm } from "./AddMeetingForm";
 import {
@@ -18,27 +22,39 @@ import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import { getCustomers } from "@/lib/Agent/CustomerAPI";
 import { AddCustomerForm } from "./AddCustomerForm";
 
+interface Meeting {
+  _id: string;
+  date: string;
+  time: string;
+  status: string;
+  isPast?: boolean;
+  propertyId?: {
+    title: string;
+  };
+  customer?: {
+    fullName: string;
+    isDeleted?: boolean;
+  };
+}
+
 export const Meetings: React.FC = () => {
   const [addMode, setAddMode] = useState<"manual" | "ai" | null>(null);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [showAddCustomersModal, setShowAddCustomerModal] = useState(false);
-  const [showEditForm, setShowEditForm] = React.useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [meetingId, setMeetingId] = useState<string | null>(null);
   const [meetingStatus, setMeetingStatus] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { user } = useAuth();
-  // const [meetings, setMeetings] = useState<Meeting[]>([]);
 
-  const [meetings, setMeetings] = useState<
-    (Meeting & { customer?: { fullName: string; isDeleted?: boolean } })[]
-  >([]);
-
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [isFetching, setIsFetching] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "cancelled">(
     "upcoming"
   );
+
   const fetchMeetings = async (page = 1, append = false) => {
     if (!user?.agency?._id) return;
     setIsFetching(true);
@@ -61,9 +77,8 @@ export const Meetings: React.FC = () => {
     }
   };
 
-
   useEffect(() => {
-    setMeetings([]); // Clear meetings when tab changes
+    setMeetings([]);
     setCurrentPage(1);
     fetchMeetings(1);
   }, [user?.agency?._id, activeTab]);
@@ -71,22 +86,23 @@ export const Meetings: React.FC = () => {
   const handleStatusChange = async (status: string) => {
     setShowConfirmDialog(false);
     if (meetingId) await updateMeetingStatus(meetingId, status);
-    setCurrentPage(1); // Reset to page 1 before refetching
-    fetchMeetings(1); // Refetch from page 1 to see the change
+    setCurrentPage(1);
+    fetchMeetings(1);
     showSuccessToast("Meeting Cancelled Successfully!");
   };
 
-  // page change handler
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages && !isFetching) {
       fetchMeetings(page, true);
     }
   };
+
   const onEdit = (id: string, status?: string) => {
     setShowEditForm(true);
     setMeetingId(id);
     if (status) setMeetingStatus(status);
   };
+
   const onCancel = (id: string) => {
     setShowConfirmDialog(true);
     setMeetingId(id);
@@ -106,6 +122,8 @@ export const Meetings: React.FC = () => {
       case "cancelled":
         return "bg-red-100 text-red-800";
       case "no_show":
+        return "bg-gray-100 text-gray-800";
+      case "past":
         return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -134,7 +152,6 @@ export const Meetings: React.FC = () => {
           <p className="text-gray-600 md:mt-1">Manage customer meetings</p>
         </div>
         <button
-          // onClick={() => setShowSelectionModal(true)}
           onClick={handleScheduleMeetingBtn}
           className="flex items-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors"
         >
@@ -142,6 +159,8 @@ export const Meetings: React.FC = () => {
           Schedule Meeting
         </button>
       </div>
+
+      {/* Tabs */}
       <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
         <nav className="flex space-x-4" aria-label="Tabs">
           <button
@@ -176,6 +195,7 @@ export const Meetings: React.FC = () => {
           </button>
         </nav>
       </div>
+
       {/* Meetings List */}
       {isFetching && meetings.length === 0 ? (
         <div className="text-center py-12">
@@ -198,7 +218,7 @@ export const Meetings: React.FC = () => {
                     </div>
 
                     <div className="w-full md:w-auto">
-                                          <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-lg font-semibold text-gray-900">
                         Meeting with {meeting?.customer?.fullName}
                       </h3>
                     </div>
@@ -210,7 +230,6 @@ export const Meetings: React.FC = () => {
                       <p className="text-gray-600 mb-1">Date & Time </p>
                       <div className="flex gap-1">
                         <div className="flex items-center text-gray-900 mb-1">
-                          {/* <ClockIcon className="h-4 w-4 mr-2" /> */}
                           {meeting?.date &&
                             format(new Date(meeting.date), "MMM dd, yyyy")}
                           ,
@@ -234,46 +253,62 @@ export const Meetings: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                </div>
 
-                {/* Right: status + actions */}
-                <div className="flex md:flex-col flex-row justify-between items-end md:space-y-2 w-full md:w-auto">
-                  {meeting.status && !meeting.isPast && (
-                    <span
-                      className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl  text-xs font-medium ${getStatusColor(
-                        meeting.status
-                      )}`}
-                    >
-                      {meeting.status}
-                    </span>
-                  )}
+                  {/* Status + Actions row below details */}
+                  <div className="flex flex-row justify-between items-center w-full">
+                    {/* Status badge */}
+                    <div>
+                      {meeting.status && !meeting.isPast && (
+                        <span
+                          className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl text-xs font-medium ${getStatusColor(
+                            meeting.status
+                          )}`}
+                        >
+                          {meeting.status}
+                        </span>
+                      )}
 
-                  {meeting.status !== "cancelled" && !meeting.isPast && (
-                    <div className="flex items-start md:flex-col flex-row gap-2">
-                      <button
-                        onClick={() => onEdit?.(meeting._id)}
-                        className="text-primary hover:text-primary text-sm font-medium">
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => onCancel?.(meeting._id)}
-                        className="text-red-600 hover:text-red-700 text-sm font-medium"
-                      >
-                        Cancel
-                      </button>
+                      {activeTab === "past" && (
+                        <div className="inline-block px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
+                          Completed
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {(meeting.status === "cancelled" || meeting.isPast) && (
-                    <div className="flex md:flex-col flex-row gap-2">
-                      <button
-                        onClick={() => {
-                          onEdit?.(meeting._id, "rescheduled");
-                        }}
-                        className="text-primary text-sm font-medium">
-                        Reschedule
-                      </button>
+
+                    {/* Action buttons */}
+                    <div className="flex flex-row gap-2">
+                      {/* Upcoming meetings - Edit & Cancel */}
+                      {meeting.status !== "cancelled" && !meeting.isPast && (
+                        <>
+                          <button
+                            onClick={() => onEdit(meeting._id)}
+                            className="text-primary hover:text-primary text-sm font-medium"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => onCancel(meeting._id)}
+                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      )}
+
+                      {/* Cancelled meetings - Reschedule option */}
+                      {meeting.status === "cancelled" &&
+                        activeTab === "cancelled" && (
+                          <button
+                            onClick={() => {
+                              onEdit(meeting._id, "rescheduled");
+                            }}
+                            className="text-sm text-blue-800 font-medium"
+                          >
+                            Reschedule
+                          </button>
+                        )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -294,7 +329,7 @@ export const Meetings: React.FC = () => {
               activeTab === "upcoming"
                 ? "Plan ahead by scheduling new meetings with your customers."
                 : activeTab === "past"
-                ? "Once meetings are completed, they’ll show up here for your records."
+                ? "Once meetings are completed, they'll show up here for your records."
                 : "Cancelled meetings will be listed here if any were called off."
             }
             buttonIcon={
@@ -311,7 +346,7 @@ export const Meetings: React.FC = () => {
         )
       )}
 
-      {/* Add Meeting Modal */}
+      {/* Modals */}
       {addMode === "manual" && (
         <AddMeetingForm
           onClose={() => setAddMode(null)}
@@ -322,30 +357,26 @@ export const Meetings: React.FC = () => {
         />
       )}
 
-      {showAddCustomersModal === true ? (
+      {showAddCustomersModal && (
         <AddCustomerForm onClose={() => setShowAddCustomerModal(false)} />
-      ) : (
-        ""
       )}
 
-      {/* Add Meeting Selection Modal */}
       <AddMeetingSelectionModal
         isOpen={showSelectionModal}
         onClose={() => setShowSelectionModal(false)}
         onSelectMode={handleSelectMode}
       />
 
-      {/* AI Assistant Modal */}
       {addMode === "ai" && (
         <MeetingAssistant
           onClose={() => setAddMode(null)}
           onSuccess={() => {
             setAddMode(null);
-            fetchMeetings(1); // Refetch from page 1
+            fetchMeetings(1);
           }}
         />
       )}
-      {/* Edit Meeting Modal */}
+
       {showEditForm && (
         <EditMeetingForm
           meetingId={meetingId}
@@ -357,6 +388,7 @@ export const Meetings: React.FC = () => {
           }}
         />
       )}
+
       <ConfirmDialog
         open={showConfirmDialog}
         onCancel={() => setShowConfirmDialog(false)}

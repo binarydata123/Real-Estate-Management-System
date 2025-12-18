@@ -6,6 +6,7 @@ import { sendPushNotification } from "../../utils/pushService.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
 import CustomerSettings from "../../models/Customer/SettingsModel.js";
 
+
 // Create a new meeting
 export const createMeeting = async (req, res) => {
   try {
@@ -74,7 +75,6 @@ export const createMeeting = async (req, res) => {
   }
 };
 
-// GET /agents/meetings/get-all/:id?page=1&limit=10
 export const getMeetingsByAgency = async (req, res) => {
   try {
     const id = req.user.agencyId._id._id;
@@ -84,14 +84,14 @@ export const getMeetingsByAgency = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const now = new Date();
-
     const query = { agencyId: id };
 
     if (status === "upcoming") {
-      query.$expr = {
-        $and: [
-          { $ne: ["$status", "cancelled"] },
-          {
+      // Only scheduled/rescheduled meetings with future datetime
+      query.$and = [
+        { status: { $in: ["scheduled", "rescheduled"] } },
+        {
+          $expr: {
             $gte: [
               {
                 $dateFromString: {
@@ -108,31 +108,42 @@ export const getMeetingsByAgency = async (req, res) => {
               now,
             ],
           },
-        ],
-      };
+        },
+      ];
     } else if (status === "past") {
-      query.$expr = {
-        $and: [
-          { $ne: ["$status", "cancelled"] },
-          {
-            $lt: [
-              {
-                $dateFromString: {
-                  dateString: {
-                    $concat: [
-                      { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-                      "T",
-                      "$time",
-                      ":00",
-                    ],
+      // Meetings with status="past" OR old meetings not cancelled
+      query.$or = [
+        { status: "past" },
+        {
+          $and: [
+            { status: { $in: ["scheduled", "rescheduled"] } },
+            {
+              $expr: {
+                $lt: [
+                  {
+                    $dateFromString: {
+                      dateString: {
+                        $concat: [
+                          {
+                            $dateToString: {
+                              format: "%Y-%m-%d",
+                              date: "$date",
+                            },
+                          },
+                          "T",
+                          "$time",
+                          ":00",
+                        ],
+                      },
+                    },
                   },
-                },
+                  now,
+                ],
               },
-              now,
-            ],
-          },
-        ],
-      };
+            },
+          ],
+        },
+      ];
     } else if (status === "cancelled") {
       query.status = "cancelled";
     }
@@ -146,15 +157,6 @@ export const getMeetingsByAgency = async (req, res) => {
       .limit(limit)
       .sort({ date: status === "past" ? -1 : 1 })
       .lean();
-
-    // const formattedMeetings = meetings.map((m) => ({
-    //   ...m,
-    //   customer: m.customerId,
-    //   customerId: undefined,
-    //   isPast: status === "past",
-    //   // property: m.propertyId,
-    //   // propertyId: undefined,
-    // }));
 
     const formattedMeetings = meetings
       .filter((m) => !m.customerId?.isDeleted)
