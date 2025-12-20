@@ -42,7 +42,7 @@ declare global {
 
   interface Agency {
     id: string;
-    name: string;
+    name?: string;
     logo_url?: string;
     members: number;
     properties: number;
@@ -258,7 +258,7 @@ declare global {
     property?: string | Partial<Property>;
     propertyId?: { _id: string; title: string };
     agency?: Partial<Agency>;
-    date?: string;
+    date: string;
     time?: string;
     status?: "scheduled" | "completed" | "cancelled" | "rescheduled";
     notes?: string;

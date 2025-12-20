@@ -16,6 +16,7 @@ import { formatPrice } from "@/utils/helperFunction";
 import { NoData } from "@/components/Common/NoData";
 import { Users } from "lucide-react";
 import { AddMeetingForm } from "@/components/Agent/Meetings/AddMeetingForm";
+import { getPreferenceDetail } from "@/lib/Common/Preference";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -25,6 +26,8 @@ export const Customers: React.FC = () => {
   const [customers, setCustomers] = useState<
     (CustomerFormData & { isDeleted?: boolean })[]
   >([]);
+
+  
 
 
   const [isFetching, setIsFetching] = useState(false);
@@ -73,8 +76,7 @@ export const Customers: React.FC = () => {
       showErrorToast("Failed to delete customer:", error);
     }
   };
-
-
+  
   const getAllCustomers = useCallback(
     async (page = 1, search = "", append = false) => {
       if (!user?._id) return;
@@ -82,7 +84,34 @@ export const Customers: React.FC = () => {
         setIsFetching(true);
         const res = await getCustomers(user?._id, page, limit, search);
         if (res.success) {
-          setCustomers((prev) => (append ? [...prev, ...res.data] : res.data));
+          const customersData = res.data;
+
+          // Fetch preference budget for each customer
+          const customersWithPreferences = await Promise.all(
+            customersData.map(async (customer) => {
+              try {
+                const prefRes = await getPreferenceDetail(customer._id);
+                if (prefRes.success && prefRes.data) {
+                  return {
+                    ...customer,
+                    minimumBudget:
+                      prefRes.data.minPrice ?? customer.minimumBudget,
+                    maximumBudget:
+                      prefRes.data.maxPrice ?? customer.maximumBudget,
+                  };
+                }
+              } catch (error) {
+                console.log("No preference for customer",error);
+              }
+              return customer;
+            })
+          );
+
+          setCustomers((prev) =>
+            append
+              ? [...prev, ...customersWithPreferences]
+              : customersWithPreferences
+          );
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
         }
@@ -94,6 +123,11 @@ export const Customers: React.FC = () => {
     },
     [user?._id]
   );
+
+
+
+
+
 
   useEffect(() => {
     getAllCustomers(1, debouncedSearchTerm);
@@ -159,7 +193,6 @@ export const Customers: React.FC = () => {
         </div>
       </div>
 
-  
       {customers.length === 0 && !isFetching && (
         <NoData
           icon={<Users size={40} />}
@@ -168,8 +201,7 @@ export const Customers: React.FC = () => {
                 return any results.`}
         />
       )}
-     
-      
+
       {customers.length > 0 && (
         <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="hidden md:grid md:grid-cols-6 gap-4 text-sm font-medium text-gray-600 px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -195,10 +227,10 @@ export const Customers: React.FC = () => {
                         <UserIcon className="h-6 w-6 text-blue-600" />
                       </div>
                       <div>
-{/* <p className="font-medium text-gray-900">
+                        {/* <p className="font-medium text-gray-900">
                         {customer?.fullName}
                       </p> */}
-                       
+
                         <p className="font-medium text-gray-900">
                           {customer.fullName}{" "}
                           {(customer as { isDeleted?: boolean }).isDeleted && (
@@ -222,7 +254,7 @@ export const Customers: React.FC = () => {
                       </div>
                     </div>
                     {/* Budget */}
-                    <div>
+                    {/* <div>
                       <p className="text-xs text-gray-500 md:hidden md:mb-1">
                         Budget
                       </p>
@@ -232,7 +264,21 @@ export const Customers: React.FC = () => {
                           customer?.maximumBudget
                         )}
                       </p>
-                    </div>
+                    </div> */}
+
+                    {(customer?.minimumBudget || customer?.maximumBudget) && (
+                      <div>
+                        <p className="text-xs text-gray-500 md:hidden md:mb-1">
+                          Budget
+                        </p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {formatBudget(
+                            customer?.minimumBudget,
+                            customer?.maximumBudget
+                          )}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 md:gap-4 mt-2 md:mt-4 md:contents">
@@ -303,13 +349,13 @@ export const Customers: React.FC = () => {
         </div>
       )}
 
-{/* --- SMALL INLINE LOADER (NO FLICKER) --- */}
+      {/* --- SMALL INLINE LOADER (NO FLICKER) --- */}
       {/* {isFetching && customers.length > 0 && (
         <div className="text-center py-4">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       )} */}
-      
+
       {/* Pagination */}
       {customers.length > 0 && (
         <ScrollPagination

@@ -3,6 +3,22 @@
 /* @tailwind components; */
 @tailwind utilities;
 
+
+@keyframes search-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-search-float {
+  animation: search-float 1.6s ease-in-out infinite;
+}
+
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

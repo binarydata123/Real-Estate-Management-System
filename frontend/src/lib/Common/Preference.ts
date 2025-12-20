@@ -2,18 +2,25 @@ import { UserPreferenceFormData } from "@/schemas/Agent/userPreferenceSchema";
 import api from "../api";
 const API_URL = "/common/preferences";
 
+// type PreferenceBudgetUpdate = {
+//   customerId: string;
+//   minPrice?: number;
+//   maxPrice?: number;
+// };
 /**
  * Creates a new preference.
  * @param preferenceData - The preference data from the form as FormData.
  */
 
-export const createPreference = async (preferenceData: UserPreferenceFormData) => {
-    try {
-        const response = await api.post(API_URL, preferenceData);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+export const createPreference = async (
+  preferenceData: Partial<UserPreferenceFormData>
+) => {
+  try {
+    const response = await api.post(API_URL, preferenceData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getPreferenceDetail = async (id: string) => {
