@@ -1,9 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Building2,
-  PlusIcon,
-} from "lucide-react";
+import { Building2, PlusIcon, Hotel } from "lucide-react";
 import { getProperty, deletePropertyById } from "@/lib/Admin/PropertyAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import { useAuth } from "@/context/AuthContext";
@@ -30,7 +27,8 @@ export default function Properties() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const searchParams = useSearchParams();
   const agencyId = searchParams.get("agencyId");
-   const [totalUnfiltered, setTotalUnfiltered] = useState(0); 
+  const [totalUnfiltered, setTotalUnfiltered] = useState(0);
+  const [totalAgencies, setTotalAgencies] = useState(0);
 
   const propertyStats = [
     {
@@ -38,6 +36,12 @@ export default function Properties() {
       value: totalUnfiltered,
       icon: Building2,
       color: "bg-blue-500",
+    },
+    {
+      name: "Total Agencies",
+      value: totalAgencies,
+      icon: Hotel,
+      color: "bg-indigo-500",
     },
   ];
 
@@ -72,7 +76,7 @@ export default function Properties() {
     async (
       page = 1,
       search = "",
-      status= "",
+      status = "",
       agencyIdParam = "",
       append = false
     ) => {
@@ -91,6 +95,7 @@ export default function Properties() {
           setTotalPages(res.pagination?.totalPages ?? 1);
           // setTotalRecords(res.pagination?.total ?? 0); // ✅ CHANGED: Now uses 'total'
           setTotalUnfiltered(res.pagination?.totalUnfiltered ?? 0); // ✅ NEW: Set totalUnfiltered
+          setTotalAgencies(res?.pagination?.totalAgencies ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);
@@ -113,13 +118,7 @@ export default function Properties() {
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || isFetching) return;
     const finalAgencyId = agencyId || "";
-    getAllProperty(
-      page,
-      debouncedSearchTerm,
-      "", 
-      finalAgencyId,
-      true
-    );
+    getAllProperty(page, debouncedSearchTerm, "", finalAgencyId, true);
   };
 
   return (
@@ -131,8 +130,8 @@ export default function Properties() {
               Properties
             </h1>
             <p className="mt-1 text-base text-gray-700 dark:text-gray-300">
-              Manage all properties in the system. Use search to
-              find properties quickly.
+              Manage all properties in the system. Use search to find properties
+              quickly.
             </p>
           </div>
         </div>
@@ -141,9 +140,10 @@ export default function Properties() {
         <div className="mt-2">
           <dl className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             {propertyStats.map((item) => (
-              <div
+              <Link
                 key={item.name}
                 className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-3 border-t-4 border-blue-500 group"
+                href={item.name === "Total Agencies" ? "/admin/agencies" : "#"}
               >
                 <div className="">
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
@@ -161,7 +161,7 @@ export default function Properties() {
                     aria-hidden="true"
                   />
                 </div>
-              </div>
+              </Link>
             ))}
           </dl>
         </div>
@@ -247,12 +247,14 @@ export default function Properties() {
                                   <div className="font-semibold text-gray-900 dark:text-white">
                                     {property._id ? (
                                       <Link
-                                      className="text-blue-600 font-semibold hover:underline"
-                                      href={`/admin/properties/${property._id}`}
-                                    >
-                                      {property.title || property._id}
-                                    </Link>
-                                    ) : "N/A"}
+                                        className="text-blue-600 font-semibold hover:underline"
+                                        href={`/admin/properties/${property._id}`}
+                                      >
+                                        {property.title || property._id}
+                                      </Link>
+                                    ) : (
+                                      "N/A"
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -268,12 +270,17 @@ export default function Properties() {
                             </td>
                             <td className="text-center whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                               {property?.agencyId?._id ? (
-                                <Link href={`/admin/agencies/${property.agencyId?._id}`} className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 font-medium rounded hover:bg-blue-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                aria-label="View Agency"
-                                title="View Agency">
-                                {property.agencyId?.name}
-                              </Link>
-                              ) : "N/A"}
+                                <Link
+                                  href={`/admin/agencies/${property.agencyId?._id}`}
+                                  className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 font-medium rounded hover:bg-blue-100 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                  aria-label="View Agency"
+                                  title="View Agency"
+                                >
+                                  {property.agencyId?.name}
+                                </Link>
+                              ) : (
+                                "N/A"
+                              )}
                             </td>
                             <td className="whitespace-nowrap px-3 py-4 text-sm flex gap-2">
                               <button

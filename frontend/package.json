@@ -15,6 +15,7 @@
     "@next/font": "^14.2.15",
     "@supabase/supabase-js": "^2.57.4",
     "@tippyjs/react": "^4.2.6",
+    "@uidotdev/usehooks": "^2.4.1",
     "@vapi-ai/web": "^2.5.0",
     "axios": "^1.12.1",
     "chart.js": "^4.5.0",

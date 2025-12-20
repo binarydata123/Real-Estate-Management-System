@@ -59,7 +59,7 @@ export default function Meetings() {
       color: "bg-blue-500",
     },
     {
-      name: "Schedule",
+      name: "Scheduled",
       value: scheduledMeetingCount, // ✅ FIXED: Use backend count
       icon: Calendar,
       color: "bg-indigo-500",

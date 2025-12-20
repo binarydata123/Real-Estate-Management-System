@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useCallback } from "react";
-import { Building2 } from "lucide-react";
+import { Building2, Hotel } from "lucide-react";
 import { getAgencies, deleteAgencyById } from "@/lib/Admin/AgencyAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 //import { useAuth } from "@/context/AuthContext";
@@ -23,14 +23,21 @@ export default function Agencies() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [totalRecords, setTotalRecords] = useState(0);
+  const [totalProperties, setTotalProperties] = useState(0);
 
   const agencyStats = [
     {
       name: "Total Agencies",
       value: totalRecords,
-      icon: Building2,
+      icon: Hotel,
       color: "bg-blue-500",
     },
+    {
+      name: "Total Properties",
+      value: totalProperties,
+      icon: Building2,
+      color: "bg-indigo-500",
+    }
   ];
 
   useEffect(() => {
@@ -67,6 +74,7 @@ export default function Agencies() {
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
           setTotalRecords(res.stats?.totalAgencies ?? 0);
+          setTotalProperties(res?.stats?.totalProperties ?? 0);
         }
       } catch (error) {
         showErrorToast("Failed to fetch agencies:", error);
@@ -163,15 +171,15 @@ export default function Agencies() {
               ))
             ) : (
               agencyStats.map((item) => (
-                <div key={item.name} className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-2 border-t-4 border-blue-500 group">
+                <Link key={item.name} href={item.name === "Total Properties" ? "/admin/properties" : "#"} className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-2 border-t-4 border-blue-500 group">
                   <div className="">
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{item.name}</p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-white">{item.value}</p>
                   </div>
-                  <div className=" bg-blue-500 dark:bg-indigo-600 rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform">
+                  <div className={`${item.color} dark:bg-indigo-600 rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform`}>
                     <item.icon className="h-7 w-7 text-white" aria-hidden="true" />
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </dl>
