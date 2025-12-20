@@ -6,7 +6,7 @@ import ConversationItem from "./ConversationItem";
 import ActionButtons from "./ActionButtons";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { useAuth } from "@/context/AuthContext";
-import LoadingSpinner from "../UI/LoadingSpinner";
+// import LoadingSpinner from "../UI/LoadingSpinner";
 import EmptyState from "../UI/EmptyState";
 import { ConversationListProps } from "../types/messageTypes";
 import { MessageSquare } from "lucide-react";
@@ -169,8 +169,13 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
       />
 
       {isLoadingConversations ? (
-        <div className="flex-1 flex items-center justify-center">
-          <LoadingSpinner />
+        <div className="flex flex-col gap-2">
+          {Array.from({ length:4 }).map((_,i) => (
+            <div key={i} className="bg-gray-200 animate-pulse w-full h-[50px]"></div>
+          ))}
+          {Array.from({ length:4 }).map((_,i) => (
+            <div key={i} className="bg-gray-300 animate-pulse w-full h-[50px]"></div>
+          ))}
         </div>
       ) : error ? (
         <div className="flex-1 flex items-center justify-center p-4">

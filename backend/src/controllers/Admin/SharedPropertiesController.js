@@ -3,6 +3,7 @@ import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 import { PreferenceFeedbacks } from "../../models/Agent/PreferenceFeedbackModel.js";
+import { Property } from "../../models/Agent/PropertyModel.js";
 
 // Get all shared Properties
 export const getSharedProperties = async (req, res) => {
@@ -103,6 +104,7 @@ export const getSharedProperties = async (req, res) => {
     const results = await PropertyShare.aggregate(pipeline);
 
     const totalCountForStats = await PropertyShare.countDocuments({});
+    const totalProperties = await Property.countDocuments();
 
     return res.json({
       success: true,
@@ -115,7 +117,8 @@ export const getSharedProperties = async (req, res) => {
         totalPages: Math.ceil(totalCount / limitNumber),
       },
       stats: {
-        totalCountForStats
+        totalCountForStats,
+        totalProperties: totalProperties,
       }
     });
 

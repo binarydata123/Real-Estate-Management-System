@@ -113,7 +113,17 @@ export const Shares: React.FC = () => {
       </div>
 
       {/* Shares List */}
-      <div className="space-y-2">
+      {isLoading ? (
+        <div className="bg-gray-200 flex flex-col gap-2 rounded-[3px] w-full h-full p-4">
+          <div className="w-full bg-gray-300 h-[50px]"></div>
+          <div className="w-full bg-gray-300 h-[50px]"></div>
+          <div className="w-full bg-gray-300 h-[50px]"></div>
+          <div className="w-full bg-gray-300 h-[50px]"></div>
+          <div className="w-full bg-gray-300 h-[50px]"></div>
+          <div className="w-full bg-gray-300 h-[50px]"></div>
+        </div>
+      ) : (
+        <div className="space-y-2">
         {filteredShares?.map((share) => (
           <article
             key={share._id}
@@ -199,6 +209,20 @@ export const Shares: React.FC = () => {
           </article>
         ))}
       </div>
+      )}
+
+      {/* No Shares */}
+      {sharedData.length === 0 && !isLoading && (
+        <div className="text-center py-16 px-4 bg-white rounded-lg shadow-sm">
+          <ShareIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-medium text-gray-900 mb-2">
+            No shares yet
+          </h3>
+          <p className="text-gray-500 mb-6">
+            Start sharing properties with customers and colleagues
+          </p>
+        </div>
+      )}
 
       {/* Infinite Scroll Loader */}
       <ScrollPagination
@@ -213,19 +237,6 @@ export const Shares: React.FC = () => {
           </div>
         }
       />
-
-      {/* No Shares */}
-      {sharedData.length === 0 && !isLoading && (
-        <div className="text-center py-16 px-4 bg-white rounded-lg shadow-sm">
-          <ShareIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-gray-900 mb-2">
-            No shares yet
-          </h3>
-          <p className="text-gray-500 mb-6">
-            Start sharing properties with customers and colleagues
-          </p>
-        </div>
-      )}
 
       {/* Preview Image Modal */}
       {previewImage && (

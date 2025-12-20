@@ -7,6 +7,7 @@ import {
   IndianRupee,
   Mail,
 } from "lucide-react";
+import { useLockBodyScroll } from "@uidotdev/usehooks";
 
 interface CustomerDetailsPopupProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function CustomerDetailsPopup({
   customerData,
   agencyName
 }: CustomerDetailsPopupProps) {
+  useLockBodyScroll();
   if (!isOpen || !customerData) return null;
 
   return (

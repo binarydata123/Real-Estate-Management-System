@@ -30,7 +30,8 @@ export default function SharedProperties() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const searchParams = useSearchParams(); // ✅ to access query string params
   const agencyId = searchParams.get("agencyId"); // ✅ extract agencyId from URL
-  const [totalRecords, setTotalRecords] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [totalProperties, setTotalProperties] = useState(0);
   // const [open, setOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
@@ -46,6 +47,12 @@ export default function SharedProperties() {
       icon: Building2,
       color: "bg-blue-500",
     },
+    {
+      name: "Total Properties",
+      value: totalProperties,
+      icon: Building2,
+      color: "bg-indigo-500",
+    }
   ];
 
   useEffect(() => {
@@ -89,6 +96,7 @@ export default function SharedProperties() {
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
           setTotalRecords(res.stats?.totalCountForStats ?? 0);
+          setTotalProperties(res?.stats?.totalProperties ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);
@@ -133,8 +141,9 @@ export default function SharedProperties() {
       {/* Stats Cards */}
       <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4 mt-2">
         {sharedPropertyStats.map((item) => (
-          <div
+          <Link
             key={item.name}
+            href={item.name === "Total Properties" ? "/admin/properties" : "#"}
             className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-2 border-t-4 border-blue-500 group"
           >
             <div className="">
@@ -148,7 +157,7 @@ export default function SharedProperties() {
             <div className=" bg-blue-500 dark:bg-indigo-600 rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform">
               <item.icon className="h-7 w-7 text-white" aria-hidden="true" />
             </div>
-          </div>
+          </Link>
         ))}
       </dl>
 
