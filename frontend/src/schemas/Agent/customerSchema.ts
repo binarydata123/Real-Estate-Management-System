@@ -27,8 +27,11 @@ export const customerSchema = z
 
     minimumBudget: z.number().min(0, "Budget must be positive").optional(),
 
-    maximumBudget: z.number().min(0, "Budget must be positive").optional(),
-
+    maximumBudget: z
+      .number()
+      .min(0, "Budget must be positive")
+      .max(100000000, "Maximum budget cannot exceed ₹10 Cr")
+      .optional(),
     leadSource: z
       .enum([
         "manual",

@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useEffect, useState } from "react";
 import {
@@ -10,6 +11,7 @@ import { AddMeetingForm } from "./AddMeetingForm";
 import {
   getMeetingsByAgency,
   updateMeetingStatus,
+  deleteMeeting,
 } from "@/lib/Agent/MeetingAPI";
 import { useAuth } from "@/context/AuthContext";
 import { EditMeetingForm } from "./EditMeetingForm";
@@ -21,6 +23,7 @@ import { AddMeetingSelectionModal } from "./AddMeetingSelectionModal";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import { getCustomers } from "@/lib/Agent/CustomerAPI";
 import { AddCustomerForm } from "./AddCustomerForm";
+import SearchInput from "@/components/Common/SearchInput";
 
 interface Meeting {
   _id: string;
@@ -50,10 +53,24 @@ export const Meetings: React.FC = () => {
 
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [isFetching, setIsFetching] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [meetingToDelete, setMeetingToDelete] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "cancelled">(
     "upcoming"
   );
+
+  useEffect(()=>{
+    const handler = setTimeout(()=>{
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1);
+
+    },400);
+    return () => clearTimeout(handler);
+  
+  },[searchTerm])
 
   const fetchMeetings = async (page = 1, append = false) => {
     if (!user?.agency?._id) return;
@@ -82,6 +99,22 @@ export const Meetings: React.FC = () => {
     setCurrentPage(1);
     fetchMeetings(1);
   }, [user?.agency?._id, activeTab]);
+
+  const filteredMeetings = meetings.filter((meeting) => {
+    if (!debouncedSearchTerm) return true;
+
+    const searchLower = debouncedSearchTerm.toLowerCase();
+    const customerName = meeting.customer?.fullName?.toLowerCase() || "";
+    const propertyTitle = meeting.propertyId?.title?.toLowerCase() || "";
+    const date = format(new Date(meeting.date), "PPP").toLowerCase();
+
+    return (
+      customerName.includes(searchLower) ||
+      propertyTitle.includes(searchLower) ||
+      date.includes(searchLower)
+    );
+  });
+
 
   const handleStatusChange = async (status: string) => {
     setShowConfirmDialog(false);
@@ -112,6 +145,35 @@ export const Meetings: React.FC = () => {
     setAddMode(mode);
     setShowSelectionModal(false);
   };
+
+
+  
+const handleDeleteMeeting = async () => {
+  setShowDeleteConfirmDialog(false);
+
+  if (!meetingToDelete) return;
+
+  try {
+    await deleteMeeting(meetingToDelete);
+    showSuccessToast("Meeting deleted successfully!");
+
+    // Refresh the meetings list
+    setMeetings([]);
+    setCurrentPage(1);
+    fetchMeetings(1);
+  } catch (error) {
+    showErrorToast("Failed to delete meeting");
+    console.error("Delete error:", error);
+  } finally {
+    setMeetingToDelete(null);
+  }
+};
+
+
+const onDelete = (id:string)=>{
+  setShowDeleteConfirmDialog(true);
+  setMeetingToDelete(id);
+}
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -160,7 +222,16 @@ export const Meetings: React.FC = () => {
         </button>
       </div>
 
-      {/* Tabs */}
+      <div className="py-2">
+        <SearchInput
+          placeholder="Search by customer name, property or date"
+          value={searchTerm}
+          onChange={setSearchTerm}
+          className="max-w-md"
+        />
+      </div>
+
+      {/* Tabs */} 
       <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
         <nav className="flex space-x-4" aria-label="Tabs">
           <button
@@ -208,7 +279,7 @@ export const Meetings: React.FC = () => {
         </div>
       ) : meetings.length > 0 ? (
         <div className="md:space-y-4 space-y-2">
-          {meetings.map((meeting, index) => (
+          {filteredMeetings.map((meeting, index) => (
             <div
               key={index}
               className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
@@ -261,24 +332,37 @@ export const Meetings: React.FC = () => {
                   {/* Status + Actions row below details */}
                   <div className="flex flex-row justify-between items-center w-full">
                     {/* Status badge */}
-                    <div>
-                      {meeting.status && !meeting.isPast && (
-                        <span
-                          className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl text-xs font-medium ${getStatusColor(
-                            meeting.status
-                          )}`}
-                        >
-                          {meeting.status}
-                        </span>
-                      )}
+                    <div className="flex flex-row justify-between items-center w-full">
+                      <div>
+                        {meeting.status && !meeting.isPast && (
+                          <span
+                            className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg md:rounded-xl text-xs font-medium ${getStatusColor(
+                              meeting.status
+                            )}`}
+                          >
+                            {meeting.status}
+                          </span>
+                        )}
+
+                        {activeTab === "past" && (
+                          <div className="inline-block px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
+                            Completed
+                          </div>
+                        )}
+                      </div>
 
                       {activeTab === "past" && (
-                        <div className="inline-block px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
-                          Completed
-                        </div>
+                        <button
+                          onClick={() => {
+                            onDelete(meeting._id);
+                          }}
+                          className="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium rounded transition-colors"
+                          title="Delete meeting"
+                        >
+                          Delete
+                        </button>
                       )}
                     </div>
-
                     {/* Action buttons */}
                     <div className="flex flex-row gap-2">
                       {/* Upcoming meetings - Edit & Cancel */}
@@ -393,6 +477,7 @@ export const Meetings: React.FC = () => {
         />
       )}
 
+      {/* Confirm Dialog for Cancelling Meeting */}
       <ConfirmDialog
         open={showConfirmDialog}
         onCancel={() => setShowConfirmDialog(false)}
@@ -404,7 +489,22 @@ export const Meetings: React.FC = () => {
         confirmColor="bg-red-600 hover:bg-red-700"
       />
 
-      {meetings.length > 0 && (
+      {/* Confirm Dialog for Deleting Meeting */}
+      <ConfirmDialog
+        open={showDeleteConfirmDialog}
+        onCancel={() => {
+          setShowDeleteConfirmDialog(false);
+          setMeetingToDelete(null);
+        }}
+        onConfirm={handleDeleteMeeting}
+        heading="Delete Meeting?"
+        description="Deleting this meeting is permanent and cannot be undone. All meeting data will be lost."
+        confirmText="Delete Meeting"
+        cancelText="Cancel"
+        confirmColor="bg-red-600 hover:bg-red-700"
+      />
+
+      {filteredMeetings.length > 0 && (
         <ScrollPagination
           currentPage={currentPage}
           totalPages={totalPages}

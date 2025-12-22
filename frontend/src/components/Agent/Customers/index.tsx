@@ -16,6 +16,7 @@ import { formatPrice } from "@/utils/helperFunction";
 import { NoData } from "@/components/Common/NoData";
 import { Users } from "lucide-react";
 import { AddMeetingForm } from "@/components/Agent/Meetings/AddMeetingForm";
+import { getPreferenceDetail } from "@/lib/Common/Preference";
 // import { useCopyToClipboard, usePreferredLanguage } from "@uidotdev/usehooks";
 
 export const Customers: React.FC = () => {
@@ -74,7 +75,6 @@ export const Customers: React.FC = () => {
       showErrorToast("Failed to delete customer:", error);
     }
   };
-
   const getAllCustomers = useCallback(
     async (page = 1, search = "", append = false) => {
       if (!user?._id) return;
@@ -82,7 +82,34 @@ export const Customers: React.FC = () => {
         setIsFetching(true);
         const res = await getCustomers(user?._id, page, limit, search);
         if (res.success) {
-          setCustomers((prev) => (append ? [...prev, ...res.data] : res.data));
+          const customersData = res.data;
+
+          // Fetch preference budget for each customer
+          const customersWithPreferences = await Promise.all(
+            customersData.map(async (customer) => {
+              try {
+                const prefRes = await getPreferenceDetail(customer._id);
+                if (prefRes.success && prefRes.data) {
+                  return {
+                    ...customer,
+                    minimumBudget:
+                      prefRes.data.minPrice ?? customer.minimumBudget,
+                    maximumBudget:
+                      prefRes.data.maxPrice ?? customer.maximumBudget,
+                  };
+                }
+              } catch (error) {
+                console.log("No preference for customer", error);
+              }
+              return customer;
+            })
+          );
+
+          setCustomers((prev) =>
+            append
+              ? [...prev, ...customersWithPreferences]
+              : customersWithPreferences
+          );
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
         }
@@ -246,19 +273,32 @@ export const Customers: React.FC = () => {
                         </div>
                       </div>
                       {/* Budget */}
-                      <div>
-                        <p className="text-xs text-gray-500 md:hidden md:mb-1">
-                          Budget
-                        </p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatBudget(
-                            customer?.minimumBudget,
-                            customer?.maximumBudget
-                          )}
-                        </p>
-                      </div>
+                      {(customer?.minimumBudget || customer?.maximumBudget) && (
+                        <div>
+                          <p className="text-xs text-gray-500 md:hidden md:mb-1">
+                            Budget
+                          </p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {formatBudget(
+                              customer?.minimumBudget,
+                              customer?.maximumBudget
+                            )}
+                          </p>
+                        </div>
+                      )}
                     </div>
-
+                    {/* Budget */}
+                    {/* <div>
+                      <p className="text-xs text-gray-500 md:hidden md:mb-1">
+                        Budget
+                      </p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {formatBudget(
+                          customer?.minimumBudget,
+                          customer?.maximumBudget
+                        )}
+                      </p>
+                    </div> */}
                     <div className="grid grid-cols-2 gap-2 md:gap-4 mt-2 md:mt-4 md:contents">
                       {/* Status (desktop) */}
                       <div className="hidden md:block">
