@@ -95,10 +95,10 @@ export const Settings: React.FC = () => {
   return (
     <div className="space-y-3 md:space-y-6">
       {showSkeleton ? (
-        <>
+        <div className="animate-pulse">
         <div className="bg-gray-200 w-[70px] h-[15px]"></div>
-        <div className="bg-gray-200 w-[150px] h-[15px]"></div>
-        </>
+        <div className="bg-gray-200 mt-2 w-[150px] h-[15px]"></div>
+        </div>
       ) : (
         <div>
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -112,7 +112,7 @@ export const Settings: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-2 md:gap-4">
         {/* Sidebar */}
         {showSkeleton ? (
-          <div className="bg-gray-200 w-full h-[30px]"></div>
+          <div className="bg-gray-200 w-full h-[30px] rounded animate-pulse"></div>
         ) : (
           <div className="w-full lg:w-56">
           <div className="w-screen -mx-2 md:-mx-4 px-2 md:px-4 lg:w-auto lg:mx-0">
@@ -145,11 +145,11 @@ export const Settings: React.FC = () => {
 
         {/* Main Content */}
         {showSkeleton ? (
-          <div className="h-[485px] px-2 w-full bg-gray-200 flex flex-col rounded-[8px]">
-            <div className="w-[100px] mt-2 h-[25px] bg-gray-300 rounded-[8px]"></div>
-            <div className="w-full mt-2 h-[70px] bg-gray-300 rounded-[8px]"></div>
-            <div className="w-full mt-2 h-[300px] bg-gray-300 rounded-[8px]"></div>
-            <div className="w-[100px] self-end mt-4 h-[35px] bg-gray-300 rounded-[8px]"></div>
+          <div className="h-[485px] p-2 w-full bg-white shadow-sm flex flex-col rounded-[8px] animate-pulse">
+            <div className="w-[100px] mt-2 h-[25px] bg-gray-200 rounded-[8px]"></div>
+            <div className="w-full mt-2 h-[70px] bg-gray-200 rounded-[8px]"></div>
+            <div className="w-full mt-2 h-[300px] bg-gray-200 rounded-[8px]"></div>
+            <div className="w-[100px] self-end mt-4 h-[35px] bg-gray-200 rounded-[8px]"></div>
           </div>
         ) : (
           <div className="flex-1 min-w-0">

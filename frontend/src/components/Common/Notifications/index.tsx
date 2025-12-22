@@ -273,6 +273,9 @@ const NotificationsPage: React.FC = () => {
               {Array.from({ length:4 }).map((_,i) => (
                 <div key={i} className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"></div>
               ))}
+              {Array.from({ length:4 }).map((_,i) => (
+                <div key={i} className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"></div>
+              ))}
             </div>
           ) : notifications.length === 0 ? (
             <div className="text-center py-20">

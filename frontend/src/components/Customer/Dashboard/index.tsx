@@ -58,8 +58,10 @@ export default function CustomerDashboard() {
   const userId = user?._id;
   const role = user?.role;
   const { subscribeUserToPush } = usePushSubscription();
+  const [isFetching, setIsFetching] = useState(false);
 
   const getDashboardData = async () => {
+    setIsFetching(true);
     try {
       const res = await customerDashboard();
 
@@ -68,6 +70,8 @@ export default function CustomerDashboard() {
       }
     } catch (error) {
       showErrorToast("Error:", error);
+    } finally {
+      setIsFetching(false);
     }
   };
 
@@ -159,7 +163,13 @@ export default function CustomerDashboard() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto space-y-3 md:space-y-6">
         {/* Header */}
-        <div className="text-center">
+        {isFetching ? (
+          <div className="w-full flex flex-col items-center gap-2 animate-pulse">
+            <div className="bg-gray-200 w-[250px] h-[20px]"></div>
+            <div className="bg-gray-200 w-[300px] h-[17px]"></div>
+          </div>
+        ) : (
+          <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-1">
             Welcome to {user?.agency?.name}
           </h1>
@@ -167,9 +177,17 @@ export default function CustomerDashboard() {
             Your trusted partner in buying and selling property.
           </p>
         </div>
+        )}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+        {isFetching ? (
+          <div className="flex gap-2 animate-pulse">
+            <div className="w-[33%] h-[50px] rounded-[8px] bg-gray-200"></div>
+            <div className="w-[33%] h-[50px] rounded-[8px] bg-gray-200"></div>
+            <div className="w-[33%] h-[50px] rounded-[8px] bg-gray-200"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           {userStats.map((stat, index) => (
             <Link
               href={stat.href}
@@ -196,10 +214,20 @@ export default function CustomerDashboard() {
             </Link>
           ))}
         </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
           {/* Recent Activity */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          {isFetching ? (
+            <div className="w-full bg-white shadow-sm border-gray-200 rounded-[8px] flex flex-col gap-2 p-4 animate-pulse">
+              <div className="w-[75px] h-[30px] bg-gray-200 self-start rounded-[8px]"></div>
+              <hr className="h-[1px] w-full text-gray-200"/>
+              {Array.from({ length:4 }).map((_,i) => (
+                <div key={i} className="w-[100%] h-[50px] bg-gray-200 rounded-[8px]"></div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="p-3 md:p-6 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
                 Recent Activity
@@ -236,9 +264,19 @@ export default function CustomerDashboard() {
               </div>
             </div>
           </div>
+          )}
 
           {/* Shared Properties */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          {isFetching ? (
+             <div className="w-full bg-white shadow-sm border-gray-200 rounded-[8px] flex flex-col gap-2 p-4 animate-pulse">
+              <div className="w-[90px] h-[30px] bg-gray-200 self-start rounded-[8px]"></div>
+              <hr className="h-[1px] w-full text-gray-200"/>
+              {Array.from({ length:2 }).map((_,i) => (
+                <div key={i} className="w-[100%] h-[100px] bg-gray-200 border-gray-300 rounded-[8px]"></div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="p-3 md:p-6 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
                 {user?.showAllProperty
@@ -293,11 +331,20 @@ export default function CustomerDashboard() {
                 )}
               </div>
             </div>
-          </div>
+          </div> 
+          )}
+          
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        {isFetching ? (
+          <div className="h-[280px] bg-white shadow-sm border-gray-200 w-full flex flex-wrap gap-2 p-4 items-center rounded-[8px]">
+            {Array.from({ length:4 }).map((_,i) => (
+              <div key={i} className="bg-gray-200 rounded-[8px] h-[100px] w-[49%]"></div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-3 md:p-6 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">
               Quick Actions
@@ -325,6 +372,7 @@ export default function CustomerDashboard() {
             ))}
           </div>
         </div>
+        )}
       </div>
     </div>
   );

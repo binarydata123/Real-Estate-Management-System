@@ -270,10 +270,10 @@ const onDelete = (id:string)=>{
       {/* Meetings List */}
       {isFetching && meetings.length === 0 ? (
         <div className="flex flex-col gap-2">
-          {Array.from({ length:2 }).map((_,i) => (
+          {Array.from({ length:5 }).map((_,i) => (
             <div key={i} className="bg-gray-200 h-[100px] w-full animate-pulse rounded-[10px]"></div>
           ))}
-          {Array.from({ length:2 }).map((_,i) => (
+          {Array.from({ length:5 }).map((_,i) => (
             <div key={i} className="bg-gray-300 h-[100px] w-full animate-pulse rounded-[10px]"></div>
           ))}
         </div>

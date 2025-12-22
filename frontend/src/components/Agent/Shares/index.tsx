@@ -114,13 +114,10 @@ export const Shares: React.FC = () => {
 
       {/* Shares List */}
       {isLoading ? (
-        <div className="bg-gray-200 flex flex-col gap-2 rounded-[3px] w-full h-full p-4">
-          <div className="w-full bg-gray-300 h-[50px]"></div>
-          <div className="w-full bg-gray-300 h-[50px]"></div>
-          <div className="w-full bg-gray-300 h-[50px]"></div>
-          <div className="w-full bg-gray-300 h-[50px]"></div>
-          <div className="w-full bg-gray-300 h-[50px]"></div>
-          <div className="w-full bg-gray-300 h-[50px]"></div>
+        <div className="bg-white shadow-sm flex flex-col gap-2 rounded-[3px] w-full h-full p-4">
+          {Array.from({ length:20 }).map((_,i) => (
+            <div key={i} className="w-full bg-gray-200 rounded h-[80px]"></div>
+          ))}
         </div>
       ) : (
         <div className="space-y-2">

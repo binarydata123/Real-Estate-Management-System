@@ -170,11 +170,8 @@ const ConversationsList: React.FC<ConversationsListComponentProps> = ({
 
       {isLoadingConversations ? (
         <div className="flex flex-col gap-2">
-          {Array.from({ length:4 }).map((_,i) => (
+          {Array.from({ length:16 }).map((_,i) => (
             <div key={i} className="bg-gray-200 animate-pulse w-full h-[50px]"></div>
-          ))}
-          {Array.from({ length:4 }).map((_,i) => (
-            <div key={i} className="bg-gray-300 animate-pulse w-full h-[50px]"></div>
           ))}
         </div>
       ) : error ? (
