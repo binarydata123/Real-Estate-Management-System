@@ -1,8 +1,10 @@
 import { Meetings } from "../../models/Agent/MeetingModel.js";
+import moment from "moment-timezone";
 
 export async function meetingStatusUpdateCronJob() {
   try {
-    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+    // Always calculate time in IST
+    const twoHoursAgo = moment().tz("Asia/Kolkata").subtract(2, "hours");
 
     // Get all scheduled/rescheduled meetings
     const meetings = await Meetings.find({
@@ -12,11 +14,22 @@ export async function meetingStatusUpdateCronJob() {
     // Filter meetings that should be marked as past
     const meetingIdsToUpdate = meetings
       .filter((meeting) => {
-        const [hours, minutes] = meeting.time.split(":").map(Number);
-        const meetingDateTime = new Date(meeting.date);
-        meetingDateTime.setHours(hours, minutes, 0, 0);
+        if (!meeting.date || !meeting.time) return false;
 
-        return meetingDateTime <= twoHoursAgo;
+        // Expecting time format "HH:mm"
+        const [hours, minutes] = meeting.time.split(":").map(Number);
+
+        if (isNaN(hours) || isNaN(minutes)) return false;
+
+        // Build meeting datetime in IST
+        const meetingDateTime = moment.tz(meeting.date, "Asia/Kolkata").set({
+          hour: hours,
+          minute: minutes,
+          second: 0,
+          millisecond: 0,
+        });
+
+        return meetingDateTime.isSameOrBefore(twoHoursAgo);
       })
       .map((m) => m._id);
 
@@ -30,6 +43,7 @@ export async function meetingStatusUpdateCronJob() {
       console.log(
         `Meeting status update cron ran - Updated ${result.modifiedCount} meetings to 'past' status`
       );
+
       return result;
     } else {
       console.log("Meeting status update cron ran - No meetings to update");
