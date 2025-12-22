@@ -13,6 +13,7 @@ export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState("security");
   const { setBrandingColor } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [showSkeleton,setShowSkeleton] = useState(false);
   const [agencySettings, setAgencySettings] = useState<AgencySettingsType>({
     _id: "",
     agencySettings: {
@@ -64,10 +65,12 @@ export const Settings: React.FC = () => {
     });
   };
   const getSettings = async () => {
+    setShowSkeleton(true);
     const res = await getAgencySettings();
     setAgencySettings(res);
 
     setSettings(res);
+    setShowSkeleton(false);
   };
   useEffect(() => {
     getSettings();
@@ -91,7 +94,13 @@ export const Settings: React.FC = () => {
 
   return (
     <div className="space-y-3 md:space-y-6">
-      <div>
+      {showSkeleton ? (
+        <>
+        <div className="bg-gray-200 w-[70px] h-[15px]"></div>
+        <div className="bg-gray-200 w-[150px] h-[15px]"></div>
+        </>
+      ) : (
+        <div>
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
           Settings
         </h1>
@@ -99,9 +108,13 @@ export const Settings: React.FC = () => {
           Manage your account and agency preferences
         </p>
       </div>
+      )}
       <div className="flex flex-col lg:flex-row gap-2 md:gap-4">
         {/* Sidebar */}
-        <div className="w-full lg:w-56">
+        {showSkeleton ? (
+          <div className="bg-gray-200 w-full h-[30px]"></div>
+        ) : (
+          <div className="w-full lg:w-56">
           <div className="w-screen -mx-2 md:-mx-4 px-2 md:px-4 lg:w-auto lg:mx-0">
             <nav
               className="flex flex-nowrap gap-1.5 overflow-x-auto scrollbar-hide
@@ -128,9 +141,18 @@ export const Settings: React.FC = () => {
             </nav>
           </div>
         </div>
+        )}
 
         {/* Main Content */}
-        <div className="flex-1 min-w-0">
+        {showSkeleton ? (
+          <div className="h-[485px] px-2 w-full bg-gray-200 flex flex-col rounded-[8px]">
+            <div className="w-[100px] mt-2 h-[25px] bg-gray-300 rounded-[8px]"></div>
+            <div className="w-full mt-2 h-[70px] bg-gray-300 rounded-[8px]"></div>
+            <div className="w-full mt-2 h-[300px] bg-gray-300 rounded-[8px]"></div>
+            <div className="w-[100px] self-end mt-4 h-[35px] bg-gray-300 rounded-[8px]"></div>
+          </div>
+        ) : (
+          <div className="flex-1 min-w-0">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 md:p-4">
             {agencySettings &&
               renderTabContent(activeTab, agencySettings, updateAgencySetting)}
@@ -145,6 +167,7 @@ export const Settings: React.FC = () => {
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

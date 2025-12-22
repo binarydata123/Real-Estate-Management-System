@@ -42,7 +42,7 @@ declare global {
 
   interface Agency {
     id: string;
-    name: string;
+    name?: string;
     logo_url?: string;
     members: number;
     properties: number;
@@ -250,6 +250,8 @@ declare global {
     totalPages: number;
     scheduledCount?: number;
     totalWithoutFilter?: number;
+    totalAgencies?: number,
+    totalMeetings?: number,
   }
   interface Meeting {
     _id: string;
@@ -258,7 +260,7 @@ declare global {
     property?: string | Partial<Property>;
     propertyId?: { _id: string; title: string };
     agency?: Partial<Agency>;
-    date?: string;
+    date: string;
     time?: string;
     status?: "scheduled" | "completed" | "cancelled" | "rescheduled";
     notes?: string;
@@ -305,7 +307,8 @@ declare global {
     message?: string;
     pagination?: Pagination;
     stats?: {
-      totalCountForStats: number
+      totalCountForStats: number,
+      totalProperties?: number,
     }
   }
 
@@ -318,6 +321,7 @@ declare global {
       totalPages: number;
       totalProperties: number;
       totalUnfiltered:number;
+      totalAgencies?: number,
       total:number;
     };
   }
@@ -329,6 +333,7 @@ declare global {
     pagination?: Pagination;
     stats?: {
       totalAgencies: number;
+      totalProperties?: number;
     }
   }
 

@@ -323,6 +323,7 @@ export default function PreferenceForm() {
   const { user } = useAuth();
   const isReadOnly = user?.role === "admin";
   const [loading, setLoading] = React.useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [initialType, setInitialType] = useState<string | null>(null);
@@ -455,16 +456,17 @@ export default function PreferenceForm() {
       setLoading(false);
     }
   };
-
   const sendRequest = async () => {
-     setLoading(true); 
+    if (!customerId) return;
+    setRequestLoading(true);
+
     try {
-      const res = await sendRequestToCustomer(customerId as string);
+      const res = await sendRequestToCustomer(customerId);
 
       if (res.success) {
         showToast(res.message, "success");
-        setRequestSent(true);
-        // Show warning if push notification failed
+        setRequestSent(true); // stays true forever
+
         if (res.customerPushNotificationResult) {
           showToast(res.customerPushNotificationResult, "warning");
         }
@@ -472,7 +474,7 @@ export default function PreferenceForm() {
     } catch (error) {
       showErrorToast("Error:", error);
     } finally {
-      setLoading(false); // ✅ Always stop loading
+      setRequestLoading(false);
     }
   };
 
@@ -488,19 +490,23 @@ export default function PreferenceForm() {
               Tell us your needs, we’ll find the fit.
             </p>
           </div>
-          {customerId && (
+          {/* {customerId && (
             <button
               onClick={sendRequest}
-              disabled={loading || requestSent}
-              className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading} 
+              className="
+                px-6 py-3
+                bg-primary text-white font-bold rounded-lg
+                hover:bg-primary transition-colors
+                disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading
                 ? "Sending..."
                 : requestSent
-                ? "Request Sent ✓"
+                ? "Resend Request"
                 : "Send Request"}
             </button>
-          )}
+          )} */}
         </div>
       ) : (
         ""
@@ -700,18 +706,37 @@ export default function PreferenceForm() {
           </div>
         </FormSection>
 
-        {isReadOnly === false ? (
-          <div className="flex justify-end pb-1">
+        {isReadOnly === false && (
+          <div className="flex justify-end gap-4 pb-1">
+            {customerId && (
+              <button
+                type="button"
+                onClick={sendRequest}
+                disabled={requestLoading}
+                className="
+          px-6 py-3
+          bg-primary text-white font-bold rounded-lg
+          hover:bg-primary
+          transition-colors
+          disabled:opacity-50 disabled:cursor-not-allowed
+        "
+              >
+                {requestLoading
+                  ? "Sending..."
+                  : requestSent
+                  ? "Resend Request"
+                  : "Send Request"}
+              </button>
+            )}
             <button
               type="submit"
               disabled={loading}
               className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Saving..." : "Save Preferences"}
-            </button>
+              {" "}
+              {loading ? "Saving..." : "Save Preferences"}{" "}
+            </button>{" "}
           </div>
-        ) : (
-          ""
         )}
       </form>
     </>

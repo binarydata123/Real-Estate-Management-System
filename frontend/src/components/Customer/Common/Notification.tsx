@@ -10,7 +10,7 @@ interface Notification {
     title: string;
     message: string;
     type: 'meeting_reminder' | 'property_shared' | 'customer_activity' | 'system_update' | string;
-    isRead: string | null;
+    isRead: boolean;
     createdAt: string;
 }
 
@@ -28,7 +28,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
              if (!user?._id) return;
              try {
                  const response = await getNotifications(user._id, {
-        type: "unread",
+        type: "all",
         page: 1,
         limit: 10,
       });
@@ -44,13 +44,14 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
          }, [user]);
 
   useEffect(() => {
-   setUnreadCount(notifications.length);
+    const unreadNotifications = notifications.filter((notification) => notification.isRead === false);
+   setUnreadCount(unreadNotifications.length);
   },[notifications]);
     const handelMarkAsRead = async(notificationId: string) => {
            setNotifications(prev =>
             prev.map(notif =>
                 notif._id === notificationId
-                    ? { ...notif, isRead: new Date().toISOString() }
+                    ? { ...notif, isRead: true }
                     : notif,
             ),
         );
@@ -106,9 +107,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
 
     return (
         <div  className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-start justify-end pt-16 p-4 z-50 ">
-            <div ref={modalRef} className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden md:mr-12">
+            <div ref={modalRef} className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-md w-full h-[80vh] overflow-hidden md:mr-12">
                 {/* Header */}
-                <div className="border-b border-gray-200 p-2 md:p-4">
+                <div className="border-b border-gray-200 p-2 md:p-4 h-[50px]">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                             <BellIcon className="h-5 w-5 text-gray-600" />
@@ -138,7 +139,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                     </div>
                 </div>
 
-                <div className="overflow-y-auto max-h-96">
+                <div className="overflow-y-auto h-[calc(80vh-50px)]">
                     {notifications.length > 0 ? (
                         <div className="divide-y divide-gray-200">
                             {notifications.map(notification => (
@@ -169,7 +170,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
                             ))}
                         </div>
                     ) : (
-                        <div className="p-8 text-center">
+                        <div className="p-8 text-center h-full flex justify-center items-center flex-col">
                             <BellIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                             <p className="text-gray-500">No notifications yet</p>
                         </div>

@@ -43,6 +43,8 @@ export const getAgencies = async (req, res) => {
       .populate("meetings")
       .populate("propertyshares");
 
+      const totalProperties = await Property.countDocuments();
+
     if (!agency || agency.length === 0) {
       // Return only stats if no agencies found
       const totalAgenciesCount = await Agency.countDocuments({ status: { $ne: "delete" } });
@@ -57,7 +59,8 @@ export const getAgencies = async (req, res) => {
           totalPages: 0,
         },
         stats: {
-          totalAgencies: totalAgenciesCount
+          totalAgencies: totalAgenciesCount,
+          totalProperties: totalProperties,
         }
       });
     }
@@ -75,7 +78,8 @@ export const getAgencies = async (req, res) => {
         totalPages: Math.ceil(totalAgencies / limitNumber),
       },
       stats: {
-        totalAgencies: totalAgenciesCount
+        totalAgencies: totalAgenciesCount,
+        totalProperties: totalProperties,
       },
     });
   } catch (error) {

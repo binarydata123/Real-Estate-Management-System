@@ -107,7 +107,7 @@ const ScrollPagination: React.FC<ScrollPaginationProps> = ({
     };
   }, [handleIntersection, threshold]);
 
-  const shouldShowEndMessage = !hasMore && currentPage >= totalPages;
+  const shouldShowEndMessage = hasMore === false && currentPage >= totalPages;
 
   return (
     <div className={className}>

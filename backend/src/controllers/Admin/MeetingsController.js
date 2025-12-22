@@ -28,10 +28,10 @@ export const getMeetings = async (req, res) => {
 
 
     // ✅ NEW: Get scheduled + rescheduled count
-    const scheduledQuery = agencyId 
-      ? { agencyId, status: { $in: ["scheduled", "rescheduled"] } }
-      : { status: { $in: ["scheduled", "rescheduled"] } };
-      
+    const scheduledQuery = agencyId
+      ? { agencyId, status: { $in: ["scheduled", "rescheduled","confirmed"] } }
+      : { status: { $in: ["scheduled", "rescheduled","confirmed"] } };
+
     const scheduledCount = await Meetings.countDocuments(scheduledQuery);
 
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { XMarkIcon } from "@heroicons/react/24/outline";
@@ -14,6 +14,7 @@ import { createCustomer, updateCustomer } from "@/lib/Agent/CustomerAPI";
 import { useToast } from "@/context/ToastContext";
 import { showErrorToast } from "@/utils/toastHandler";
 import { FormattedNumberInput } from "../Properties/FormattedNumberInput";
+import { getPreferenceDetail, createPreference } from "@/lib/Common/Preference";
 
 interface AddCustomerFormProps {
   onClose: () => void;
@@ -32,7 +33,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const { showToast, showPromiseToast } = useToast();
-  // const [showAllProperty, setShowAllProperty] = useState(false);
+  const isManuallyEditedRef = useRef(false);
 
   const {
     register,
@@ -40,21 +41,49 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
     control,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<CustomerFormDataSchema>({
     resolver: zodResolver(customerSchema),
   });
 
+
+  useEffect(() => {
+    const fetchPreferenceData = async () => {
+      if (!customerId) return;
+
+      try {
+        const res = await getPreferenceDetail(customerId);
+        if (res.success && res.data) {
+          if (!isManuallyEditedRef.current) {
+            if (res.data.minPrice !== undefined) {
+              setValue("minimumBudget", res.data.minPrice);
+            }
+            if (res.data.maxPrice !== undefined) {
+              setValue("maximumBudget", res.data.maxPrice);
+            }
+          }
+        }
+      } catch (error) {
+        console.log("No customer found", error);
+      }
+    };
+    if (customerId) {
+      fetchPreferenceData();
+    }
+  }, [customerId, setValue]);
+
   useEffect(() => {
     if (initialData) {
-    reset({
-      ...initialData,
-      //If no whatsapp number than use by default phone
-      whatsAppNumber: initialData.whatsAppNumber || initialData.phoneNumber,
-    });
-    setShowMoreInfo(true); // Open more info section when editing
-  } else {
-    reset({ leadSource: "website" });
-  }
+      reset({
+        ...initialData,
+        whatsAppNumber: initialData.whatsAppNumber || initialData.phoneNumber,
+      });
+      setShowMoreInfo(true); // Open more info section when editing
+      isManuallyEditedRef.current = false; // Reset flag
+    } else {
+      reset({ leadSource: "website" });
+      isManuallyEditedRef.current = false; // Reset flag
+    }
   }, [initialData, reset]);
 
   const onSubmit: SubmitHandler<CustomerFormDataSchema> = async (data) => {
@@ -62,6 +91,15 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
       showToast("You must be logged in to manage customers.", "error");
       return;
     }
+
+    if (customerId && isManuallyEditedRef.current) {
+      await createPreference({
+        customerId,
+        minPrice: data.minimumBudget,
+        maxPrice: data.maximumBudget,
+      });
+    }
+
     const dataWithAgency = {
       ...data,
       agencyId: user?.agency?._id,
@@ -258,7 +296,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
               </div>
 
               {/* Budget Range */}
-              <div className="grid grid-cols-2 md:grid-cols-2 md:gap-6 gap-2">
+              {/* <div className="grid grid-cols-2 md:grid-cols-2 md:gap-6 gap-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
                     Minimum Budget (₹)
@@ -312,6 +350,74 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
                       />
                     )}
                   />
+                  {errors.maximumBudget && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.maximumBudget.message}
+                    </p>
+                  )}
+                </div>
+              </div> */}
+
+              {/* Budget Range - Simple Version */}
+              <div className="grid grid-cols-2 md:grid-cols-2 md:gap-6 gap-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
+                    Minimum Budget (₹)
+                  </label>
+                  <Controller
+                    name="minimumBudget"
+                    control={control}
+                    render={({ field }) => (
+                      <FormattedNumberInput
+                        value={field.value?.toString() || ""}
+                        onChange={(value) => {
+                          isManuallyEditedRef.current = true;
+                          field.onChange(value === "" ? "" : Number(value));
+                        }}
+                        onBlur={field.onBlur}
+                        placeholder="50,00,000"
+                        className={`w-full md:px-4 px-2 py-2 border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary ${
+                          errors.minimumBudget
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                      />
+                    )}
+                  />
+                  {errors.minimumBudget && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.minimumBudget.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 md:mb-2 mb-1">
+                    Maximum Budget (₹)
+                  </label>
+                  <Controller
+                    name="maximumBudget"
+                    control={control}
+                    render={({ field }) => (
+                      <FormattedNumberInput
+                        value={field.value?.toString() || ""}
+                        onChange={(value) => {
+                          isManuallyEditedRef.current = true;
+                          field.onChange(value === "" ? "" : Number(value));
+                        }}
+                        onBlur={field.onBlur}
+                        placeholder="75,00,000"
+                        className={`w-full md:px-4 px-2 py-2 border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary ${
+                          errors.maximumBudget
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                      />
+                    )}
+                  />
+
+                 
+
                   {errors.maximumBudget && (
                     <p className="text-red-600 text-sm mt-1">
                       {errors.maximumBudget.message}

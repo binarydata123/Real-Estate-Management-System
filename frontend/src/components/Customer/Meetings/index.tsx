@@ -13,6 +13,8 @@ import ScrollPagination from "@/components/Common/ScrollPagination";
 import { EditMeetingForm } from "@/components/Agent/Meetings/EditMeetingForm";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 // import { updateMeetingStatus } from "@/lib/Customer/MeetingAPI";
+import SearchInput from "@/components/Common/SearchInput";
+
 
 
 export const Meetings: React.FC = () => {
@@ -28,6 +30,17 @@ export const Meetings: React.FC = () => {
   const [meetingId, setMeetingId] = useState<string | null>(null);
   const [meetingStatus,setMeetingStatus] = useState<string |null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [searchTerm,setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  useEffect(()=>{
+    const handler = setTimeout(()=>{
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1);
+    },400);
+    return ()=> clearTimeout(handler);
+   
+  })
 
   const fetchMeetings = async (page = 1, append = false) => {
     if (!user?._id) return;
@@ -50,6 +63,21 @@ export const Meetings: React.FC = () => {
     setMeetings([]); // Clear meetings when tab changes
     fetchMeetings(1);
   }, [user?._id, activeTab]); // `fetchMeetings` is not needed here as it's not wrapped in useCallback
+
+  const filteredMeetings = meetings.filter((meeting)=>{
+    if(!debouncedSearchTerm) return true;
+
+    const searchLower = debouncedSearchTerm.toLowerCase();
+    const agencyName = meeting.agencyId?.name?.toLowerCase() || "";
+    const propertyTitle = meeting.propertyId?.title?.toLowerCase() || "";
+   const date = format(new Date(meeting.date), "PPP").toLowerCase();
+
+    return (
+      agencyName.includes(searchLower) ||
+      propertyTitle.includes(searchLower) ||
+      date.includes(searchLower)
+    )
+  })
 
 
   const onEdit = (id: string, status?: string) => {
@@ -105,238 +133,274 @@ const handleStatusChange = async (status: string) => {
   };
 
  return (
-  <div className="space-y-2">
-    {/* Header */}
-    <div className="flex items-center justify-between">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Meetings</h1>
-        <p className="text-gray-600 md:mt-1">
-          View and manage your scheduled appointments
-        </p>
-      </div>
-    </div>
-    <div className="border-b border-gray-200">
-      <nav className="flex space-x-4" aria-label="Tabs">
-        <button
-          onClick={() => setActiveTab("upcoming")}
-          className={`px-3 py-2 font-medium text-sm rounded-t-md ${
-            activeTab === "upcoming"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-600 hover:text-gray-800"
-          }`}
-        >
-          Upcoming Meetings
-        </button>
-        <button
-          onClick={() => setActiveTab("past")}
-          className={`px-3 py-2 font-medium text-sm rounded-t-md ${
-            activeTab === "past"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-600 hover:text-gray-800"
-          }`}
-        >
-          Past Meetings
-        </button>
-        <button
-          onClick={() => setActiveTab("cancelled")}
-          className={`px-3 py-2 font-medium text-sm rounded-t-md ${
-            activeTab === "cancelled"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-600 hover:text-gray-800"
-          }`}
-        >
-          Cancelled
-        </button>
-      </nav>
-    </div>
-    {/* Meetings List */}
-    {isFetching && meetings.length === 0 ? (
-      <></>
-      // <div className="text-center py-12">
-      //   <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
-      //   <p className="text-gray-600">Loading meetings...</p>
-      // </div>
-    ) : meetings.length > 0 ? (
-      <div className="md:space-y-4 space-y-2">
-        {meetings.map((meeting) => (
-          <div
-            key={meeting._id}
-            className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
-          >
-            <div className="flex flex-col md:flex-row items-start justify-between">
-              {/* Left: meeting info */}
-              <div className="flex-1 w-full md:w-auto">
-                <div className="flex items-center space-x-3 md:mb-3 mb-2 w-full md:w-auto">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <CalendarIcon className="h-5 w-5 text-blue-600" />
-                  </div>
+   <div className="space-y-2">
+     {/* Header */}
+     <div className="flex items-center justify-between">
+       <div>
+         <h1 className="text-3xl font-bold text-gray-900">Meetings</h1>
+         <p className="text-gray-600 md:mt-1">
+           View and manage your scheduled appointments
+         </p>
+       </div>
+     </div>
 
-                  <div className="w-full md:w-auto">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Meeting with {meeting?.agencyId?.name}
-                    </h3>
-                  </div>
-                </div>
+     {/* <div className="py-2">
+       <SearchInput
+         placeholder="Search by customer name, property, or date"
+         value={searchTerm}
+         onChange={setSearchTerm}
+         className="max-w-md"
+       />
+     </div> */}
 
-                {/* Details grid */}
-                <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-600 mb-1">Date & Time </p>
-                    <div className="flex gap-1">
-                      <div className="flex items-center text-gray-900 mb-1">
-                        {meeting?.date &&
-                          format(new Date(meeting.date), "MMM dd, yyyy")}
-                        ,
-                      </div>
-                      <p className="font-medium text-gray-900">
-                        {meeting?.time &&
-                          format(
-                            new Date(`1970-01-01T${meeting.time}:00`),
-                            "hh:mm a"
-                          )}
-                      </p>
-                    </div>
-                  </div>
+       <SearchInput
+         placeholder= "Search by agency name, property, or date"
+         value={searchTerm}
+         onChange={setSearchTerm}
+         className="max-w-md"
+       />
+     <div className="border-b border-gray-200">
+       <nav className="flex space-x-4" aria-label="Tabs">
+         <button
+           onClick={() => setActiveTab("upcoming")}
+           className={`px-3 py-2 font-medium text-sm rounded-t-md ${
+             activeTab === "upcoming"
+               ? "text-blue-600 border-b-2 border-blue-600"
+               : "text-gray-600 hover:text-gray-800"
+           }`}
+         >
+           Upcoming Meetings
+         </button>
+         <button
+           onClick={() => setActiveTab("past")}
+           className={`px-3 py-2 font-medium text-sm rounded-t-md ${
+             activeTab === "past"
+               ? "text-blue-600 border-b-2 border-blue-600"
+               : "text-gray-600 hover:text-gray-800"
+           }`}
+         >
+           Past Meetings
+         </button>
+         <button
+           onClick={() => setActiveTab("cancelled")}
+           className={`px-3 py-2 font-medium text-sm rounded-t-md ${
+             activeTab === "cancelled"
+               ? "text-blue-600 border-b-2 border-blue-600"
+               : "text-gray-600 hover:text-gray-800"
+           }`}
+         >
+           Cancelled
+         </button>
+       </nav>
+     </div>
+     {/* Meetings List */}
+     {isFetching && meetings.length === 0 ? (
+       <></>
+     ) : // <div className="text-center py-12">
+     //   <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
+     //   <p className="text-gray-600">Loading meetings...</p>
+     // </div>
+     meetings.length > 0 ? (
+       <div className="md:space-y-4 space-y-2">
+         {filteredMeetings.map((meeting) => (
+           <div
+             key={meeting._id}
+             className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition-shadow"
+           >
+             <div className="flex flex-col md:flex-row items-start justify-between">
+               {/* Left: meeting info */}
+               <div className="flex-1 w-full md:w-auto">
+                 <div className="flex items-center space-x-3 md:mb-3 mb-2 w-full md:w-auto">
+                   <div className="p-2 bg-blue-100 rounded-lg">
+                     <CalendarIcon className="h-5 w-5 text-blue-600" />
+                   </div>
 
-                  <div>
-                    <p className="text-gray-600 mb-1">Property</p>
-                    <p className="font-medium text-gray-900 break-words">
-                      {typeof meeting.property === "string"
-                        ? meeting.property
-                        : meeting.property?.title || "No property info"}
-                    </p>
-                  </div>
-                </div>
+                   <div className="w-full md:w-auto">
+                     <h3 className="text-lg font-semibold text-gray-900">
+                       Meeting with {meeting?.agencyId?.name}
+                     </h3>
+                   </div>
+                 </div>
 
-                {/* Status + Actions row below details - ALWAYS HORIZONTAL */}
-                <div className="flex flex-row justify-between items-center w-full mt-3">
-                  {/* Left side - Status badge */}
-                  <div>
-                    {activeTab === "past" && (
-                      <div className="inline-block px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
-                        Completed
-                      </div>
-                    )}
+                 {/* Details grid */}
+                 <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-4 text-sm">
+                   <div>
+                     <p className="text-gray-600 mb-1">Date & Time </p>
+                     <div className="flex gap-1">
+                       <div className="flex items-center text-gray-900 mb-1">
+                         {meeting?.date &&
+                           format(new Date(meeting.date), "MMM dd, yyyy")}
+                         ,
+                       </div>
+                       <p className="font-medium text-gray-900">
+                         {meeting?.time &&
+                           format(
+                             new Date(`1970-01-01T${meeting.time}:00`),
+                             "hh:mm a"
+                           )}
+                       </p>
+                     </div>
+                   </div>
 
-                    {activeTab === "cancelled" && (
-                      <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-lg text-xs font-medium bg-red-100 text-red-700">
-                        Cancelled
-                      </span>
-                    )}
+                   <div>
+                     <p className="text-gray-600 mb-1">Property</p>
+                     <p className="font-medium text-gray-900 break-words">
+                       {typeof meeting.property === "string"
+                         ? meeting.property
+                         : meeting.property?.title || "No property info"}
+                     </p>
+                   </div>
+                 </div>
 
-                    {activeTab === "upcoming" && meeting.status && (
-                      <span
-                        className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg text-xs font-medium ${getStatusColor(
-                          meeting.status
-                        )}`}
-                      >
-                        {meeting.status}
-                      </span>
-                    )}
-                  </div>
+                 {/* Status + Actions row below details - ALWAYS HORIZONTAL */}
+                 <div className="flex flex-row justify-between items-center w-full mt-3">
+                   {/* Left side - Status badge */}
+                   <div>
+                     {activeTab === "past" && (
+                       <div className="inline-block px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
+                         Completed
+                       </div>
+                     )}
 
-                  {/* Right side - Action buttons */}
-                  <div className="flex flex-row gap-2">
-                    {/* Upcoming meetings - Edit & Cancel */}
-                    {activeTab === "upcoming" &&
-                      meeting.status !== "cancelled" && (
-                        <>
-                          <button
-                            onClick={() => onEdit(meeting._id)}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => onCancel(meeting._id)}
-                            className="text-red-600 hover:text-red-700 text-sm font-medium"
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      )}
+                     {activeTab === "cancelled" && (
+                       <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-lg text-xs font-medium bg-red-100 text-red-700">
+                         Cancelled
+                       </span>
+                     )}
 
-                    {/* Cancelled meetings - Reschedule button */}
-                    {activeTab === "cancelled" && (
-                      <button
-                        onClick={() => onEdit(meeting._id, "rescheduled")}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      >
-                        Reschedule
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    ) : (
-      !isFetching && (
-        <NoData
-          icon={<CalendarIcon className="h-24 w-24 text-gray-400" />}
-          heading={
-            activeTab === "upcoming"
-              ? "No meetings scheduled"
-              : activeTab === "past"
-              ? "No past meetings"
-              : "No cancelled meetings"
-          }
-          description={
-            activeTab === "upcoming"
-              ? ""
-              : activeTab === "past"
-              ? "Once meetings are completed, they'll show up here for your records."
-              : "Cancelled meetings will be listed here if any were called off."
-          }
-        />
-      )
-    )}
+                     {activeTab === "upcoming" && meeting.status && (
+                       <span
+                         className={`inline-flex items-center px-2 md:px-3 py-1 capitalize rounded-lg text-xs font-medium ${getStatusColor(
+                           meeting.status
+                         )}`}
+                       >
+                         {meeting.status}
+                       </span>
+                     )}
+                   </div>
 
-    <ScrollPagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-      isLoading={isFetching}
-      hasMore={currentPage < totalPages}
-      loader={
-        <div className="text-center py-4">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      }
-      endMessage={
-        <div className="text-center py-8 text-green-600 font-medium">
-          🎉 All caught up!
-        </div>
-      }
-    />
+                   {/* Right side - Action buttons */}
+                   <div className="flex flex-row gap-2">
+                     {/* Upcoming meetings - Edit & Cancel */}
+                     {activeTab === "upcoming" &&
+                       meeting.status !== "cancelled" && (
+                         <>
+                           <button
+                             onClick={() => onEdit(meeting._id)}
+                             className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                           >
+                             Edit
+                           </button>
+                           <button
+                             onClick={() => onCancel(meeting._id)}
+                             className="text-red-600 hover:text-red-700 text-sm font-medium"
+                           >
+                             Cancel
+                           </button>
+                         </>
+                       )}
 
-    {/* Edit Meeting Modal */}
-    {showEditForm && (
-      <EditMeetingForm
-        meetingId={meetingId}
-        meetingStatus={meetingStatus}
-        onClose={() => setShowEditForm(false)}
-        onSuccess={() => {
-          setShowEditForm(false);
-          fetchMeetings(currentPage);
-        }}
-      />
-    )}
+                     {/* Cancelled meetings - Reschedule button */}
+                     {activeTab === "cancelled" && (
+                       <button
+                         onClick={() => onEdit(meeting._id, "rescheduled")}
+                         className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                       >
+                         Reschedule
+                       </button>
+                     )}
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         ))}
+       </div>
+     ) : (
+       !isFetching && (
+         <NoData
+           icon={<CalendarIcon className="h-24 w-24 text-gray-400" />}
+           heading={
+             activeTab === "upcoming"
+               ? "No meetings scheduled"
+               : activeTab === "past"
+               ? "No past meetings"
+               : "No cancelled meetings"
+           }
+           description={
+             activeTab === "upcoming"
+               ? ""
+               : activeTab === "past"
+               ? "Once meetings are completed, they'll show up here for your records."
+               : "Cancelled meetings will be listed here if any were called off."
+           }
+         />
+       )
+     )}
 
-    {/* Cancel Confirmation Dialog */}
-    <ConfirmDialog
-      open={showConfirmDialog}
-      onCancel={() => setShowConfirmDialog(false)}
-      onConfirm={() => handleStatusChange("cancelled")}
-      heading="Are you sure?"
-      description="Cancelling this meeting is permanent and cannot be reversed."
-      confirmText="Cancel meeting"
-      cancelText="Back"
-      confirmColor="bg-red-600 hover:bg-red-700"
-    />
-  </div>
-);
+     {/* <ScrollPagination
+       currentPage={currentPage}
+       totalPages={totalPages}
+       onPageChange={handlePageChange}
+       isLoading={isFetching}
+       hasMore={currentPage < totalPages}
+       loader={
+         <div className="text-center py-4">
+           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+         </div>
+       }
+       endMessage={
+         <div className="text-center py-8 text-green-600 font-medium">
+           🎉 All caught up!
+         </div>
+       }
+     /> */}
+
+     {/* Edit Meeting Modal */}
+     {showEditForm && (
+       <EditMeetingForm
+         meetingId={meetingId}
+         meetingStatus={meetingStatus}
+         onClose={() => setShowEditForm(false)}
+         onSuccess={() => {
+           setShowEditForm(false);
+           fetchMeetings(currentPage);
+         }}
+       />
+     )}
+
+     {/* Cancel Confirmation Dialog */}
+     <ConfirmDialog
+       open={showConfirmDialog}
+       onCancel={() => setShowConfirmDialog(false)}
+       onConfirm={() => handleStatusChange("cancelled")}
+       heading="Are you sure?"
+       description="Cancelling this meeting is permanent and cannot be reversed."
+       confirmText="Cancel meeting"
+       cancelText="Back"
+       confirmColor="bg-red-600 hover:bg-red-700"
+     />
+
+     {filteredMeetings.length > 0 && (
+       <ScrollPagination
+         currentPage={currentPage}
+         totalPages={totalPages}
+         onPageChange={handlePageChange}
+         isLoading={isFetching}
+         hasMore={currentPage < totalPages}
+         loader={
+           <div className="text-center py-4">
+             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+           </div>
+         }
+         endMessage={
+           <div className="text-center py-8 text-green-600 font-medium">
+             🎉 All caught up!
+           </div>
+         }
+       />
+     )}
+   </div>
+ );
 
 };

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 // import { Building2, PlusIcon, UserPlus } from "lucide-react";
-import { Building2, PlusIcon } from "lucide-react";
+import { Building2, PlusIcon, Users  } from "lucide-react";
 import { getCustomers, deleteCustomerById } from "@/lib/Admin/CustomerAPI";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
@@ -46,6 +46,7 @@ export default function Customers() {
   const searchParams = useSearchParams();
   const agencyId = searchParams.get("agencyId");
   const [totalRecords, setTotalRecords] = useState(0);
+  const [totalMeetings, setTotalMeetings] = useState(0);
 
   const [customerData, setCustomerData] = useState<CustomerFormData | null>(
     null
@@ -61,9 +62,15 @@ export default function Customers() {
     {
       name: "Total Customers",
       value: totalRecords,
-      icon: Building2,
+      icon: Users,
       color: "bg-blue-500",
     },
+    {
+      name: "Total Meetings",
+      value: totalMeetings,
+      icon: Building2,
+      color: "bg-indigo-500",
+    }
     // {
     //   name: "New",
     //   value: newCustomers,
@@ -118,6 +125,7 @@ export default function Customers() {
           setCurrentPage(res.pagination?.page ?? 1);
           setTotalPages(res.pagination?.totalPages ?? 1);
           setTotalRecords(res.pagination?.allCustomers ?? 0);
+          setTotalMeetings(res?.pagination?.totalMeetings ?? 0);
         }
       } catch (error) {
         showErrorToast("Error:", error);
@@ -161,7 +169,7 @@ export default function Customers() {
       status: customer?.status,
       whatsAppNumber: customer?.whatsAppNumber,
     });
-    document.body.style.overflow = "hidden";
+    // document.body.style.overflow = "hidden";
     setShowCustomerDetailsModal(true);
   };
 
@@ -191,8 +199,9 @@ export default function Customers() {
       <div className="mt-8">
         <dl className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {customerStats.map((item) => (
-            <div
+            <Link
               key={item.name}
+              href={item.name === "Total Meetings" ? "/admin/meetings" : "#"}
               className="flex justify-between items-center rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 p-3 border-t-4 border-blue-500 group"
             >
               <div className="p-5 stats-card-padding-sec w-[100%]">
@@ -219,7 +228,7 @@ export default function Customers() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </dl>
       </div>
@@ -501,7 +510,7 @@ export default function Customers() {
           isOpen={showCustomerDetailsModal}
           onClose={() => {
             setShowCustomerDetailsModal(false);
-            document.body.style.overflow = "unset";
+            // document.body.style.overflow = "unset";
           }}
           customerData={customerData}
           agencyName={customerData?.agencyId?.name}
