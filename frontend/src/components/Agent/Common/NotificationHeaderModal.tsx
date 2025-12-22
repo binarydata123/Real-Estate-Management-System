@@ -21,7 +21,7 @@ interface Notification {
     | "customer_activity"
     | "system_update"
     | string;
-  read_at: string | null;
+  isRead: boolean;
   created_at: string;
 }
 
@@ -50,7 +50,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       if (!user?._id) return;
 
       const res = await getNotifications(user?._id, {
-        type: "unread",
+        type: "all",
         page: 1,
         limit: 10,
       });
@@ -77,7 +77,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     setNotifications((prev) =>
       prev.map((notification) =>
         notification._id === notificationId
-          ? { ...notification, read_at: new Date().toISOString() }
+          ? { ...notification, isRead: true }
           : notification
       )
     );
@@ -114,6 +114,16 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
   };
 
+  const makeItBetter = (type:string) => {
+    const firstWord = type.split('_')[0];
+    const secondWord = type.split('_')[1];
+    const capitalizedFirstLetter = firstWord.slice(0,1).toUpperCase();
+    const capitalizedSecondLetter = secondWord.slice(0,1).toUpperCase();
+    const restofFirstWord = firstWord.slice(1);
+    const restofSecondWord = secondWord.slice(1);
+    return `${capitalizedFirstLetter}${restofFirstWord} ${capitalizedSecondLetter}${restofSecondWord}`;
+  }
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -139,10 +149,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-start justify-end pt-16 p-4 z-50">
       <div
         ref={modalRef}
-        className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden  md:mr-12"
+        className="bg-white rounded-lg md:rounded-xl shadow-xl max-w-md w-full overflow-hidden h-[80vh] md:mr-12"
       >
         {/* Header */}
-        <div className="border-b border-gray-200 p-2 md:p-4">
+        <div className="border-b border-gray-200 p-2 md:p-4 h-[50px]">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <BellIcon className="h-5 w-5 text-gray-600" />
@@ -159,7 +169,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="text-primary hover:text-primary text-sm font-medium"
+                  className="text-primary ho.text-primary {
+                      color: var(--primary);
+                  }ver:text-primary text-sm font-medium"
                 >
                   Mark all read
                 </button>
@@ -174,7 +186,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           </div>
         </div>
 
-        <div className="overflow-y-auto max-h-96">
+        <div className="overflow-y-auto h-[calc(80vh-50px)]">
           {loading && (
             <div className="p-8 text-center">
               <BellIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -204,7 +216,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                               : "text-gray-700"
                           }`}
                         >
-                          {notification.type}
+                          {makeItBetter(notification.type)}
                         </p>
                         {!notification.isRead && (
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
@@ -225,8 +237,8 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               ))}
             </div>
           ) : (
-            <div className="p-8 text-center">
-              <div className="flex flex-col items-center text-center py-8">
+            <div className="p-8 text-center h-full">
+              <div className="flex flex-col h-full justify-center items-center text-center py-8">
                 <BellIcon className="h-12 w-12 text-gray-300" />
                 <h3 className="mt-4 text-lg font-semibold text-gray-800">
                   You&apos;re all caught up!

@@ -17,18 +17,15 @@ import { NoData } from "@/components/Common/NoData";
 import { Users } from "lucide-react";
 import { AddMeetingForm } from "@/components/Agent/Meetings/AddMeetingForm";
 import { getPreferenceDetail } from "@/lib/Common/Preference";
+// import { useCopyToClipboard, usePreferredLanguage } from "@uidotdev/usehooks";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
   // const [customers, setCustomers] = useState<CustomerFormData[]>([]);
 
-
   const [customers, setCustomers] = useState<
     (CustomerFormData & { isDeleted?: boolean })[]
   >([]);
-
-  
-
 
   const [isFetching, setIsFetching] = useState(false);
   const [addMode, setAddMode] = useState<"manual" | "ai" | null>(null);
@@ -51,6 +48,8 @@ export const Customers: React.FC = () => {
   const [openMeetingModal, setOpenMeetingModal] = useState(false);
   const [meetingCustomer, setMeetingCustomer] =
     useState<CustomerFormData | null>(null);
+  // const [copiedNumber,copyPhoneNumber] = useCopyToClipboard();
+  // const language = usePreferredLanguage();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -70,13 +69,12 @@ export const Customers: React.FC = () => {
       const response = await deleteCustomerById(id);
       if (response.data.success) {
         getAllCustomers(); // refresh list from API
-        showSuccessToast("Customer deleted successfully")
+        showSuccessToast("Customer deleted successfully");
       }
     } catch (error) {
       showErrorToast("Failed to delete customer:", error);
     }
   };
-  
   const getAllCustomers = useCallback(
     async (page = 1, search = "", append = false) => {
       if (!user?._id) return;
@@ -101,7 +99,7 @@ export const Customers: React.FC = () => {
                   };
                 }
               } catch (error) {
-                console.log("No preference for customer",error);
+                console.log("No preference for customer", error);
               }
               return customer;
             })
@@ -123,11 +121,6 @@ export const Customers: React.FC = () => {
     },
     [user?._id]
   );
-
-
-
-
-
 
   useEffect(() => {
     getAllCustomers(1, debouncedSearchTerm);
@@ -171,26 +164,40 @@ export const Customers: React.FC = () => {
     <div className="space-y-2">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
-          <p className="text-gray-600 md:mt-1">Manage your customer</p>
-        </div>
+        {isFetching ? (
+          <>
+            <div className="h-[15px] w-[100px] bg-gray-300 animate-pulse"></div>
+            <div className="h-[15px] w-[200px] bg-gray-300 animate-pulse"></div>
+          </>
+        ) : (
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
+            <p className="text-gray-600 md:mt-1">Manage your customer</p>
+          </div>
+        )}
 
-        <div className="flex  flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
-          <SearchInput
-            placeholder="Search by name, email, or phone"
-            value={searchTerm}
-            onChange={setSearchTerm}
-            className="flex-1 sm:max-w-md "
-          />
-          <button
-            onClick={() => setShowSelectionModal(true)}
-            className="flex items-center justify-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add Customer
-          </button>
-        </div>
+        {isFetching ? (
+          <div className="flex gap-3">
+            <div className="w-[70%] bg-gray-300 h-[30px] rounded-[5px] animate-pulse"></div>
+            <div className="w-[28%] bg-gray-300 h-[30px] rounded-[5px] animate-pulse"></div>
+          </div>
+        ) : (
+          <div className="flex  flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
+            <SearchInput
+              placeholder="Search by name, email, or phone"
+              value={searchTerm}
+              onChange={setSearchTerm}
+              className="flex-1 sm:max-w-md "
+            />
+            <button
+              onClick={() => setShowSelectionModal(true)}
+              className="flex items-center justify-center md:px-4 px-2 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Add Customer
+            </button>
+          </div>
+        )}
       </div>
 
       {customers.length === 0 && !isFetching && (
@@ -202,56 +209,83 @@ export const Customers: React.FC = () => {
         />
       )}
 
-      {customers.length > 0 && (
-        <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="hidden md:grid md:grid-cols-6 gap-4 text-sm font-medium text-gray-600 px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <div className="col-span-2">Customer</div>
-            <div>Contact</div>
-            <div>Budget Range</div>
-            <div>Status</div>
-            <div>Actions</div>
-          </div>
+      {isFetching ? (
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-[70px] w-full bg-gray-300 bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 animate-[shimmer_1.3s_ease-in-out_infinite]"
+            ></div>
+          ))}
+        </div>
+      ) : (
+        customers.length > 0 && (
+          <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="hidden md:grid md:grid-cols-6 gap-4 text-sm font-medium text-gray-600 px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <div className="col-span-2">Customer</div>
+              <div>Contact</div>
+              <div>Budget Range</div>
+              <div>Status</div>
+              <div>Actions</div>
+            </div>
 
-          <div className="divide-y divide-gray-200">
-            {customers
-              .filter((customer) => !customer.isDeleted)
-              .map((customer: CustomerFormData, index) => (
-                <div
-                  key={`${customer._id}-${index}`}
-                  className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors"
-                >
-                  {/* Customer Info */}
-                  <div className="md:col-span-2 flex justify-between items-start">
-                    <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <UserIcon className="h-6 w-6 text-blue-600" />
-                      </div>
-                      <div>
-                        {/* <p className="font-medium text-gray-900">
+            <div className="divide-y divide-gray-200">
+              {customers
+                .filter((customer) => !customer.isDeleted)
+                .map((customer: CustomerFormData, index) => (
+                  <div
+                    key={`${customer._id}-${index}`}
+                    className="p-2 md:p-4 md:grid md:grid-cols-6 md:gap-4 md:items-center md:px-6 hover:bg-gray-50 transition-colors"
+                  >
+                    {/* Customer Info */}
+                    <div className="md:col-span-2 flex justify-between items-start">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <UserIcon className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                          {/* <p className="font-medium text-gray-900">
                         {customer?.fullName}
                       </p> */}
 
-                        <p className="font-medium text-gray-900">
-                          {customer.fullName}{" "}
-                          {(customer as { isDeleted?: boolean }).isDeleted && (
-                            <span className="text-red-500 text-sm">
-                              (Deleted)
-                            </span>
-                          )}
-                        </p>
+                          <p className="font-medium text-gray-900">
+                            {customer.fullName}{" "}
+                            {(customer as { isDeleted?: boolean })
+                              .isDeleted && (
+                              <span className="text-red-500 text-sm">
+                                (Deleted)
+                              </span>
+                            )}
+                          </p>
 
-                        <div className="flex items-center text-sm text-gray-600">
-                          <PhoneIcon className="h-4 w-4 hidden md:block mr-2 flex-shrink-0" />
-                          <span>
-                            <a
-                              href={`tel:${customer.phoneNumber}`}
-                              className="underline text-primary"
-                            >
-                              {customer.phoneNumber || "No phone"}
-                            </a>
-                          </span>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <PhoneIcon className="h-4 w-4 hidden md:block mr-2 flex-shrink-0" />
+                            <span>
+                              <a
+                                href={`tel:${customer.phoneNumber}`}
+                                // onClick={() => {copyPhoneNumber(customer?.phoneNumber as string); alert("Copied To ClipBoard ❤️‍🔥⚡🚀"); console.log(`You Copied : ${copiedNumber} and your preferred language is : ${language}`)}}
+                                className="underline text-primary"
+                              >
+                                {customer.phoneNumber || "No phone"}
+                              </a>
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      {/* Budget */}
+                      {(customer?.minimumBudget || customer?.maximumBudget) && (
+                        <div>
+                          <p className="text-xs text-gray-500 md:hidden md:mb-1">
+                            Budget
+                          </p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {formatBudget(
+                              customer?.minimumBudget,
+                              customer?.maximumBudget
+                            )}
+                          </p>
+                        </div>
+                      )}
                     </div>
                     {/* Budget */}
                     {/* <div>
@@ -265,88 +299,73 @@ export const Customers: React.FC = () => {
                         )}
                       </p>
                     </div> */}
-
-                    {(customer?.minimumBudget || customer?.maximumBudget) && (
-                      <div>
-                        <p className="text-xs text-gray-500 md:hidden md:mb-1">
-                          Budget
-                        </p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatBudget(
-                            customer?.minimumBudget,
-                            customer?.maximumBudget
-                          )}
-                        </p>
+                    <div className="grid grid-cols-2 gap-2 md:gap-4 mt-2 md:mt-4 md:contents">
+                      {/* Status (desktop) */}
+                      <div className="hidden md:block">
+                        <span
+                          className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            customer?.status as string
+                          )}`}
+                        >
+                          {customer?.status as string}
+                        </span>
                       </div>
-                    )}
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-2 md:gap-4 mt-2 md:mt-4 md:contents">
-                    {/* Status (desktop) */}
-                    <div className="hidden md:block">
-                      <span
-                        className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          customer?.status as string
-                        )}`}
-                      >
-                        {customer?.status as string}
-                      </span>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="col-span-2 md:col-auto flex justify-end md:justify-start space-x-2 md:space-x-4">
-                      <span
-                        onClick={() => setEditingCustomer(customer)}
-                        className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium"
-                      >
-                        Edit
-                      </span>
-                      <span
-                        onClick={() => handleDeleteClick(customer)}
-                        className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
-                      >
-                        Delete
-                      </span>
-
-                      <span
-                        className="cursor-pointer text-purple-600 p-1 rounded hover:text-purple-700 text-sm font-medium"
-                        onClick={() => {
-                          setMeetingCustomer(customer);
-                          setOpenMeetingModal(true);
-                        }}
-                      >
-                        Meeting
-                      </span>
-
-                      <span
-                        onClick={() => {
-                          setViewCustomer(customer);
-                          setOpen(true);
-                        }}
-                        className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
-                      >
-                        View
-                      </span>
-                      <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                        <Link
-                          href={`/agent/preference?customerId=${customer._id}`}
+                      {/* Actions */}
+                      <div className="col-span-2 md:col-auto flex justify-end md:justify-start space-x-2 md:space-x-4">
+                        <span
+                          onClick={() => setEditingCustomer(customer)}
+                          className="cursor-pointer text-yellow-600 p-1 rounded hover:text-yellow-700 text-sm font-medium"
                         >
-                          Preference
-                        </Link>
-                      </span>
-                      <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
-                        <Link
-                          href={`/agent/messages?customerId=${customer._id}`}
+                          Edit
+                        </span>
+                        <span
+                          onClick={() => handleDeleteClick(customer)}
+                          className="cursor-pointer text-red-600 p-1 rounded hover:text-red-700 text-sm font-medium"
                         >
-                          Message
-                        </Link>
-                      </span>
+                          Delete
+                        </span>
+
+                        <span
+                          className="cursor-pointer text-purple-600 p-1 rounded hover:text-purple-700 text-sm font-medium"
+                          onClick={() => {
+                            setMeetingCustomer(customer);
+                            setOpenMeetingModal(true);
+                          }}
+                        >
+                          Meeting
+                        </span>
+
+                        <span
+                          onClick={() => {
+                            setViewCustomer(customer);
+                            setOpen(true);
+                          }}
+                          className="cursor-pointer text-blue-600 p-1 rounded hover:text-blue-700 text-sm font-medium"
+                        >
+                          View
+                        </span>
+                        <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                          <Link
+                            href={`/agent/preference?customerId=${customer._id}`}
+                          >
+                            Preference
+                          </Link>
+                        </span>
+                        <span className="text-green-600 p-1 rounded hover:text-green-700 text-sm font-medium">
+                          <Link
+                            href={`/agent/messages?customerId=${customer._id}`}
+                          >
+                            Message
+                          </Link>
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+            </div>
           </div>
-        </div>
+        )
       )}
 
       {/* --- SMALL INLINE LOADER (NO FLICKER) --- */}

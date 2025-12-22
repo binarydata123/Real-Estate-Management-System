@@ -61,6 +61,8 @@ export const getProperties = async (req, res) => {
         select: "name email phone status logoUrl",
       });
 
+      const totalAgencies = await Agency.countDocuments({ status : {$ne : "deleted"}});
+
     // Include totalUnfiltered even when no results
     if (!property || property.length === 0) {
       return res.status(200).json({
@@ -70,6 +72,7 @@ export const getProperties = async (req, res) => {
         pagination: {
           total: 0,
           totalUnfiltered: totalUnfiltered,
+          totalAgencies: totalAgencies,
           page: pageNumber,
           limit: limitNumber,
           totalPages: 0,
@@ -83,6 +86,7 @@ export const getProperties = async (req, res) => {
       pagination: {
         total: totalFiltered,
         totalUnfiltered: totalUnfiltered,
+        totalAgencies: totalAgencies,
         page: pageNumber,
         limit: limitNumber,
         totalPages: Math.ceil(totalFiltered / limitNumber),

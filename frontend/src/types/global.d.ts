@@ -250,6 +250,8 @@ declare global {
     totalPages: number;
     scheduledCount?: number;
     totalWithoutFilter?: number;
+    totalAgencies?: number,
+    totalMeetings?: number,
   }
   interface Meeting {
     _id: string;
@@ -305,7 +307,8 @@ declare global {
     message?: string;
     pagination?: Pagination;
     stats?: {
-      totalCountForStats: number
+      totalCountForStats: number,
+      totalProperties?: number,
     }
   }
 
@@ -318,6 +321,7 @@ declare global {
       totalPages: number;
       totalProperties: number;
       totalUnfiltered:number;
+      totalAgencies?: number,
       total:number;
     };
   }
@@ -329,6 +333,7 @@ declare global {
     pagination?: Pagination;
     stats?: {
       totalAgencies: number;
+      totalProperties?: number;
     }
   }
 

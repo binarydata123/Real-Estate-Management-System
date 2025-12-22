@@ -1,5 +1,6 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import { Agency } from "../../models/Agent/AgencyModel.js";
+import { Meetings } from "../../models/Agent/MeetingModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 
@@ -50,6 +51,8 @@ export const getCustomers = async (req, res) => {
       .limit(limitNumber)
       .populate("agencyId");
 
+    const totalMeetings = await Meetings.countDocuments({});
+
     if (!customers || customers.length === 0) {
       return res.status(200).json({
         success: true,
@@ -57,6 +60,7 @@ export const getCustomers = async (req, res) => {
         data: [],
         pagination: {
           allCustomers: totalCustomers,
+          totalMeetings: totalMeetings,
           total: 0,
           page: pageNumber,
           limit: limitNumber,
@@ -70,6 +74,8 @@ export const getCustomers = async (req, res) => {
       data: customers,
       pagination: {
         allCustomers: totalCustomers,
+        totalMeetings,
+        totalMeetings,
         total: totalSearchedCustomers,
         page: pageNumber,
         limit: limitNumber,
@@ -102,12 +108,12 @@ export const updateCustomer = async (req, res) => {
       message: `Customer (${updatedCustomer.name}) has been updated successfully.`,
       type: "lead_updated",
     });
-      await sendPushNotification({
-        userId: updatedCustomer.owner,
-        title: "Customer Updated",
-        message: `Customer (${updatedCustomer.name}) has been updated successfully.`,
-        urlPath: "Customer",
-      });
+    await sendPushNotification({
+      userId: updatedCustomer.owner,
+      title: "Customer Updated",
+      message: `Customer (${updatedCustomer.name}) has been updated successfully.`,
+      urlPath: "Customer",
+    });
     return res.json({ success: true, data: updatedCustomer });
   } catch (error) {
     console.error("Error updating customer:", error);

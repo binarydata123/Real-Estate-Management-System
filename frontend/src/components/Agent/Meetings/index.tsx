@@ -269,9 +269,13 @@ const onDelete = (id:string)=>{
 
       {/* Meetings List */}
       {isFetching && meetings.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="loader border-t-4 border-b-4 border-primary w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
-          <p className="text-gray-600">Loading meetings...</p>
+        <div className="flex flex-col gap-2">
+          {Array.from({ length:2 }).map((_,i) => (
+            <div key={i} className="bg-gray-200 h-[100px] w-full animate-pulse rounded-[10px]"></div>
+          ))}
+          {Array.from({ length:2 }).map((_,i) => (
+            <div key={i} className="bg-gray-300 h-[100px] w-full animate-pulse rounded-[10px]"></div>
+          ))}
         </div>
       ) : meetings.length > 0 ? (
         <div className="md:space-y-4 space-y-2">
