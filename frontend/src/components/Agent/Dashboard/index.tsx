@@ -121,10 +121,10 @@ export const AgentDashboard = () => {
 
       {/* Main Content Grid */}
       {showSkeleton ? (
-        <>
-          <div className="h-[130px] w-full bg-gray-200 "></div>
-          <div className="h-[130px] w-full bg-gray-200 "></div>
-        </>
+        <div className="animate-pulse">
+          <div className="h-[130px] w-full bg-gray-200 rounded"></div>
+          <div className="h-[130px] mt-2 w-full bg-gray-200 rounded"></div>
+        </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-8 gap-2">
           <TodaysReminders reminders={dashboardData?.todayMeetings ?? []} />
@@ -135,7 +135,7 @@ export const AgentDashboard = () => {
       {/* Recent Properties */}
       <div>
         {showSkeleton ? (
-          <div className="h-[20px] flex items-center justify-between">
+          <div className="h-[20px] flex items-center justify-between animate-pulse">
             <div className="w-[100px] h-[20px] bg-gray-200"></div>
             <div className="w-[60px] h-[20px] bg-gray-200"></div>
           </div>
@@ -153,9 +153,9 @@ export const AgentDashboard = () => {
           </div>
         )}
         {showSkeleton ? (
-          <div className="flex mt-4 gap-3 h-[150px]">
-            <div className="h-full w-[48%] bg-gray-200"></div>
-            <div className="h-full w-[48%] bg-gray-200"></div>
+          <div className="flex flex-col mt-4 gap-3 animate-pulse">
+            <div className="h-[250px] w-full bg-gray-200"></div>
+            <div className="h-[250px] w-full bg-gray-200"></div>
           </div>
         ) : (dashboardData?.recentProperties ?? []).length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

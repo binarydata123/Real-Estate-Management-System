@@ -195,7 +195,14 @@ const handleStatusChange = async (status: string) => {
      </div>
      {/* Meetings List */}
      {isFetching && meetings.length === 0 ? (
-       <></>
+       <div className="flex flex-col gap-2">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-[100px] rounded-[8px] w-full bg-gray-200 animate-pulse"
+            ></div>
+          ))}
+        </div>
      ) : // <div className="text-center py-12">
      //   <div className="loader border-t-4 border-b-4 border-blue-600 w-12 h-12 rounded-full mx-auto animate-spin mb-4"></div>
      //   <p className="text-gray-600">Loading meetings...</p>

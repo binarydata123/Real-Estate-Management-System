@@ -211,10 +211,10 @@ export const Customers: React.FC = () => {
 
       {isFetching ? (
         <div className="flex flex-col gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({ length: 12 }).map((_, i) => (
             <div
               key={i}
-              className="h-[70px] w-full bg-gray-300 bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 animate-[shimmer_1.3s_ease-in-out_infinite]"
+              className="h-[70px] w-full bg-gray-200 animate-pulse"
             ></div>
           ))}
         </div>
