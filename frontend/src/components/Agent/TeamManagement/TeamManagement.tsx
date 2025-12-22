@@ -59,27 +59,27 @@ export const TeamManagement: React.FC = () => {
   };
 
   const SettingsSkeleton = () => (
-    <div className="bg-gray-200 w-full flex flex-col">
-      <div className="flex justify-between px-2 w-full mt-3">
-        <div className="bg-gray-300 w-[100px] h-[25px]"></div>
-        <div className="bg-gray-300 w-[100px] h-[25px]"></div>
+    <div className="bg-gray-100 border-gray-200 w-full flex flex-col">
+      <div className="flex justify-between px-2 w-full mt-3 animate-pulse">
+        <div className="bg-gray-200 w-[100px] h-[25px]"></div>
+        <div className="bg-gray-200 w-[100px] h-[25px]"></div>
       </div>
-      {Array.from({ length: 5 }).map((_, i) => (
+      {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}
-          className="flex justify-between w-full bg-gray-300 gap-2 p-4 mt-4"
+          className="flex justify-between w-full bg-white shadow-sm gap-2 p-4 mt-4 animate-pulse"
         >
           <div className="flex gap-2 items-center">
-            <div className="h-10 w-10 rounded-full bg-gray-400"></div>
+            <div className="h-10 w-10 rounded-full bg-gray-200"></div>
             <div className="flex flex-col gap-1">
-              <div className="w-[100px] h-[20px] bg-gray-400"></div>
-              <div className="w-[100px] h-[20px] bg-gray-400"></div>
-              <div className="w-[100px] h-[20px] bg-gray-400"></div>
+              <div className="w-[100px] rounded h-[20px] bg-gray-200"></div>
+              <div className="w-[100px] rounded h-[20px] bg-gray-200"></div>
+              <div className="w-[100px] rounded h-[20px] bg-gray-200"></div>
             </div>
           </div>
-          <div className="bg-gray-300 flex gap-2 items-center">
-            <div className="bg-gray-400 rounded-[3px] h-[20px] w-[20px]"></div>
-            <div className="bg-gray-400 rounded-[3px] h-[20px] w-[20px]"></div>
+          <div className="flex gap-2 items-center">
+            <div className="bg-gray-200 rounded-[3px] h-[20px] w-[20px]"></div>
+            <div className="bg-gray-200 rounded-[3px] h-[20px] w-[20px]"></div>
           </div>
         </div>
       ))}
