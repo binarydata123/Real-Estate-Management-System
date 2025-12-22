@@ -137,7 +137,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
 
     const init = async () => {
       try {
-        const result = await getCustomersForDropDown(user._id);
+        const result = await getCustomersForDropDown(user.agency!._id);
         const filtered = result.data
           .map((c: CustomerFormData) => ({
             id: c._id,
@@ -151,7 +151,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
     };
 
     init();
-  }, [user?._id, isCustomer]);
+  }, [user?.agency?._id, isCustomer]);
 
   
    // LOAD PROPERTIES (AGENT ONLY)
