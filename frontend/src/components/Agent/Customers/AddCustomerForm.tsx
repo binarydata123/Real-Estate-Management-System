@@ -92,6 +92,7 @@ export const AddCustomerForm: React.FC<AddCustomerFormProps> = ({
       return;
     }
 
+    // This is done to keep the budget consistent everywhere
     if (customerId && isManuallyEditedRef.current) {
       await createPreference({
         customerId,
