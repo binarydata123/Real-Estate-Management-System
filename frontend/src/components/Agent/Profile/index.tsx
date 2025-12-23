@@ -6,6 +6,7 @@ import { getAgentProfile, updateAgentProfile } from "@/lib/Agent/ProfileAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { agentProfileSchema } from "@/schemas/Admin/agentSchema";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+
 export default function Profile() {
   const [agent, setAgent] = useState<AgentProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -189,4 +190,5 @@ export default function Profile() {
       </form>
     </div>
   );
+
 }

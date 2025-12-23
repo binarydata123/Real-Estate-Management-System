@@ -4,7 +4,7 @@ import { Menu, Transition } from "@headlessui/react";
 import Link from "next/link";
 import {
   BellIcon,
-  UserCircleIcon,
+  UserCircleIcon,   
   ArrowRightOnRectangleIcon,
   Bars3Icon,
 } from "@heroicons/react/24/outline";
@@ -156,3 +156,14 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     </>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
