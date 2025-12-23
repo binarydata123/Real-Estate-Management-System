@@ -18,8 +18,7 @@ export const createPreference = async (req, res) => {
     }
 
     const preferenceData = req.body;
-    console.log("Req.User : ", req.user);
-    console.log("preferenceData : ", preferenceData);
+    
 
     // Use findOneAndUpdate with upsert to create a new preference if one doesn't exist,
     // or update the existing one. This is ideal for managing user preferences.

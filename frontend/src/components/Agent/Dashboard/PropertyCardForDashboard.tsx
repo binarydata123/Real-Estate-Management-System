@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MapPinIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { MapPinIcon } from "@heroicons/react/24/outline";
 // import Image from "next/image";
 import {
   getPropertyImageUrlWithFallback,
@@ -114,22 +114,6 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
               </span>
             )}
           </div>
-        </div>
-
-        {/* Actions */}
-        <div className="md:flex hidden space-x-2 md:mt-4 mt-1 p-1 md:pt-3 border-t border-gray-100">
-          <Link
-            href={`/agent/properties/${property._id}`}
-            className="flex flex-1 item-center justify-center"
-          >
-            <button className="flex-1 flex items-center justify-center px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors text-sm">
-              <EyeIcon className="h-4 w-4 mr-2" />
-              View
-            </button>
-          </Link>
-          {/* <button className="flex-1 flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-       Contact Us
-          </button> */}
         </div>
       </div>
     </div>
