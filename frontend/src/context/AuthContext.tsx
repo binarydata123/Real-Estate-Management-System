@@ -93,11 +93,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
 
   const router = useRouter();
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 6600b90d1fd148f43630e55ceeae28a4443a4155
   // Centralized function to clear session state and storage
   const clearSession = useCallback(() => {
     setUser(null);
