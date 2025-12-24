@@ -1,6 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
-import { PlusIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, UserIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
 import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
 import { useAuth } from "@/context/AuthContext";
@@ -158,8 +158,8 @@ export const Customers: React.FC = () => {
   return (
     <div className="space-y-6 p-2 md:p-4">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 md:p-8 shadow-sm border border-blue-100">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 md:p-4 shadow-sm border border-blue-100">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           {isFetching ? (
             <>
               <div className="space-y-2">
@@ -239,23 +239,23 @@ export const Customers: React.FC = () => {
                 >
                   <div className="p-4 md:p-5">
                     {/* Top Section */}
-                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-2">
                       {/* Customer Info */}
                       <div className="flex items-start space-x-3 flex-1">
-                        <div className="h-12 w-12 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300">
-                          <UserIcon className="h-6 w-6 text-white" />
+                        <div className="lg:h-12 lg:w-12 w-9 h-9 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300">
+                          <UserIcon className="h-5 w-5 sm:h-6 sm:w-6 md:h-6 md:w-6 lg:h-7 lg:w-7 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-gray-900 text-base mb-1 truncate">
                             {customer.fullName}{" "}
-                           {(customer as { isDeleted?: boolean })
-                               .isDeleted && (
+                            {(customer as { isDeleted?: boolean })
+                              .isDeleted && (
                               <span className="text-red-500 text-sm">
                                 (Deleted)
-                             </span>                             )}
+                              </span>
+                            )}
                           </h3>
                           <div className="flex items-center text-sm text-gray-600 group/phone">
-                            <PhoneIcon className="h-4 w-4 mr-2 flex-shrink-0 text-gray-400 group-hover/phone:text-blue-500 transition-colors" />
                             <a
                               href={`tel:${customer.phoneNumber}`}
                               className="text-blue-600 hover:text-blue-700 font-medium transition-colors hover:underline"
@@ -267,19 +267,39 @@ export const Customers: React.FC = () => {
                       </div>
 
                       {/* Budget */}
-                      {(customer?.minimumBudget || customer?.maximumBudget) && (
-                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-                          <p className="text-xs text-gray-500 mb-0.5 font-medium uppercase tracking-wide">
-                            Budget Range
-                          </p>
-                          <p className="text-sm font-bold text-gray-900">
-                            {formatBudget(
-                              customer?.minimumBudget,
-                              customer?.maximumBudget
+                      <div className="bg-gradient-to-br from-gray-50 to-gray-100 px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+                        <div className="flex justify-between gap-6">
+                          {/* Budget */}
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium tracking-wide">
+                              Budget Range
+                            </p>
+
+                            {customer?.minimumBudget ||
+                            customer?.maximumBudget ? (
+                              <p className="text-sm font-bold text-gray-900">
+                                {formatBudget(
+                                  customer?.minimumBudget,
+                                  customer?.maximumBudget
+                                )}
+                              </p>
+                            ) : (
+                              <p className="text-sm text-gray-400">Not Added Yet</p>
                             )}
-                          </p>
+                          </div>
+
+                          {/* Lead Source */}
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium tracking-wide">
+                              Lead Source
+                            </p>
+
+                            <p className="text-sm font-bold text-gray-900">
+                              {customer?.leadSource || "—"}
+                            </p>
+                          </div>
                         </div>
-                      )}
+                      </div>
                     </div>
 
                     {/* Divider */}
