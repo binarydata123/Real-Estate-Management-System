@@ -20,33 +20,37 @@ interface InstallButtonProp {
 export default function InstallButton({ isFrom }: InstallButtonProp) {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
+  // const [isInstallable, setIsInstallable] = useState(false);
 
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setIsInstallable(true);
-    };
-
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
-
-  const handleInstall = async () => {
-    if (!deferredPrompt) {
-      showErrorToast("Install prompt not available yet");
-      return;
+useEffect(() => {  
+  const checkPrompt = () => {
+    if (window.__deferredPrompt) {
+      setDeferredPrompt(window.__deferredPrompt);
+      // setIsInstallable(true);
     }
-
-    await deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-
-    setDeferredPrompt(null);
-    setIsInstallable(false);
   };
+  
+  checkPrompt();
+  window.addEventListener('installpromptready', checkPrompt);
+  
+  return () => window.removeEventListener('installpromptready', checkPrompt);
+}, []);
 
-  if (!isInstallable) return null;
+ const handleInstall = async () => {
+  if (!deferredPrompt) {
+    showErrorToast("Install prompt not available yet");
+    return;
+  }
+
+  await deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+
+  setDeferredPrompt(null);
+  // setIsInstallable(false);
+};
+
+
+  // if (!isInstallable) return null;
 
   return (
     <>

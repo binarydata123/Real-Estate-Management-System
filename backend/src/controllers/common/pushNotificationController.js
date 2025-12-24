@@ -22,7 +22,7 @@ export const createSubscription = async (req, res) => {
 
     // ✅ Upsert based on userId + device.id
     const subscriptionDoc = await PushNotificationSubscription.findOneAndUpdate(
-      { userId, "device.id": device.id },
+      { userId, "subscription.keys.p256dh": subscription.keys.p256dh },
       { $set: doc, $setOnInsert: { createdAt: new Date() } },
       { new: true, upsert: true }
     );
