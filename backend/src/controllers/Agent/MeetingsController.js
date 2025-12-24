@@ -77,7 +77,7 @@ export const createMeeting = async (req, res) => {
 
 export const getMeetingsByAgency = async (req, res) => {
   try {
-    const id = req.user.agencyId._id._id;
+    const id = req.user.agencyId._id;
     const { status } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -184,7 +184,7 @@ export const getMeetingsByAgency = async (req, res) => {
 // Get a meeting by ID
 export const getMeetingById = async (req, res) => {
   try {
-    const agencyId = req.user.agencyId._id._id;
+    const agencyId = req.user.agencyId._id;
     const meeting = await Meetings.findOne({ _id: req.params.id, agencyId });
 
     if (!meeting) {
@@ -216,7 +216,6 @@ export const updateMeeting = async (req, res) => {
     status,
     time
   };
-  console.log("New Body is : ", newBody);
   try {
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,

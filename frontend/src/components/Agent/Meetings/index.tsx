@@ -74,7 +74,6 @@ export const Meetings: React.FC = () => {
     setIsFetching(true);
     try {
       const res = await getMeetingsByAgency(
-        user?.agency?._id,
         activeTab,
         page,
         10
