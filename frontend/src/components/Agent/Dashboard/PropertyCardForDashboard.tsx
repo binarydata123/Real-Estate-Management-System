@@ -1,20 +1,15 @@
 "use client";
 
 import React from "react";
-import { MapPinIcon, EyeIcon } from "@heroicons/react/24/outline";
-// import Image from "next/image";
-import {
-  getPropertyImageUrlWithFallback,
-  // handleImageError,
-} from "@/lib/imageUtils";
+import { MapPinIcon } from "@heroicons/react/24/outline";
+import { getPropertyImageUrlWithFallback } from "@/lib/imageUtils";
 import Link from "next/link";
 import { formatPrice } from "@/utils/helperFunction";
+import { FaDirections } from "react-icons/fa";
 
 interface PropertyCardProps {
   property: Property;
-  onShare?: (property: Property) => void;
-  onFavorite?: (property: Property) => void;
-  isFavorited?: boolean;
+  onShare: (property: Property) => void;
 }
 
 const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
@@ -37,99 +32,196 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
     property.images?.[0]?.url ||
     "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg";
 
-  const getImageUrl = (url: string) => {
-    return getPropertyImageUrlWithFallback(url);
+  const isLandOrPlot =
+    property.category && ["land", "plot"].includes(property.category);
+
+  /* -------- PROPERTY DETAILS -------- */
+
+  type DetailItem = {
+    label: string;
+    value: string | number;
+    icon?: boolean;
   };
+
+  const propertyDetails: DetailItem[] = [];
+
+  const hasValue = (value: unknown): boolean => {
+    if (value === undefined || value === null) return false;
+    if (
+      typeof value === "string" &&
+      ["", "n/a", "na"].includes(value.toLowerCase())
+    )
+      return false;
+    if (Array.isArray(value) && value.length === 0) return false;
+    return true;
+  };
+
+  if (!isLandOrPlot && hasValue(property.furnishing)) {
+    propertyDetails.push({
+      label: "Furnishing",
+      value: property.furnishing ?? "",
+    });
+  }
+
+  if (hasValue(property.water_source)) {
+    propertyDetails.push({
+      label: "Water Supply",
+      value: Array.isArray(property.water_source)
+        ? property.water_source.join(", ")
+        : property.water_source ?? "",
+    });
+  }
+
+  if (hasValue(property.is_corner_plot)) {
+    propertyDetails.push({
+      label: "Corner Plot",
+      value: property.is_corner_plot ? "Yes" : "No",
+    });
+  }
+
+  if (
+    !isLandOrPlot &&
+    hasValue(property.power_backup) &&
+    property.power_backup !== "None"
+  ) {
+    propertyDetails.push({
+      label: "Power Backup",
+      value: property.power_backup ?? "",
+    });
+  }
+
+  if (hasValue(property.rera_status)) {
+    propertyDetails.push({
+      label: "RERA",
+      value: property.rera_status ?? "",
+    });
+  }
+
+  if (hasValue(property.gated_community)) {
+    propertyDetails.push({
+      label: "Gated Community",
+      value: property.gated_community ? "Yes" : "No",
+    });
+  }
+
+  if (!isLandOrPlot && hasValue(property.flooring_type)) {
+    propertyDetails.push({
+      label: "Flooring",
+      value: property.flooring_type ?? "",
+    });
+  }
+
+  if (hasValue(property.property_age)) {
+    propertyDetails.push({
+      label: "Age",
+      value: property.property_age ?? "",
+    });
+  }
+
+  /* -------- DISTRIBUTE INTO 3 COLUMNS -------- */
+
+  const allDetails: DetailItem[] = [
+    {
+      label: "Location",
+      value: property.location || "Not Available",
+      icon: true,
+    },
+    hasValue(property.category)
+      ? { label: "Category", value: property.category ?? "" }
+      : null,
+    property.size
+      ? {
+          label: "Size",
+          value: `${property.size} ${property.size_unit ?? ""}`,
+        }
+      : null,
+
+    ...propertyDetails,
+  ].filter((item): item is DetailItem => Boolean(item));
+
+  const col1: DetailItem[] = [];
+  const col2: DetailItem[] = [];
+  const col3: DetailItem[] = [];
+
+  allDetails.forEach((item, index) => {
+    if (index % 3 === 0) col1.push(item);
+    else if (index % 3 === 1) col2.push(item);
+    else col3.push(item);
+  });
+  const isGoogleMapsLink = (value?: string | number) => {
+    if (!value || typeof value !== "string") return false;
+    return (
+      value.includes("google.com/maps") || value.includes("maps.google.com")
+    );
+  };
+
+
   return (
-    <div className="bg-white rounded-lg md:rounded-xl  shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
-      {/* Image */}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden">
+      {/* IMAGE */}
       <Link href={`/agent/properties/${property._id}`}>
         <div className="relative aspect-[4/3] overflow-hidden">
-          {/* <Image
-            width={400}
-            height={300}
-            src={getImageUrl(primaryImage)}
-            alt={property.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={handleImageError}
-          /> */}
           <img
-            src={getImageUrl(primaryImage)}
+            src={getPropertyImageUrlWithFallback(primaryImage)}
             alt={property.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover hover:scale-105 transition-transform"
           />
-          <div className="absolute md:top-3 md:left-3 top-2 left-2">
-            <span
-              className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                property.status
-              )}`}
-            >
-              {property.status}
-            </span>
-          </div>
-          <div className="absolute md:top-3 md:right-3 top-2 right-2 flex items-center space-x-2">
-            {property.images?.length > 1 && (
-              <div className="px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs font-medium text-white">
-                +{property.images.length - 1}
-              </div>
-            )}
-          </div>
+          <span
+            className={`absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
+              property.status
+            )}`}
+          >
+            {property.status}
+          </span>
         </div>
       </Link>
 
-      {/* Content */}
-      <div className="p-1 md:p-4 flex flex-col flex-1">
-        <div className="flex-1">
-          <div className="flex justify-between items-start mb-1 md:mb-2">
-            <h3 className="font-semibold text-gray-900 text-base md:text-lg leading-tight pr-2 flex-1 truncate">
-              <Link href={`/agent/properties/${property._id}`}>
-                {property.title}
-              </Link>
-            </h3>
-            <p className="text-lg md:text-xl font-bold text-primary flex-shrink-0">
-              {formatPrice(property.price as number)}
-            </p>
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-            <span className="line-clamp-1">{property.location || "N/A"}</span>
-          </div>
+      {/* CONTENT */}
+      <div className="p-3">
+        {/* TITLE & PRICE */}
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="font-semibold text-gray-900 text-base truncate pr-2">
+            {property.title}
+          </h3>
 
-          {/* Property Details */}
-          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs md:text-sm text-gray-600 md:mt-1">
-            <span className="bg-gray-100 px-2 py-0.5 rounded capitalize">
-              {property.category}
+          {typeof property.price === "number" && property.price > 0 && (
+            <span className="text-lg font-bold text-primary">
+              {formatPrice(property.price)}
             </span>
-            {property?.size && (
-              <span className="flex items-center">
-                {property.size} {property.size_unit}
-              </span>
-            )}
-            {(property.bedrooms ?? 0) > 0 && (
-              <span className="flex items-center">{property.bedrooms} BHK</span>
-            )}
-            {(property.bathrooms ?? 0) > 0 && (
-              <span className="flex items-center">
-                {property.bathrooms} Bath
-              </span>
-            )}
-          </div>
+          )}
         </div>
 
-        {/* Actions */}
-        <div className="md:flex hidden space-x-2 md:mt-4 mt-1 p-1 md:pt-3 border-t border-gray-100">
-          <Link
-            href={`/agent/properties/${property._id}`}
-            className="flex flex-1 item-center justify-center"
-          >
-            <button className="flex-1 flex items-center justify-center px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors text-sm">
-              <EyeIcon className="h-4 w-4 mr-2" />
-              View
-            </button>
-          </Link>
-          {/* <button className="flex-1 flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-       Contact Us
-          </button> */}
+        {/* DETAILS GRID */}
+        <div className="grid grid-cols-3 gap-x-6">
+          {[col1, col2, col3].map((column, colIndex) => (
+            <div key={colIndex} className="flex flex-col gap-2">
+              {column.map((detail, index) => (
+                <div key={index} className="flex flex-col min-w-0">
+                  <span className="text-[10px] text-gray-500 flex items-center">
+                    {detail.icon && <MapPinIcon className="h-3 w-3 mr-1" />}
+                    {detail.label}
+                  </span>
+                  {detail.label === "Location" &&
+                  isGoogleMapsLink(detail.value) ? (
+                    <a
+                      href={String(detail.value)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      // className="inline-flex items-center mt-1 w-fit rounded-md border border-primary px-2 py-1 text-xs font-medium text-primary hover:bg-primary hover:text-white transition"
+                      className="inline-flex items-center mt-1 underline text-primary text-sm lg:text-xs whitespace-nowrap"
+                    >
+                      <FaDirections className="!h-[15px] !w-[15px] lg:!h-[15px] lg:!w-[15px] shrink-0" />
+                      <span className="ml-1">Get Directions</span>
+                    </a>
+                  ) : (
+                    <span className="text-xs font-medium text-gray-900 truncate capitalize">
+                      {detail.value}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>

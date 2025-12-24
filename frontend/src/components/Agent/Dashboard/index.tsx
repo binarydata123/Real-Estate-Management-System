@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
 import DashboardStats from "./DashboardStats";
@@ -24,18 +23,20 @@ export interface customer {
 interface DashboardData {
   totalMeetings: number;
   todayMeetings: Reminder[];
-  topCustomers: customer[]; // object
+  topCustomers: customer[];
   recentProperties: [];
 }
 
 export const AgentDashboard = () => {
   const [showShareModal, setShowShareModal] = useState(false);
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [showSkeleton, setShowSkeleton] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+
   const getData = async () => {
     setShowSkeleton(true);
+    setIsLoading(true);
     try {
       const res = await getDashboardData();
       if (res.success) {
@@ -45,6 +46,7 @@ export const AgentDashboard = () => {
       showErrorToast("Error", error);
     } finally {
       setShowSkeleton(false);
+      setTimeout(() => setIsLoading(false), 300);
     }
   };
 
@@ -58,12 +60,14 @@ export const AgentDashboard = () => {
     setPropertyToShare(property);
     setShowShareModal(true);
   };
+  
   const { notificationPermission, requestNotificationPermission } =
     useNotificationPermission();
   const { subscribeUserToPush } = usePushSubscription();
   const { user } = useAuth();
   const userId = user?._id;
   const role = user?.role;
+  
   useEffect(() => {
     const init = async () => {
       if (notificationPermission !== "granted") {
@@ -72,127 +76,412 @@ export const AgentDashboard = () => {
           await subscribeUserToPush(userId, role);
         }
       } else if (notificationPermission === "granted" && userId && role) {
-        // Already granted → just subscribe
         await subscribeUserToPush(userId, role);
       }
     };
 
     init();
-    //only run once on mount
   }, []);
 
-  // const DashboardSkeleton = () => (
-  //   <p>Skeleton Will Come Here!</p>
-  // )
+ 
 
-  return (
-    <div className="space-y-2 md:space-y-8">
-      {/* Welcome Section */}
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-100 px-2 py-4 md:px-4 md:py-6">
+//       {/* Welcome Section - Text appears immediately with blinking cursor */}
+//    <div className="relative overflow-hidden rounded-3xl mb-6 md:mb-8">
+//   {/* Gradient Background Only */}
+//   <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 opacity-90"></div>
 
+//   {/* Content Container */}
+//   <div className="relative z-10 p-6 sm:p-8 md:p-10 lg:p-12">
+//     {showSkeleton ? (
+//       <div className="space-y-3">
+//         <div className="h-8 sm:h-10 w-48 sm:w-64 rounded-xl bg-white/30 animate-pulse" />
+//         <div className="h-4 w-64 sm:w-80 rounded-xl bg-white/30 animate-pulse" />
+//       </div>
+//     ) : (
+//       <div className="max-w-2xl">
+//         {/* Welcome Text - Appears immediately */}
+//         <div className="mb-3">
+//           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white inline-flex items-center">
+//             Welcome back!
+//           </h1>
+//         </div>
+
+//         {/* Subtitle - Appears immediately */}
+//         <div className="mb-6">
+//           <p className="text-base sm:text-lg md:text-xl text-white/90 inline-flex items-center">
+//             {"Here's what's happening with your properties today."}
+//           </p>
+//         </div>
+
+//         {/* Stats Preview - Appears immediately */}
+//         {dashboardData && (
+//           <div className="flex flex-wrap gap-3 sm:gap-4">
+//             <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-xl">
+//               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+//               <span className="text-white text-xs sm:text-sm font-medium">
+//                 {dashboardData.totalMeetings || 0} Total Meetings
+//               </span>
+//             </div>
+//             <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-xl">
+//               <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+//               <span className="text-white text-xs sm:text-sm font-medium">
+//                 {dashboardData.todayMeetings?.length || 0} Today&apos;s Meetings
+//               </span>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     )}
+//   </div>
+// </div>
+
+//       {/* Stats Section */}
+//       <div
+//         className={`mb-4 transition-all duration-500 ${
+//           isLoading ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
+//         }`}
+//       >
+//         {showSkeleton ? (
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+//             {Array.from({ length: 3 }).map((_, index) => (
+//               <div
+//                 key={index}
+//                 className="h-24 rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse"
+//               />
+//             ))}
+//           </div>
+//         ) : (
+//           <div>
+//             <DashboardStats value={dashboardData ?? {}} />
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Main Content Grid - Today's Meetings & Hot Customers */}
+//       <div
+//         className={`mb-8 transition-all duration-500 ${
+//           isLoading ? "opacity-0" : "opacity-100"
+//         }`}
+//       >
+//         {showSkeleton ? (
+//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+//             <div className="h-64 rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+//             <div className="h-64 rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+//           </div>
+//         ) : (
+//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+//             {/* Today's Meetings - Display directly without animations */}
+//             <TodaysReminders reminders={dashboardData?.todayMeetings ?? []} />
+
+//             {/* Hot Customers */}
+//             <HotCustomers customers={dashboardData?.topCustomers ?? []} />
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Recent Properties */}
+//       <div
+//         className={`transition-all duration-500 ${
+//           isLoading ? "opacity-0" : "opacity-100"
+//         }`}
+//       >
+//         <div className="mb-6">
+//           {showSkeleton ? (
+//             <div className="flex items-center justify-between">
+//               <div className="h-8 w-48 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+//               <div className="h-8 w-20 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+//             </div>
+//           ) : (
+//             <div className="flex items-center justify-between mb-6">
+//               <div>
+//                 <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+//                   Recent Properties
+//                 </h2>
+//                 <p className="text-gray-500 text-sm mt-1">
+//                   Your latest property listings
+//                 </p>
+//               </div>
+//               <Link
+//                 href="/agent/properties"
+//                 className="group flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl hover:bg-secondary transition-colors duration-300 shadow-md hover:shadow-lg"
+//               >
+//                 <span className="font-medium text-sm">View All</span>
+//                 <svg
+//                   className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+//                   fill="none"
+//                   stroke="currentColor"
+//                   viewBox="0 0 24 24"
+//                 >
+//                   <path
+//                     strokeLinecap="round"
+//                     strokeLinejoin="round"
+//                     strokeWidth={2}
+//                     d="M9 5l7 7-7 7"
+//                   />
+//                 </svg>
+//               </Link>
+//             </div>
+//           )}
+//         </div>
+
+//         {/* Properties Grid */}
+//         {showSkeleton ? (
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//             {Array.from({ length: 3 }).map((_, index) => (
+//               <div
+//                 key={index}
+//                 className="h-72 rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse"
+//               />
+//             ))}
+//           </div>
+//         ) : (dashboardData?.recentProperties ?? []).length > 0 ? (
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+//             {dashboardData?.recentProperties?.map((property: Property) => (
+//               <PropertyCardForDashboard
+//                 key={property._id}
+//                 property={property}
+//                 onShare={handleShareProperty}
+//               />
+//             ))}
+//           </div>
+//         ) : (
+//           <div className="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-2xl shadow-lg">
+//             <div className="w-20 h-20 mb-4 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+//               <Plus className="w-10 h-10 text-blue-600" />
+//             </div>
+//             <p className="text-lg font-medium text-gray-700 mb-2">
+//               No Properties Added Yet
+//             </p>
+//             <p className="text-sm text-gray-500 mb-6 text-center">
+//               Start by adding your first property listing
+//             </p>
+//             <Link href="/agent/properties">
+//               <button className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-colors duration-300 shadow-lg hover:shadow-xl font-medium">
+//                 <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+//                 Add Your First Property
+//               </button>
+//             </Link>
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Share Property Modal */}
+//       {showShareModal && propertyToShare && (
+//         <SharePropertyModal
+//           property={propertyToShare}
+//           onClose={() => {
+//             setShowShareModal(false);
+//             setPropertyToShare(null);
+//           }}
+//         />
+//       )}
+//     </div>
+//   );
+
+
+
+
+
+
+
+
+
+
+return (
+  <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-100 px-1 py-1">
+    {/* Welcome Section - Text appears immediately with blinking cursor */}
+    <div className="relative overflow-hidden rounded-3xl mb-3">
+      {/* Gradient Background Only */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 opacity-90"></div>
+
+      {/* Content Container */}
+      <div className="relative z-10 p-4">
+        {showSkeleton ? (
+          <div className="space-y-3">
+            <div className="h-8 sm:h-10 w-48 sm:w-64 rounded-xl bg-white/30 animate-pulse" />
+            <div className="h-4 w-64 sm:w-80 rounded-xl bg-white/30 animate-pulse" />
+          </div>
+        ) : (
+          <div className="max-w-2xl">
+            {/* Welcome Text - Appears immediately */}
+            <div className="mb-1">
+              <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-xl font-bold text-white inline-flex items-center">
+                Welcome back!
+              </h1>
+            </div>
+
+            <div className="mb-3">
+              <p className="text-xl sm:text-lg md:text-xl lg:text-xl text-white/90 inline-flex items-center">
+                {"Here's what's happening with your properties today."}
+              </p>
+            </div>
+
+            {/* Stats Preview - Appears immediately */}
+            {dashboardData && (
+              <div className="flex flex-wrap gap-3 sm:gap-4">
+                <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-xl">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-white text-xs sm:text-sm font-medium">
+                    {dashboardData.totalMeetings || 0} Total Meetings
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-xl">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                  <span className="text-white text-xs sm:text-sm font-medium">
+                    {dashboardData.todayMeetings?.length || 0} Today&apos;s
+                    Meetings
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Stats Section */}
+    <div
+      className={`mb-3 transition-all duration-500 ${
+        isLoading ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
+      }`}
+    >
       {showSkeleton ? (
-        <div className="space-y-2">
-          <div className="h-8 w-52 rounded-md bg-gray-200 animate-pulse" />
-          <div className="h-4 w-80 rounded-md bg-gray-200 animate-pulse" />
-        </div>
-      ) : (
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 md:mb-2">
-            Welcome back!
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Here&apos;s what&apos;s happening with your properties today.
-          </p>
-        </div>
-      )}
-
-      {/* Stats */}
-      {showSkeleton ? (
-        <div className="flex gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
-              className="h-12 w-[30vw] rounded-lg bg-gray-200 animate-pulse"
+              className="h-24 rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse"
             />
           ))}
         </div>
       ) : (
-        <DashboardStats value={dashboardData ?? {}} />
+        <div>
+          <DashboardStats value={dashboardData ?? {}} />
+        </div>
       )}
+    </div>
 
-      {/* Main Content Grid */}
+    {/* Main Content Grid - Today's Meetings & Hot Customers */}
+    <div
+      className={`mb-3 transition-all duration-500 ${
+        isLoading ? "opacity-0" : "opacity-100"
+      }`}
+    >
       {showSkeleton ? (
-        <div className="animate-pulse">
-          <div className="h-[130px] w-full bg-gray-200 rounded"></div>
-          <div className="h-[130px] mt-2 w-full bg-gray-200 rounded"></div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="h-64 rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+          <div className="h-64 rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-8 gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          {/* Today's Meetings - Display directly without animations */}
           <TodaysReminders reminders={dashboardData?.todayMeetings ?? []} />
+
+          {/* Hot Customers */}
           <HotCustomers customers={dashboardData?.topCustomers ?? []} />
         </div>
       )}
+    </div>
 
-      {/* Recent Properties */}
-      <div>
+    {/* Recent Properties */}
+    <div
+      className={`transition-all duration-500 ${
+        isLoading ? "opacity-0" : "opacity-100"
+      }`}
+    >
+      <div className="mb-3">
         {showSkeleton ? (
-          <div className="h-[20px] flex items-center justify-between animate-pulse">
-            <div className="w-[100px] h-[20px] bg-gray-200"></div>
-            <div className="w-[60px] h-[20px] bg-gray-200"></div>
+          <div className="flex items-center justify-between">
+            <div className="h-8 w-48 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+            <div className="h-8 w-20 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
           </div>
         ) : (
-          <div className="flex items-center justify-between mb-2 md:mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Recent Properties
-            </h2>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+                Recent Properties
+              </h2>
+              <p className="text-gray-500 text-sm mt-1">
+                Your latest property listings
+              </p>
+            </div>
             <Link
               href="/agent/properties"
-              className="text-primary hover:text-secondary font-medium text-sm"
+              className="group flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl hover:bg-secondary transition-colors duration-300 shadow-md hover:shadow-lg"
             >
-              View All
-            </Link>
-          </div>
-        )}
-        {showSkeleton ? (
-          <div className="flex flex-col mt-4 gap-3 animate-pulse">
-            <div className="h-[250px] w-full bg-gray-200"></div>
-            <div className="h-[250px] w-full bg-gray-200"></div>
-          </div>
-        ) : (dashboardData?.recentProperties ?? []).length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {dashboardData?.recentProperties?.map((property: Property) => (
-              <PropertyCardForDashboard
-                key={property._id}
-                property={property}
-                onShare={handleShareProperty}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2 w-full h-[100px] justify-center items-center">
-            <p className="text-sm text-gray-500">No Property Added</p>
-
-            <Link href={"/agent/properties"}>
-              <button className="cursor-pointer flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-400 transition leading-none">
-                Add Here
-                <span className="flex items-center">
-                  <Plus className="!w-[10px] !h-[10px]" />
-                </span>
-              </button>
+              <span className="font-medium text-sm">View All</span>
+              <svg
+                className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             </Link>
           </div>
         )}
       </div>
 
-      {/* Share Property Modal */}
-      {showShareModal && propertyToShare && (
-        <SharePropertyModal
-          property={propertyToShare}
-          onClose={() => {
-            setShowShareModal(false);
-            setPropertyToShare(null);
-          }}
-        />
+      {/* Properties Grid */}
+      {showSkeleton ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="h-72 rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse"
+            />
+          ))}
+        </div>
+      ) :  (dashboardData?.recentProperties ?? []).length > 0 ? (
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+             {dashboardData?.recentProperties?.map((property: Property) => (
+              <PropertyCardForDashboard
+                 key={property._id}
+                 property={property}
+                 onShare={handleShareProperty}    
+                    />
+           ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-2xl shadow-lg">
+          <div className="w-20 h-20 mb-4 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+            <Plus className="w-10 h-10 text-blue-600" />
+          </div>
+          <p className="text-lg font-medium text-gray-700 mb-2">
+            No Properties Added Yet
+          </p>
+          <p className="text-sm text-gray-500 mb-3 text-center">
+            Start by adding your first property listing
+          </p>
+          <Link href="/agent/properties">
+            <button className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-colors duration-300 shadow-lg hover:shadow-xl font-medium">
+              <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+              Add Your First Property
+            </button>
+          </Link>
+        </div>
       )}
     </div>
-  );
+
+    {/* Share Property Modal */}
+    {showShareModal && propertyToShare && (
+      <SharePropertyModal
+        property={propertyToShare}
+        onClose={() => {
+          setShowShareModal(false);
+          setPropertyToShare(null);
+        }}
+      />
+    )}
+  </div>
+);
+
 };

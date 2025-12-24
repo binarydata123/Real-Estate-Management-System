@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -63,7 +64,7 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
     register,
     handleSubmit,
     // setValue,
-    watch,
+    // watch, // ⚠️ FIX #1: Commented out 'watch' since formValues was unused
     reset,
     formState: { errors, isSubmitting },
   } = useForm<MeetingFormData | CustomerMeetingFormData>({
@@ -71,8 +72,9 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
     mode: "onSubmit", // Only validate on submit
   });
 
-  // DEBUG: Watch form values and errors
-  const formValues = watch();
+  // ⚠️ FIX #1: Removed unused 'formValues' variable (Line 75 error)
+  // const formValues = watch();
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -88,7 +90,6 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
           : await getMeetingById(meetingId);
 
         const meeting = result.data.data;
-        console.log("✅ Meeting data loaded:", meeting);
         setInitialData(meeting);
 
         const formattedDate = meeting.date
@@ -116,7 +117,6 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
 
         // Reset form with all values at once
         reset(formData);
-        console.log("✅ Form reset with values:", formData);
       } catch (err) {
         console.error("❌ Error fetching meeting:", err);
         showErrorToast("Failed to load meeting", err);
@@ -179,7 +179,6 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
     setLoading(true);
     try {
       if (!meetingId) {
-        // console.error("❌ No meeting ID!");
         showErrorToast("Meeting ID is missing");
         return;
       }
@@ -190,18 +189,16 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
           date: data.date,
           time: data.time,
         };
-        console.log("📤 Sending customer payload:", customerPayload);
 
-        // Update date & time
-        const updateResult = await updateMeetingCustomer(
+        // ⚠️ FIX #2: Removed unused 'updateResult' variable (Line 192 error)
+        // Just await the API call without storing the result
+        await updateMeetingCustomer(
           meetingId,
           customerPayload
         );
-        console.log("✅ Update Response:", updateResult);
 
         showSuccessToast("Meeting updated successfully!");
       } else {
-        console.log("🏢 Agent Update Flow");
         // Type guard to ensure we have agent fields
         if (!("customerId" in data)) {
           showErrorToast("Invalid form data for agent");
@@ -212,9 +209,8 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
           ...(data as MeetingFormData),
           agencyId: user?.agency?._id,
         };
-        console.log("📤 Sending agent payload:", payload);
-        const result = await updateMeeting(meetingId, payload);
-        console.log("✅ Agent Update Response:", result);
+        
+        await updateMeeting(meetingId, payload);
         showSuccessToast("Meeting updated successfully!");
       }
 
@@ -231,11 +227,6 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
   // MANUAL SUBMIT FOR DEBUGGING
   const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("MANUAL SUBMIT CLICKED");
-    console.log(" Form Values:", formValues);
-    console.log("Form Errors:", errors);
-
-    // Try to trigger the form submission
     await handleSubmit(onSubmit)(e);
   };
 
@@ -430,4 +421,3 @@ export const EditMeetingForm: React.FC<EditMeetingFormProps> = ({
     </div>
   );
 };
-
