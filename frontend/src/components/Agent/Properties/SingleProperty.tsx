@@ -10,38 +10,17 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeftIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   PencilIcon,
-  PlayCircleIcon,
+  // PlayCircleIcon,
   ShareIcon,
   TrashIcon,
-  MapPinIcon,
-  HomeIcon,
-  BathIcon,
-  BedIcon,
-  SquareIcon,
-  CalendarIcon,
-  UserIcon,
-  PhoneIcon,
-  Building,
-  Armchair,
-  Handshake,
-  Layers,
-  Compass,
-  Eye,
-  DropletsIcon,
-  Zap,
-  Gavel,
-  Shield,
-  LandPlot,
 } from "lucide-react";
 import SharePropertyModal from "../Common/SharePropertyModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { useToast } from "@/context/ToastContext";
 import { showErrorToast } from "@/utils/toastHandler";
-import { formatPrice } from "@/utils/helperFunction";
 import { capitalizeFirstLetter } from "@/helper/capitalizeFirstLetter";
+import { FaDirections } from "react-icons/fa"
 
 interface Images {
   _id?: string;
@@ -59,7 +38,6 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   const [selectedImage, setSelectedImage] = useState<Images | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [propertyData, setPropertyData] = useState<Property | null>(null);
-  const [imageLoading, setImageLoading] = useState(true);
   const { showToast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
@@ -107,136 +85,80 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     }
   };
 
-  const InfoCard = ({
-    title,
-    children,
-    className = "",
-  }: {
-    title: string;
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <div
-      className={`bg-gray-50 rounded-2xl p-4 border border-gray-100 ${className}`}
-    >
-      <h3 className="font-semibold text-gray-800 mb-3 text-lg">{title}</h3>
-      {children}
-    </div>
-  );
-
-  const DetailItem = ({
-    icon: Icon,
-    label,
-    value,
-  }: {
-    icon: any;
-    label: string;
-    value: any;
-  }) => (
-    <div className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0">
-      <div className="bg-blue-50 p-2 rounded-lg">
-        <Icon className="h-4 w-4 text-primary" />
-      </div>
-      <div className="flex-1">
-        <p className="text-sm text-gray-600">{label}</p>
-        <p className="font-medium text-gray-900 capitalize">{value || "N/A"}</p>
-      </div>
-    </div>
-  );
-
-  if (!propertyData) {
-    return (
-      <div className="max-w-6xl mx-auto p-4">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="h-96 bg-gray-200 rounded-lg mb-4"></div>
-          <div className="space-y-3">
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const isPlotOrLand = ["plot", "land"].includes(
-    propertyData.category as string
-  );
-  const isResidential = propertyData.type === "residential";
-  const isCommercial = propertyData.type === "commercial";
-
   const hasValue = (val: any) =>
     val !== null && val !== undefined && val !== "";
 
+  const getLocation = (location: string | undefined) => {
+    if (location?.startsWith("https")) {
+      return "Get Location";
+    }
+    return location;
+  };
+
   return (
-    <div className="max-w-6xl mx-auto pb-6">
-      {/* Share Modal */}
-      {showShareModal && propertyData && (
-        <SharePropertyModal
-          property={propertyData}
-          onClose={() => setShowShareModal(false)}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-2 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Share Modal */}
+        {showShareModal && propertyData && (
+          <SharePropertyModal
+            property={propertyData}
+            onClose={() => setShowShareModal(false)}
+          />
+        )}
+
+        {/* Confirm Dialog */}
+        <ConfirmDialog
+          open={showConfirmDialog}
+          onCancel={() => setShowConfirmDialog(false)}
+          onConfirm={() => {
+            if (propertyData && propertyData._id)
+              handleDelete(propertyData._id);
+            setShowConfirmDialog(false);
+          }}
+          heading="Are you sure?"
+          description="This property will be deleted, and this action cannot be undone."
+          confirmText="Delete"
+          cancelText="Back"
+          confirmColor="bg-red-600 hover:bg-red-700"
         />
-      )}
 
-      {/* Confirm Dialog */}
-      <ConfirmDialog
-        open={showConfirmDialog}
-        onCancel={() => setShowConfirmDialog(false)}
-        onConfirm={() => {
-          if (propertyData && propertyData._id) handleDelete(propertyData._id);
-          setShowConfirmDialog(false);
-        }}
-        heading="Are you sure?"
-        description="This property will be deleted, and this action cannot be undone."
-        confirmText="Delete"
-        cancelText="Back"
-        confirmColor="bg-red-600 hover:bg-red-700"
-      />
-
-      {/* Header with Back and Actions */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 mb-4">
-        <div className="flex items-center justify-between">
+        {/* Header with Back and Actions */}
+        <div className="flex sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-xl transition-all duration-200"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-blue-600 text-gray-700 hover:text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-blue-600"
           >
-            <ArrowLeftIcon className="h-5 w-5 text-gray-700" />
-            <span className="font-medium text-gray-700">Back</span>
+            <ArrowLeftIcon className="h-5 w-5" />
+            <span>Back to Properties</span>
           </button>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowShareModal(true)}
-              className="p-2 bg-blue-50 text-primary rounded-xl hover:bg-blue-100 transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-blue-600"
             >
               <ShareIcon className="h-5 w-5" />
+              <span className="hidden sm:inline">Share</span>
             </button>
             <Link href={`/agent/edit-property/${propertyId}`}>
-              <button className="p-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-all">
+              <button className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-green-600">
                 <PencilIcon className="h-5 w-5" />
+                <span className="hidden sm:inline">Edit</span>
               </button>
             </Link>
             <button
               onClick={() => setShowConfirmDialog(true)}
-              className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-red-600"
             >
               <TrashIcon className="h-5 w-5" />
+              <span className="hidden sm:inline">Delete</span>
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="px-4 space-y-6">
-        {/* Image Gallery */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="relative aspect-[4/3] bg-gray-100">
-            {/* {imageLoading && !isVideo(selectedImage?.url || "") && (
-              <div className="absolute inset-0 z-10 flex animate-pulse items-center justify-center bg-gray-200">
-                <HomeIcon className="h-16 w-16 text-gray-400" />
-              </div>
-            )} */}
-
+        <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+          {/* Main Image */}
+          <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px] bg-gray-100">
             {selectedImage?.url ? (
               isVideo(selectedImage.url) ? (
                 <video
@@ -254,34 +176,29 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                     selectedImage.alt || propertyData?.title || "Property Image"
                   }
                   fill
-                  className={`object-cover transition-opacity duration-300 ${
-                    imageLoading ? "opacity-0" : "opacity-100"
-                  }`}
-                  priority
-                  onLoad={() => setImageLoading(false)}
+                  className="object-cover"
+                  priority={true}
                 />
               )
             ) : (
-              // <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                <Image
-                  src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
-                  alt="Default Property Image"
-                  fill
-                  // className="rounded-lg border-4 border-blue-500 object-cover"
-                  priority={true}
-                />
-              // </div>
+              <Image
+                src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
+                alt="Default Property Image"
+                fill
+                className="object-cover"
+                priority={true}
+              />
             )}
 
-            {/* Navigation Arrows */}
-            {propertyData.images.length > 1 && (
+            {propertyData?.images && propertyData?.images?.length > 1 && (
               <>
+                {/* Prev Button */}
                 <button
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 text-gray-800 p-2 rounded-full shadow-lg hover:bg-white transition-all active:scale-95"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-blue-600 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
                   onClick={() => {
-                    setImageLoading(true);
+                    if (!propertyData?.images?.length || !selectedImage) return;
                     const idx = propertyData.images.findIndex(
-                      (img) => img._id === selectedImage?._id
+                      (img) => img._id === selectedImage._id
                     );
                     const prevIdx =
                       (idx - 1 + propertyData.images.length) %
@@ -289,458 +206,425 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                     setSelectedImage(propertyData.images[prevIdx]);
                   }}
                 >
-                  <ChevronLeftIcon className="h-5 w-5" />
+                  (
                 </button>
+
+                {/* Next Button */}
                 <button
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 text-gray-800 p-2 rounded-full shadow-lg hover:bg-white transition-all active:scale-95"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-blue-600 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
                   onClick={() => {
-                    setImageLoading(true);
+                    if (!propertyData?.images?.length || !selectedImage) return;
                     const idx = propertyData.images.findIndex(
-                      (img) => img._id === selectedImage?._id
+                      (img) => img._id === selectedImage._id
                     );
                     const nextIdx = (idx + 1) % propertyData.images.length;
                     setSelectedImage(propertyData.images[nextIdx]);
                   }}
                 >
-                  <ChevronRightIcon className="h-5 w-5" />
+                  )
                 </button>
               </>
             )}
-
-            {/* Image Counter */}
-            {propertyData.images.length > 1 && (
-              <div className="absolute top-3 right-3 bg-black/70 text-white px-2 py-1 rounded-full text-sm">
-                {propertyData.images.findIndex(
-                  (img) => img._id === selectedImage?._id
-                ) + 1}{" "}
-                / {propertyData.images.length}
-              </div>
-            )}
           </div>
 
-          {/* Thumbnails */}
-          {propertyData.images.length > 1 && (
-            <div className="p-3 bg-gray-50 border-t border-gray-100">
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {propertyData.images.map((image, index) => (
-                  <button
-                    key={image._id || index}
-                    onClick={() => {
-                      setImageLoading(true);
-                      setSelectedImage(image);
-                    }}
-                    className={`flex-shrink-0 relative rounded-lg overflow-hidden border-2 transition-all duration-200 ${
-                      selectedImage?._id === image._id
-                        ? "border-primary ring-2 ring-primary"
-                        : "border-gray-200 hover:border-gray-400"
+          <div className="px-6 py-3 md:p-8">
+            {/* Basic Info */}
+            <div className="mb-2 pb-2 border-b border-gray-200">
+              <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-900">
+                {propertyData?.title}
+              </h1>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">Type</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {capitalizeFirstLetter(propertyData?.type)}
+                  </p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">
+                    Category
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {capitalizeFirstLetter(propertyData?.category)}
+                  </p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">
+                    Location
+                  </p>
+                  <p
+                    onClick={() =>
+                      getLocation(propertyData?.location) === "Get Location" &&
+                      window.open(propertyData?.location)
+                    }
+                    className={`text-lg font-semibold flex gap-[2px] ${
+                      getLocation(propertyData?.location) === "Get Location"
+                        ? "text-green-600 underline cursor-pointer"
+                        : "text-gray-900"
                     }`}
                   >
-                    <div className="relative h-14 w-16">
-                      {isVideo(image.url) ? (
-                        <div className="w-full h-full bg-black flex items-center justify-center">
-                          <PlayCircleIcon className="h-5 w-5 text-white" />
-                        </div>
-                      ) : (
-                        <Image
-                          src={getImageUrl(image.url)}
-                          alt={image.alt || `Thumbnail ${index + 1}`}
-                          width={64}
-                          height={56}
-                          className="object-cover h-full w-full"
-                        />
-                      )}
-                    </div>
-                  </button>
-                ))}
+                    {propertyData?.location?.startsWith("https") ? <FaDirections className="!w-[12px]"/> : ""}
+                    {getLocation(propertyData?.location) || "Not Added Yet"}
+                  </p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">
+                    Price
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {propertyData?.price ? `₹ ${propertyData?.price}` : "Not Added Yet"}
+                  </p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-medium mb-1">
+                    Status
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {propertyData?.status}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Basic Info Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-          <div className="mb-4">
-            <div className="flex items-start justify-between mb-3">
-              <h1 className="text-2xl font-bold text-gray-900 pr-2">
-                {propertyData.title}
-              </h1>
-              <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap">
-                {propertyData.status}
+              <div className="mt-2 bg-gray-50 rounded-lg p-5 border border-gray-200">
+                <p className="text-gray-700 leading-relaxed">
+                  {propertyData?.description}
+                </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1 text-gray-600 mb-4">
-              <MapPinIcon className="h-4 w-4" />
-              <span className="text-sm">{propertyData.location || "N/A"}</span>
-            </div>
-
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-              {hasValue(propertyData.price) &&
-                propertyData.price &&
-                propertyData.price > 0 && (
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
-                    {formatPrice(propertyData.price)}
-                  </div>
-                )}
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <span className="bg-white px-2 py-1 rounded-lg border border-gray-200 capitalize">
-                  {capitalizeFirstLetter(propertyData.type)}
-                </span>
-                <span className="bg-white px-2 py-1 rounded-lg border border-gray-200">
-                  {capitalizeFirstLetter(propertyData.category)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Key Features Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4 border-y border-gray-100">
-            {isResidential && hasValue(propertyData.bedrooms) && (
-              <div className="text-center">
-                <div className="bg-blue-50 p-2 rounded-xl inline-block mb-1">
-                  <BedIcon className="h-5 w-5 text-primary" />
-                </div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {propertyData.bedrooms}
-                </div>
-                <div className="text-xs text-gray-500">Beds</div>
-              </div>
-            )}
-            {isResidential && hasValue(propertyData.bathrooms) && (
-              <div className="text-center">
-                <div className="bg-green-50 p-2 rounded-xl inline-block mb-1">
-                  <BathIcon className="h-5 w-5 text-green-600" />
-                </div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {propertyData.bathrooms}
-                </div>
-                <div className="text-xs text-gray-500">Baths</div>
-              </div>
-            )}
-            {isCommercial && hasValue(propertyData.washrooms) && (
-              <div className="text-center">
-                <div className="bg-green-50 p-2 rounded-xl inline-block mb-1">
-                  <BathIcon className="h-5 w-5 text-green-600" />
-                </div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {propertyData.washrooms}
-                </div>
-                <div className="text-xs text-gray-500">Washrooms</div>
-              </div>
-            )}
-            {hasValue(propertyData.built_up_area) && (
-              <div className="text-center">
-                <div className="bg-purple-50 p-2 rounded-xl inline-block mb-1">
-                  <SquareIcon className="h-5 w-5 text-purple-600" />
-                </div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {propertyData.built_up_area}{" "}
-                  <span className="text-xs">{propertyData.unit_area_type}</span>
-                </div>
-                <div className="text-xs text-gray-500">Area</div>
-              </div>
-            )}
-            {isResidential && hasValue(propertyData.balconies) && (
-              <div className="text-center">
-                <div className="bg-orange-50 p-2 rounded-xl inline-block mb-1">
-                  <HomeIcon className="h-5 w-5 text-orange-600" />
-                </div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {propertyData.balconies}
-                </div>
-                <div className="text-xs text-gray-500">Balcony</div>
-              </div>
-            )}
-          </div>
-
-          {/* Description */}
-          {propertyData.description && (
-            <div className="mt-4">
-              <p className="text-gray-700 leading-relaxed">
-                {propertyData.description}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Property Details */}
-        <InfoCard title="Property Details">
-          <div className="space-y-1">
-            <DetailItem
-              icon={Building}
-              label="Property Type"
-              value={`${propertyData.type}, ${propertyData.category}`}
-            />
-            {hasValue(propertyData.property_age) && (
-              <DetailItem
-                icon={CalendarIcon}
-                label="Property Age"
-                value={propertyData.property_age}
-              />
-            )}
-            {hasValue(propertyData.furnishing) && (
-              <DetailItem
-                icon={Armchair}
-                label="Furnishing"
-                value={propertyData.furnishing}
-              />
-            )}
-            {hasValue(propertyData.flooring_type) && (
-              <DetailItem
-                icon={Layers}
-                label="Flooring"
-                value={propertyData.flooring_type}
-              />
-            )}
-            <DetailItem
-              icon={Handshake}
-              label="Transaction Type"
-              value={propertyData.transaction_type}
-            />
-          </div>
-        </InfoCard>
-
-        {/* Area & Dimensions */}
-        {(hasValue(propertyData.built_up_area) ||
-          hasValue(propertyData.plot_front_area)) && (
-          <InfoCard title="Area & Dimensions">
-            <div className="space-y-1">
-              {hasValue(propertyData.built_up_area) && (
-                <DetailItem
-                  icon={SquareIcon}
-                  label={isPlotOrLand ? "Plot Area" : "Built-up Area"}
-                  value={`${propertyData.built_up_area} ${propertyData.unit_area_type}`}
-                />
-              )}
-              {hasValue(propertyData.carpet_area) && !isPlotOrLand && (
-                <DetailItem
-                  icon={SquareIcon}
-                  label="Carpet Area"
-                  value={`${propertyData.carpet_area} ${propertyData.unit_area_type}`}
-                />
-              )}
-              {hasValue(propertyData.plot_front_area) && (
-                <DetailItem
-                  icon={LandPlot}
-                  label="Plot Frontage"
-                  value={`${propertyData.plot_front_area} ${propertyData.plot_dimension_unit}`}
-                />
-              )}
-              {hasValue(propertyData.plot_depth_area) && (
-                <DetailItem
-                  icon={LandPlot}
-                  label="Plot Depth"
-                  value={`${propertyData.plot_depth_area} ${propertyData.plot_dimension_unit}`}
-                />
-              )}
-              {hasValue(propertyData.is_corner_plot) && (
-                <DetailItem
-                  icon={LandPlot}
-                  label="Corner Plot"
-                  value={propertyData.is_corner_plot ? "Yes" : "No"}
-                />
-              )}
-            </div>
-          </InfoCard>
-        )}
-
-        {/* Floor & Configuration (Conditional) */}
-        {!isPlotOrLand && (
-          <InfoCard title="Floor & Configuration">
-            <div className="space-y-1">
-              {hasValue(propertyData.floor_number) && (
-                <DetailItem
-                  icon={Layers}
-                  label="Floor Number"
-                  value={propertyData.floor_number}
-                />
-              )}
-              {hasValue(propertyData.total_floors) && (
-                <DetailItem
-                  icon={Building}
-                  label="Total Floors"
-                  value={propertyData.total_floors}
-                />
-              )}
-              {isResidential && hasValue(propertyData.bedrooms) && (
-                <DetailItem
-                  icon={BedIcon}
-                  label="Bedrooms"
-                  value={propertyData.bedrooms}
-                />
-              )}
-              {isResidential && hasValue(propertyData.bathrooms) && (
-                <DetailItem
-                  icon={BathIcon}
-                  label="Bathrooms"
-                  value={propertyData.bathrooms}
-                />
-              )}
-              {isResidential && hasValue(propertyData.balconies) && (
-                <DetailItem
-                  icon={HomeIcon}
-                  label="Balconies"
-                  value={propertyData.balconies}
-                />
-              )}
-            </div>
-          </InfoCard>
-        )}
-
-        {/* Facing & Overlooking */}
-        {(propertyData.facing || propertyData.overlooking?.length) && (
-          <InfoCard title="Facing & Overlooking">
-            <div className="space-y-1">
-              {propertyData.facing && (
-                <DetailItem
-                  icon={Compass}
-                  label="Facing"
-                  value={propertyData.facing}
-                />
-              )}{" "}
-              {hasValue(propertyData.overlooking) &&
-                propertyData.overlooking &&
-                propertyData.overlooking.length > 0 && (
-                  <div className="flex items-center gap-3 py-2">
-                    <div className="bg-blue-50 p-2 rounded-lg">
-                      <Eye className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">Overlooking</p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {propertyData.overlooking.map((item, index) => (
-                          <span
-                            key={index}
-                            className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs capitalize"
-                          >
-                            {item}
-                          </span>
-                        ))}
-                      </div>
+            {/* Area & Configuration */}
+            <div className="mb-2 pb-2 border-b border-gray-200">
+              <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
+                <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
+                Area & Configuration
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {hasValue(propertyData?.built_up_area) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Built-up Area</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.built_up_area}{" "}
+                        {propertyData?.unit_area_type}
+                      </p>
                     </div>
                   </div>
-                )}
-            </div>
-          </InfoCard>
-        )}
-
-        {/* Amenities & Features */}
-        {(hasValue(propertyData.amenities) &&
-          propertyData.amenities &&
-          propertyData?.amenities?.length > 0) ||
-          (hasValue(propertyData.features) &&
-            propertyData.features &&
-            propertyData.features.length > 0 && (
-              <InfoCard title="Amenities & Features">
-                <div className="space-y-3">
-                  {hasValue(propertyData.amenities) &&
-                    propertyData.amenities &&
-                    propertyData.amenities?.length > 0 && (
-                      <div>
-                        <h4 className="font-medium text-gray-700 mb-2">
-                          Amenities
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {propertyData.amenities.map((amenity, index) => (
-                            <span
-                              key={index}
-                              className="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-sm border border-green-100 capitalize"
-                            >
-                              {capitalizeFirstLetter(amenity)}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  {hasValue(propertyData.features) &&
-                    propertyData.features?.length > 0 && (
-                      <div>
-                        <h4 className="font-medium text-gray-700 mb-2">
-                          Features
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {propertyData.features.map((feature, index) => (
-                            <span
-                              key={index}
-                              className="bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-sm border border-purple-100 capitalize"
-                            >
-                              {capitalizeFirstLetter(feature)}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                </div>
-              </InfoCard>
-            ))}
-
-        {/* Owner Details */}
-        {(hasValue(propertyData.owner_name) ||
-          hasValue(propertyData.owner_contact)) && (
-          <InfoCard title="Owner Details">
-            <div className="space-y-1">
-              <DetailItem
-                icon={UserIcon}
-                label="Name"
-                value={capitalizeFirstLetter(propertyData.owner_name)}
-              />
-              <DetailItem
-                icon={PhoneIcon}
-                label="Contact"
-                value={propertyData.owner_contact}
-              />
-            </div>
-          </InfoCard>
-        )}
-
-        {/* Additional Info */}
-        <InfoCard title="Additional Information">
-          <div className="space-y-1">
-            {hasValue(propertyData.water_source) &&
-              propertyData.water_source &&
-              propertyData.water_source?.length > 0 && (
-                <div className="flex items-center gap-3 py-2">
-                  <div className="bg-blue-50 p-2 rounded-lg">
-                    <DropletsIcon className="h-4 w-4 text-primary" />
+                ) : ""}
+                {hasValue(propertyData?.carpet_area) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Carpet Area</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.carpet_area}{" "}
+                        {propertyData?.unit_area_type}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600">Water Source</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {propertyData.water_source.map((source, index) => (
-                        <span
-                          key={index}
-                          className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-xs capitalize"
-                        >
-                          {source}
+                ) : ""}
+                {hasValue(propertyData?.plot_front_area) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Plot Front</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.plot_front_area}{" "}
+                        {propertyData?.plot_dimension_unit}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.plot_depth_area) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Plot Depth</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.plot_depth_area}{" "}
+                        {propertyData?.plot_dimension_unit}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.is_corner_plot) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Corner Plot</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.is_corner_plot}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.bedrooms) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Bedrooms</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.bedrooms}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.bathrooms) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Bathrooms</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.bathrooms}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.washrooms) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Washrooms</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.washrooms}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.balconies) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Balconies</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.balconies}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.floor_number) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Floor Number</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.floor_number}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.total_floors) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Total Floors</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.total_floors}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+              </div>
+            </div>
+
+            {/* Facing & Overlooking */}
+            {(hasValue(propertyData?.facing) &&
+              hasValue(propertyData?.overlooking)) ? (
+              <div className="mb-2 pb-2 border-b border-gray-200">
+                <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
+                  Facing & Overlooking
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {hasValue(propertyData?.facing) ? (
+                    <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-5 border border-blue-100">
+                      <p className="text-sm text-blue-600 font-medium mb-2">
+                        Facing
+                      </p>
+                      <p className="text-gray-900 font-semibold text-lg">
+                        {propertyData?.facing}
+                      </p>
+                    </div>
+                  ) : ""}
+                  {hasValue(propertyData?.overlooking) &&
+                    propertyData?.overlooking && propertyData?.overlooking?.length > 0 ? (
+                      <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-5 border border-blue-100">
+                        <p className="text-sm text-blue-600 font-medium mb-2">
+                          Overlooking
+                        </p>
+                        <p className="text-gray-900 font-semibold text-lg">
+                          {propertyData?.overlooking?.join(", ")}
+                        </p>
+                      </div>
+                    ) : ""}
+                </div>
+              </div>
+            ) : ""}
+
+            {/* Additional Info */}
+            <div className="mb-2 pb-2 border-b border-gray-200">
+              <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
+                <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
+                Additional Info
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {hasValue(propertyData?.property_age) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Property Age</p>
+                      <p className="text-gray-900 font-medium">
+                        {capitalizeFirstLetter(propertyData?.property_age)}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.transaction_type) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Transaction Type</p>
+                      <p className="text-gray-900 font-medium">
+                        {capitalizeFirstLetter(propertyData?.transaction_type)}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.gated_community) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Gated Community</p>
+                      <p className="text-gray-900 font-medium">
+                        {propertyData?.gated_community}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.furnishing) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Furnishing</p>
+                      <p className="text-gray-900 font-medium">
+                        {capitalizeFirstLetter(propertyData?.furnishing)}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.flooring_type) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Flooring Type</p>
+                      <p className="text-gray-900 font-medium">
+                        {capitalizeFirstLetter(propertyData?.flooring_type)}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.power_backup) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">Power Backup</p>
+                      <p className="text-gray-900 font-medium">
+                        {capitalizeFirstLetter(propertyData?.power_backup)}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+                {hasValue(propertyData?.rera_status) ? (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                    <span className="text-blue-600 font-semibold">•</span>
+                    <div>
+                      <p className="text-sm text-gray-600">RERA Status</p>
+                      <p className="text-gray-900 font-medium">
+                        {capitalizeFirstLetter(propertyData?.rera_status)}
+                      </p>
+                    </div>
+                  </div>
+                ) : ""}
+              </div>
+              <div className="mt-2 space-y-2">
+                {hasValue(propertyData?.amenities) &&
+                  propertyData?.amenities && propertyData?.amenities?.length > 0 ? (
+                    <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                      <p className="text-sm text-blue-600 font-medium mb-2">
+                        Amenities
+                      </p>
+                      {propertyData?.amenities?.map((amenity, index) => (
+                        <span key={index}>
+                          {capitalizeFirstLetter(amenity)},{" "}
                         </span>
                       ))}
                     </div>
+                  ) : ""}
+                {hasValue(propertyData?.features) &&
+                  propertyData?.features && propertyData?.features?.length > 0 ? (
+                    <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                      <p className="text-sm text-blue-600 font-medium mb-2">
+                        Features
+                      </p>
+                      {propertyData?.features?.map((feature, index) => (
+                        <span key={index}>
+                          {capitalizeFirstLetter(feature)},{" "}
+                        </span>
+                      ))}
+                    </div>
+                  ) : ""}
+                {hasValue(propertyData?.water_source) &&
+                  propertyData?.water_source && propertyData?.water_source?.length > 0 ? (
+                    <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                      <p className="text-sm text-blue-600 font-medium mb-2">
+                        Water Source
+                      </p>
+                      {propertyData?.water_source?.map((source, index) => (
+                        <span key={index}>
+                          {capitalizeFirstLetter(source)},{" "}
+                        </span>
+                      ))}
+                    </div>
+                  ) : ""}
+              </div>
+            </div>
+
+            {/* Owner Details */}
+            {(hasValue(propertyData?.owner_name) ||
+              hasValue(propertyData?.owner_contact)) && (
+              <div>
+                <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
+                  Owner Details
+                </h2>
+                <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-6 border border-blue-100">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {hasValue(propertyData?.owner_name) && (
+                      <div>
+                        <p className="text-sm text-blue-600 font-medium mb-1">
+                          Name
+                        </p>
+                        <p className="text-gray-900 font-semibold text-lg">
+                          {capitalizeFirstLetter(propertyData?.owner_name)}
+                        </p>
+                      </div>
+                    )}
+                    {hasValue(propertyData?.owner_contact) && (
+                      <div>
+                        <p className="text-sm text-blue-600 font-medium mb-1">
+                          Contact
+                        </p>
+                        <p className="text-gray-900 font-semibold text-lg">
+                          {propertyData?.owner_contact}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
-            {hasValue(propertyData.power_backup) && (
-              <DetailItem
-                icon={Zap}
-                label="Power Backup"
-                value={propertyData.power_backup}
-              />
-            )}
-            {hasValue(propertyData.rera_status) && (
-              <DetailItem
-                icon={Gavel}
-                label="RERA Status"
-                value={propertyData.rera_status}
-              />
-            )}
-            {hasValue(propertyData.gated_community) && (
-              <DetailItem
-                icon={Shield}
-                label="Gated Community"
-                value={propertyData.gated_community}
-              />
+              </div>
             )}
           </div>
-        </InfoCard>
+        </div>
       </div>
     </div>
   );

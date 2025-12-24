@@ -65,6 +65,30 @@ export default async function RootLayout({
           </AuthProvider>
           <SpeakMessage />
         </ToastProvider>
+         <script
+  dangerouslySetInnerHTML={{
+    __html: `
+      window.__deferredPrompt = null;
+      let promptReceived = false;
+      
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.__deferredPrompt = e;
+        promptReceived = true;
+        window.dispatchEvent(new CustomEvent('installpromptready'));
+      });
+      
+      // Add a fallback check after page load
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          if (!promptReceived) {
+            console.log('⚠️ beforeinstallprompt did not fire within 2 seconds');
+          }
+        }, 2000);
+      });
+    `,
+  }}
+/>
       </body>
     </html>
   );

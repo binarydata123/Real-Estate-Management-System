@@ -27,7 +27,6 @@ export const deleteMeeting = async (id: string) => {
 // frontend API wrapper
 // MeetingAPI.ts
 export const getMeetingsByAgency = async (
-  agencyId: string,
   status: "upcoming" | "past" | "cancelled",
   page = 1,
   limit = 10,

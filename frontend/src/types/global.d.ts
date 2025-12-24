@@ -9,6 +9,9 @@ declare global {
     }>;
     prompt(): Promise<void>;
   }
+  interface Window {
+    __deferredPrompt?: BeforeInstallPromptEvent;
+  }
   interface UserRef {
     _id: string;
     name: string;
