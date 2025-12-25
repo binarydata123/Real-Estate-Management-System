@@ -20,20 +20,29 @@ interface InstallButtonProp {
 export default function InstallButton({ isFrom }: InstallButtonProp) {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
-  // const [isInstallable, setIsInstallable] = useState(false);
+  const [isInstallable, setIsInstallable] = useState(false);
 
-useEffect(() => {  
+useEffect(() => {
+  if (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (window.navigator as Navigator & { standalone?: boolean }).standalone
+  ) {
+    setIsInstallable(false);
+    return;
+  }
+
   const checkPrompt = () => {
     if (window.__deferredPrompt) {
       setDeferredPrompt(window.__deferredPrompt);
-      // setIsInstallable(true);
+      setIsInstallable(true);
     }
   };
-  
+
   checkPrompt();
-  window.addEventListener('installpromptready', checkPrompt);
-  
-  return () => window.removeEventListener('installpromptready', checkPrompt);
+  window.addEventListener("installpromptready", checkPrompt);
+
+  return () =>
+    window.removeEventListener("installpromptready", checkPrompt);
 }, []);
 
  const handleInstall = async () => {
@@ -46,12 +55,11 @@ useEffect(() => {
   await deferredPrompt.userChoice;
 
   setDeferredPrompt(null);
-  // setIsInstallable(false);
+  setIsInstallable(false);
 };
 
 
-  // if (!isInstallable) return null;
-
+  if (!isInstallable) return null;
   return (
     <>
       {isFrom === "Header" ? (
