@@ -198,7 +198,7 @@ export const Meetings: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 p-2 md:p-4">
+    <div className="space-y-4 p-2 md:p-4">
       {/* Header Section */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 md:p-4 shadow-sm border border-blue-100">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
