@@ -153,6 +153,12 @@ export default function CustomerDashboard() {
       href: "/customer/settings",
     },
   ];
+   const isGoogleMapsLink = (value?: string | number) => {
+     if (!value || typeof value !== "string") return false;
+     return (
+       value.includes("google.com/maps") || value.includes("maps.google.com")
+     );
+   };
 
   const getImageUrl = (url: string) => {
     if (url.startsWith("http")) return url;
@@ -233,9 +239,9 @@ export default function CustomerDashboard() {
              <Link
                href={stat.href}
                key={index}
-               className="bg-white rounded-xl shadow-lg p-3 md:p-6 hover:shadow-xl transition-all duration-300 border border-gray-100"
+               className="bg-white rounded-xl shadow-lg py-3 px-1 md:p-6 hover:shadow-xl transition-all duration-300 border border-gray-100"
              >
-               <div className="flex items-center justify-between">
+               <div className="flex items-center gap-1 justify-between">
                  <div>
                    <p className="text-sm font-medium text-gray-600">
                      {stat.title}
@@ -376,9 +382,23 @@ export default function CustomerDashboard() {
                          </h3>
                          <div className="flex items-center text-sm text-gray-500 mt-1">
                            <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-                           <span className="truncate">
-                             {property.propertyId?.location || "N/A"}
-                           </span>
+                           {isGoogleMapsLink(property.propertyId?.location) ? (
+                             <a
+                               href={String(property.propertyId?.location)}
+                               target="blank"
+                               rel="noopener noreferrer"
+                               className="text-blue-600 underline"
+                               onClick={(e) => e.stopPropagation()}
+                             >
+                               Get Direction
+                             </a>
+                           ) : property.propertyId?.location ? (
+                             <span>{property.propertyId?.location}</span>
+                           ) : (
+                             <span className="text-gray-400 italic">
+                               Not Provided Yet
+                             </span>
+                           )}
                          </div>
                          {property.propertyId?.price &&
                            property.propertyId?.price > 0 && (

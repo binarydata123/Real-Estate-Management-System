@@ -44,7 +44,6 @@ export const customerDashboardData = async (req, res) => {
 
     if (showAllProperty === true) {
       // TOGGLE ON: Get all properties for the agency
-      console.log("Fetching ALL agency properties");
       propertyCountQuery = Property.countDocuments({
         agencyId: agencyId,
         
@@ -60,20 +59,18 @@ export const customerDashboardData = async (req, res) => {
         .lean();
 
       // Check if properties exist
-      const debugCount = await Property.countDocuments({
-        agencyId: agencyId,
-      });
-      console.log("Agency properties count (all):", debugCount);
+      // const debugCount = await Property.countDocuments({
+      //   agencyId: agencyId,
+      // });
 
-      const activeCount = await Property.countDocuments({
-        agencyId: agencyId,
-        isDeleted: false,
-      });
+      // const activeCount = await Property.countDocuments({
+      //   agencyId: agencyId,
+      //   isDeleted: false,
+      // });
       // console.log("Agency properties count (active only):", activeCount);
     } else {
       // TOGGLE OFF: Get only shared properties
-      console.log("Fetching SHARED properties only");
-
+    
       propertyCountQuery = PropertyShare.countDocuments({
         sharedWithUserId: customerId,
       });
@@ -115,8 +112,7 @@ export const customerDashboardData = async (req, res) => {
         .limit(4),
     ]);
 
-    console.log("Property Count Result:", propertyCount);
-    console.log("Latest Properties Result:", latestProperties.length);
+  
 
     // Format the response data
     let formattedLatestProperties;
