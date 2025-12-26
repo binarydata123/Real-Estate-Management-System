@@ -235,7 +235,7 @@ export default function CustomerDashboard() {
                key={index}
                className="bg-white rounded-xl shadow-lg p-3 md:p-6 hover:shadow-xl transition-all duration-300 border border-gray-100"
              >
-               <div className="flex items-center justify-between">
+               <div className="flex items-center gap-1 justify-between">
                  <div>
                    <p className="text-sm font-medium text-gray-600">
                      {stat.title}
