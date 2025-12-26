@@ -3,10 +3,13 @@ import { MapPinIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import {
   Armchair,
-  BathIcon,
-  BedDoubleIcon,
+  // BathIcon,
+  // BedDoubleIcon,
+  CircleCheckBig,
+  ClockPlus,
   //PencilIcon,
-  RulerIcon,
+  // RulerIcon,
+  SmartphoneCharging,
   //TrashIcon,
 } from "lucide-react";
 
@@ -16,6 +19,8 @@ import {
 } from "@/lib/imageUtils";
 import Link from "next/link";
 import { formatPrice } from "@/utils/helperFunction";
+import { FaDirections } from "react-icons/fa";
+import formatToIST from "@/helper/formatTimestampToISTDateTime";
 
 interface PropertyCardProps {
   property: Property;
@@ -46,10 +51,17 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         })()
       : getPropertyImageUrlWithFallback();
 
-  const hasKeyDetails =
-    (property.built_up_area ?? 0) > 0 ||
-    (property.bedrooms ?? 0) > 0 ||
-    (property.bathrooms ?? 0) > 0;
+  // const hasKeyDetails =
+  //   (property.built_up_area ?? 0) > 0 ||
+  //   (property.bedrooms ?? 0) > 0 ||
+  //   (property.bathrooms ?? 0) > 0;
+
+  const getLocation = (location: string | undefined) => {
+    if (location?.startsWith("https")) {
+      return "Get Directions";
+    }
+    return location;
+  };
 
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
@@ -91,15 +103,57 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             </p>
             )}
           </div>
-          {property.location && (
-            <div className="flex items-center text-sm text-gray-500 mt-1">
-            <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-            <span className="truncate">{property.location}</span>
-          </div>
-          )}
         </div>
 
-        <div className="flex-grow mb-2 md:mb-4">
+        <div className="flex-grow">
+          <>
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
+                <div className="flex items-center text-sm text-gray-500">
+                  <p
+                    onClick={() =>
+                      getLocation(property?.location) === "Get Directions" &&
+                      window.open(property?.location)
+                    }
+                    className={`text-lg flex gap-1 ${
+                      getLocation(property?.location) === "Get Directions"
+                        ? "text-blue-600 underline cursor-pointer"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    {property?.location?.startsWith("https") ? (
+                      <FaDirections className="!w-4 h-4" />
+                    ) : (
+                      <MapPinIcon className="h-4 w-4 flex-shrink-0" />
+                    )}
+                    {getLocation(property?.location) || "Not Given"}
+                  </p>
+                </div>
+                {property.furnishing && (
+                  <div className="flex items-center">
+                    <Armchair className="h-4 w-4 mr-1 text-gray-500" />
+                    <span className="capitalize">{property.furnishing}</span>
+                  </div>
+                )}
+                <div className="flex items-center">
+                  <SmartphoneCharging className="h-4 w-4 mr-1 text-gray-500" />
+                  <span className="capitalize">{property.power_backup} Power Backup</span>
+                </div>
+                <div className="flex items-center">
+                  <CircleCheckBig className="!w-[13px] !h-[13px] mr-1 text-gray-500" />
+                  <span className="capitalize">{property.rera_status} (RERA)</span>
+                </div>
+              </div>
+              <div className="flex mt-2 text-gray-700 gap-1">
+                <ClockPlus className="!w-[13px] !h-[13px] text-gray-700" />
+                <div className="flex gap-[2px]">
+                  <span>Created At : </span>
+                  <p>{formatToIST(property?.createdAt)}</p>
+                </div>
+              </div>
+            </>
+        </div>
+
+        {/* <div className="flex-grow mb-2 md:mb-4">
           {hasKeyDetails ? (
             <div className="grid grid-cols-2 md:grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
               {(property.built_up_area ?? 0) > 0 && (
@@ -135,7 +189,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 "No description available for this property."}
             </p>
           )}
-        </div>
+        </div> */}
 
         {/* <div className="mt-auto pt-3 border-t border-gray-100">
           <div className="flex space-x-2">

@@ -78,7 +78,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
             </span>
           )}
           <button
-            onClick={handleFilterToggle}
+            // onClick={handleFilterToggle}
             className="ml-4 p-1 text-gray-500 hover:text-gray-900 focus:outline-none md:hidden"
           >
             <span className="sr-only">Toggle Filters</span>

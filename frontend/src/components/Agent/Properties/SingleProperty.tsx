@@ -90,7 +90,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
 
   const getLocation = (location: string | undefined) => {
     if (location?.startsWith("https")) {
-      return "Get Location";
+      return "Get Directions";
     }
     return location;
   };
@@ -255,11 +255,11 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                   </p>
                   <p
                     onClick={() =>
-                      getLocation(propertyData?.location) === "Get Location" &&
+                      getLocation(propertyData?.location) === "Get Directions" &&
                       window.open(propertyData?.location)
                     }
                     className={`text-lg font-semibold flex gap-[2px] ${
-                      getLocation(propertyData?.location) === "Get Location"
+                      getLocation(propertyData?.location) === "Get Directions"
                         ? "text-green-600 underline cursor-pointer"
                         : "text-gray-900"
                     }`}
