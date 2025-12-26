@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { MapPinIcon, ShareIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { ShareIcon, EyeIcon } from "@heroicons/react/24/outline";
+// import { MapPinIcon, ShareIcon, EyeIcon } from "@heroicons/react/24/outline";
 // import Image from "next/image";
 import {
   Armchair,
@@ -19,6 +20,7 @@ import {
 } from "@/lib/imageUtils";
 import { showErrorToast } from "@/utils/toastHandler";
 import { formatPrice } from "@/utils/helperFunction";
+import { FaDirections } from "react-icons/fa";
 
 interface PropertyCardProps {
   property: Property;
@@ -75,6 +77,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     (property.bathrooms ?? 0) > 0 ||
     !!property.furnishing;
 
+  const getLocation = (location: string | undefined) => {
+    if (location?.startsWith("https")) {
+      return "Get Directions";
+    }
+    return location;
+  };
   return (
     <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
       {/* Image */}
@@ -120,8 +128,25 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           </div>
           {property.location && (
             <div className="flex items-center text-sm text-gray-500 mt-1">
-              <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span className="truncate">{property.location}</span>
+              {/* <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" /> */}
+              <p
+                onClick={() =>
+                  getLocation(property?.location) === "Get Directions" &&
+                  window.open(property?.location)
+                }
+                className={`text-lg font-semibold flex gap-1 ${
+                  getLocation(property?.location) === "Get Directions"
+                    ? "text-green-600 underline cursor-pointer"
+                    : "text-gray-900"
+                }`}
+              >
+                {property?.location?.startsWith("https") ? (
+                  <FaDirections className="!w-4 h-4" />
+                ) : (
+                  ""
+                )}
+                {getLocation(property?.location) || "Not Given"}
+              </p>
             </div>
           )}
         </div>
