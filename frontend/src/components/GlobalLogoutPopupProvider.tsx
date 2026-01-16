@@ -29,16 +29,15 @@ export default function PopupLayout({
   useEffect(() => {
     const validateSession = async () => {
       try {
-        await api.get("/auth/check-session",);
-      } catch (error:unknown) {
-       const axiosError = error as AxiosError<{
-         forceLogout?: boolean;
-         message?: string;
-       }>;
+        await api.get("/auth/check-session");
+      } catch (error: unknown) {
+        const axiosError = error as AxiosError<{
+          forceLogout?: boolean;
+          message?: string;
+        }>;
 
-       const data = axiosError.response?.data;
-       
-        console.log("data from error is : ",data);
+        const data = axiosError.response?.data;
+
         if (data?.forceLogout) {
           // User deleted → show popup
           window.dispatchEvent(
@@ -52,7 +51,6 @@ export default function PopupLayout({
 
     validateSession();
   }, []);
-
 
   const closePopup = () => {
     setLogoutPopup(null);

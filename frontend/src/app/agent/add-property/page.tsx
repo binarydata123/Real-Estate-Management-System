@@ -1,30 +1,31 @@
 "use client";
 import { AddPropertyForm } from "@/components/Agent/Properties/AddPropertyForm";
-import { AddPropertySelectionModal } from "@/components/Agent/Properties/AddPropertySelectionModal";
+// import { AddPropertySelectionModal } from "@/components/Agent/Properties/AddPropertySelectionModal";
 import PropertyAssistant from "@/components/Agent/Properties/PropertyAssistant";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 // Import the new modal component
-import React, { useState } from "react"; // Keep React and useState
+// import React, { useState } from "react";
 
 export default function Page() {
-  const [addMode, setAddMode] = useState<"manual" | "ai" | null>(null); // Initially null, no mode selected
-  const [showSelectionModal, setShowSelectionModal] = useState(true); // Show modal on page load
-  const router = useRouter();
-  const handleSelectMode = (mode: "manual" | "ai") => {
-    setAddMode(mode);
-    setShowSelectionModal(false); // Close modal after selection
-  };
+  // const [addMode, setAddMode] = useState<"manual" | "ai" | null>(null);
+  const addMode = "manual";
+  // const [showSelectionModal, setShowSelectionModal] = useState(true); // Show modal on page load
+  // const router = useRouter();
+  // const handleSelectMode = (mode: "manual" | "ai") => {
+  //   setAddMode(mode);
+  //   setShowSelectionModal(false); // Close modal after selection
+  // };
 
   return (
     <div className="max-w-7xl mx-auto">
       {/* Render the selection modal if no mode is chosen yet */}
-      <AddPropertySelectionModal
+      {/* <AddPropertySelectionModal
         isOpen={showSelectionModal}
         onSelectMode={handleSelectMode}
         onClose={() => {
           router.back();
         }}
-      />
+      /> */}
 
       {/* Conditionally render the form or assistant based on selected mode */}
       {addMode === "manual" ? (

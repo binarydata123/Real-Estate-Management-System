@@ -1,11 +1,12 @@
 import { Customer } from "../../models/Agent/CustomerModel.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
 import CustomerSettings from "../../models/Customer/SettingsModel.js";
-// import { User } from "../../models/Common/UserModel.js";
+import { User } from "../../models/Common/UserModel.js";
 import { createNotification } from "../../utils/apiFunctions/Notifications/index.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 import { Meetings } from "../../models/Agent/MeetingModel.js";
 import PushNotificationSubscription from "../../models/Common/PushNotificationSubscription.js";
+import { saveActivityLog } from "../../utils/activityLog.js";
 
 // Create a new customer
 export const createCustomer = async (req, res) => {
@@ -99,6 +100,21 @@ export const createCustomer = async (req, res) => {
         message: `A new customer "${savedCustomer.fullName}" has been added to your agency.`,
         urlPath: "/agent/customers",
       });
+
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: "Customer Addition",
+        message: `A New Customer '${savedCustomer.fullName}' Was Added By '${
+          req.user.name
+        }'`,
+      });
+    }
 
     return res.status(201).json({
       success: true,
@@ -257,6 +273,27 @@ export const updateCustomer = async (req, res) => {
         urlPath: "/agent/customers",
       });
 
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    console.log(
+      "actualAgent._id And req.user._id in line ",
+      actualAgent._id,
+      req.user._id
+    );
+
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: "Customer Updated",
+        message: `Customer '${updatedCustomer.fullName}' Was Updated By '${
+          req.user.name
+        }'`,
+      });
+    }
+
     if (updatedCustomer?._id) {
       await createNotification({
         userId: updatedCustomer._id,
@@ -264,7 +301,7 @@ export const updateCustomer = async (req, res) => {
         type: "lead_updated",
       });
       const customerSettings = await CustomerSettings.findOne({
-        userId: updatedCustomer._id
+        userId: updatedCustomer._id,
       });
       if (customerSettings?.notifications?.pushNotifications)
         await sendPushNotification({
@@ -299,7 +336,22 @@ export const deleteCustomer = async (req, res) => {
     //Soft delete related meetings so meeting count stays correct and hidden in UI
     await Meetings.updateMany({ customerId }, { isDeleted: true });
 
-    await PushNotificationSubscription.deleteMany({ userId: customerId});
+    await PushNotificationSubscription.deleteMany({ userId: customerId });
+
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: "Customer Deletion",
+        message: `Customer '${updatedCustomer.fullName}' Was Deleted By '${
+          req.user.name
+        }'`,
+      });
+    }
 
     return res.json({
       success: true,

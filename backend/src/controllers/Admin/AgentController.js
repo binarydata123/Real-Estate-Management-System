@@ -20,17 +20,15 @@ export const getAgents = async (req, res) => {
 
       if (search && typeof search === "string") {
         const agencies = await Agency.find({
-            $or: [
-                { name: { $regex: search, $options: "i" } }
-            ]
+          $or: [{ name: { $regex: search, $options: "i" } }],
         }).select("_id");
 
-        const agencyIds = agencies.map(a => a._id);
+        const agencyIds = agencies.map((a) => a._id);
         searchQuery.$or.push(
-            { name: { $regex: search, $options: "i" }},
-            //{ email: {$regex: search, $options: "i"}},
-            { phone: {$regex: search, $options: "i"}},
-            { agencyId: { $in: agencyIds } }
+          { name: { $regex: search, $options: "i" } },
+          //{ email: {$regex: search, $options: "i"}},
+          { phone: { $regex: search, $options: "i" } },
+          { agencyId: { $in: agencyIds } }
         );
       }
 
@@ -42,10 +40,10 @@ export const getAgents = async (req, res) => {
     const totalAgents = await User.countDocuments(searchQuery);
 
     const agents = await User.find(searchQuery)
-        .sort({ _id: -1 })
-        .skip((pageNumber - 1) * limitNumber)
-        .limit(limitNumber)
-        .populate('agencyId');
+      .sort({ _id: -1 })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber)
+      .populate("agencyId");
 
     // Attach properties and customers count for each agent
     const agentsWithCounts = await Promise.all(
@@ -90,10 +88,10 @@ export const getAgents = async (req, res) => {
         page: pageNumber,
         limit: limitNumber,
         totalPages: Math.ceil(totalAgents / limitNumber),
-      }
+      },
     });
   } catch (error) {
-   return res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -125,10 +123,10 @@ export const updateAgent = async (req, res) => {
       message: `Agent (${updatedAgent.name}) has been updated successfully.`,
       urlPath: "Agent",
     });
-   return res.json({ success: true, data: updatedAgent });
+    return res.json({ success: true, data: updatedAgent });
   } catch (error) {
     console.error("Error updating agent:", error);
-  return res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -144,11 +142,11 @@ export const deleteAgent = async (req, res) => {
     }
     await User.deleteOne({ _id: deletedAgent._id });
 
-   return res.json({
+    return res.json({
       success: true,
       message: "Agent deleted successfully",
     });
   } catch (error) {
-   return res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };

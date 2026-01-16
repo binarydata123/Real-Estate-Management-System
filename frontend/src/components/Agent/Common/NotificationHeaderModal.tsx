@@ -41,9 +41,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     fetchNotifications();
     fetchUnreadCount();
-  }, []);
+  }, [isOpen]);
 
   const fetchNotifications = async () => {
     try {
@@ -114,15 +116,18 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
   };
 
-  const makeItBetter = (type:string) => {
-    const firstWord = type.split('_')[0];
-    const secondWord = type.split('_')[1];
-    const capitalizedFirstLetter = firstWord.slice(0,1).toUpperCase();
-    const capitalizedSecondLetter = secondWord.slice(0,1).toUpperCase();
-    const restofFirstWord = firstWord.slice(1);
-    const restofSecondWord = secondWord.slice(1);
-    return `${capitalizedFirstLetter}${restofFirstWord} ${capitalizedSecondLetter}${restofSecondWord}`;
-  }
+  const makeItBetter = (type: string) => {
+    const firstWord = type.split("_")[0];
+    const secondWord = type.split("_")[1];
+    const capitalizedFirstLetter = firstWord?.slice(0, 1)?.toUpperCase();
+    const capitalizedSecondLetter = secondWord?.slice(0, 1)?.toUpperCase();
+    const restofFirstWord = firstWord?.slice(1);
+    const restofSecondWord = secondWord?.slice(1);
+    if (secondWord) {
+      return `${capitalizedFirstLetter}${restofFirstWord} ${capitalizedSecondLetter}${restofSecondWord}`;
+    }
+    return `${capitalizedFirstLetter}${restofFirstWord}`;
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

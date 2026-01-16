@@ -1,12 +1,15 @@
 import { showErrorToast } from "@/utils/toastHandler";
-import { NextResponse ,NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  
+
   // // Read cookie
   const sessionCookie = req.cookies.get("auth-session")?.value;
-  const roleCookie = req.cookies.get("role-for-middleware")?.value;
+  const roleCookie =
+    req.cookies.get("role-for-middleware")?.value === "teamMember"
+      ? "agent"
+      : req.cookies.get("role-for-middleware")?.value;
 
   let token = null;
 
@@ -17,7 +20,7 @@ export function middleware(req: NextRequest) {
       token = parsed.access_token;
     }
   } catch (e) {
-    showErrorToast("Invalid auth-session cookie",e);
+    showErrorToast("Invalid auth-session cookie", e);
   }
 
   // Public routes (no login required)
@@ -41,16 +44,15 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
- 
   if (token && roleCookie) {
     const allowed = roleRoutes[roleCookie] || [];
 
-    const isAllowed = allowed.some((route) =>
-      pathname.startsWith(route)
-    );
+    const isAllowed = allowed.some((route) => pathname.startsWith(route));
 
     if (!isAllowed && isProtected) {
-      return NextResponse.redirect(new URL(`/${roleCookie}/dashboard`, req.url));
+      return NextResponse.redirect(
+        new URL(`/${roleCookie}/dashboard`, req.url)
+      );
     }
   }
 

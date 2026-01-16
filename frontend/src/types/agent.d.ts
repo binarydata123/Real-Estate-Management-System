@@ -54,14 +54,15 @@ type AxiosErrorResponse = {
 
 interface AgentProfile {
   _id: string;
-  name:string;
+  name: string;
   owner: {
     _id: string;
     name: string;
     email: string;
+    role: string;
   };
   whatsAppNumber: string;
-  agencyName:string;
+  agencyName: string;
   timezone: string;
   createdAt?: string;
   updatedAt?: string;
@@ -72,7 +73,7 @@ interface AgentProfileFormData {
   email: string;
   phoneNumber: string;
   whatsappNumber?: string;
-  agencyName:string;
+  agencyName: string;
 }
 
 interface ProfileFormValues {

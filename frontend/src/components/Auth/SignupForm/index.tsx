@@ -51,7 +51,9 @@ const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
   const router = useRouter();
-  const [settingsData, setSettingsData] = useState<AdminSettingData | null>(null);
+  const [settingsData, setSettingsData] = useState<AdminSettingData | null>(
+    null
+  );
 
   // 2. Set up react-hook-form
   const {
@@ -104,7 +106,13 @@ const SignupForm = () => {
       }
 
       // Step 3: Redirect on success
-      router.push(`/${loginData?.user?.role}/dashboard`);
+      router.push(
+        `/${
+          loginData?.user?.role === "teamMember"
+            ? "agent"
+            : loginData?.user?.role
+        }/dashboard`
+      );
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response) {
         // Backend error
@@ -121,60 +129,73 @@ const SignupForm = () => {
 
   useEffect(() => {
     const fetchSettings = async () => {
-        try {
-            const response = await getSettingsData();
-            if (response.success) {
-                const d = response.data;
-                setSettingsData(d);
-            }
-        } catch (err) {
-            showErrorToast("Error", err);
+      try {
+        const response = await getSettingsData();
+        if (response.success) {
+          const d = response.data;
+          setSettingsData(d);
         }
+      } catch (err) {
+        showErrorToast("Error", err);
+      }
     };
     fetchSettings();
   }, []);
 
-   const getImageUrl = (imageUrl?: string): string | undefined => {
-        if (!imageUrl) {
-            return;
-        }
-    
-        // If it's already a full URL, return as is
-        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-            return imageUrl;
-        }
-    
-        // If it's a relative path, construct the full URL
-        const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
-            return `${baseUrl}/logo/medium/${imageUrl}`;
-    };
+  const getImageUrl = (imageUrl?: string): string | undefined => {
+    if (!imageUrl) {
+      return;
+    }
+
+    // If it's already a full URL, return as is
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+      return imageUrl;
+    }
+
+    // If it's a relative path, construct the full URL
+    const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
+    return `${baseUrl}/logo/medium/${imageUrl}`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 flex items-center justify-center p-4">
-      <Link href="/" className="fixed top-4 left-4 text-gray-600 hover:text-gray-900 font-medium transition-colors flex items-center gap-2 z-10">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      <Link
+        href="/"
+        className="fixed top-4 left-4 text-gray-600 hover:text-gray-900 font-medium transition-colors flex items-center gap-2 z-10"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="h-4 w-4"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+          />
         </svg>
         <span className="hidden sm:inline">Back to Home</span>
       </Link>
       <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl md:p-8 p-6 border border-gray-100">
         {/* Logo */}
         <div className="text-center md:mb-8 mb-3">
-          {settingsData?.logoUrl
-            ?
-              <div style={{ display: 'inline-block' }}>
-                <Image
-                  src={getImageUrl(settingsData.logoUrl) as string}
-                  alt="Logo"
-                  width={70}
-                  height={70}
-                />
-              </div>
-            :
-              <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
-                <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
-              </div>
-          }
+          {settingsData?.logoUrl ? (
+            <div style={{ display: "inline-block" }}>
+              <Image
+                src={getImageUrl(settingsData.logoUrl) as string}
+                alt="Logo"
+                width={70}
+                height={70}
+              />
+            </div>
+          ) : (
+            <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
+              <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
+            </div>
+          )}
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             Create Your Agency Account
           </h1>

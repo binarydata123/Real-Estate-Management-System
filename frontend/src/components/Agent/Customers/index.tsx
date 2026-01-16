@@ -10,7 +10,7 @@ import ScrollPagination from "@/components/Common/ScrollPagination";
 import SearchInput from "@/components/Common/SearchInput";
 import Link from "next/link";
 import CustomerAssistant from "./CustomerAssistant";
-import { AddCustomerSelectionModal } from "./AddCustomerSelectionModal";
+// import { AddCustomerSelectionModal } from "./AddCustomerSelectionModal";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import { formatPrice } from "@/utils/helperFunction";
 import { NoData } from "@/components/Common/NoData";
@@ -26,7 +26,7 @@ export const Customers: React.FC = () => {
 
   const [isFetching, setIsFetching] = useState(false);
   const [addMode, setAddMode] = useState<"manual" | "ai" | null>(null);
-  const [showSelectionModal, setShowSelectionModal] = useState(false);
+  // const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [editingCustomer, setEditingCustomer] =
     useState<CustomerFormData | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
@@ -152,7 +152,7 @@ export const Customers: React.FC = () => {
 
   const handleSelectMode = (mode: "manual" | "ai") => {
     setAddMode(mode);
-    setShowSelectionModal(false);
+    // setShowSelectionModal(false);
   };
 
   return (
@@ -190,7 +190,8 @@ export const Customers: React.FC = () => {
                   className="flex-1 sm:w-64"
                 />
                 <button
-                  onClick={() => setShowSelectionModal(true)}
+                  // onClick={() => setShowSelectionModal(true)}
+                  onClick={() => handleSelectMode("manual")}
                   className="flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
                 >
                   <PlusIcon className="h-5 w-5 mr-2" />
@@ -284,7 +285,9 @@ export const Customers: React.FC = () => {
                                 )}
                               </p>
                             ) : (
-                              <p className="text-sm text-gray-400">Not Added Yet</p>
+                              <p className="text-sm text-gray-400">
+                                Not Added Yet
+                              </p>
                             )}
                           </div>
 
@@ -379,11 +382,11 @@ export const Customers: React.FC = () => {
       )}
 
       {/* Modals */}
-      <AddCustomerSelectionModal
+      {/* <AddCustomerSelectionModal
         isOpen={showSelectionModal}
         onClose={() => setShowSelectionModal(false)}
         onSelectMode={handleSelectMode}
-      />
+      /> */}
 
       {addMode === "ai" && (
         <CustomerAssistant
