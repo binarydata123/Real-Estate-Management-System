@@ -14,6 +14,9 @@ import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import { deleteTeamMember, getTeamMember } from "@/lib/Agent/InviteAPI ";
 import { TeamMember } from "@/types/global";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
+import { Activity, Mail } from "lucide-react";
+import { useRouter } from "next/navigation";
+// import { ActivityLogs } from "./ActivityLogs";
 
 export const TeamManagement: React.FC = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -22,6 +25,10 @@ export const TeamManagement: React.FC = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [deleteId, setDeleteId] = useState<string>("");
   const [isFetching, setIsFetching] = useState(false);
+  // const [showActivityLog, setShowActivityLog] = useState(false);
+  // const [selectedMember, setSelectedMember] = useState<TeamMember>();
+  // console.log("Show Activity", showActivityLog);
+  const router = useRouter();
   const getTeamMembers = async () => {
     setIsFetching(true);
     try {
@@ -113,66 +120,137 @@ export const TeamManagement: React.FC = () => {
       {isFetching ? (
         <SettingsSkeleton />
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-gray-900 text-lg">
-                Team Members
-              </h4>
-              <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
-                {teamMember?.length || 0}{" "}
-                {teamMember?.length === 1 ? "member" : "members"}
-              </span>
-            </div>
-          </div>
-
-          <div className="divide-y divide-gray-200">
-            {teamMember?.map((member) => (
-              <div
-                key={member._id}
-                className="px-3 md:px-6 py-2 md:py-4 flex md:flex-row md:items-center justify-between gap-3 md:gap-4"
-              >
-                {/* Member Info */}
-                <div className="flex items-start space-x-3 md:space-x-4">
-                  <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <UsersIcon className="h-6 w-6 text-green-600" />
+        <div className="mx-auto p-4">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+            {/* Header */}
+            <div className="px-4 md:px-6 py-4 md:py-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-sm">
+                    <UsersIcon className="h-5 w-5 text-white" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-black truncate">
-                      {member.name}
-                    </p>
-                    <p className="text-sm text-gray-600 truncate">
-                      {member.email}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      <span className="text-purple-600">Created</span> :{" "}
-                      {new Date(member.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
+                  <h4 className="font-bold text-gray-900 text-lg md:text-xl">
+                    Team Members
+                  </h4>
                 </div>
-
-                {/* Actions */}
-                <div className="flex flex-wrap items-center gap-2 md:gap-3 justify-end">
-                  <div className="flex space-x-1">
-                    <button
-                      onClick={() => handleUpdate(member)}
-                      className="p-1 text-gray-400"
-                    >
-                      <PencilIcon className="h-4 w-4 text-green-600" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(member._id)}
-                      className="p-1 text-gray-400"
-                    >
-                      <TrashIcon className="h-4 w-4 text-red-600" />
-                    </button>
-                  </div>
-                </div>
+                <span className="px-3 md:px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs md:text-sm font-semibold shadow-sm">
+                  {teamMember?.length || 0}{" "}
+                  {teamMember?.length === 1 ? "member" : "members"}
+                </span>
               </div>
-            ))}
+            </div>
+
+            {/* Members List */}
+            <div className="divide-y divide-gray-100">
+              {teamMember?.map((member) => (
+                <div
+                  key={member._id}
+                  className="px-4 md:px-6 py-4 md:py-5 hover:bg-gray-50 transition-colors duration-150"
+                >
+                  <div className="flex flex-col gap-4">
+                    {/* Member Info */}
+                    <div className="flex items-start md:items-center gap-3 md:gap-4">
+                      <div className="relative flex-shrink-0">
+                        <div className="h-12 w-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center shadow-sm">
+                          <UsersIcon className="h-6 w-6 text-emerald-600" />
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-gray-900 text-base md:text-lg truncate">
+                          {member.name}
+                        </p>
+                        <a
+                          href={`mailto:${member.email}`}
+                          className="text-xs md:text-sm text-gray-600 truncate flex items-center gap-1.5 hover:underline mt-1"
+                        >
+                          <Mail className="h-3 w-3 md:h-3.5 md:w-3.5 text-gray-400 flex-shrink-0" />
+                          <span className="truncate">{member.email}</span>
+                        </a>
+                      </div>
+
+                      <div className="flex-shrink-0">
+                        <span className="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 rounded-md text-xs font-medium whitespace-nowrap">
+                          <span className="hidden max-[400px]:inline">
+                            Joined{" "}
+                            {new Date(member.createdAt).toLocaleDateString(
+                              "en-IN"
+                            )}
+                          </span>
+
+                          <span className="inline max-[400px]:hidden">
+                            Joined{" "}
+                            {new Date(member.createdAt).toLocaleDateString(
+                              "en-IN",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                      <button
+                        className="flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 border border-cyan-200 rounded-lg transition-all duration-150 font-medium text-xs md:text-sm group flex-1 md:flex-initial"
+                        onClick={() => {
+                          // setSelectedMember(member);
+                          // setShowActivityLog(true)
+                          router.push(`/agent/activity-logs/${member?._id}`);
+                        }}
+                      >
+                        <Activity className="h-3.5 w-3.5 md:h-4 md:w-4 group-hover:scale-110 transition-transform" />
+                        <span>Activity Log</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleUpdate(member)}
+                        className="flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-lg transition-all duration-150 font-medium text-xs md:text-sm group flex-1 md:flex-initial"
+                        title="Edit member"
+                      >
+                        <PencilIcon className="h-3.5 w-3.5 md:h-4 md:w-4 group-hover:scale-110 transition-transform" />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(member._id)}
+                        className="flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-lg transition-all duration-150 font-medium text-xs md:text-sm group flex-1 md:flex-initial"
+                        title="Delete member"
+                      >
+                        <TrashIcon className="h-3.5 w-3.5 md:h-4 md:w-4 group-hover:scale-110 transition-transform" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Empty State */}
+            {(!teamMember || teamMember.length === 0) && (
+              <div className="px-6 py-16 text-center">
+                <div className="inline-flex h-16 w-16 bg-gray-100 rounded-2xl items-center justify-center mb-4">
+                  <UsersIcon className="h-8 w-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No team members yet
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  Add your first team member to get started
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      {/* {showActivityLog && (
+        <ActivityLogs memberId={selectedMember?._id as string}/>
+      )} */}
       {/* Invite Modal */}
       {showInviteModal && (
         <InviteAgentModal

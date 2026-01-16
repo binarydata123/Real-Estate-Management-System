@@ -142,7 +142,13 @@ export const LoginForm = () => {
           if (signInError) {
             setError(signInError.message || "Invalid credentials");
           } else {
-            router.push(`/${signInData?.user?.role}/dashboard`);
+            router.push(
+              `/${
+                signInData?.user?.role === "teamMember"
+                  ? "agent"
+                  : signInData?.user?.role
+              }/dashboard`
+            );
           }
         }
       } else {
@@ -215,23 +221,26 @@ export const LoginForm = () => {
   }, []);
 
   const getImageUrl = (imageUrl?: string): string | undefined => {
-        if (!imageUrl) {
-            return;
-        }
-    
-        // If it's already a full URL, return as is
-        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-            return imageUrl;
-        }
-    
-        // If it's a relative path, construct the full URL
-        const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
-            return `${baseUrl}/logo/medium/${imageUrl}`;
-    };
+    if (!imageUrl) {
+      return;
+    }
+
+    // If it's already a full URL, return as is
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+      return imageUrl;
+    }
+
+    // If it's a relative path, construct the full URL
+    const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL as string;
+    return `${baseUrl}/logo/medium/${imageUrl}`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 flex items-center justify-center p-4">
-      <Link href="/" className="fixed top-4 left-4 text-gray-600 hover:text-gray-900 font-medium transition-colors flex items-center gap-2 z-10">
+      <Link
+        href="/"
+        className="fixed top-4 left-4 text-gray-600 hover:text-gray-900 font-medium transition-colors flex items-center gap-2 z-10"
+      >
         <ArrowLeftIcon className="h-4 w-4" />
         <span className="hidden sm:inline">Back to Home</span>
       </Link>
@@ -355,7 +364,7 @@ export const LoginForm = () => {
                 </Link>
               </p>
             </div>
-            < InstallButton isFrom="Login"/>
+            <InstallButton isFrom="Login" />
           </div>
         ) : (
           // Login Form

@@ -4,7 +4,7 @@ import { Menu, Transition } from "@headlessui/react";
 import Link from "next/link";
 import {
   BellIcon,
-  UserCircleIcon,   
+  UserCircleIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
 } from "@heroicons/react/24/outline";
@@ -63,7 +63,7 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
 
             {/* Right Side */}
             <div className="flex items-center space-x-1 md:space-x-4">
-              <InstallButton isFrom="Header"/>
+              <InstallButton isFrom="Header" />
               {/* Notifications */}
               <span
                 onClick={() => setShowNotifications(true)}
@@ -114,8 +114,9 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                         {({ active }) => (
                           <Link
                             href="/agent/profile"
-                            className={`${active ? "bg-gray-100" : ""
-                              } flex items-center px-4 py-3 text-sm text-gray-700 transition`}
+                            className={`${
+                              active ? "bg-gray-100" : ""
+                            } flex items-center px-4 py-3 text-sm text-gray-700 transition`}
                           >
                             <UserCircleIcon className="mr-3 h-5 w-5 text-gray-500" />
                             Account Profile
@@ -128,8 +129,9 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                           <Link
                             href={"#"}
                             onClick={signOut}
-                            className={`${active ? "bg-red-50" : ""
-                              } flex  items-center px-4 py-3 text-sm text-red-600 font-medium transition`}
+                            className={`${
+                              active ? "bg-red-50" : ""
+                            } flex  items-center px-4 py-3 text-sm text-red-600 font-medium transition`}
                           >
                             <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-red-500" />
                             Log Out
@@ -156,14 +158,3 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
     </>
   );
 };
-
-
-
-
-
-
-
-
-
-
-

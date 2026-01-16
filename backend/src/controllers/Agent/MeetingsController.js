@@ -5,7 +5,8 @@ import generateToken from "../../utils/generateToken.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
 import CustomerSettings from "../../models/Customer/SettingsModel.js";
-
+import { User } from "../../models/Common/UserModel.js";
+import { saveActivityLog } from "../../utils/activityLog.js";
 
 // Create a new meeting
 export const createMeeting = async (req, res) => {
@@ -55,6 +56,19 @@ export const createMeeting = async (req, res) => {
           { action: "cancel", title: "Close" },
         ],
       });
+
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: "Meeting Creation",
+        message: `A New Meeting Was Scheduled By '${req.user.name}' with '${customer.fullName}'`,
+      });
+    }
 
     if (customerSettings?.notifications?.pushNotifications)
       await sendPushNotification({
@@ -148,7 +162,7 @@ export const getMeetingsByAgency = async (req, res) => {
       query.status = "cancelled";
     }
 
-    const total = await Meetings.countDocuments(query);
+    // const total = await Meetings.countDocuments(query);
 
     const meetings = await Meetings.find(query)
       .populate("customerId", "fullName isDeleted")
@@ -214,7 +228,7 @@ export const updateMeeting = async (req, res) => {
     date,
     propertyId: correctPropertyId,
     status,
-    time
+    time,
   };
   try {
     const updatedMeeting = await Meetings.findByIdAndUpdate(
@@ -253,7 +267,7 @@ export const updateMeeting = async (req, res) => {
     if (agencySettings?.notifications?.pushNotifications)
       await sendPushNotification({
         userId: req.user._id,
-        title: "Meeting Updation",
+        title: "Meeting Updated",
         message: `Your meeting with ${customer.fullName} has been updated to be on ${newBody.date} at ${newBody.time}.`,
         urlPath: "/agent/meetings",
         data: {},
@@ -263,7 +277,20 @@ export const updateMeeting = async (req, res) => {
         ],
       });
 
-      if (agencySettings?.notifications?.meetingReminders) {
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: "Meeting Updated",
+        message: `Meeting with '${customer.fullName}' Was updated to be on ${newBody.date} at ${newBody.time} By '${req.user.name}'`,
+      });
+    }
+
+    if (agencySettings?.notifications?.meetingReminders) {
       await createNotification({
         agencyId: agencyId,
         userId: req.user._id,
@@ -321,7 +348,11 @@ export const updateMeetingStatus = async (req, res) => {
       await sendPushNotification({
         userId: updatedMeeting.customerId,
         title: "Meeting Cancellation",
-        message: `Your meeting on ${updatedMeeting.date.toISOString().split("T")[0]} at ${updatedMeeting.time} has been ${status} by ${req.user.agencyId.name}.`,
+        message: `Your meeting on ${
+          updatedMeeting.date.toISOString().split("T")[0]
+        } at ${updatedMeeting.time} has been ${status} by ${
+          req.user.agencyId.name
+        }.`,
         urlPath: "/customer/meetings",
         data: {},
         actions: [
@@ -342,7 +373,20 @@ export const updateMeetingStatus = async (req, res) => {
         ],
       });
 
-      if (agencySettings?.notifications?.meetingReminders) {
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: `Meeting ${status}`,
+        message: `Meeting with '${customer.fullName}' Was ${status} By '${req.user.name}'`,
+      });
+    }
+
+    if (agencySettings?.notifications?.meetingReminders) {
       await createNotification({
         agencyId: updatedMeeting.agencyId,
         userId: req.user._id,
@@ -354,7 +398,11 @@ export const updateMeetingStatus = async (req, res) => {
     if (customerSettings?.notifications?.meetingReminders) {
       await createNotification({
         userId: updatedMeeting.customerId,
-        message: `Your meeting on ${updatedMeeting.date.toISOString().split("T")[0]} at ${updatedMeeting.time} has been ${status} by ${req.user.agencyId.name}.`,
+        message: `Your meeting on ${
+          updatedMeeting.date.toISOString().split("T")[0]
+        } at ${updatedMeeting.time} has been ${status} by ${
+          req.user.agencyId.name
+        }.`,
         type: "meeting_scheduled",
       });
     }

@@ -1,6 +1,7 @@
 import { User } from "../../models/Common/UserModel.js";
 import { Agency } from "../../models/Agent/AgencyModel.js";
 import bcrypt from "bcryptjs";
+import { activityLog } from "../../models/Agent/activityLog.js";
 
 export const inviteAgent = async (req, res) => {
   try {
@@ -28,7 +29,7 @@ export const inviteAgent = async (req, res) => {
       email,
       message,
       code,
-      role: "agent",
+      role: "teamMember",
       password: hashedPassword,
       agencyId: agencyId,
     });
@@ -70,13 +71,21 @@ export const getAgents = async (req, res) => {
 
 export const getTeamMembers = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const agencyMembers = await Agency.find(
       { owner: userId },
-      { teamMembers: 1, _id: 0 }
+      {
+        teamMembers: 1,
+        _id: 0,
+      }
     )
       .sort({ createdAt: -1 })
-      .populate({ path: "teamMembers", select: "-password" });
+      .populate({
+        path: "teamMembers",
+        match: { _id: { $ne: userId } },
+        select: "-password",
+      });
+
     const [teamMembers] = agencyMembers;
     res.status(200).json({
       data: teamMembers,
@@ -138,7 +147,7 @@ export const deleteTeamMember = async (req, res) => {
 
 export const updateAgent = async (req, res) => {
   try {
-    const { name, phone, email, role, status, message, memberId } = req.body;
+    const { name, phone, email, status, message, memberId } = req.body;
     const agencyId = req.user.agencyId._id;
 
     // 1. Find the agent
@@ -194,4 +203,14 @@ export const updateAgent = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+export const getMembersActivityLog = async (req,res) => {
+  const id = req.params.id;
+  const logs = await activityLog.find({
+    performedBy : id
+  })
+  .populate("performedBy","name")
+  .populate("agencyId","name");
+  return res.status(200).json({message :`Id Sent is : ${id}`,logs:logs ,success:true});
 };

@@ -143,12 +143,12 @@ export default function Analytics() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {/* Monthly Sign-ups Chart */}
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 flex items-center">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                         <UserPlus className="w-5 h-5 mr-2" />
                         Monthly Sign-ups
                     </h2>
                     <ResponsiveContainer width="100%" height={350}>
-                        <BarChart data={monthlySignUps}>
+                        <BarChart data={monthlySignUps} >
                             <defs>
                                 <linearGradient id="colorSignups" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
@@ -157,7 +157,7 @@ export default function Analytics() {
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(128, 128, 128, 0.1)" />
                             <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis stroke="#9ca3af" width={20} fontSize={12} tickLine={false} axisLine={false} />
                             <Tooltip
                                 contentStyle={{
                                     backgroundColor: 'rgba(10, 20, 30, 0.8)',
@@ -190,7 +190,7 @@ export default function Analytics() {
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(128, 128, 128, 0.1)" />
                             <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis stroke="#9ca3af" fontSize={12} width={22} tickLine={false} axisLine={false} />
                             <Tooltip
                                 contentStyle={{
                                     backgroundColor: 'rgba(10, 20, 30, 0.8)',
