@@ -28,7 +28,6 @@ export const getUserNotifications = async (req, res) => {
     const numericLimit = Number(limit) || 10;
     const skip = (numericPage - 1) * numericLimit;
 
-
     const query = { userId };
 
     if (type) {
@@ -91,7 +90,7 @@ export const markAsRead = async (req, res) => {
 
     const notification = await Notification.findOneAndUpdate(
       { _id: id, userId },
-      { isRead: true },
+      { isRead: true }
     );
 
     if (!notification) {
@@ -100,7 +99,7 @@ export const markAsRead = async (req, res) => {
         .json({ success: false, message: "Notification not found" });
     }
 
-  return res.json({ success: true, data: notification });
+    return res.json({ success: true, data: notification });
   } catch (error) {
     console.error("Error marking notification as read:", error);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -121,10 +120,13 @@ export const deleteNotification = async (req, res) => {
         .json({ success: false, message: "Notification not found" });
     }
 
-  return res.json({ success: true, message: "Notification deleted successfully" });
+    return res.json({
+      success: true,
+      message: "Notification deleted successfully",
+    });
   } catch (error) {
     console.error("Error deleting notification:", error);
-  return res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

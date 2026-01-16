@@ -4,6 +4,8 @@ import { sendPushNotification } from "../../utils/pushService.js";
 import AgencySettings from "../../models/Agent/settingsModel.js";
 import { PropertyShare } from "../../models/Agent/PropertyShareModel.js";
 import CustomerSettings from "../../models/Customer/SettingsModel.js";
+import { saveActivityLog } from "../../utils/activityLog.js";
+import { User } from "../../models/Common/UserModel.js";
 
 // Utility: Convert invalid numbers to null
 const cleanNumber = (value) => {
@@ -156,16 +158,30 @@ export const createProperty = async (req, res) => {
     const property = new Property(propertyData);
     const savedProperty = await property.save();
 
-    // Respond to the client immediately after the property is saved
-    res.status(201).json({
+    // Handle notifications in the background
+    // This is a "fire-and-forget" call
+    handlePostCreationNotifications(req.user, savedProperty);
+
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: "Property Creation",
+        message: `A New Property ${savedProperty.title} Was Added By '${
+          req.user.name
+        }'`,
+      });
+    }
+
+    return res.status(201).json({
       success: true,
       message: "Property created successfully.",
       data: savedProperty,
     });
-
-    // Handle notifications in the background
-    // This is a "fire-and-forget" call
-    handlePostCreationNotifications(req.user, savedProperty);
   } catch (error) {
     console.error("Error creating property:", error);
     if (error.name === "ValidationError") {
@@ -256,15 +272,34 @@ export const updateProperty = async (req, res) => {
     );
 
     // Send response to the client immediately
-    res.status(200).json({
-      success: true,
-      message: "Property updated successfully.",
-      data: updatedProperty,
-    });
 
     // Perform notification tasks in the background after responding
     // This is a "fire-and-forget" approach
     handlePostUpdateNotifications(req.user, updatedProperty);
+
+    // const actualAgent = await User.findOne({
+    //   email: req.user.email,
+    // });
+
+    // if (!actualAgent._id.equals(req.user._id)) {
+    //   const now = new Date();
+    //   await saveActivityLog({
+    //     performedBy: actualAgent._id,
+    //     agencyId: req.user.agencyId._id,
+    //     action: "Property Updated",
+    //     message: `Property ${updatedProperty.title} Was Updated By '${
+    //       req.user.name
+    //     }' on ${now.toLocaleDateString(
+    //       "en-IN"
+    //     )} at ${now.toLocaleTimeString()}`,
+    //   });
+    // }
+
+    return res.status(200).json({
+      success: true,
+      message: "Property updated successfully.",
+      data: updatedProperty,
+    });
   } catch (error) {
     console.error("Error updating property:", error);
     if (error.name === "ValidationError") {
@@ -433,8 +468,8 @@ export const deleteProperty = async (req, res) => {
 
     if (sharedProperty) {
       const customerSettings = await CustomerSettings.findOne({
-            userId: sharedProperty[0] ?.sharedWithUserId,
-          });
+        userId: sharedProperty[0]?.sharedWithUserId,
+      });
 
       if (customerSettings?.notifications?.pushNotifications) {
         await sendPushNotification({
@@ -446,12 +481,27 @@ export const deleteProperty = async (req, res) => {
       }
 
       if (customerSettings?.notifications?.propertyUpdates)
-      await Notification.create({
-        userId: sharedProperty[0]?.sharedWithUserId,
-        agencyId: property.agencyId,
-        message: `Property "${property.title}" has been deleted.`,
-        type: "property_deleted",
-        link: `/agent/properties/${property._id}`,
+        await Notification.create({
+          userId: sharedProperty[0]?.sharedWithUserId,
+          agencyId: property.agencyId,
+          message: `Property "${property.title}" has been deleted.`,
+          type: "property_deleted",
+          link: `/agent/properties/${property._id}`,
+        });
+    }
+
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: "Property Deleted",
+        message: `Property ${property.title} Was Deleted By '${
+          req.user.name
+        }'`,
       });
     }
 

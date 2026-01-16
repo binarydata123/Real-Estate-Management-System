@@ -1,4 +1,6 @@
 import AgencySettings from "../../models/Agent/settingsModel.js";
+import { User } from "../../models/Common/UserModel.js";
+import { saveActivityLog } from "../../utils/activityLog.js";
 import { sendPushNotification } from "../../utils/pushService.js";
 export const getAgencySettings = async (req, res) => {
   try {
@@ -57,6 +59,20 @@ export const updateAgencySettings = async (req, res) => {
         message: `Hi ${req.user.name}, your settings has been updated successfully!`,
         urlPath: "/agent/settings",
       });
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: "Settings Updated",
+        message: `Agency Settings Were Updated By '${
+          req.user.name
+        }'`,
+      });
+    }
     return res.status(status).json({
       success: true,
       message:

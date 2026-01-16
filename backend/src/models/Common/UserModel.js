@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "agent", "customer"],
+      enum: ["admin", "agent", "customer", "teamMember"],
       default: "agent",
     },
     agencyId: {
@@ -46,6 +46,10 @@ const userSchema = new mongoose.Schema(
     message: {
       type: String,
       default: "",
+    },
+    whatsAppNumber: {
+      type: String,
+      trim: true,
     },
   },
   {

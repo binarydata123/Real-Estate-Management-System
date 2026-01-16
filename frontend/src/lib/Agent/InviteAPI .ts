@@ -23,3 +23,8 @@ export const  updateAgent=async (data:AgentMember)=>{
  const res=await api.put(`/agent/inviteAgent/`,data);
 return await res.data;
 };
+
+export const getActivityLogs= async (id: string) => {
+  const res = await api.get(`/agent/inviteAgent/getActivityLogs/${id}`);
+  return await res.data;
+}

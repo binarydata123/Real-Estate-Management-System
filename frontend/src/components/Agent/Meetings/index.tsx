@@ -73,11 +73,7 @@ export const Meetings: React.FC = () => {
     if (!user?.agency?._id) return;
     setIsFetching(true);
     try {
-      const res = await getMeetingsByAgency(
-        activeTab,
-        page,
-        10
-      );
+      const res = await getMeetingsByAgency(activeTab, page, 10);
       setMeetings((prev) =>
         append ? [...prev, ...res.data.data] : res.data.data
       );
@@ -138,7 +134,7 @@ export const Meetings: React.FC = () => {
 
   const handleSelectMode = (mode: "manual" | "ai") => {
     setAddMode(mode);
-    setShowSelectionModal(false);
+    // setShowSelectionModal(false);
   };
 
   const handleDeleteMeeting = async () => {
@@ -191,7 +187,8 @@ export const Meetings: React.FC = () => {
         if (res?.data?.length === 0) {
           setShowAddCustomerModal(true);
         } else {
-          setShowSelectionModal(true);
+          handleSelectMode("manual");
+          // setShowSelectionModal(true);
         }
       }
     }
@@ -420,7 +417,8 @@ export const Meetings: React.FC = () => {
               }
               onButtonClick={
                 activeTab === "upcoming"
-                  ? () => setShowSelectionModal(true)
+                  ? // ? () => setShowSelectionModal(true)
+                    () => handleSelectMode("manual")
                   : undefined
               }
             />

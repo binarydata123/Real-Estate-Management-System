@@ -3,9 +3,9 @@
 /* @tailwind components; */
 @tailwind utilities;
 
-
 @keyframes search-float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -16,8 +16,6 @@
 .animate-search-float {
   animation: search-float 1.6s ease-in-out infinite;
 }
-
-
 
 :root {
   --background: #ffffff;
@@ -32,14 +30,13 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-primary: var(--primary);
-  --color-secondary: var(--secondary)
+  --color-secondary: var(--secondary);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-
   }
 }
 
@@ -51,7 +48,6 @@ body {
 
 /* Bounce Animation */
 @keyframes bounce {
-
   0%,
   100% {
     transform: translateY(0);
@@ -208,7 +204,6 @@ select:focus-visible {
   }
 }
 
-
 /* Customize toast height */
 .Toastify__toast {
   min-height: 60px !important;
@@ -226,4 +221,9 @@ select:focus-visible {
 .Toastify__toast--info,
 .Toastify__toast--warning {
   min-height: 60px !important;
+}
+
+.recharts-wrapper > svg.recharts-surface {
+  width: 100% !important;
+  height: 100% !important;
 }

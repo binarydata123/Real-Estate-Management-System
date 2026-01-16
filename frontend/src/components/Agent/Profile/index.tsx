@@ -6,10 +6,12 @@ import { getAgentProfile, updateAgentProfile } from "@/lib/Agent/ProfileAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { agentProfileSchema } from "@/schemas/Admin/agentSchema";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Profile() {
   const [agent, setAgent] = useState<AgentProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const { user } = useAuth();
 
   const {
     register,
@@ -29,7 +31,7 @@ export default function Profile() {
   // Fetch profile from API
   const getProfile = async (): Promise<void> => {
     try {
-      const res = await getAgentProfile();
+      const res = await getAgentProfile(user?._id as string);
       if (res.success && res.data) {
         setAgent(res.data);
       }
@@ -40,17 +42,19 @@ export default function Profile() {
 
   const onSubmit: SubmitHandler<ProfileFormValues> = async (data) => {
     setLoading(true);
+    console.log("Was CLicked");
     try {
       const payload: AgentProfileFormData = {
         ...data,
         phoneNumber: "",
       };
-      const res = await updateAgentProfile(payload);
+      const res = await updateAgentProfile(payload, user?._id as string);
       if (res.success && res.message) {
         showSuccessToast(res.message);
       }
     } catch (error) {
       if (error instanceof Error) {
+        console.error(error);
         showErrorToast(error.message);
       } else {
         showErrorToast("Profile update failed.");
@@ -165,9 +169,19 @@ export default function Profile() {
             className={`w-full px-4 py-2.5 border ${
               errors.agencyName ? "border-red-500" : "border-gray-200"
             } rounded-xl focus:ring-2 focus:ring-primary focus:border-primary 
-    text-gray-900 bg-white transition-all duration-150`}
+           text-gray-900 bg-white transition-all duration-150 ${
+             agent?.owner.role === "teamMember"
+               ? "bg-zinc-200 cursor-not-allowed"
+               : ""
+           }`}
             placeholder="Enter agency name"
+            disabled={agent?.owner.role === "teamMember"}
           />
+          {agent?.owner.role === "teamMember" ? (
+            <p className="text-zinc-500">(Members Cannot Change Agency Name)</p>
+          ) : (
+            ""
+          )}
 
           {errors.agencyName && (
             <span className="text-red-500 text-sm mt-1">
@@ -190,5 +204,4 @@ export default function Profile() {
       </form>
     </div>
   );
-
 }

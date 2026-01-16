@@ -11,7 +11,10 @@ import {
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
 import Cookies from "js-cookie";
-import { checkSession as checkSessionApi, removeNotifications } from "@/lib/Authentication/AuthenticationAPI";
+import {
+  checkSession as checkSessionApi,
+  removeNotifications,
+} from "@/lib/Authentication/AuthenticationAPI";
 import { AxiosError, AxiosResponse } from "axios";
 import { showErrorToast, setForceLogoutFlag } from "@/utils/toastHandler";
 import { brandColor } from "@/types/global";
@@ -86,11 +89,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [brandColors, setBrandingColor] = useState<brandColor>()
+  const [brandColors, setBrandingColor] = useState<brandColor>();
   // const [logoutPopup, setLogoutPopup] = useState<string | null>(null);
 
   const [logoutPopupMsg, setLogoutPopupMsg] = useState<string | null>(null);
-
 
   const router = useRouter();
   // Centralized function to clear session state and storage
@@ -152,7 +154,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signIn = async (response: AxiosResponse): Promise<AuthResponse> => {
     try {
       const { token, user: userData } = response.data;
-
       const newSession: Session = {
         access_token: token,
       };
@@ -189,39 +190,43 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       secure: process.env.NODE_ENV === "production",
     });
     Cookies.set(ROLE_FOR_MIDDELEWARE, userData.role);
-    router.push(`/${userData.role}/dashboard`);
+    router.push(
+      `/${userData.role === "teamMember" ? "agent" : userData.role}/dashboard`
+    );
   };
   const getSettings = async () => {
-  try {
-    let res;
+    try {
+      let res;
 
-    if (user?.role === "agent") {
-      res = await getAgencySettings();
-      setBrandingColor(res.branding);
-    } else if(user?.role === 'customer') {
-      res = await getCustomerSettings();
+      if (user?.role === "agent" || user?.role === "teamMember") {
+        res = await getAgencySettings();
+        setBrandingColor(res.branding);
+      } else if (user?.role === "customer") {
+        res = await getCustomerSettings();
+      }
+
+      return res;
+    } catch (error) {
+      showErrorToast("Error", error);
+      return null;
     }
-
-    return res;
-  } catch (error) {
-    showErrorToast("Error", error);
-    return null;
-  }
-};
-
+  };
 
   useEffect(() => {
-    if(user?._id) getSettings();
+    if (user?._id) getSettings();
   }, [user]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--primary", brandColors?.primaryColor || "#1e41f1");
+    document.documentElement.style.setProperty(
+      "--primary",
+      brandColors?.primaryColor || "#1e41f1"
+    );
   }, [brandColors, user]);
 
   const signOut = async () => {
     setForceLogoutFlag(false);
     const deviceId = Cookies.get("deviceId");
-    await removeNotifications(user?._id as string,deviceId as string); 
+    await removeNotifications(user?._id as string, deviceId as string);
     clearSession();
     router.push("/auth/login");
   };
@@ -236,12 +241,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       signOut,
       router,
       setBrandingColor,
-      
+
       logoutPopupMsg,
       setLogoutPopupMsg,
-      
     }),
-    [user, session, loading, router, signIn, completeSignIn,logoutPopupMsg]
+    [user, session, loading, router, signIn, completeSignIn, logoutPopupMsg]
   );
 
   if (loading) {

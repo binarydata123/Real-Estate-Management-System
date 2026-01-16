@@ -195,7 +195,8 @@ const registrationController = {
         if (
           loginAs === "agency" &&
           user.role !== "agency" &&
-          user.role !== "agent"
+          user.role !== "agent" &&
+          user.role !== "teamMember"
         ) {
           return res.status(403).json({
             message: "Access denied. Not an agency or agent account.",
@@ -436,7 +437,7 @@ const registrationController = {
           });
         }
       } else {
-        user = await User.findById(_id).populate(
+        user = await User.findOne({ email: req?.user?.email }).populate(
           "agencyId",
           "name slug email phone logoUrl owner"
         );

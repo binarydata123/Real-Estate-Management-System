@@ -613,6 +613,33 @@ interface TeamMember {
   createdAt: string;
   phone?: string;
 }
+
+interface Log {
+  action : "Customer Addition"|
+        "Customer Updated"|
+        "Customer Deletion"|
+        "Meeting Creation"|
+        "Meeting Updated"|
+        "Meeting cancelled"|
+        "Property Creation"|
+        "Property Deleted"|
+        "Settings Updated"|
+        "Property Shared";
+  agencyId : {
+    id: string,
+    members?: number,
+    name: string,
+    _id: string
+  };
+  createdAt?: string;
+  message: string;
+  performedBy: {
+    name: string,
+    _id: string
+  };
+  updatedAt?: string;
+  _id: string;
+}
 interface brandColor {
   primaryColor: string | null;
 }
@@ -632,4 +659,5 @@ export {
   AgencyFormData,
   TeamMember,
   brandColor,
+  Log,
 };
