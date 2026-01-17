@@ -41,7 +41,7 @@ const PushNotificationSubscriptionSchema = new mongoose.Schema(
 
 PushNotificationSubscriptionSchema.index(
   { userId: 1, "device.id": 1 },
-  { unique: true }
+  // { unique: true }
 );
 
 const PushNotificationSubscription = mongoose.model(

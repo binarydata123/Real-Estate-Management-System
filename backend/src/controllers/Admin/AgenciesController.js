@@ -120,7 +120,7 @@ export const updateAgency = async (req, res) => {
     await createNotification({
       userId: updatedAgency.owner,
       message: `Agency (${updatedAgency.name}) has been updated successfully.`,
-      type: "lead_updated",
+      type: "customer_updated",
     });
 
     return res.json({ success: true, data: updatedAgency });

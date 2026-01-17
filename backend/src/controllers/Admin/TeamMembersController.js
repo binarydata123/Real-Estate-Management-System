@@ -120,7 +120,7 @@ export const updateTeamMember = async (req, res) => {
     await createNotification({
       userId: updatedTeamMember.owner,
       message: `Team Member (${updatedTeamMember.name}) has been updated successfully.`,
-      type: "lead_updated",
+      type: "customer_updated",
     });
 
     await sendPushNotification({

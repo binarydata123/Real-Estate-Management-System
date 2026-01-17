@@ -106,7 +106,7 @@ export const updateCustomer = async (req, res) => {
     await createNotification({
       userId: updatedCustomer.owner,
       message: `Customer (${updatedCustomer.name}) has been updated successfully.`,
-      type: "lead_updated",
+      type: "customer_updated",
     });
     await sendPushNotification({
       userId: updatedCustomer.owner,

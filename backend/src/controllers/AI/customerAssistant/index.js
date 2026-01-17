@@ -193,7 +193,7 @@ export const createCustomerRecord = async (req, res) => {
       agencyId: savedCustomer.agencyId,
       userId: "68c55d7b2df74062c8341bf5",
       message: `A new customer lead (${savedCustomer.fullName}) has been created successfully.`,
-      type: "new_lead",
+      type: "new_customer",
     });
 
     await sendPushNotification({

@@ -14,6 +14,7 @@ import {
   Settings2,
   Share2,
   MessageSquare,
+  UserMinus,
 } from "lucide-react";
 import {
   getNotifications,
@@ -36,17 +37,23 @@ const typeConfig: Record<
     border: "border-primary",
     label: "Welcome",
   },
-  new_lead: {
+  new_customer: {
     icon: <UserPlus className="w-5 h-5 text-white" />,
     color: "bg-green-500",
     border: "border-green-500",
-    label: "New Lead",
+    label: "New Customer",
   },
-  lead_updated: {
+  customer_updated: {
     icon: <UserCog className="w-5 h-5 text-white" />,
     color: "bg-teal-500",
     border: "border-teal-500",
-    label: "Lead Updated",
+    label: "Customer Updated",
+  },
+  customer_deleted: {
+    icon: <UserMinus className="w-5 h-5 text-white" />,
+  color: "bg-red-500",
+  border: "border-red-500",
+  label: "Customer Deleted",
   },
   task_assigned: {
     icon: <ClipboardList className="w-5 h-5 text-white" />,
@@ -119,8 +126,9 @@ const typeConfig: Record<
 type NotificationFilter =
   | "all"
   | "welcome"
-  | "new_lead"
-  | "lead_updated"
+  | "new_customer"
+  | "customer_updated"
+  | "customer_deleted"
   | "task_assigned"
   | "meeting_scheduled"
   | "property_updated"
@@ -147,7 +155,7 @@ const NotificationsPage: React.FC = () => {
     { key: "unread", label: "Unread" },
     { key: "meeting_scheduled", label: "Meetings" },
     { key: "property_added", label: "Property" },
-    { key: "new_lead", label: "Customer" },
+    { key: "new_customer", label: "Customer" },
   ];
 
   useEffect(() => {

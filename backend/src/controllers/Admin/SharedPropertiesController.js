@@ -147,7 +147,7 @@ export const updateSharedProperty = async (req, res) => {
     await createNotification({
       userId: updatedShareProperty.owner,
       message: `Property share (${updatedShareProperty.name}) has been updated successfully.`,
-      type: "lead_updated",
+      type: "customer_updated",
     });
     await sendPushNotification({
       userId: updatedShareProperty.owner,

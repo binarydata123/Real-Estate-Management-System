@@ -44,7 +44,13 @@ export const createMeeting = async (req, res) => {
         type: "meeting_scheduled",
       });
     }
-    if (agencySettings?.notifications?.pushNotifications)
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+    if (
+      agencySettings?.notifications?.pushNotifications &&
+      actualAgent._id.equals(req.user._id)
+    ) {
       await sendPushNotification({
         userId: user._id,
         title: "Meeting Scheduled",
@@ -56,10 +62,33 @@ export const createMeeting = async (req, res) => {
           { action: "cancel", title: "Close" },
         ],
       });
-
-    const actualAgent = await User.findOne({
-      email: req.user.email,
-    });
+    } else if (
+      agencySettings?.notifications?.pushNotifications &&
+      !actualAgent._id.equals(req.user._id)
+    ) {
+      await sendPushNotification({
+        userId: actualAgent._id,
+        title: "Meeting Scheduled",
+        message: `You have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
+        urlPath: "/agent/meetings",
+        data: { meetingId: savedMeeting._id, token: agentToken },
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+      await sendPushNotification({
+        userId: user._id,
+        title: "Meeting Scheduled",
+        message: `${req.user.name} have successfully scheduled a meeting with ${customer.fullName} on ${req.body.date} at ${req.body.time}.`,
+        urlPath: "/agent/meetings",
+        data: { meetingId: savedMeeting._id, token: agentToken },
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+    }
 
     if (!actualAgent._id.equals(req.user._id)) {
       await saveActivityLog({
@@ -234,7 +263,7 @@ export const updateMeeting = async (req, res) => {
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,
       newBody,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedMeeting) {
@@ -264,7 +293,13 @@ export const updateMeeting = async (req, res) => {
           { action: "cancel", title: "Close" },
         ],
       });
-    if (agencySettings?.notifications?.pushNotifications)
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+    if (
+      agencySettings?.notifications?.pushNotifications &&
+      actualAgent._id.equals(req.user._id)
+    ) {
       await sendPushNotification({
         userId: req.user._id,
         title: "Meeting Updated",
@@ -276,10 +311,33 @@ export const updateMeeting = async (req, res) => {
           { action: "cancel", title: "Close" },
         ],
       });
-
-    const actualAgent = await User.findOne({
-      email: req.user.email,
-    });
+    } else if (
+      agencySettings?.notifications?.pushNotifications &&
+      !actualAgent._id.equals(req.user._id)
+    ) {
+      await sendPushNotification({
+        userId: actualAgent._id,
+        title: "Meeting Updated",
+        message: `Your meeting with ${customer.fullName} has been updated to be on ${newBody.date} at ${newBody.time}.`,
+        urlPath: "/agent/meetings",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Meeting Updated",
+        message: `Your meeting with ${customer.fullName} has been updated to be on ${newBody.date} at ${newBody.time} By Agent ${req.user.name}.`,
+        urlPath: "/agent/meetings",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+    }
 
     if (!actualAgent._id.equals(req.user._id)) {
       await saveActivityLog({
@@ -324,7 +382,7 @@ export const updateMeetingStatus = async (req, res) => {
     const updatedMeeting = await Meetings.findByIdAndUpdate(
       req.params.id,
       { status }, // only update status
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
     console.log(updatedMeeting);
 
@@ -360,7 +418,15 @@ export const updateMeetingStatus = async (req, res) => {
           { action: "cancel", title: "Close" },
         ],
       });
-    if (agencySettings?.notifications?.pushNotifications)
+
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (
+      agencySettings?.notifications?.pushNotifications &&
+      actualAgent._id.equals(req.user._id)
+    ) {
       await sendPushNotification({
         userId: req.user._id,
         title: "Meeting Cancellation",
@@ -372,10 +438,33 @@ export const updateMeetingStatus = async (req, res) => {
           { action: "cancel", title: "Close" },
         ],
       });
-
-    const actualAgent = await User.findOne({
-      email: req.user.email,
-    });
+    } else if (
+      agencySettings?.notifications?.pushNotifications &&
+      !actualAgent._id.equals(req.user._id)
+    ) {
+      await sendPushNotification({
+        userId: actualAgent._id,
+        title: "Meeting Cancellation",
+        message: `Your meeting with ${customer.fullName} has been successfully ${status}.`,
+        urlPath: "/agent/meetings",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Meeting Cancellation",
+        message: `Your meeting with ${customer.fullName} has been ${status} by ${req.user.name}.`,
+        urlPath: "/agent/meetings",
+        data: {},
+        actions: [
+          { action: "confirm", title: "Confirm" },
+          { action: "cancel", title: "Close" },
+        ],
+      });
+    }
 
     if (!actualAgent._id.equals(req.user._id)) {
       await saveActivityLog({

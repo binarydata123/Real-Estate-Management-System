@@ -64,11 +64,11 @@ useEffect(() => {
     <>
       {isFrom === "Header" ? (
         <div onClick={handleInstall} title="Install App">
-          <button className="relative px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2 overflow-hidden group">
+          <button className="relative px-4 py-2 bg-primary text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2 overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <Download className="w-4 h-4 relative z-10 animate-bounce" />
             <span className="relative z-10">Install App</span>
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
+            {/* <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping"></div> */}
           </button>
         </div>
       ) : (

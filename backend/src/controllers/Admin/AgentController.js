@@ -114,7 +114,7 @@ export const updateAgent = async (req, res) => {
     await createNotification({
       userId: updatedAgent.owner,
       message: `Agent (${updatedAgent.name}) has been updated successfully.`,
-      type: "lead_updated",
+      type: "customer_updated",
     });
 
     await sendPushNotification({

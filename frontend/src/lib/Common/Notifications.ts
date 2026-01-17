@@ -9,8 +9,9 @@ export type NotificationType = {
   type:
     | "all"
     | "welcome"
-    | "new_lead"
-    | "lead_updated"
+    | "new_customer"
+    | "customer_updated"
+    | "customer_deleted"
     | "task_assigned"
     | "meeting_scheduled"
     | "property_updated"
@@ -32,8 +33,9 @@ export const getNotifications = async (
     type:
       | "all"
       | "welcome"
-      | "new_lead"
-      | "lead_updated"
+      | "new_customer"
+      | "customer_updated"
+      | "customer_deleted"
       | "task_assigned"
       | "meeting_scheduled"
       | "property_updated"
