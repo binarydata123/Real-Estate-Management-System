@@ -31,7 +31,7 @@ export const shareProperty = async (req, res) => {
 
     const customer = await Customer.findById(sharedWithUserId).populate(
       "agencyId",
-      "name"
+      "name",
     );
 
     if (alreadyExistingShare) {
@@ -61,13 +61,37 @@ export const shareProperty = async (req, res) => {
       userId: sharedWithUserId,
     });
 
-    if (agencySettings?.notifications?.pushNotifications)
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (
+      agencySettings?.notifications?.pushNotifications &&
+      actualAgent._id.equals(req.user._id)
+    ) {
       await sendPushNotification({
         userId: agencyId,
         title: "Property Shared Successfully",
         message: `You have shared a property with Customer (${customer.fullName}) successfully.`,
         urlPath: "/agent/shares",
       });
+    } else if (
+      agencySettings?.notifications?.pushNotifications &&
+      !actualAgent._id.equals(req.user._id)
+    ) {
+      await sendPushNotification({
+        userId: actualAgent._id,
+        title: "Property Shared Successfully",
+        message: `You have shared a property with Customer (${customer.fullName}) successfully.`,
+        urlPath: "/agent/shares",
+      });
+      await sendPushNotification({
+        userId: agencyId,
+        title: "Property Shared Successfully",
+        message: `${req.user.name} have shared a property with Customer (${customer.fullName}).`,
+        urlPath: "/agent/shares",
+      });
+    }
     if (agencySettings?.notifications?.propertyUpdates) {
       await createNotification({
         agencyId,
@@ -89,21 +113,17 @@ export const shareProperty = async (req, res) => {
         message: `A property has been shared with you By ${customer?.agencyId?.name}. Check it out!`,
         type: "property_share",
       });
+    }
 
-      const actualAgent = await User.findOne({
-        email: req.user.email,
+    if (!actualAgent._id.equals(req.user._id)) {
+      await saveActivityLog({
+        performedBy: actualAgent._id,
+        agencyId: req.user.agencyId._id,
+        action: "Property Shared",
+        message: `'${req.user.name}' Shared A Property With '${
+          customer.fullName
+        }'`,
       });
-
-      if (!actualAgent._id.equals(req.user._id)) {
-        await saveActivityLog({
-          performedBy: actualAgent._id,
-          agencyId: req.user.agencyId._id,
-          action: "Property Shared",
-          message: `'${req.user.name}' Shared A Property With '${
-            customer.fullName
-          }'`,
-        });
-      }
     }
     return res.status(201).json({
       share: savedShare,
