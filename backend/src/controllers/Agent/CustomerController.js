@@ -80,7 +80,7 @@ export const createCustomer = async (req, res) => {
         agencyId: savedCustomer.agencyId,
         userId: req.user._id,
         message: `A new customer (${savedCustomer.fullName}) has been created successfully.`,
-        type: "new_lead",
+        type: "new_customer",
       });
     }
 
@@ -93,17 +93,31 @@ export const createCustomer = async (req, res) => {
       });
     }
 
-    if (agencySettings?.notifications?.pushNotifications)
-      await sendPushNotification({
-        userId: req.user._id,
-        title: "New Customer Lead",
-        message: `A new customer "${savedCustomer.fullName}" has been added to your agency.`,
-        urlPath: "/agent/customers",
-      });
-
     const actualAgent = await User.findOne({
       email: req.user.email,
     });
+
+    if (agencySettings?.notifications?.pushNotifications && actualAgent._id.equals(req.user._id)) {
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "New Customer",
+        message: `A new customer "${savedCustomer.fullName}" has been added to your agency.`,
+        urlPath: "/agent/customers",
+      });
+    } else if (agencySettings?.notifications?.pushNotifications && !actualAgent._id.equals(req.user._id)) {
+      await sendPushNotification({
+        userId: actualAgent._id,
+        title: "New Customer",
+        message: `A new customer "${savedCustomer.fullName}" has been added to your agency.`,
+        urlPath: "/agent/customers",
+      });
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "New Customer",
+        message: `A new customer "${savedCustomer.fullName}" has been added to your agency By ${req.user.name}.`,
+        urlPath: "/agent/customers",
+      });
+    }
 
     if (!actualAgent._id.equals(req.user._id)) {
       await saveActivityLog({
@@ -261,27 +275,35 @@ export const updateCustomer = async (req, res) => {
         agencyId: updatedCustomer.agencyId,
         userId: updatedCustomer.agencyId,
         message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
-        type: "lead_updated",
+        type: "customer_updated",
       });
     }
 
-    if (agencySettings?.notifications?.pushNotifications)
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (agencySettings?.notifications?.pushNotifications && actualAgent._id.equals(req.user._id)) {
       await sendPushNotification({
         userId: req.user._id,
         title: "Customer Updated",
         message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
         urlPath: "/agent/customers",
       });
-
-    const actualAgent = await User.findOne({
-      email: req.user.email,
-    });
-
-    console.log(
-      "actualAgent._id And req.user._id in line ",
-      actualAgent._id,
-      req.user._id
-    );
+    } else if (agencySettings?.notifications?.pushNotifications && !actualAgent._id.equals(req.user._id)) {
+      await sendPushNotification({
+        userId: actualAgent._id,
+        title: "Customer Updated",
+        message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
+        urlPath: "/agent/customers",
+      });
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Customer Updated",
+        message: `Customer (${updatedCustomer.fullName}) has been updated by ${req.user.name}.`,
+        urlPath: "/agent/customers",
+      });
+    }
 
     if (!actualAgent._id.equals(req.user._id)) {
       await saveActivityLog({
@@ -298,7 +320,7 @@ export const updateCustomer = async (req, res) => {
       await createNotification({
         userId: updatedCustomer._id,
         message: `Hello ${updatedCustomer.fullName}, your profile details have been updated successfully.`,
-        type: "lead_updated",
+        type: "customer_updated",
       });
       const customerSettings = await CustomerSettings.findOne({
         userId: updatedCustomer._id,
@@ -338,9 +360,44 @@ export const deleteCustomer = async (req, res) => {
 
     await PushNotificationSubscription.deleteMany({ userId: customerId });
 
+    const agencySettings = await AgencySettings.findOne({
+      userId: req.user._id,
+    });
+
+    if (agencySettings?.notifications?.customerActivity) {
+      await createNotification({
+        agencyId: updatedCustomer.agencyId,
+        userId: req.user._id,
+        message: `Customer (${updatedCustomer.fullName}) has been successfully deleted.`,
+        type: "customer_deleted"
+      });
+    }
+
     const actualAgent = await User.findOne({
       email: req.user.email,
     });
+
+    if (agencySettings?.notifications?.pushNotifications && actualAgent._id.equals(req.user._id)) {
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Customer Deleted",
+        message: `Customer (${updatedCustomer.fullName}) has been successfully deleted.`,
+        urlPath: "/agent/customers",
+      });
+    } else if (agencySettings?.notifications?.pushNotifications && !actualAgent._id.equals(req.user._id)) {
+      await sendPushNotification({
+        userId: actualAgent._id,
+        title: "Customer Deleted",
+        message: `Customer (${updatedCustomer.fullName}) has been successfully deleted.`,
+        urlPath: "/agent/customers",
+      });
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Customer Deleted",
+        message: `Customer (${updatedCustomer.fullName}) has been deleted by ${req.user.name}.`,
+        urlPath: "/agent/customers",
+      });
+    }
 
     if (!actualAgent._id.equals(req.user._id)) {
       await saveActivityLog({

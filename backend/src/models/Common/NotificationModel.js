@@ -20,8 +20,9 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       enum: [
         "welcome",
-        "new_lead",
-        "lead_updated",
+        "new_customer",
+        "customer_updated",
+        "customer_deleted",
         "task_assigned",
         "meeting_scheduled",
         "property_updated",

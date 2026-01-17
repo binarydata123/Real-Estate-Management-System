@@ -130,7 +130,7 @@ export const updateMeeting = async (req, res) => {
     await createNotification({
       userId: updatedMeeting.owner,
       message: `Meeting (${updatedMeeting.name}) has been updated successfully.`,
-      type: "lead_updated",
+      type: "customer_updated",
     });
       await sendPushNotification({
         userId: updatedMeeting.owner,

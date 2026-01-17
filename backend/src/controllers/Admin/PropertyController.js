@@ -116,7 +116,7 @@ export const updateProperty = async (req, res) => {
     await createNotification({
       userId: updatedProperty.owner,
       message: `Property (${updatedProperty.name}) has been updated successfully.`,
-      type: "lead_updated",
+      type: "customer_updated",
     });
     await sendPushNotification({
       userId: updatedProperty.owner,

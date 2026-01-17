@@ -16,7 +16,7 @@ const cleanNumber = (value) => {
   return Number(value);
 };
 
-const handlePostCreationNotifications = async (user, property) => {
+const handlePostCreationNotifications = async (user, property, actualAgent) => {
   try {
     const agencySettings = await AgencySettings.findOne({ userId: user._id });
 
@@ -32,18 +32,38 @@ const handlePostCreationNotifications = async (user, property) => {
           message: `New property "${property.title}" was added.`,
           type: "property_added",
           link: `/agent/properties/view/${property._id}`,
-        })
+        }),
       );
     }
 
-    if (agencySettings.notifications?.pushNotifications) {
+    if (agencySettings.notifications?.pushNotifications && actualAgent._id.equals(user._id)) {
       notificationPromises.push(
         sendPushNotification({
           userId: user._id,
           title: "New Property Added",
           message: `A new property "${property.title}" has been successfully added.`,
           urlPath: `/agent/properties/${property._id}`,
-        })
+        }),
+      );
+    } else if (
+      agencySettings?.notifications?.pushNotifications &&
+      !actualAgent._id.equals(user._id)
+    ) {
+      notificationPromises.push(
+        sendPushNotification({
+          userId: actualAgent._id,
+          title: "New Property Added",
+          message: `A new property "${property.title}" has been successfully added.`,
+          urlPath: `/agent/properties/${property._id}`,
+        }),
+      );
+     notificationPromises.push(
+        sendPushNotification({
+          userId: user._id,
+          title: "New Property Added",
+          message: `A new property "${property.title}" has been successfully added by ${user.name}.`,
+          urlPath: `/agent/properties/${property._id}`,
+        }),
       );
     }
     await Promise.all(notificationPromises);
@@ -68,7 +88,7 @@ const handlePostUpdateNotifications = async (user, property) => {
           message: `Property "${property.title}" was updated.`,
           type: "property_updated",
           link: `/agent/properties/view/${property._id}`,
-        })
+        }),
       );
     }
 
@@ -160,11 +180,12 @@ export const createProperty = async (req, res) => {
 
     // Handle notifications in the background
     // This is a "fire-and-forget" call
-    handlePostCreationNotifications(req.user, savedProperty);
 
     const actualAgent = await User.findOne({
       email: req.user.email,
     });
+
+    handlePostCreationNotifications(req.user, savedProperty,actualAgent);
 
     if (!actualAgent._id.equals(req.user._id)) {
       await saveActivityLog({
@@ -233,7 +254,7 @@ export const updateProperty = async (req, res) => {
     const existingImageFilenames = new Set(ensureArray(payload.existingImages));
 
     const keptImages = property.images.filter((img) =>
-      existingImageFilenames.has(img.url)
+      existingImageFilenames.has(img.url),
     );
 
     const allImages = [...keptImages, ...newImageEntries];
@@ -268,7 +289,7 @@ export const updateProperty = async (req, res) => {
     const updatedProperty = await Property.findByIdAndUpdate(
       propertyId,
       payload,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     // Send response to the client immediately
@@ -458,13 +479,34 @@ export const deleteProperty = async (req, res) => {
         link: `/agent/properties/view/${property._id}`,
       });
 
-    if (agencySettings?.notifications?.pushNotifications)
+    const actualAgent = await User.findOne({
+      email: req.user.email,
+    });
+
+    if (agencySettings?.notifications?.pushNotifications && actualAgent._id.equals(req.user._id)) {
       await sendPushNotification({
         userId: req.user._id,
         title: "Property Deleted",
         message: `The property "${property.title}" has been successfully deleted.`,
         urlPath: `/agent/properties/view/${property._id}`,
       });
+    } else if (
+      agencySettings?.notifications?.pushNotifications &&
+      !actualAgent._id.equals(req.user._id)
+    ) {
+      await sendPushNotification({
+        userId: actualAgent._id,
+        title: "Property Deleted",
+        message: `The property "${property.title}" has been successfully deleted.`,
+        urlPath: `/agent/properties/view/${property._id}`,
+      });
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Property Deleted",
+        message: `The property "${property.title}" has been successfully deleted by ${req.user.name}.`,
+        urlPath: `/agent/properties/view/${property._id}`,
+      });
+    }
 
     if (sharedProperty) {
       const customerSettings = await CustomerSettings.findOne({
@@ -490,18 +532,12 @@ export const deleteProperty = async (req, res) => {
         });
     }
 
-    const actualAgent = await User.findOne({
-      email: req.user.email,
-    });
-
     if (!actualAgent._id.equals(req.user._id)) {
       await saveActivityLog({
         performedBy: actualAgent._id,
         agencyId: req.user.agencyId._id,
         action: "Property Deleted",
-        message: `Property ${property.title} Was Deleted By '${
-          req.user.name
-        }'`,
+        message: `Property ${property.title} Was Deleted By '${req.user.name}'`,
       });
     }
 

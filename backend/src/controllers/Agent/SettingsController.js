@@ -44,7 +44,7 @@ export const updateAgencySettings = async (req, res) => {
         upsert: true,
         runValidators: true,
         setDefaultsOnInsert: true,
-      }
+      },
     );
 
     const status =
@@ -52,25 +52,44 @@ export const updateAgencySettings = async (req, res) => {
 
     const userSettings = await AgencySettings.findOne({ userId: req.user._id });
 
-    if (userSettings.notifications.pushNotifications)
-      await sendPushNotification({
-        userId: req.user._id,
-        title: "Agency settings updated successfully",
-        message: `Hi ${req.user.name}, your settings has been updated successfully!`,
-        urlPath: "/agent/settings",
-      });
     const actualAgent = await User.findOne({
       email: req.user.email,
     });
+
+    if (
+      userSettings.notifications.pushNotifications &&
+      actualAgent._id.equals(req.user._id)
+    ) {
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Agency settings updated successfully",
+        message: `Agency settings has been updated successfully!`,
+        urlPath: "/agent/settings",
+      });
+    } else if (
+      userSettings?.notifications?.pushNotifications &&
+      !actualAgent._id.equals(req.user._id)
+    ) {
+      await sendPushNotification({
+        userId: actualAgent._id,
+        title: "Agency settings updated successfully",
+        message: `Agency settings has been updated successfully!`,
+        urlPath: "/agent/settings",
+      });
+      await sendPushNotification({
+        userId: req.user._id,
+        title: "Agency settings updated successfully",
+        message: `Agency settings has been updated by ${req.user.name}!`,
+        urlPath: "/agent/settings",
+      });
+    }
 
     if (!actualAgent._id.equals(req.user._id)) {
       await saveActivityLog({
         performedBy: actualAgent._id,
         agencyId: req.user.agencyId._id,
         action: "Settings Updated",
-        message: `Agency Settings Were Updated By '${
-          req.user.name
-        }'`,
+        message: `Agency Settings Were Updated By '${req.user.name}'`,
       });
     }
     return res.status(status).json({

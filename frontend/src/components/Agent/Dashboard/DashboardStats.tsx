@@ -27,7 +27,7 @@ const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const router = useRouter();
   return (
-    <div onClick={() => router.push(link)} className="cursor-pointer bg-white rounded-xl shadow-sm border border-gray-200 p-2 hover:shadow-lg transition-shadow duration-300">
+    <div onClick={() => router.push(link)} className="cursor-pointer bg-white rounded-[5px] shadow-sm border border-gray-200 p-2 hover:shadow-lg transition-shadow duration-300">
       <div className="flex flex-row-reverse justify-between">
         <div className="flex-shrink-0">
           <div className={`p-2 rounded-full ${bgColor}`}>
@@ -57,26 +57,26 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ value }) => {
   const stats = [
     {
       title: "Properties",
-      value: value?.totalProperties ?? 0,
+      value: value?.totalProperties ?? 0, // Changed back to 0 default
       icon: BuildingOfficeIcon,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
+      color: "text-navy-600",
+      bgColor: "bg-navy-100",
       link: "/agent/properties"
     },
     {
       title: "Customers",
-      value: value?.totalCustomers ?? 0,
+      value: value?.totalCustomers ?? 0, // Changed back to 0 default
       icon: UsersIcon,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
+      color: "text-gold-600",
+      bgColor: "bg-gold-100",
       link: "/agent/customers"
     },
     {
       title: "Meetings",
-      value: value?.totalMeetings ?? 0,
+      value: value?.totalMeetings ?? 0, // Changed back to 0 default
       icon: CalendarIcon,
-      color: "text-purple-600",
-      bgColor: "bg-purple-100",
+      color: "text-navy-600",
+      bgColor: "bg-navy-100",
       link: "/agent/meetings"
     },
   ];
@@ -91,7 +91,3 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ value }) => {
 };
 
 export default DashboardStats;
-
-
-
-
