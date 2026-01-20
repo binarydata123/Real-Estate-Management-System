@@ -273,7 +273,7 @@ export const updateCustomer = async (req, res) => {
     if (agencySettings?.notifications?.customerActivity) {
       await createNotification({
         agencyId: updatedCustomer.agencyId,
-        userId: updatedCustomer.agencyId,
+        userId: req.user._id,
         message: `Customer (${updatedCustomer.fullName}) has been updated successfully.`,
         type: "customer_updated",
       });

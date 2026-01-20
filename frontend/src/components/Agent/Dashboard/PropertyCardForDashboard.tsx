@@ -208,7 +208,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       // className="inline-flex items-center mt-1 w-fit rounded-md border border-primary px-2 py-1 text-xs font-medium text-primary hover:bg-primary hover:text-white transition"
-                      className="inline-flex items-center mt-1 underline text-primary text-sm lg:text-xs whitespace-nowrap"
+                      className="inline-flex items-center mt-1 underline text-blue-700 text-sm lg:text-xs whitespace-nowrap"
                     >
                       <FaDirections className="!h-[15px] !w-[15px] lg:!h-[15px] lg:!w-[15px] shrink-0" />
                       <span className="ml-1">Get Directions</span>

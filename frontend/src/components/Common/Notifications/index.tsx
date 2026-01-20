@@ -26,6 +26,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import { showErrorToast } from "@/utils/toastHandler";
+import { useRouter } from "next/navigation";
 
 const typeConfig: Record<
   NotificationType["type"] | "default",
@@ -51,9 +52,9 @@ const typeConfig: Record<
   },
   customer_deleted: {
     icon: <UserMinus className="w-5 h-5 text-white" />,
-  color: "bg-red-500",
-  border: "border-red-500",
-  label: "Customer Deleted",
+    color: "bg-red-500",
+    border: "border-red-500",
+    label: "Customer Deleted",
   },
   task_assigned: {
     icon: <ClipboardList className="w-5 h-5 text-white" />,
@@ -149,6 +150,7 @@ const NotificationsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeTab, setActiveTab] = useState<TabType>("all");
+  const router = useRouter();
 
   const tabs: { key: TabType; label: string }[] = [
     { key: "all", label: "All" },
@@ -178,7 +180,7 @@ const NotificationsPage: React.FC = () => {
       });
 
       setNotifications((prev) =>
-        append ? [...prev, ...(res.data.data || [])] : res.data.data || []
+        append ? [...prev, ...(res.data.data || [])] : res.data.data || [],
       );
       setTotalPages(res.data.pagination.totalPages);
       setCurrentPage(res.data.pagination.page);
@@ -218,6 +220,36 @@ const NotificationsPage: React.FC = () => {
     if (result.data.success) {
       fetchNotifications(1); // Refetch from page 1
       fetchUnreadCount();
+    }
+  };
+  const getLink = (key: string) => {
+    switch (key) {
+      case "welcome":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/dashboard`;
+      case "new_customer":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/customers`;
+      case "customer_updated":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/customers`;
+      case "customer_deleted":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/customers`;
+      case "meeting_scheduled":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/meetings`;
+      case "property_updated":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/properties`;
+      case "property_added":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/properties`;
+      case "property_deleted":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/properties`;
+      case "preference_request":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/customers`;
+      case "property_share":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/shares`;
+      case "property_feedback":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/properties`;
+      case "property_share_deleted":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/shares`;
+      default:
+        return `${user?.role === "teamMember" ? "agent" : user?.role}/customer`;
     }
   };
 
@@ -275,14 +307,23 @@ const NotificationsPage: React.FC = () => {
           {/* Notifications List */}
           {isFetching && notifications.length === 0 ? (
             <div className="flex flex-col gap-2">
-              {Array.from({ length:4 }).map((_,i) => (
-                <div key={i} className="bg-gray-200 w-full h-[70px] animate-pulse rounded-[10px]"></div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-200 w-full h-[70px] animate-pulse rounded-[10px]"
+                ></div>
               ))}
-              {Array.from({ length:4 }).map((_,i) => (
-                <div key={i} className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"></div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"
+                ></div>
               ))}
-              {Array.from({ length:4 }).map((_,i) => (
-                <div key={i} className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"></div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"
+                ></div>
               ))}
             </div>
           ) : notifications.length === 0 ? (
@@ -303,10 +344,13 @@ const NotificationsPage: React.FC = () => {
                 return (
                   <div
                     key={notification?._id}
-                    onClick={() =>
-                      !notification.isRead &&
-                      handleReadNotification(notification?._id)
-                    }
+                    onClick={() => {
+                      if (!notification.isRead) {
+                        handleReadNotification(notification?._id);
+                      }
+
+                      router.push(getLink(notification?.type));
+                    }}
                     className={`relative flex items-start p-4 border-l-4 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer ${config.border}`}
                   >
                     {config && (
@@ -323,7 +367,7 @@ const NotificationsPage: React.FC = () => {
                       <p className="text-xs text-gray-500 mt-1">
                         {format(
                           new Date(notification.createdAt),
-                          "MMM dd, yyyy 'at' hh:mm a"
+                          "MMM dd, yyyy 'at' hh:mm a",
                         )}
                       </p>
                     </div>

@@ -72,16 +72,16 @@ useEffect(() => {
           </button>
         </div>
       ) : (
-        <div className="mt-6 pt-6 border-t border-gray-200">
+        <div className="mt-3 border-t border-gray-200">
           <button
             onClick={handleInstall}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-primary text-[#C9A24D] rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* <svg className="w-5 h-5 !text-[12px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            <span className="font-semibold">Install REAMS App</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            </svg> */}
+            <span className="font-semibold !text-[12px]">Install REAMS App</span>
+            <svg className="w-4 h-4 !text-[12px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
           </button>

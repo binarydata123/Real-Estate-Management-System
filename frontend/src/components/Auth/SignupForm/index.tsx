@@ -179,7 +179,7 @@ const SignupForm = () => {
         </svg>
         <span className="hidden sm:inline">Back to Home</span>
       </Link>
-      <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl md:p-8 p-6 border border-gray-100">
+      <div className="max-w-lg w-full bg-[#C9A24D]/20 border-[#C9A24D] rounded-2xl shadow-xl md:p-8 p-6 border">
         {/* Logo */}
         <div className="text-center md:mb-8 mb-3">
           {settingsData?.logoUrl ? (
@@ -283,7 +283,7 @@ const SignupForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center bg-blue-600 text-white py-3 md:px-4 px-2 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center bg-[#0A2540] text-white py-3 md:px-4 px-2 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading && (
               <svg
@@ -317,7 +317,7 @@ const SignupForm = () => {
             Already have an account?{" "}
             <Link
               href="/auth/login"
-              className="font-semibold text-blue-600 hover:underline"
+              className="font-semibold text-[#0A2540] underline"
             >
               Sign In
             </Link>
@@ -358,10 +358,10 @@ const InputField: React.FC<InputFieldProps> = ({
       <input
         {...register(name)}
         type={type}
-        className={`w-full pl-8 pr-3 py-3 border rounded-lg focus:ring-1 transition-colors ${
+        className={`w-full bg-white pl-8 pr-3 py-3 border rounded-lg focus:ring-1 transition-colors ${
           error
             ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            : "border-white focus:ring-[#C9A24D] focus:border-[#C9A24D]"
         }`}
         placeholder={placeholder}
       />

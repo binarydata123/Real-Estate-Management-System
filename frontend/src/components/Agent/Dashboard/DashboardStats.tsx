@@ -59,24 +59,24 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ value }) => {
       title: "Properties",
       value: value?.totalProperties ?? 0, // Changed back to 0 default
       icon: BuildingOfficeIcon,
-      color: "text-navy-600",
-      bgColor: "bg-navy-100",
+      color: "text-[#C9A24D]",
+      bgColor: "bg-[#C9A24D]/10",
       link: "/agent/properties"
     },
     {
       title: "Customers",
       value: value?.totalCustomers ?? 0, // Changed back to 0 default
       icon: UsersIcon,
-      color: "text-gold-600",
-      bgColor: "bg-gold-100",
+      color: "text-[#C9A24D]",
+      bgColor: "bg-[#C9A24D]/10",
       link: "/agent/customers"
     },
     {
       title: "Meetings",
       value: value?.totalMeetings ?? 0, // Changed back to 0 default
       icon: CalendarIcon,
-      color: "text-navy-600",
-      bgColor: "bg-navy-100",
+      color: "text-[#C9A24D]",
+      bgColor: "bg-[#C9A24D]/10",
       link: "/agent/meetings"
     },
   ];
