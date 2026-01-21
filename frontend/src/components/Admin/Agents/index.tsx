@@ -333,12 +333,12 @@ export default function Agents() {
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                 <span
                                   className={classNames(
-                                    statusStyles[agent.status],
+                                    statusStyles[agent?.status ?? 0],
                                     "inline-flex capitalize items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                   )}
                                 >
-                                  {agent.status.charAt(0).toUpperCase() +
-                                    agent.status.slice(1)}
+                                  {agent?.status ? agent?.status?.charAt(0).toUpperCase() +
+                                    agent?.status?.slice(1) : ""}
                                 </span>
                               </td>
                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
