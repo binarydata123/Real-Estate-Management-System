@@ -26,6 +26,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import ScrollPagination from "@/components/Common/ScrollPagination";
 import { showErrorToast } from "@/utils/toastHandler";
+import { useRouter } from "next/navigation";
 
 const typeConfig: Record<
   NotificationType["type"] | "default",
@@ -39,68 +40,68 @@ const typeConfig: Record<
   },
   new_customer: {
     icon: <UserPlus className="w-5 h-5 text-white" />,
-    color: "bg-green-500",
-    border: "border-green-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "New Customer",
   },
   customer_updated: {
     icon: <UserCog className="w-5 h-5 text-white" />,
-    color: "bg-teal-500",
-    border: "border-teal-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Customer Updated",
   },
   customer_deleted: {
     icon: <UserMinus className="w-5 h-5 text-white" />,
-  color: "bg-red-500",
-  border: "border-red-500",
-  label: "Customer Deleted",
+    color: "bg-primary",
+    border: "border-primary",
+    label: "Customer Deleted",
   },
   task_assigned: {
     icon: <ClipboardList className="w-5 h-5 text-white" />,
-    color: "bg-purple-500",
-    border: "border-purple-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Task Assigned",
   },
   meeting_scheduled: {
     icon: <Calendar className="w-5 h-5 text-white" />,
-    border: "border-orange-500",
-    color: "bg-orange-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Meeting Scheduled",
   },
   property_updated: {
     icon: <Home className="w-5 h-5 text-white" />,
-    border: "border-indigo-500",
-    color: "bg-indigo-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Property Updated",
   },
   property_added: {
     icon: <PlusCircle className="w-5 h-5 text-white" />,
-    border: "border-pink-500",
-    color: "bg-pink-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Property Added",
   },
   property_deleted: {
     icon: <Trash2 className="w-5 h-5 text-white" />,
-    color: "bg-red-500",
-    border: "border-red-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Property Deleted",
   },
   preference_request: {
     icon: <Settings2 className="w-5 h-5 text-white" />,
-    color: "bg-cyan-500",
-    border: "border-cyan-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Preference Request",
   },
   property_share: {
     icon: <Share2 className="w-5 h-5 text-white" />,
-    color: "bg-lime-500",
-    border: "border-lime-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Property Share",
   },
   property_feedback: {
     icon: <MessageSquare className="w-5 h-5 text-white" />,
-    color: "bg-yellow-500",
-    border: "border-yellow-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Property Feedback",
   },
   all: {
@@ -117,8 +118,8 @@ const typeConfig: Record<
   },
   default: {
     icon: <Bell className="w-5 h-5 text-white" />,
-    color: "bg-gray-500",
-    border: "border-gray-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Notification",
   },
 };
@@ -149,6 +150,7 @@ const NotificationsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeTab, setActiveTab] = useState<TabType>("all");
+  const router = useRouter();
 
   const tabs: { key: TabType; label: string }[] = [
     { key: "all", label: "All" },
@@ -178,7 +180,7 @@ const NotificationsPage: React.FC = () => {
       });
 
       setNotifications((prev) =>
-        append ? [...prev, ...(res.data.data || [])] : res.data.data || []
+        append ? [...prev, ...(res.data.data || [])] : res.data.data || [],
       );
       setTotalPages(res.data.pagination.totalPages);
       setCurrentPage(res.data.pagination.page);
@@ -220,10 +222,40 @@ const NotificationsPage: React.FC = () => {
       fetchUnreadCount();
     }
   };
+  const getLink = (key: string) => {
+    switch (key) {
+      case "welcome":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/dashboard`;
+      case "new_customer":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/customers`;
+      case "customer_updated":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/customers`;
+      case "customer_deleted":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/customers`;
+      case "meeting_scheduled":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/meetings`;
+      case "property_updated":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/properties`;
+      case "property_added":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/properties`;
+      case "property_deleted":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/properties`;
+      case "preference_request":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/customers`;
+      case "property_share":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/shares`;
+      case "property_feedback":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/properties`;
+      case "property_share_deleted":
+        return `/${user?.role === "teamMember" ? "agent" : user?.role}/shares`;
+      default:
+        return `${user?.role === "teamMember" ? "agent" : user?.role}/customer`;
+    }
+  };
 
   return (
-    <div className="bg-gray-50 min-h-screen p-2 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200">
+    <div className="bg-gray-50 min-h-screen sm:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-sm border border-gray-200">
         {/* Header */}
         <div className="p-3 md:p-6 border-b border-gray-200 flex items-center justify-between">
           <div>
@@ -275,14 +307,23 @@ const NotificationsPage: React.FC = () => {
           {/* Notifications List */}
           {isFetching && notifications.length === 0 ? (
             <div className="flex flex-col gap-2">
-              {Array.from({ length:4 }).map((_,i) => (
-                <div key={i} className="bg-gray-200 w-full h-[70px] animate-pulse rounded-[10px]"></div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-200 w-full h-[70px] animate-pulse rounded-[10px]"
+                ></div>
               ))}
-              {Array.from({ length:4 }).map((_,i) => (
-                <div key={i} className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"></div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"
+                ></div>
               ))}
-              {Array.from({ length:4 }).map((_,i) => (
-                <div key={i} className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"></div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-300 w-full h-[70px] animate-pulse rounded-[10px]"
+                ></div>
               ))}
             </div>
           ) : notifications.length === 0 ? (
@@ -303,10 +344,13 @@ const NotificationsPage: React.FC = () => {
                 return (
                   <div
                     key={notification?._id}
-                    onClick={() =>
-                      !notification.isRead &&
-                      handleReadNotification(notification?._id)
-                    }
+                    onClick={() => {
+                      if (!notification.isRead) {
+                        handleReadNotification(notification?._id);
+                      }
+
+                      router.push(getLink(notification?.type));
+                    }}
                     className={`relative flex items-start p-4 border-l-4 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer ${config.border}`}
                   >
                     {config && (
@@ -323,7 +367,7 @@ const NotificationsPage: React.FC = () => {
                       <p className="text-xs text-gray-500 mt-1">
                         {format(
                           new Date(notification.createdAt),
-                          "MMM dd, yyyy 'at' hh:mm a"
+                          "MMM dd, yyyy 'at' hh:mm a",
                         )}
                       </p>
                     </div>

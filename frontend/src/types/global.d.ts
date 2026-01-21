@@ -171,7 +171,7 @@ declare global {
 
   interface CustomerFormData {
     _id: string;
-    email: string | "";
+    email?: string | "";
     fullName: string;
     name?: string;
     whatsAppNumber?: string;
@@ -282,7 +282,7 @@ declare global {
   }
 
   interface SharedBySchema {
-    createdAt: string;
+    createdAt: Date;
     email: string;
     name: string;
     phone: string;
@@ -380,10 +380,10 @@ declare global {
     phone?: string;
     password?: string;
     role?: string;
-    status: string;
+    status?: string;
     profilePictureUrl?: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
     agencyId?: {
       email: string;
       id: string;
@@ -395,6 +395,8 @@ declare global {
     };
     customersCount?: number;
     propertiesCount?: number;
+    whatsAppNumber?: string;
+    message?: string;
   }
 
   interface TeamMemberResponse {
@@ -660,4 +662,5 @@ export {
   TeamMember,
   brandColor,
   Log,
+  SharedWithSchema
 };

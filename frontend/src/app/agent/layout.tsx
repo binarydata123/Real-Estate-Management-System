@@ -80,7 +80,9 @@ export default function AgentLayout({ children }: LayoutProps) {
 
   const isMessagesPage = pathname.includes("/messages");
 
-  const isConditionalPage = isPropertyDetailPage || isMessagesPage;
+  const isNotificationsPage = pathname.includes("/notifications") || pathname.includes("/notification");
+
+  const isConditionalPage = isPropertyDetailPage || isMessagesPage || isNotificationsPage;
 
   if (loading) {
     return (
