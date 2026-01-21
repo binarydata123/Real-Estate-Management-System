@@ -195,7 +195,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             <div className="flex items-center space-x-2">
               <BellIcon className="h-5 w-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">
-                Notifications
+                Notifcations
               </h2>
               {unreadCount > 0 && (
                 <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">

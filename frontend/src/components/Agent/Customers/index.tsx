@@ -17,6 +17,7 @@ import { NoData } from "@/components/Common/NoData";
 import { Users } from "lucide-react";
 import { AddMeetingForm } from "@/components/Agent/Meetings/AddMeetingForm";
 import { getPreferenceDetail } from "@/lib/Common/Preference";
+import { capitalizeFirstLetter } from "@/helper/capitalizeFirstLetter";
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -127,25 +128,6 @@ export const Customers: React.FC = () => {
     }
   };
 
-  // const getStatusColor = (status: string) => {
-  //   switch (status) {
-  //     case "new":
-  //       return "bg-gray-100 text-gray-800 border-gray-300";
-  //     case "interested":
-  //       return "bg-green-50 text-green-700 border-green-200";
-  //     case "negotiating":
-  //       return "bg-orange-50 text-orange-700 border-orange-200";
-  //     case "converted":
-  //       return "bg-purple-50 text-purple-700 border-purple-200";
-  //     case "not_interested":
-  //       return "bg-red-50 text-red-700 border-red-200";
-  //     case "follow_up":
-  //       return "bg-blue-50 text-blue-700 border-blue-200";
-  //     default:
-  //       return "bg-gray-100 text-gray-800 border-gray-300";
-  //   }
-  // };
-
   const formatBudget = (min?: number, max?: number) => {
     return `${formatPrice(min)} - ${formatPrice(max)}`;
   };
@@ -156,33 +138,37 @@ export const Customers: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 p-2 md:p-4">
+    <div className="min-h-screen bg-[#F5F7FA] px-1 py-1">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 md:p-4 shadow-sm border border-blue-100">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="relative overflow-hidden rounded-[8px] mb-4 bg-gradient-to-br from-[#0A2540] via-[#0E2F52] to-[#081C30] border border-[#C9A24D]/20">
+        {/* Gold Accent Glow */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#C9A24D]/10 blur-3xl rounded-full" />
+
+        <div className="relative z-10 p-4 md:p-5">
           {isFetching ? (
-            <>
-              <div className="space-y-2">
-                <div className="h-8 w-48 bg-gray-300 animate-pulse rounded"></div>
-                <div className="h-4 w-64 bg-gray-200 animate-pulse rounded"></div>
+            <div className="space-y-4">
+              <div className="h-8 w-48 bg-white/20 animate-pulse rounded-lg"></div>
+              <div className="h-4 w-64 bg-white/20 animate-pulse rounded-lg"></div>
+              <div className="flex gap-3 w-full md:w-auto mt-4">
+                <div className="flex-1 md:w-64 bg-white/20 h-11 rounded-lg animate-pulse"></div>
+                <div className="w-36 bg-white/20 h-11 rounded-lg animate-pulse"></div>
               </div>
-              <div className="flex gap-3 w-full md:w-auto">
-                <div className="flex-1 md:w-64 bg-gray-300 h-11 rounded-lg animate-pulse"></div>
-                <div className="w-36 bg-gray-300 h-11 rounded-lg animate-pulse"></div>
-              </div>
-            </>
+            </div>
           ) : (
-            <>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="max-w-3xl">
+                <h1 className="text-2xl sm:text-3xl font-semibold text-white mb-1">
                   Customers
                 </h1>
-                <p className="text-gray-600 text-sm md:text-base">
+                <p className="text-sm sm:text-base text-white/80">
                   Manage and track your customer relationships
                 </p>
+                
+                {/* Divider */}
+                <div className="mt-3 h-px w-32 bg-gradient-to-r from-[#C9A24D] to-transparent" />
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+              <div className="flex sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                 <SearchInput
                   placeholder="Search customers..."
                   value={searchTerm}
@@ -190,15 +176,14 @@ export const Customers: React.FC = () => {
                   className="flex-1 sm:w-64"
                 />
                 <button
-                  // onClick={() => setShowSelectionModal(true)}
                   onClick={() => handleSelectMode("manual")}
-                  className="flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+                  className="flex w-[40%] items-center justify-center px-2 py-2.5 bg-[#C9A24D] text-white rounded-[8px] hover:bg-[#B8914A] transition-all duration-300 shadow-md hover:shadow-lg font-bold"
                 >
-                  <PlusIcon className="h-5 w-5 mr-2" />
+                  <PlusIcon className="h-5 w-5 mr-2 font-bold stroke-[2.5]" />
                   Add Customer
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -207,7 +192,7 @@ export const Customers: React.FC = () => {
       {customers.length === 0 && !isFetching && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12">
           <NoData
-            icon={<Users size={48} className="text-gray-400" />}
+            icon={<Users size={48} className="text-[#0A2540]/40" />}
             heading="No Customers Found"
             description={
               debouncedSearchTerm
@@ -224,7 +209,7 @@ export const Customers: React.FC = () => {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-[140px] md:h-[110px] w-full bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-pulse rounded-xl"
+              className="h-[140px] md:h-[110px] w-full bg-white/50 animate-pulse rounded-xl shadow-sm"
             ></div>
           ))}
         </div>
@@ -236,18 +221,18 @@ export const Customers: React.FC = () => {
               .map((customer: CustomerFormData, index) => (
                 <div
                   key={`${customer._id}-${index}`}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 overflow-hidden group"
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-[#C9A24D]/30 transition-all duration-300 overflow-hidden group"
                 >
                   <div className="p-4 md:p-5">
                     {/* Top Section */}
                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-2">
                       {/* Customer Info */}
                       <div className="flex items-start space-x-3 flex-1">
-                        <div className="lg:h-12 lg:w-12 w-9 h-9 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300">
+                        <div className="lg:h-12 lg:w-12 w-9 h-9 bg-gradient-to-br from-[#0A2540] via-[#0E2F52] to-[#081C30] rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300 border border-[#C9A24D]/20">
                           <UserIcon className="h-5 w-5 sm:h-6 sm:w-6 md:h-6 md:w-6 lg:h-7 lg:w-7 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 text-base mb-1 truncate">
+                          <h3 className="font-semibold text-[#0A2540] text-base mb-1 truncate">
                             {customer.fullName}{" "}
                             {(customer as { isDeleted?: boolean })
                               .isDeleted && (
@@ -259,7 +244,7 @@ export const Customers: React.FC = () => {
                           <div className="flex items-center text-sm text-gray-600 group/phone">
                             <a
                               href={`tel:${customer.phoneNumber}`}
-                              className="text-blue-600 hover:text-blue-700 font-medium transition-colors hover:underline"
+                              className="text-[#C9A24D] hover:text-[#B8914A] font-medium transition-colors hover:underline"
                             >
                               {customer.phoneNumber || "No phone"}
                             </a>
@@ -268,7 +253,7 @@ export const Customers: React.FC = () => {
                       </div>
 
                       {/* Budget */}
-                      <div className="bg-gradient-to-br from-gray-50 to-gray-100 px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+                      <div className="bg-gradient-to-br from-[#F5F7FA] to-white px-3 py-2 rounded-lg border border-[#C9A24D]/20 shadow-sm">
                         <div className="flex justify-between gap-6">
                           {/* Budget */}
                           <div>
@@ -278,7 +263,7 @@ export const Customers: React.FC = () => {
 
                             {customer?.minimumBudget ||
                             customer?.maximumBudget ? (
-                              <p className="text-sm font-bold text-gray-900">
+                              <p className="text-sm font-bold text-[#0A2540]">
                                 {formatBudget(
                                   customer?.minimumBudget,
                                   customer?.maximumBudget
@@ -297,28 +282,25 @@ export const Customers: React.FC = () => {
                               Lead Source
                             </p>
 
-                            <p className="text-sm font-bold text-gray-900">
-                              {customer?.leadSource || "—"}
+                            <p className="text-sm font-bold text-[#0A2540]">
+                              {capitalizeFirstLetter(customer?.leadSource) || "—"}
                             </p>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Divider */}
-                    {/* <div className="border-t border-gray-100 my-1"></div> */}
-
                     {/* Action Buttons */}
                     <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => setEditingCustomer(customer)}
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 hover:from-amber-100 hover:to-yellow-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-amber-200 hover:border-amber-300 shadow-sm hover:shadow"
+                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteClick(customer)}
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-red-50 to-rose-50 text-red-700 hover:from-red-100 hover:to-rose-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-red-200 hover:border-red-300 shadow-sm hover:shadow"
+                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                       >
                         Delete
                       </button>
@@ -327,7 +309,7 @@ export const Customers: React.FC = () => {
                           setMeetingCustomer(customer);
                           setOpenMeetingModal(true);
                         }}
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-purple-50 to-violet-50 text-purple-700 hover:from-purple-100 hover:to-violet-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-purple-200 hover:border-purple-300 shadow-sm hover:shadow"
+                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                       >
                         Meeting
                       </button>
@@ -336,19 +318,19 @@ export const Customers: React.FC = () => {
                           setViewCustomer(customer);
                           setOpen(true);
                         }}
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 hover:from-blue-100 hover:to-cyan-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-blue-200 hover:border-blue-300 shadow-sm hover:shadow"
+                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                       >
                         View
                       </button>
                       <Link
                         href={`/agent/preference?customerId=${customer._id}`}
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 hover:from-emerald-100 hover:to-green-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-emerald-200 hover:border-emerald-300 shadow-sm hover:shadow text-center"
+                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                       >
                         Preference
                       </Link>
                       <Link
                         href={`/agent/messages?customerId=${customer._id}`}
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-teal-50 to-cyan-50 text-teal-700 hover:from-teal-100 hover:to-cyan-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-teal-200 hover:border-teal-300 shadow-sm hover:shadow text-center"
+                        className="flex-1 sm:flex-none px-3 py-2 bg-[#0A2540] text-[#FFFFFF] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                       >
                         Message
                       </Link>
@@ -370,11 +352,11 @@ export const Customers: React.FC = () => {
           hasMore={currentPage < totalPages}
           loader={
             <div className="text-center py-6">
-              <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-200 border-t-blue-600"></div>
+              <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-[#C9A24D]/20 border-t-[#C9A24D]"></div>
             </div>
           }
           endMessage={
-            <div className="text-center py-8 text-green-600 font-semibold text-lg">
+            <div className="text-center py-8 text-[#C9A24D] font-semibold text-lg">
               🎉 All caught up!
             </div>
           }
@@ -382,12 +364,6 @@ export const Customers: React.FC = () => {
       )}
 
       {/* Modals */}
-      {/* <AddCustomerSelectionModal
-        isOpen={showSelectionModal}
-        onClose={() => setShowSelectionModal(false)}
-        onSelectMode={handleSelectMode}
-      /> */}
-
       {addMode === "ai" && (
         <CustomerAssistant
           onClose={() => {

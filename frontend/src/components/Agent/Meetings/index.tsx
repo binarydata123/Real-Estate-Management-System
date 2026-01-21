@@ -166,7 +166,7 @@ export const Meetings: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "scheduled":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-[#0A2540]";
       case "completed":
         return "bg-green-100 text-green-800";
       case "cancelled":
@@ -197,18 +197,21 @@ export const Meetings: React.FC = () => {
   return (
     <div className="space-y-4 p-2 md:p-4">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 md:p-4 shadow-sm border border-blue-100">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#0A2540] via-[#0E2F52] to-[#081C30] rounded-2xl p-4 md:p-4 shadow-sm border border-[#C9A24D]/20">
+        {/* Gold Accent Glow */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#C9A24D]/10 blur-3xl rounded-full" />
+        
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">
               Meetings
             </h1>
-            <p className="text-gray-600 text-sm md:text-base">
+            <p className="text-white/80 text-sm md:text-base">
               Manage and track your customer meetings
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          <div className="flex sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
             <SearchInput
               placeholder="Search by customer, property or date"
               value={searchTerm}
@@ -217,9 +220,9 @@ export const Meetings: React.FC = () => {
             />
             <button
               onClick={handleScheduleMeetingBtn}
-              className="flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+              className="flex items-center justify-center px-5 font-bold py-2.5 bg-[#C9A24D] text-white rounded-[8px] hover:bg-[#B8914A] transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <PlusIcon className="h-5 w-5 mr-2" />
+              <PlusIcon className="h-5 w-5 mr-2 stroke-[2.5]" />
               Schedule Meeting
             </button>
           </div>
@@ -227,13 +230,13 @@ export const Meetings: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl overflow-x-auto scrollbar-hide">
-        <nav className="flex space-x-6 px-4" aria-label="Tabs">
+      <div className="border-b border-gray-200 bg-white rounded-t-xl overflow-x-auto scrollbar-hide">
+        <nav className="flex space-x-2" aria-label="Tabs">
           <button
             onClick={() => setActiveTab("upcoming")}
-            className={`px-1 py-2 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors ${
+            className={`px-1 py-2 font-semibold text-sm whitespace-normal w-[32%] md:whitespace-nowrap border-b-2 transition-colors ${
               activeTab === "upcoming"
-                ? "text-blue-600 border-blue-600"
+                ? "text-[#C9A24D] border-[#C9A24D]"
                 : "text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300"
             }`}
           >
@@ -241,9 +244,9 @@ export const Meetings: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("past")}
-            className={`px-1 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors ${
+            className={`px-1 py-4 font-semibold text-sm whitespace-normal w-[32%] md:whitespace-nowrap border-b-2 transition-colors ${
               activeTab === "past"
-                ? "text-blue-600 border-blue-600"
+                ? "text-[#C9A24D] border-[#C9A24D]"
                 : "text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300"
             }`}
           >
@@ -251,9 +254,9 @@ export const Meetings: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("cancelled")}
-            className={`px-1 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors ${
+            className={`px-1 py-4 font-semibold text-sm whitespace-normal w-[32%] md:whitespace-nowrap border-b-2 transition-colors ${
               activeTab === "cancelled"
-                ? "text-blue-600 border-blue-600"
+                ? "text-[#C9A24D] border-[#C9A24D]"
                 : "text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300"
             }`}
           >
@@ -284,8 +287,8 @@ export const Meetings: React.FC = () => {
                 <div className="flex items-start justify-between gap-3 mb-3">
                   {/* Left: Meeting Info */}
                   <div className="flex items-start space-x-3 flex-1">
-                    <div className="lg:h-12 lg:w-12 w-9 h-9 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300">
-                      <CalendarIcon className="h-5 w-5 sm:h-6 sm:w-6 md:h-6 md:w-6 lg:h-7 lg:w-7 text-white" />
+                    <div className="lg:h-12 lg:w-12 w-9 h-9 bg-gradient-to-br from-[#0A2540] via-[#0E2F52] to-[#081C30] rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300">
+                      <CalendarIcon className="h-5 w-5 sm:h-6 sm:w-6 md:h-6 md:w-6 lg:h-7 lg:w-7 text-[#C9A24D]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 text-base mb-1">
@@ -328,14 +331,14 @@ export const Meetings: React.FC = () => {
                 </div>
 
                 {/* Property Info */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 px-2 py-1 rounded-lg border border-gray-200 shadow-sm mb-3">
-                  <p className="text-xs text-gray-500 font-medium tracking-wide mb-1">
-                    Property
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 px-2 py-1 rounded-lg border border-gray-200 shadow-sm mb-3 flex justify-start items-baseline">
+                  <p className="text-xs text-gray-500 font-medium tracking-wide mb-1 mr-[3px]">
+                    Property :
                   </p>
                   <p className="text-sm font-bold text-gray-900">
                     {meeting.propertyId
                       ? meeting.propertyId?.title
-                      : "No property info"}
+                      : " No property info"}
                   </p>
                 </div>
 
@@ -349,13 +352,13 @@ export const Meetings: React.FC = () => {
                     <>
                       <button
                         onClick={() => onEdit(meeting._id)}
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 hover:from-amber-100 hover:to-yellow-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-amber-200 hover:border-amber-300 shadow-sm hover:shadow"
+                        className="flex-1 sm:flex-none px-3 py-2 bg-[#0A2540] text-[#FFFFFF] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => onCancel(meeting._id)}
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-red-50 to-rose-50 text-red-700 hover:from-red-100 hover:to-rose-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-red-200 hover:border-red-300 shadow-sm hover:shadow"
+                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                       >
                         Cancel
                       </button>
@@ -368,7 +371,7 @@ export const Meetings: React.FC = () => {
                       onClick={() => {
                         onDelete(meeting._id);
                       }}
-                      className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-red-50 to-rose-50 text-red-700 hover:from-red-100 hover:to-rose-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-red-200 hover:border-red-300 shadow-sm hover:shadow"
+                      className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                     >
                       Delete
                     </button>
@@ -381,7 +384,7 @@ export const Meetings: React.FC = () => {
                         onClick={() => {
                           onEdit(meeting._id, "rescheduled");
                         }}
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 hover:from-blue-100 hover:to-cyan-100 rounded-lg text-sm font-semibold transition-all duration-200 border border-blue-200 hover:border-blue-300 shadow-sm hover:shadow"
+                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                       >
                         Reschedule
                       </button>
@@ -506,11 +509,11 @@ export const Meetings: React.FC = () => {
           hasMore={currentPage < totalPages}
           loader={
             <div className="text-center py-6">
-              <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-200 border-t-blue-600"></div>
+              <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-[#C9A24D]/20 border-t-[#C9A24D]"></div>
             </div>
           }
           endMessage={
-            <div className="text-center py-8 text-green-600 font-semibold text-lg">
+            <div className="text-center py-8 text-[#C9A24D] font-semibold text-lg">
               🎉 All caught up!
             </div>
           }

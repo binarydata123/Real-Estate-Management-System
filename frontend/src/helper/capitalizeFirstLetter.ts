@@ -1,4 +1,19 @@
-export function capitalizeFirstLetter(text: string | null | undefined): string {
+export function capitalizeFirstLetter(
+  text: string | null | undefined
+): string {
   if (!text) return "";
-  return text.charAt(0).toUpperCase() + text.slice(1);
+
+  const separator = text.includes("_")
+    ? "_"
+    : text.includes("-")
+    ? "-"
+    : " ";
+
+  return text
+    .split(separator)
+    .map(
+      word =>
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join(" ");
 }

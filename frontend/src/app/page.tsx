@@ -54,7 +54,7 @@ export default function Home() {
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center gap-3">
               {settingsData?.logoUrl ? (
-                <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-[#C9A24D]/20 bg-white p-1 shadow-sm">
+                // <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-[#C9A24D]/20 bg-white p-1 shadow-sm">
                   <Image
                     src={getImageUrl(settingsData.logoUrl) as string}
                     alt="Logo"
@@ -62,7 +62,7 @@ export default function Home() {
                     height={48}
                     className="rounded-lg"
                   />
-                </div>
+                // </div>
               ) : (
                 <div className="w-12 h-12 bg-gradient-to-br from-[#0A2540] to-[#0E2F52] rounded-xl flex items-center justify-center shadow-md">
                   <BuildingOffice2Icon className="h-7 w-7 text-[#C9A24D]" />

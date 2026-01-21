@@ -66,27 +66,27 @@ export const TeamManagement: React.FC = () => {
   };
 
   const SettingsSkeleton = () => (
-    <div className="bg-gray-100 border-gray-200 w-full flex flex-col">
+    <div className="bg-[#F5F7FA] w-full flex flex-col">
       <div className="flex justify-between px-2 w-full mt-3 animate-pulse">
-        <div className="bg-gray-200 w-[100px] h-[25px]"></div>
-        <div className="bg-gray-200 w-[100px] h-[25px]"></div>
+        <div className="bg-white/50 w-[100px] h-[25px] rounded-lg"></div>
+        <div className="bg-white/50 w-[100px] h-[25px] rounded-lg"></div>
       </div>
       {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}
-          className="flex justify-between w-full bg-white shadow-sm gap-2 p-4 mt-4 animate-pulse"
+          className="flex justify-between w-full bg-white shadow-sm gap-2 p-4 mt-4 animate-pulse rounded-2xl"
         >
           <div className="flex gap-2 items-center">
-            <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+            <div className="h-10 w-10 rounded-full bg-white/50"></div>
             <div className="flex flex-col gap-1">
-              <div className="w-[100px] rounded h-[20px] bg-gray-200"></div>
-              <div className="w-[100px] rounded h-[20px] bg-gray-200"></div>
-              <div className="w-[100px] rounded h-[20px] bg-gray-200"></div>
+              <div className="w-[100px] rounded h-[20px] bg-white/50"></div>
+              <div className="w-[100px] rounded h-[20px] bg-white/50"></div>
+              <div className="w-[100px] rounded h-[20px] bg-white/50"></div>
             </div>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="bg-gray-200 rounded-[3px] h-[20px] w-[20px]"></div>
-            <div className="bg-gray-200 rounded-[3px] h-[20px] w-[20px]"></div>
+            <div className="bg-white/50 rounded-[3px] h-[20px] w-[20px]"></div>
+            <div className="bg-white/50 rounded-[3px] h-[20px] w-[20px]"></div>
           </div>
         </div>
       ))}
@@ -94,23 +94,28 @@ export const TeamManagement: React.FC = () => {
   );
 
   return (
-    <div className="space-y-2 w-full max-w-full overflow-x-hidden">
+    <div className="space-y-2 w-full max-w-full overflow-hidden">
       {/* Header */}
       {isFetching ? (
         <div className="flex w-full justify-between items-center">
-          <div className="bg-gray-200 w-[120px] h-[20px]"></div>
-          <div className="bg-gray-200 w-[100px] h-[25px] rounded-[5px]"></div>
+          <div className="bg-white/50 w-[120px] h-[20px] rounded-lg"></div>
+          <div className="bg-white/50 w-[100px] h-[25px] rounded-lg"></div>
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Team Management
-          </h3>
+        <div className="flex items-center justify-between gap-2 overflow-hidden w-full">
+          <div>
+            <h3 className="text-xl font-bold text-[#0A2540]">
+              Team Management
+            </h3>
+            <p className="text-gray-600 text-sm mt-1">
+              Manage your team members and their permissions
+            </p>
+          </div>
           <button
             onClick={() => setShowInviteModal(true)}
-            className="flex items-center px-3 md:px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors whitespace-nowrap"
+            className="group flex items-center px-4 py-2.5 bg-[#0A2540] text-white rounded-[8px] hover:bg-[#B8914A] transition-colors duration-300 shadow-md hover:shadow-lg whitespace-nowrap font-medium"
           >
-            <UserPlusIcon className="h-4 w-4 mr-2" />
+            <UserPlusIcon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
             Invite Agent
           </button>
         </div>
@@ -120,20 +125,23 @@ export const TeamManagement: React.FC = () => {
       {isFetching ? (
         <SettingsSkeleton />
       ) : (
-        <div className="mx-auto p-4">
+        <div className="mx-auto overflow-hidden">
           <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
             {/* Header */}
-            <div className="px-4 md:px-6 py-4 md:py-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 border-b border-gray-200">
-              <div className="flex items-center justify-between">
+            <div className="relative overflow-hidden rounded-t-2xl px-3 py-2 bg-gradient-to-br from-[#0A2540] via-[#0E2F52] to-[#081C30] border-b border-[#C9A24D]/20">
+              
+              <div className="relative z-10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-sm">
-                    <UsersIcon className="h-5 w-5 text-white" />
+                  <div className="h-12 w-12 bg-white rounded-xl flex items-center justify-center">
+                    <UsersIcon className="h-6 w-6 text-[#000000]" />
                   </div>
-                  <h4 className="font-bold text-gray-900 text-lg md:text-xl">
-                    Team Members
-                  </h4>
+                  <div>
+                    <h4 className="font-bold text-white text-lg">
+                      Team Members
+                    </h4>
+                  </div>
                 </div>
-                <span className="px-3 md:px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs md:text-sm font-semibold shadow-sm">
+                <span className="px-4 py-2 bg-[#C9A24D] backdrop-blur-md border border-[#C9A24D]/30 text-white rounded-[8px] text-sm font-semibold shadow-[0_0_0_1px_rgba(201,162,77,0.15)]">
                   {teamMember?.length || 0}{" "}
                   {teamMember?.length === 1 ? "member" : "members"}
                 </span>
@@ -141,36 +149,36 @@ export const TeamManagement: React.FC = () => {
             </div>
 
             {/* Members List */}
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 overflow-hidden">
               {teamMember?.map((member) => (
                 <div
                   key={member._id}
-                  className="px-4 md:px-6 py-4 md:py-5 hover:bg-gray-50 transition-colors duration-150"
+                  className="px-3 py-4 hover:bg-gray-50/50 transition-colors duration-150"
                 >
                   <div className="flex flex-col gap-4">
                     {/* Member Info */}
-                    <div className="flex items-start md:items-center gap-3 md:gap-4">
+                    <div className="flex items-start md:items-center gap-4">
                       <div className="relative flex-shrink-0">
-                        <div className="h-12 w-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center shadow-sm">
-                          <UsersIcon className="h-6 w-6 text-emerald-600" />
+                        <div className="h-12 w-12 bg-gradient-to-br from-[#0A2540] via-[#0E2F52] to-[#081C30] rounded-xl flex items-center justify-center shadow-sm border border-[#C9A24D]/20">
+                          <UsersIcon className="h-6 w-6 text-[#C9A24D]" />
                         </div>
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-gray-900 text-base md:text-lg truncate">
+                        <p className="font-bold text-[#0A2540] text-lg truncate">
                           {member.name}
                         </p>
                         <a
                           href={`mailto:${member.email}`}
-                          className="text-xs md:text-sm text-gray-600 truncate flex items-center gap-1.5 hover:underline mt-1"
+                          className="text-sm text-gray-600 truncate flex items-center gap-1.5 hover:underline mt-1"
                         >
-                          <Mail className="h-3 w-3 md:h-3.5 md:w-3.5 text-gray-400 flex-shrink-0" />
+                          <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
                           <span className="truncate">{member.email}</span>
                         </a>
                       </div>
 
                       <div className="flex-shrink-0">
-                        <span className="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 rounded-md text-xs font-medium whitespace-nowrap">
+                        <span className="inline-block px-3 py-1.5 bg-[#C9A24D]/10 text-[#0A2540] rounded-lg text-xs font-medium whitespace-normal md:whitespace-nowrap border border-[#C9A24D]/20">
                           <span className="hidden max-[400px]:inline">
                             Joined{" "}
                             {new Date(member.createdAt).toLocaleDateString(
@@ -194,34 +202,32 @@ export const TeamManagement: React.FC = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                    <div className="flex items-center gap-3">
                       <button
-                        className="flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 border border-cyan-200 rounded-lg transition-all duration-150 font-medium text-xs md:text-sm group flex-1 md:flex-initial"
+                        className="flex items-center min-w-[31%] w-auto justify-center gap-1 px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                         onClick={() => {
-                          // setSelectedMember(member);
-                          // setShowActivityLog(true)
                           router.push(`/agent/activity-logs/${member?._id}`);
                         }}
                       >
-                        <Activity className="h-3.5 w-3.5 md:h-4 md:w-4 group-hover:scale-110 transition-transform" />
+                        <Activity className="h-4 w-4 group-hover:scale-110 transition-transform" />
                         <span>Activity Log</span>
                       </button>
 
                       <button
                         onClick={() => handleUpdate(member)}
-                        className="flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-lg transition-all duration-150 font-medium text-xs md:text-sm group flex-1 md:flex-initial"
+                        className="flex items-center min-w-[31%] w-auto justify-center gap-1 px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                         title="Edit member"
                       >
-                        <PencilIcon className="h-3.5 w-3.5 md:h-4 md:w-4 group-hover:scale-110 transition-transform" />
+                        <PencilIcon className="h-4 w-4 group-hover:scale-110 transition-transform" />
                         <span>Edit</span>
                       </button>
 
                       <button
                         onClick={() => handleDelete(member._id)}
-                        className="flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-lg transition-all duration-150 font-medium text-xs md:text-sm group flex-1 md:flex-initial"
+                        className="flex items-center min-w-[31%] w-auto justify-center gap-1 px-3 py-2 bg-gradient-to-r from-[#C9A24D]/10 to-[#C9A24D]/5 text-[#C9A24D] hover:from-[#C9A24D]/20 hover:to-[#C9A24D]/10 rounded-lg text-sm font-semibold transition-all duration-200 border border-[#C9A24D]/30 hover:border-[#C9A24D]/40 shadow-sm hover:shadow text-center"
                         title="Delete member"
                       >
-                        <TrashIcon className="h-3.5 w-3.5 md:h-4 md:w-4 group-hover:scale-110 transition-transform" />
+                        <TrashIcon className="h-4 w-4 group-hover:scale-110 transition-transform" />
                         <span>Delete</span>
                       </button>
                     </div>
@@ -233,10 +239,10 @@ export const TeamManagement: React.FC = () => {
             {/* Empty State */}
             {(!teamMember || teamMember.length === 0) && (
               <div className="px-6 py-16 text-center">
-                <div className="inline-flex h-16 w-16 bg-gray-100 rounded-2xl items-center justify-center mb-4">
-                  <UsersIcon className="h-8 w-8 text-gray-400" />
+                <div className="inline-flex h-20 w-20 bg-gradient-to-br from-[#0A2540]/10 to-[#C9A24D]/10 rounded-2xl items-center justify-center mb-4 border border-[#C9A24D]/20">
+                  <UsersIcon className="h-10 w-10 text-[#0A2540]/60" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-[#0A2540] mb-2">
                   No team members yet
                 </h3>
                 <p className="text-gray-600 text-sm">

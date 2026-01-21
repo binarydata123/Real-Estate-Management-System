@@ -212,5 +212,5 @@ export const getMembersActivityLog = async (req,res) => {
   })
   .populate("performedBy","name")
   .populate("agencyId","name");
-  return res.status(200).json({message :`Id Sent is : ${id}`,logs:logs ,success:true});
+  return res.status(200).json({logs:logs ,success:true});
 };

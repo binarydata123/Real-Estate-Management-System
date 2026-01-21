@@ -40,68 +40,68 @@ const typeConfig: Record<
   },
   new_customer: {
     icon: <UserPlus className="w-5 h-5 text-white" />,
-    color: "bg-green-500",
-    border: "border-green-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "New Customer",
   },
   customer_updated: {
     icon: <UserCog className="w-5 h-5 text-white" />,
-    color: "bg-teal-500",
-    border: "border-teal-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Customer Updated",
   },
   customer_deleted: {
     icon: <UserMinus className="w-5 h-5 text-white" />,
-    color: "bg-red-500",
-    border: "border-red-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Customer Deleted",
   },
   task_assigned: {
     icon: <ClipboardList className="w-5 h-5 text-white" />,
-    color: "bg-purple-500",
-    border: "border-purple-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Task Assigned",
   },
   meeting_scheduled: {
     icon: <Calendar className="w-5 h-5 text-white" />,
-    border: "border-orange-500",
-    color: "bg-orange-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Meeting Scheduled",
   },
   property_updated: {
     icon: <Home className="w-5 h-5 text-white" />,
-    border: "border-indigo-500",
-    color: "bg-indigo-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Property Updated",
   },
   property_added: {
     icon: <PlusCircle className="w-5 h-5 text-white" />,
-    border: "border-pink-500",
-    color: "bg-pink-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Property Added",
   },
   property_deleted: {
     icon: <Trash2 className="w-5 h-5 text-white" />,
-    color: "bg-red-500",
-    border: "border-red-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Property Deleted",
   },
   preference_request: {
     icon: <Settings2 className="w-5 h-5 text-white" />,
-    color: "bg-cyan-500",
-    border: "border-cyan-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Preference Request",
   },
   property_share: {
     icon: <Share2 className="w-5 h-5 text-white" />,
-    color: "bg-lime-500",
-    border: "border-lime-500",
+   color: "bg-primary",
+    border: "border-primary",
     label: "Property Share",
   },
   property_feedback: {
     icon: <MessageSquare className="w-5 h-5 text-white" />,
-    color: "bg-yellow-500",
-    border: "border-yellow-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Property Feedback",
   },
   all: {
@@ -118,8 +118,8 @@ const typeConfig: Record<
   },
   default: {
     icon: <Bell className="w-5 h-5 text-white" />,
-    color: "bg-gray-500",
-    border: "border-gray-500",
+    color: "bg-primary",
+    border: "border-primary",
     label: "Notification",
   },
 };
@@ -254,8 +254,8 @@ const NotificationsPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen p-2 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200">
+    <div className="bg-gray-50 min-h-screen sm:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-sm border border-gray-200">
         {/* Header */}
         <div className="p-3 md:p-6 border-b border-gray-200 flex items-center justify-between">
           <div>

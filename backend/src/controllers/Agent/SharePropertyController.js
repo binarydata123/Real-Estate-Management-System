@@ -154,9 +154,9 @@ export const getAllSharedProperties = async (req, res) => {
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limitNumber)
-      .populate("sharedWithUserId", "fullName email phone")
-      .populate("sharedByUserId", "name email phone createdAt")
-      .populate("propertyId", "title images price");
+      .populate("sharedWithUserId", "fullName email phoneNumber whatsAppNumber maximumBudget minimumBudget leadSource")
+      .populate("sharedByUserId", "name email phone createdAt whatsAppNumber message")
+      .populate("propertyId", "title images price furnishing");
 
     return res.status(200).json({
       success: true,
