@@ -116,7 +116,7 @@ select:focus-visible {
 
 @media (max-width: 767px) {
   h1:not(.inheritClass) {
-    font-size: 14px !important;
+    font-size: 16px !important;
     line-height: 20px !important;
   }
 
@@ -134,7 +134,7 @@ select:focus-visible {
   select:not(.inheritClass),
   div:not(.inheritClass),
   span:not(.inheritClass) {
-    font-size: 10px !important;
+    font-size: 12px !important;
     line-height: 16px !important;
   }
 

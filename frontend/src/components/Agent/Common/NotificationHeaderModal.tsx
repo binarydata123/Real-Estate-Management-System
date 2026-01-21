@@ -10,6 +10,7 @@ import {
   NotificationType,
 } from "@/lib/Common/Notifications";
 import { showErrorToast } from "@/utils/toastHandler";
+import { useRouter } from "next/navigation";
 
 interface Notification {
   id: string;
@@ -39,6 +40,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const modalRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -150,6 +152,37 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   if (!isOpen) return null;
 
+  const getLink = (key : string) => {
+    switch (key) {
+      case "welcome":
+        return "/agent/dashboard"
+      case "new_customer":
+        return "/agent/customers"
+      case "customer_updated":
+        return "/agent/customers"
+      case "customer_deleted":
+        return "/agent/customers"
+      case "meeting_scheduled":
+        return "/agent/meetings"
+      case "property_updated":
+        return "/agent/properties"
+      case "property_added":
+        return "/agent/properties"
+      case "property_deleted":
+        return "/agent/properties"
+      case "preference_request":
+        return "/agent/customers"
+      case "property_share":
+        return "/agent/shares"
+      case "property_feedback":
+        return "/agent/properties"
+      case "property_share_deleted":
+        return "/agent/shares"
+      default:
+        return "agent/customer"
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-start justify-end pt-16 p-4 z-50">
       <div
@@ -162,7 +195,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             <div className="flex items-center space-x-2">
               <BellIcon className="h-5 w-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">
-                Notifications
+                Notifcations
               </h2>
               {unreadCount > 0 && (
                 <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
@@ -171,10 +204,18 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               )}
             </div>
             <div className="flex items-center space-x-2">
+              <button
+                  onClick={() => {
+                    onClose();
+                    router.push("/agent/notifications")}}
+                  className="text-blue-600 text-sm font-medium"
+                >
+                  View All
+                </button>
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="text-primary ho.text-primary {
+                  className="text-blue-600 ho.text-primary {
                       color: var(--primary);
                   }ver:text-primary text-sm font-medium"
                 >
@@ -206,7 +247,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                   className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
                     !notification.isRead ? "bg-blue-50" : ""
                   }`}
-                  onClick={() => handleMarkAsRead(notification._id)}
+                  onClick={() => {
+                    handleMarkAsRead(notification._id);
+                    router.push(`${getLink(notification?.type)}`);
+                    onClose();
+                  }}
                 >
                   <div className="flex items-start space-x-3">
                     <span className="text-lg">

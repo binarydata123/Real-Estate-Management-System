@@ -114,8 +114,7 @@ export default function CustomerLayout({ children }: LayoutProps) {
         </main>
         {/* Footer Links */}
         <div
-          className="fixed bottom-0 left-0 w-full h-[50px] md:hidden"
-          style={{ backgroundColor: "#2563eb" }}
+          className="fixed bottom-0 left-0 w-full h-[50px] md:hidden bg-primary"
         >
           <div className="grid grid-cols-5 h-[100%] gap-2 text-white">
             {footerLinks.map((link) => {

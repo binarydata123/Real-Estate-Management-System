@@ -11,8 +11,18 @@ import Link from "next/link";
 import {
   ArrowLeftIcon,
   PencilIcon,
-  // PlayCircleIcon,
   ShareIcon,
+  MapPin,
+  Bed,
+  Bath,
+  Square,
+  Layers,
+  // Sun,
+  Calendar,
+  Home,
+  Building,
+  Zap,
+  Shield,
   TrashIcon,
 } from "lucide-react";
 import SharePropertyModal from "../Common/SharePropertyModal";
@@ -20,7 +30,7 @@ import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
 import { useToast } from "@/context/ToastContext";
 import { showErrorToast } from "@/utils/toastHandler";
 import { capitalizeFirstLetter } from "@/helper/capitalizeFirstLetter";
-import { FaDirections } from "react-icons/fa"
+import { FaDirections } from "react-icons/fa";
 
 interface Images {
   _id?: string;
@@ -88,15 +98,20 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
   const hasValue = (val: any) =>
     val !== null && val !== undefined && val !== "";
 
-  const getLocation = (location: string | undefined) => {
-    if (location?.startsWith("https")) {
-      return "Get Directions";
-    }
-    return location;
+  const getIconForFeature = (feature: string) => {
+    const featureLower = feature.toLowerCase();
+    if (featureLower.includes("pool")) return "🏊";
+    if (featureLower.includes("gym")) return "💪";
+    if (featureLower.includes("park")) return "🌳";
+    if (featureLower.includes("security")) return "👮";
+    if (featureLower.includes("lift")) return "⬆️";
+    if (featureLower.includes("parking")) return "🚗";
+    if (featureLower.includes("garden")) return "🌷";
+    return "✓";
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-2 px-4">
+    <div className="min-h-screen bg-[#F5F7FA] py-2 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Share Modal */}
         {showShareModal && propertyData && (
@@ -126,7 +141,7 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
         <div className="flex sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-blue-600 text-gray-700 hover:text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-blue-600"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-[#0A2540] text-[#0A2540] hover:text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-[#0A2540]"
           >
             <ArrowLeftIcon className="h-5 w-5" />
             <span>Back to Properties</span>
@@ -135,20 +150,20 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowShareModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-blue-600"
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#0A2540] text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-[#C9A24D]/20 hover:bg-[#B8914A]"
             >
               <ShareIcon className="h-5 w-5" />
               <span className="hidden sm:inline">Share</span>
             </button>
             <Link href={`/agent/edit-property/${propertyId}`}>
-              <button className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-green-600">
+              <button className="flex items-center gap-2 px-4 py-2.5 bg-[#0A2540] text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-[#C9A24D] hover:bg-[#0E2F52]">
                 <PencilIcon className="h-5 w-5" />
                 <span className="hidden sm:inline">Edit</span>
               </button>
             </Link>
             <button
               onClick={() => setShowConfirmDialog(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200 hover:border-red-600"
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#0A2540] text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md border border-[#C9A24D] hover:border-red-600"
             >
               <TrashIcon className="h-5 w-5" />
               <span className="hidden sm:inline">Delete</span>
@@ -194,11 +209,11 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
               <>
                 {/* Prev Button */}
                 <button
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-blue-600 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-[#0A2540] p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
                   onClick={() => {
                     if (!propertyData?.images?.length || !selectedImage) return;
                     const idx = propertyData.images.findIndex(
-                      (img) => img._id === selectedImage._id
+                      (img) => img._id === selectedImage._id,
                     );
                     const prevIdx =
                       (idx - 1 + propertyData.images.length) %
@@ -206,424 +221,343 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                     setSelectedImage(propertyData.images[prevIdx]);
                   }}
                 >
-                  (
+                  ‹
                 </button>
 
                 {/* Next Button */}
                 <button
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-blue-600 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-[#0A2540] p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
                   onClick={() => {
                     if (!propertyData?.images?.length || !selectedImage) return;
                     const idx = propertyData.images.findIndex(
-                      (img) => img._id === selectedImage._id
+                      (img) => img._id === selectedImage._id,
                     );
                     const nextIdx = (idx + 1) % propertyData.images.length;
                     setSelectedImage(propertyData.images[nextIdx]);
                   }}
                 >
-                  )
+                  ›
                 </button>
               </>
             )}
           </div>
 
-          <div className="px-6 py-3 md:p-8">
-            {/* Basic Info */}
-            <div className="mb-2 pb-2 border-b border-gray-200">
-              <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-900">
-                {propertyData?.title}
-              </h1>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                  <p className="text-sm text-blue-600 font-medium mb-1">Type</p>
-                  <p className="text-lg font-semibold text-gray-900">
-                    {capitalizeFirstLetter(propertyData?.type)}
-                  </p>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                  <p className="text-sm text-blue-600 font-medium mb-1">
-                    Category
-                  </p>
-                  <p className="text-lg font-semibold text-gray-900">
-                    {capitalizeFirstLetter(propertyData?.category)}
-                  </p>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                  <p className="text-sm text-blue-600 font-medium mb-1">
-                    Location
-                  </p>
-                  <p
-                    onClick={() =>
-                      getLocation(propertyData?.location) === "Get Directions" &&
-                      window.open(propertyData?.location)
-                    }
-                    className={`text-lg font-semibold flex gap-[2px] ${
-                      getLocation(propertyData?.location) === "Get Directions"
-                        ? "text-green-600 underline cursor-pointer"
-                        : "text-gray-900"
-                    }`}
+          {/* <div className="max-w-7xl mx-auto px-4 -mt-12 relative z-20"> */}
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+            {/* Quick Stats */}
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-bold text-[#0A2540]">
+                  {propertyData?.title}
+                </h1>
+                {propertyData?.location?.startsWith("https") && (
+                  <button
+                    onClick={() => window.open(propertyData.location)}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#0A2540] text-white rounded-xl hover:shadow-lg transition-all duration-300"
                   >
-                    {propertyData?.location?.startsWith("https") ? <FaDirections className="!w-[12px]"/> : ""}
-                    {getLocation(propertyData?.location) || "Not Added Yet"}
-                  </p>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                  <p className="text-sm text-blue-600 font-medium mb-1">
-                    Price
-                  </p>
-                  <p className="text-lg font-semibold text-gray-900">
-                    {propertyData?.price ? `₹ ${propertyData?.price}` : "Not Added Yet"}
-                  </p>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                  <p className="text-sm text-blue-600 font-medium mb-1">
-                    Status
-                  </p>
-                  <p className="text-lg font-semibold text-gray-900">
-                    {propertyData?.status}
-                  </p>
-                </div>
+                    <FaDirections className="h-4 w-4" />
+                    <span className="font-medium">Directions</span>
+                  </button>
+                )}
               </div>
-              <div className="mt-2 bg-gray-50 rounded-lg p-5 border border-gray-200">
-                <p className="text-gray-700 leading-relaxed">
-                  {propertyData?.description}
-                </p>
-              </div>
-            </div>
 
-            {/* Area & Configuration */}
-            <div className="mb-2 pb-2 border-b border-gray-200">
-              <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
-                <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
-                Area & Configuration
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {hasValue(propertyData?.built_up_area) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Built-up Area</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.built_up_area}{" "}
-                        {propertyData?.unit_area_type}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.carpet_area) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Carpet Area</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.carpet_area}{" "}
-                        {propertyData?.unit_area_type}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.plot_front_area) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Plot Front</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.plot_front_area}{" "}
-                        {propertyData?.plot_dimension_unit}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.plot_depth_area) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Plot Depth</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.plot_depth_area}{" "}
-                        {propertyData?.plot_dimension_unit}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.is_corner_plot) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Corner Plot</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.is_corner_plot}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.bedrooms) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Bedrooms</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.bedrooms}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.bathrooms) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Bathrooms</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.bathrooms}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.washrooms) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Washrooms</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.washrooms}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.balconies) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Balconies</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.balconies}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.floor_number) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Floor Number</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.floor_number}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.total_floors) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Total Floors</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.total_floors}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-              </div>
-            </div>
-
-            {/* Facing & Overlooking */}
-            {(hasValue(propertyData?.facing) &&
-              hasValue(propertyData?.overlooking)) ? (
-              <div className="mb-2 pb-2 border-b border-gray-200">
-                <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
-                  <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
-                  Facing & Overlooking
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {hasValue(propertyData?.facing) ? (
-                    <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-5 border border-blue-100">
-                      <p className="text-sm text-blue-600 font-medium mb-2">
-                        Facing
-                      </p>
-                      <p className="text-gray-900 font-semibold text-lg">
-                        {propertyData?.facing}
-                      </p>
-                    </div>
-                  ) : ""}
-                  {hasValue(propertyData?.overlooking) &&
-                    propertyData?.overlooking && propertyData?.overlooking?.length > 0 ? (
-                      <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-5 border border-blue-100">
-                        <p className="text-sm text-blue-600 font-medium mb-2">
-                          Overlooking
-                        </p>
-                        <p className="text-gray-900 font-semibold text-lg">
-                          {propertyData?.overlooking?.join(", ")}
-                        </p>
-                      </div>
-                    ) : ""}
-                </div>
-              </div>
-            ) : ""}
-
-            {/* Additional Info */}
-            <div className="mb-2 pb-2 border-b border-gray-200">
-              <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
-                <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
-                Additional Info
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {hasValue(propertyData?.property_age) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Property Age</p>
-                      <p className="text-gray-900 font-medium">
-                        {capitalizeFirstLetter(propertyData?.property_age)}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.transaction_type) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Transaction Type</p>
-                      <p className="text-gray-900 font-medium">
-                        {capitalizeFirstLetter(propertyData?.transaction_type)}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.gated_community) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Gated Community</p>
-                      <p className="text-gray-900 font-medium">
-                        {propertyData?.gated_community}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.furnishing) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Furnishing</p>
-                      <p className="text-gray-900 font-medium">
-                        {capitalizeFirstLetter(propertyData?.furnishing)}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.flooring_type) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Flooring Type</p>
-                      <p className="text-gray-900 font-medium">
-                        {capitalizeFirstLetter(propertyData?.flooring_type)}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.power_backup) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">Power Backup</p>
-                      <p className="text-gray-900 font-medium">
-                        {capitalizeFirstLetter(propertyData?.power_backup)}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-                {hasValue(propertyData?.rera_status) ? (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <span className="text-blue-600 font-semibold">•</span>
-                    <div>
-                      <p className="text-sm text-gray-600">RERA Status</p>
-                      <p className="text-gray-900 font-medium">
-                        {capitalizeFirstLetter(propertyData?.rera_status)}
-                      </p>
-                    </div>
-                  </div>
-                ) : ""}
-              </div>
-              <div className="mt-2 space-y-2">
-                {hasValue(propertyData?.amenities) &&
-                  propertyData?.amenities && propertyData?.amenities?.length > 0 ? (
-                    <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
-                      <p className="text-sm text-blue-600 font-medium mb-2">
-                        Amenities
-                      </p>
-                      {propertyData?.amenities?.map((amenity, index) => (
-                        <span key={index}>
-                          {capitalizeFirstLetter(amenity)},{" "}
-                        </span>
-                      ))}
-                    </div>
-                  ) : ""}
-                {hasValue(propertyData?.features) &&
-                  propertyData?.features && propertyData?.features?.length > 0 ? (
-                    <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
-                      <p className="text-sm text-blue-600 font-medium mb-2">
-                        Features
-                      </p>
-                      {propertyData?.features?.map((feature, index) => (
-                        <span key={index}>
-                          {capitalizeFirstLetter(feature)},{" "}
-                        </span>
-                      ))}
-                    </div>
-                  ) : ""}
-                {hasValue(propertyData?.water_source) &&
-                  propertyData?.water_source && propertyData?.water_source?.length > 0 ? (
-                    <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
-                      <p className="text-sm text-blue-600 font-medium mb-2">
-                        Water Source
-                      </p>
-                      {propertyData?.water_source?.map((source, index) => (
-                        <span key={index}>
-                          {capitalizeFirstLetter(source)},{" "}
-                        </span>
-                      ))}
-                    </div>
-                  ) : ""}
-              </div>
-            </div>
-
-            {/* Owner Details */}
-            {(hasValue(propertyData?.owner_name) ||
-              hasValue(propertyData?.owner_contact)) && (
               <div>
-                <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
-                  <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
-                  Owner Details
-                </h2>
-                <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-6 border border-blue-100">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {hasValue(propertyData?.owner_name) && (
+                {/* <h3 className="text-lg font-semibold text-[#0A2540] mb-3">Property Details</h3> */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {hasValue(propertyData?.property_age) && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <Calendar className="h-5 w-5 text-[#C9A24D]" />
                       <div>
-                        <p className="text-sm text-blue-600 font-medium mb-1">
-                          Name
-                        </p>
-                        <p className="text-gray-900 font-semibold text-lg">
-                          {capitalizeFirstLetter(propertyData?.owner_name)}
+                        <p className="text-sm text-gray-500">Property Age</p>
+                        <p className="font-medium text-[#0A2540]">
+                          {capitalizeFirstLetter(propertyData?.property_age)}
                         </p>
                       </div>
-                    )}
-                    {hasValue(propertyData?.owner_contact) && (
+                    </div>
+                  )}
+                  {hasValue(propertyData?.furnishing) && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <Home className="h-5 w-5 text-[#C9A24D]" />
                       <div>
-                        <p className="text-sm text-blue-600 font-medium mb-1">
-                          Contact
+                        <p className="text-sm text-gray-500">Furnishing</p>
+                        <p className="font-medium text-[#0A2540]">
+                          {capitalizeFirstLetter(propertyData?.furnishing)}
                         </p>
-                        <p className="text-gray-900 font-semibold text-lg">
-                          {propertyData?.owner_contact}
+                      </div>
+                    </div>
+                  )}
+                  {hasValue(propertyData?.transaction_type) && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <Building className="h-5 w-5 text-[#C9A24D]" />
+                      <div>
+                        <p className="text-sm text-gray-500">
+                          Transaction Type
                         </p>
+                        <p className="font-medium text-[#0A2540]">
+                          {capitalizeFirstLetter(
+                            propertyData?.transaction_type,
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {hasValue(propertyData?.power_backup) && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <Zap className="h-5 w-5 text-[#C9A24D]" />
+                      <div>
+                        <p className="text-sm text-gray-500">Power Backup</p>
+                        <p className="font-medium text-[#0A2540]">
+                          {capitalizeFirstLetter(propertyData?.power_backup)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {hasValue(propertyData?.rera_status) && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <Shield className="h-5 w-5 text-[#C9A24D]" />
+                      <div>
+                        <p className="text-sm text-gray-500">RERA Status</p>
+                        <p className="font-medium text-[#0A2540]">
+                          {capitalizeFirstLetter(propertyData?.rera_status)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {propertyData?.location?.startsWith("https") ? (
+                    ""
+                  ) : (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <MapPin className="h-5 w-5 text-[#C9A24D]" />
+                      <div>
+                        <p className="text-sm text-gray-500">Location Given</p>
+                        <p className="font-medium text-[#0A2540]">
+                          {propertyData?.location}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Key Metrics */}
+
+              {/* Description */}
+              {propertyData?.description && (
+                <div className="mb-4 mt-4">
+                  <h3 className="text-lg font-semibold text-[#0A2540] mb-3">
+                    Description
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl">
+                    {propertyData.description}
+                  </p>
+                </div>
+              )}
+
+              {hasValue(propertyData?.bedrooms) ||
+              hasValue(propertyData?.bathrooms) ||
+              hasValue(propertyData?.built_up_area) ||
+              hasValue(propertyData?.floor_number) ? (
+                <div>
+                  <h3 className="text-lg font-semibold text-[#0A2540] mb-3">
+                    Property Details
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    {hasValue(propertyData?.bedrooms) && (
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                        <div className="p-2 bg-[#C9A24D]/10 rounded-lg">
+                          <Bed className="h-5 w-5 text-[#C9A24D]" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Bedrooms</p>
+                          <p className="text-lg font-bold text-[#0A2540]">
+                            {propertyData?.bedrooms}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {hasValue(propertyData?.bathrooms) && (
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                        <div className="p-2 bg-[#C9A24D]/10 rounded-lg">
+                          <Bath className="h-5 w-5 text-[#C9A24D]" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Bathrooms</p>
+                          <p className="text-lg font-bold text-[#0A2540]">
+                            {propertyData?.bathrooms}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {hasValue(propertyData?.built_up_area) && (
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                        <div className="p-2 bg-[#C9A24D]/10 rounded-lg">
+                          <Square className="h-5 w-5 text-[#C9A24D]" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Built-up Area</p>
+                          <p className="text-lg font-bold text-[#0A2540]">
+                            {propertyData?.built_up_area}{" "}
+                            {propertyData?.unit_area_type}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {hasValue(propertyData?.floor_number) && (
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                        <div className="p-2 bg-[#C9A24D]/10 rounded-lg">
+                          <Layers className="h-5 w-5 text-[#C9A24D]" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Floors</p>
+                          <p className="text-lg font-bold text-[#0A2540]">
+                            {propertyData?.floor_number}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
                 </div>
+              ) : (
+                ""
+              )}
+
+              {/* <div className="flex items-center gap-2 text-gray-600">
+                  <MapPin className="h-4 w-4" />
+                  <span className="text-sm">
+                    {getLocation(propertyData?.location) || "Location not specified"}
+                  </span>
+                </div> */}
+
+              {/* Details Grid */}
+              <div className="space-y-6">
+                {/* Facing & Overlooking */}
+                {hasValue(propertyData?.facing) &&
+                hasValue(propertyData?.overlooking) ? (
+                  <div>
+                    <h3 className="text-lg font-semibold text-[#0A2540] mb-3 flex items-center gap-2">
+                      {/* <Sun className="h-5 w-5 text-[#C9A24D]" /> */}
+                      Facing & Overlooking
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {hasValue(propertyData?.facing) && (
+                        <div className="bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl border border-gray-100">
+                          <p className="text-sm text-[#C9A24D] font-medium mb-1">
+                            Facing
+                          </p>
+                          <p className="text-[#0A2540] font-semibold">
+                            {capitalizeFirstLetter(propertyData?.facing)}
+                          </p>
+                        </div>
+                      )}
+                      {hasValue(propertyData?.overlooking) &&
+                        (propertyData?.overlooking?.length ?? 0) > 0 && (
+                          <div className="bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl border border-gray-100">
+                            <p className="text-sm text-[#C9A24D] font-medium mb-1">
+                              Overlooking
+                            </p>
+                            <p className="text-[#0A2540] font-semibold">
+                              {propertyData?.overlooking
+                                ?.map((look) => capitalizeFirstLetter(look))
+                                .join(", ")}
+                            </p>
+                          </div>
+                        )}
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
+
+                {/* Additional Details */}
+
+                {/* Amenities */}
+                {hasValue(propertyData?.amenities) &&
+                  (propertyData?.amenities?.length ?? 0) > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#0A2540] mb-3">
+                        Amenities
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {propertyData?.amenities?.map((amenity, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#0A2540]/5 to-[#C9A24D]/5 rounded-lg border border-[#C9A24D]/10"
+                          >
+                            <span className="text-lg">
+                              {getIconForFeature(amenity)}
+                            </span>
+                            <span className="text-sm font-medium text-[#0A2540]">
+                              {capitalizeFirstLetter(amenity)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Features */}
+                {hasValue(propertyData?.features) &&
+                  (propertyData?.features?.length ?? 0) > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#0A2540] mb-3">
+                        Features
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {propertyData?.features?.map((feature, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl"
+                          >
+                            <div className="h-8 w-8 rounded-lg bg-[#C9A24D]/10 flex items-center justify-center">
+                              <span className="text-[#C9A24D]">✓</span>
+                            </div>
+                            <span className="text-[#0A2540] font-medium">
+                              {capitalizeFirstLetter(feature)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Owner Details */}
+                {(hasValue(propertyData?.owner_name) ||
+                  hasValue(propertyData?.owner_contact)) && (
+                  <div className="bg-gradient-to-r from-[#0A2540]/5 to-[#C9A24D]/5 rounded-2xl p-6 border border-[#C9A24D]/20">
+                    <h3 className="text-lg font-semibold text-[#0A2540] mb-4">
+                      Owner Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {hasValue(propertyData?.owner_name) && (
+                        <div>
+                          <p className="text-sm text-[#C9A24D] font-medium mb-1">
+                            Name
+                          </p>
+                          <p className="text-xl font-bold text-[#0A2540]">
+                            {capitalizeFirstLetter(propertyData?.owner_name)}
+                          </p>
+                        </div>
+                      )}
+                      {hasValue(propertyData?.owner_contact) && (
+                        <div>
+                          <p className="text-sm text-[#C9A24D] font-medium mb-1">
+                            Contact
+                          </p>
+                          <a
+                            href={`tel:${propertyData?.owner_contact}`}
+                            className="text-xl font-bold text-[#0A2540] hover:text-[#C9A24D] transition-colors"
+                          >
+                            {propertyData?.owner_contact}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
+          {/* </div> */}
         </div>
       </div>
     </div>
