@@ -110,6 +110,22 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
     return "✓";
   };
 
+  const getGoogleMapsLink = (value?: string | number): string => {
+    if (!value || typeof value !== "string") return "";
+
+    try {
+      const url = new URL(value);
+      const q = url.searchParams.get("q");
+
+      if (q) {
+        return `https://www.google.com/maps/dir/?api=1&destination=${q}`;
+      }
+      return value;
+    } catch {
+      return value;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F5F7FA] py-2 px-4">
       <div className="max-w-7xl mx-auto">
@@ -252,7 +268,9 @@ const SingleProperty: React.FC<SinglePropertyProps> = ({ propertyId }) => {
                 </h1>
                 {propertyData?.location?.startsWith("https") && (
                   <button
-                    onClick={() => window.open(propertyData.location)}
+                    onClick={() =>
+                      window.open(getGoogleMapsLink(propertyData?.location))
+                    }
                     className="flex items-center gap-2 px-4 py-2 bg-[#0A2540] text-white rounded-xl hover:shadow-lg transition-all duration-300"
                   >
                     <FaDirections className="h-4 w-4" />

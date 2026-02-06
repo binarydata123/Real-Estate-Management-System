@@ -56,6 +56,29 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   //   (property.bedrooms ?? 0) > 0 ||
   //   (property.bathrooms ?? 0) > 0;
 
+  let directionOrLocation = "";
+  const isGoogleMapsLink = (value?: string | number): boolean => {
+    if (!value || typeof value !== "string") return false;
+
+    try {
+      const url = new URL(value);
+      const q = url.searchParams.get("q");
+
+      if (q) {
+        directionOrLocation = `https://www.google.com/maps/dir/?api=1&destination=${q}`;
+        return true;
+      }
+
+      directionOrLocation = value;
+      return (
+        value.includes("google.com/maps") || value.includes("maps.google.com")
+      );
+    } catch {
+      directionOrLocation = value;
+      return false;
+    }
+  };
+  
   const getLocation = (location: string | undefined) => {
     if (location?.startsWith("https")) {
       return "Get Directions";
@@ -98,7 +121,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
               </h3>
             </Link>
             {property.price && (
-              <p className="text-xl md:text-2xl font-bold text-blue-700">
+              <p className="text-xl md:text-2xl font-bold text-[#192e42]">
               {formatPrice(property.price as number)}
             </p>
             )}
@@ -111,8 +134,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 <div className="flex items-center text-sm text-gray-500">
                   <p
                     onClick={() =>
-                      getLocation(property?.location) === "Get Directions" &&
-                      window.open(property?.location)
+                      isGoogleMapsLink(property?.location) ? 
+                      window.open(directionOrLocation) : ""
                     }
                     className={`text-lg flex gap-1 ${
                       getLocation(property?.location) === "Get Directions"
