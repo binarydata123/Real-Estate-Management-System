@@ -1244,11 +1244,11 @@ class ApiService {
 
   async resetPassword(
     token: string,
-    newPassword: string
+    password: string
   ): Promise<ApiResponse> {
-    return this.makeRequest("/users/reset-password", {
+    return this.makeRequest("/auth/reset-password", {
       method: "POST",
-      body: JSON.stringify({ token, newPassword }),
+      body: JSON.stringify({ token, password }),
     });
   }
 
