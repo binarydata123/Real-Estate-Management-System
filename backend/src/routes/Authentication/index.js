@@ -42,4 +42,7 @@ router.post(
   registrationController.checkNotifications
 );
 
+router.post("/forgot-password",registrationController.forgotPassword);
+router.post("/reset-password",registrationController.resetPassword);
+
 export default router;
