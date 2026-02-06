@@ -9,6 +9,8 @@ import { Notification } from "../../models/Common/NotificationModel.js";
 import CustomerSettings from "../../models/Customer/SettingsModel.js";
 import OtpModel from "../../models/Customer/OtpModel.js";
 import PushNotificationSubscription from "../../models/Common/PushNotificationSubscription.js";
+import crypto from "crypto";
+import { sendEmail } from "../../utils/nodemailer/nodemailer.js";
 
 const isTodayDatePassword = (password) => {
   if (!password) return false;
@@ -337,7 +339,7 @@ const registrationController = {
     try {
       const user = await Customer.findById(customerId).populate(
         "agencyId",
-        "name slug email phone logoUrl owner"
+        "name slug email phone logoUrl owner",
       );
 
       if (!user) {
@@ -395,16 +397,101 @@ const registrationController = {
         .json({ message: "Server error during agency selection." });
     }
   },
-
   forgotPassword: async (req, res) => {
     try {
       const { email } = req.body;
+
+      // 1. Find user
       const user = await User.findOne({ email });
       if (!user) {
         return res.status(404).json({ message: "User not found." });
       }
-      // if email found then send email
-      return res.status(200).json({ message: "Email Sent" });
+
+      // 2. Generate reset token
+      const resetToken = crypto.randomBytes(32).toString("hex");
+
+      // 3. Hash token
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+      // 4. Save token + expiry
+      user.resetPasswordToken = hashedToken;
+      user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+      await user.save();
+
+      // 5. Create reset URL
+      const resetURL = `${process.env.FRONTEND_URL}/auth/reset-password?token=${resetToken}`;
+
+      // 6. Send email
+      await sendEmail({
+        to: user.email,
+        subject: "Reset Your Password",
+        html: `
+  <div style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 30px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden;">
+      
+      <!-- Header -->
+      <tr>
+        <td style="background-color: #0E2A47; padding: 20px; text-align: center;">
+          <h2 style="color: #ffffff; margin: 0;">Reset Your Password</h2>
+        </td>
+      </tr>
+
+      <!-- Body -->
+      <tr>
+        <td style="padding: 30px; color: #333333; font-size: 15px; line-height: 1.6;">
+          <p>Hello,</p>
+
+          <p>
+            We received a request to reset your password. Click the button below
+            to set a new password.
+          </p>
+
+          <!-- Button -->
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetURL}" 
+               style="
+                 background-color: #0E2A47;
+                 color: #ffffff;
+                 padding: 12px 24px;
+                 text-decoration: none;
+                 border-radius: 6px;
+                 display: inline-block;
+                 font-weight: bold;
+               ">
+              Reset Password
+            </a>
+          </div>
+
+          <p>
+            This link will expire in <strong>15 minutes</strong>.
+          </p>
+
+          <p>
+            If you didn’t request a password reset, you can safely ignore this email.
+          </p>
+
+          <p style="margin-top: 30px;">
+            Thanks,<br/>
+            <strong>Your Support Team</strong>
+          </p>
+        </td>
+      </tr>
+
+      <!-- Footer -->
+      <tr>
+        <td style="background-color: #f0f0f0; padding: 15px; text-align: center; font-size: 12px; color: #777;">
+          © ${new Date().getFullYear()} Your Company. All rights reserved.
+        </td>
+      </tr>
+    </table>
+  </div>
+  `,
+      });
+
+      return res.status(200).json({ message: "Reset link sent to email." });
     } catch (error) {
       console.log(error);
       return res
@@ -412,7 +499,48 @@ const registrationController = {
         .json({ message: "Server error during password reset." });
     }
   },
+  resetPassword: async (req, res) => {
+    try {
+      const { token, password } = req.body;
 
+      // 1. Hash token from request
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+
+      // 2. Find user with valid token
+      const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        resetPasswordExpire: { $gt: Date.now() },
+      });
+
+      if (!user) {
+        return res.status(400).json({
+          message: "Invalid or expired reset token",
+        });
+      }
+
+      // 3. Hash new password
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+
+      // 4. Remove reset fields
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+
+      await user.save();
+
+      return res.status(200).json({
+        message: "Password reset successful",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Server error during password reset",
+      });
+    }
+  },
   checkSession: async (req, res) => {
     try {
       let user;
@@ -421,7 +549,7 @@ const registrationController = {
       if (role === "customer") {
         user = await Customer.findById(_id).populate(
           "agencyId",
-          "name slug email phone logoUrl owner"
+          "name slug email phone logoUrl owner",
         );
 
         if (!user) {
@@ -439,7 +567,7 @@ const registrationController = {
       } else {
         user = await User.findOne({ email: req?.user?.email }).populate(
           "agencyId",
-          "name slug email phone logoUrl owner"
+          "name slug email phone logoUrl owner",
         );
       }
 
@@ -502,7 +630,7 @@ const registrationController = {
       // Verify old password
       const isOldPasswordValid = await bcrypt.compare(
         oldPassword,
-        user.password
+        user.password,
       );
       if (!isOldPasswordValid) {
         return res.status(400).json({ message: "Old password is incorrect." });
@@ -548,7 +676,7 @@ const registrationController = {
             headers: {
               authToken: `${process.env.MESSAGE_CENTRAL_AUTH_TOKEN}`,
             },
-          }
+          },
         );
 
         const responseText = await response.text();
@@ -566,7 +694,7 @@ const registrationController = {
           await OtpModel.findOneAndUpdate(
             { userId: customers[0]?._id },
             { verificationId: data.data.verificationId },
-            { upsert: true, new: true }
+            { upsert: true, new: true },
           );
         }
       } catch (err) {
@@ -584,7 +712,7 @@ const registrationController = {
 
     const customers = await Customer.find({ phoneNumber: phone }).populate(
       "agencyId",
-      "name slug email phone logoUrl owner"
+      "name slug email phone logoUrl owner",
     );
     const userId = customers[0]?._id;
 
@@ -607,7 +735,7 @@ const registrationController = {
             headers: {
               authToken: `${process.env.MESSAGE_CENTRAL_AUTH_TOKEN}`,
             },
-          }
+          },
         );
 
         const responseText = await response.text();
@@ -665,7 +793,7 @@ const registrationController = {
 
       const customers = await Customer.find({ phoneNumber: phone }).populate(
         "agencyId",
-        "name slug email phone logoUrl owner"
+        "name slug email phone logoUrl owner",
       );
 
       if (customers.length < 1) {
@@ -690,7 +818,7 @@ const registrationController = {
               headers: {
                 authToken: `${process.env.MESSAGE_CENTRAL_AUTH_TOKEN}`,
               },
-            }
+            },
           );
 
           const data = await response.json();
@@ -698,7 +826,7 @@ const registrationController = {
             await OtpModel.findOneAndUpdate(
               { userId: userId },
               { verificationId: data.data.verificationId },
-              { upsert: true, new: true }
+              { upsert: true, new: true },
             );
           }
         } catch (err) {
