@@ -92,7 +92,7 @@ export default function ForgotPassword() {
                 </svg>
                 <span className="hidden sm:inline">Back to Home</span>
             </Link>
-            <div className="max-w-md w-full bg-white rounded-2xl shadow-xl md:p-8 p-6 border border-gray-100">
+            <div className="max-w-md w-full bg-[#C9A24D]/20 rounded-2xl shadow-xl md:p-8 p-6 border border-[#C9A24D]">
                 {/* Logo */}
                 <div className="text-center md:mb-8 mb-4">
                     {settingsData?.logoUrl
@@ -106,13 +106,13 @@ export default function ForgotPassword() {
                                 />
                             </div>
                         :
-                            <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-blue-600 rounded-full md:rounded-2xl mb-1 md:mb-4">
+                            <div className="inline-flex items-center justify-center md:w-16 w-10 h-10 md:h-16 bg-[#0A2540] rounded-full md:rounded-2xl mb-1 md:mb-4">
                                 <BuildingOffice2Icon className="md:h-8 md:w-8 h-6 w-6 text-white logo-svg" />
                             </div>
                     }
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Reset Your Password</h1>
                     <p className="text-gray-600 mt-2 md:mt-3">
-                        Enter your email address and we&npos;ll send you a link to reset your password.
+                        Enter your email address and we&apos;ll send you a link to reset your password.
                     </p>
                 </div>
 
@@ -143,7 +143,7 @@ export default function ForgotPassword() {
                             id="email"
                             type="email"
                             {...register("email")}
-                            className="w-full px-2 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-2 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0A2540] focus:border-[#0A2540] transition-colors"
                             placeholder="Enter your registered email"
                             disabled={loading}
                         />
@@ -155,7 +155,7 @@ export default function ForgotPassword() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full flex items-center justify-center bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="w-full flex items-center justify-center bg-[#0A2540] text-white py-3 px-4 rounded-lg font-semibold hover:bg-[#0A2540] focus:outline-none focus:ring-2 focus:ring-[#0A2540] focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                         {loading && (
                           <svg
@@ -189,7 +189,7 @@ export default function ForgotPassword() {
                         Remembered your password? {" "}
                         <Link
                             href="/auth/login"
-                            className="text-blue-600 hover:text-blue-700 font-medium"
+                            className="text-[#0A2540] hover:text-[#0A2540] font-medium"
                         >
                             Back to Login
                         </Link>

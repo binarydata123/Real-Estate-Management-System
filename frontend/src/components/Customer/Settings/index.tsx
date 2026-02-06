@@ -127,7 +127,7 @@ export const Settings: React.FC = () => {
               flex items-center flex-shrink-0 px-2.5 md:px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors
               ${
                 activeTab === tab.id
-                  ? "bg-blue-50 text-blue-700 border-b-2 lg:border-b-0 lg:border-r-2 border-blue-700"
+                  ? "bg-blue-50 text-[#0A2540] border-b-2 lg:border-b-0 lg:border-r-2 border-[#0A2540]"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }
             `}
@@ -154,7 +154,7 @@ export const Settings: React.FC = () => {
                 <p className="text-gray-500">Unable to load settings</p>
                 <button
                   onClick={getSettings}
-                  className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="mt-2 px-4 py-2 bg-[#0A2540] text-white rounded-lg hover:bg-blue-700"
                 >
                   Retry
                 </button>
@@ -168,7 +168,7 @@ export const Settings: React.FC = () => {
                 className={`px-6 py-2 rounded-lg text-white ${
                   loading || !customerSettings
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    : "bg-[#0A2540] hover:bg-blue-700"
                 }`}
               >
                 {loading ? "Saving..." : "Save Changes"}

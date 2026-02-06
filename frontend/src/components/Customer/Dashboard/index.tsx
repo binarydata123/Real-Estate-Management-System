@@ -153,11 +153,27 @@ export default function CustomerDashboard() {
     },
   ];
 
-  const isGoogleMapsLink = (value?: string | number) => {
+  let directionOrLocation = "";
+  const isGoogleMapsLink = (value?: string | number): boolean => {
     if (!value || typeof value !== "string") return false;
-    return (
-      value.includes("google.com/maps") || value.includes("maps.google.com")
-    );
+
+    try {
+      const url = new URL(value);
+      const q = url.searchParams.get("q");
+
+      if (q) {
+        directionOrLocation = `https://www.google.com/maps/dir/?api=1&destination=${q}`;
+        return true;
+      }
+
+      directionOrLocation = value;
+      return (
+        value.includes("google.com/maps") || value.includes("maps.google.com")
+      );
+    } catch {
+      directionOrLocation = value;
+      return false;
+    }
   };
 
   const getImageUrl = (url: string) => {
@@ -385,7 +401,7 @@ export default function CustomerDashboard() {
                             <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
                             {isGoogleMapsLink(property.propertyId?.location) ? (
                               <a
-                                href={String(property.propertyId?.location)}
+                                href={String(directionOrLocation)}
                                 target="blank"
                                 rel="noopener noreferrer"
                                 className="text-[#C9A24D] underline"
