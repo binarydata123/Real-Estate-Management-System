@@ -182,7 +182,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             (!newMessage.trim() && !selectedFile) ||
             isSendingMessage
           }
-          className={`p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 ${
+          className={`p-2 bg-[#0A2540] text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 ${
             isDisabled ? "cursor-not-allowed" : ""
           }`}
         >

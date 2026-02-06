@@ -106,7 +106,7 @@ const IconRadio: React.FC<{
             />
             <label
               htmlFor={`${name as string}-${option.value}`}
-              className="cursor-pointer flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
+              className="cursor-pointer flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-700 peer-checked:bg-[#0A2540] peer-checked:text-white peer-checked:border-[#0A2540]"
             >
               {option.icon}
               {option.label}
@@ -136,7 +136,7 @@ const IconCheckbox: React.FC<{
     />
     <label
       htmlFor={`${name as string}-${option.value}`}
-      className="cursor-pointer shadow flex items-center gap-2 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600"
+      className="cursor-pointer shadow flex items-center gap-2 px-3 py-1.5 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-700 peer-checked:bg-[#0A2540] peer-checked:text-white peer-checked:border-[#0A2540]"
     >
       {option.icon && <span>{option.icon}</span>}
       {option.label}
@@ -246,7 +246,7 @@ const RangeSlider: React.FC<{
             className="relative w-full h-1.5 bg-gray-200 rounded-full"
           >
             <div
-              className="absolute h-full bg-blue-500 rounded-full"
+              className="absolute h-full bg-[#0A2540] rounded-full"
               style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
             />
 
@@ -265,7 +265,7 @@ const RangeSlider: React.FC<{
                 <div
                   onMouseDown={(e) => handleInteraction(e, "min")}
                   onTouchStart={(e) => handleInteraction(e, "min")}
-                  className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2"
+                  className="w-5 h-5 bg-white border-2 border-[#0A2540] rounded-full cursor-pointer shadow-md -translate-x-1/2"
                   tabIndex={0}
                 />
               )}
@@ -289,7 +289,7 @@ const RangeSlider: React.FC<{
                 <div
                   onMouseDown={(e) => handleInteraction(e, "max")}
                   onTouchStart={(e) => handleInteraction(e, "max")}
-                  className="w-5 h-5 bg-white border-2 border-blue-600 rounded-full cursor-pointer shadow-md -translate-x-1/2"
+                  className="w-5 h-5 bg-white border-2 border-[#0A2540] rounded-full cursor-pointer shadow-md -translate-x-1/2"
                   tabIndex={0}
                 />
               )}
@@ -664,7 +664,7 @@ export default function PreferenceForm() {
           <button
             type="submit"
             disabled={loading || isReadOnly}
-            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-[#0A2540] text-white font-bold rounded-lg hover:bg-[#0A2540] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Saving..." : "Update Preferences"}
           </button>

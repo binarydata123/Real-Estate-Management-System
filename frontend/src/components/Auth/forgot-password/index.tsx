@@ -118,7 +118,7 @@ export default function ForgotPassword() {
         </svg>
         <span className="hidden sm:inline">Back to Home</span>
       </Link>
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl md:p-8 p-6 border border-gray-100">
+      <div className="max-w-md w-full bg-[#C9A24D]/20 rounded-2xl shadow-xl md:p-8 p-6 border border-[#C9A24D]">
         {/* Logo */}
         <div className="text-center md:mb-8 mb-4">
           {settingsData?.logoUrl ? (

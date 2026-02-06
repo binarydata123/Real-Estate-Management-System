@@ -24,7 +24,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
   return (
     <div className="p-2 md:p-4 border-b border-gray-200 bg-gray-50 flex items-center">
       <div className="flex-1 flex items-center space-x-3 min-w-0 overflow-hidden">
-        <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+        <div className="h-8 w-8 rounded-full bg-[#0A2540] text-white flex items-center justify-center font-semibold">
           {getInitial(user?.name)}
           {/* </div> */}
         </div>
