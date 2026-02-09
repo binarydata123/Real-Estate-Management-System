@@ -139,7 +139,7 @@ export default function ForgotPassword() {
             Reset Your Password
           </h1>
           <p className="text-gray-600 mt-2 md:mt-3">
-            Enter your email address and we&npos;ll send you a link to reset
+            Enter your email address and we&apos;ll send you a link to reset
             your password.
           </p>
         </div>

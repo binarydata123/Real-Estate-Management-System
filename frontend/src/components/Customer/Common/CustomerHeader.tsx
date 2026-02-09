@@ -13,6 +13,7 @@ import InstallButton from '@/components/Common/InstallButton';
 import Link from 'next/link';
 import { getUnreadNotificationsCount } from '@/lib/Common/Notifications';
 import { showErrorToast } from '@/utils/toastHandler';
+import { QrCodeIcon } from 'lucide-react';
 
 interface HeaderProps {
     onMenuButtonClick: () => void;
@@ -136,6 +137,18 @@ export const CustomerHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => 
                                                     >
                                                         <UserCircleIcon className="mr-3 h-4 w-4" />
                                                         Profile
+                                                    </Link>
+                                                )}
+                                            </Menu.Item>
+                                              <Menu.Item>
+                                                {({ active }) => (
+                                                    <Link
+                                                        href="/customer/qr"
+                                                        className={`${active ? 'bg-gray-100' : ''
+                                                            } flex items-center md:px-4 px-2 py-2 text-sm text-gray-700`}
+                                                    >
+                                                      <QrCodeIcon className="mr-3 h-4 w-4" />
+                                                       QR Login
                                                     </Link>
                                                 )}
                                             </Menu.Item>
