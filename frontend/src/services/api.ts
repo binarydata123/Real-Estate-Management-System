@@ -167,7 +167,8 @@ class ApiService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/";
+    this.baseURL =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/";
   }
   getBaseURL() {
     return this.baseURL;
@@ -177,7 +178,7 @@ class ApiService {
   private async publicRequest<T = any>(
     endpoint: string,
     options: RequestInit = {},
-    responseType: "json" | "blob" | "text" = "json"
+    responseType: "json" | "blob" | "text" = "json",
   ): Promise<JsonResponse<T> | BlobResponse | TextResponse> {
     try {
       const url = `${this.baseURL}${endpoint}`;
@@ -217,22 +218,22 @@ class ApiService {
   private async apiRequest<T = any>(
     endpoint: string,
     options?: RequestInit,
-    responseType?: "json"
+    responseType?: "json",
   ): Promise<JsonResponse<T>>;
   private async apiRequest(
     endpoint: string,
     options: RequestInit,
-    responseType: "blob"
+    responseType: "blob",
   ): Promise<BlobResponse>;
   private async apiRequest(
     endpoint: string,
     options: RequestInit,
-    responseType: "text"
+    responseType: "text",
   ): Promise<TextResponse>;
   private async apiRequest<T = any>(
     endpoint: string,
     options: RequestInit = {},
-    responseType: "json" | "blob" | "text" = "json"
+    responseType: "json" | "blob" | "text" = "json",
   ): Promise<JsonResponse<T> | BlobResponse | TextResponse> {
     try {
       const url = `${this.baseURL}${endpoint}`;
@@ -274,7 +275,7 @@ class ApiService {
   // ✅ Auth helper
   private async makeRequest(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<ApiResponse> {
     try {
       const url = `${this.baseURL}${endpoint}`;
@@ -392,7 +393,7 @@ class ApiService {
       this.storeAuthData(
         innerData.token,
         innerData.user,
-        innerData.adminSetting
+        innerData.adminSetting,
       );
     }
     return response;
@@ -416,7 +417,8 @@ class ApiService {
   async logout(): Promise<ApiResponse> {
     this.clearAuthData();
     return {
-      success: true, status: 200
+      success: true,
+      status: 200,
     };
   }
 
@@ -528,7 +530,7 @@ class ApiService {
 
   async sendMessage(
     conversationId: string,
-    messageData: any
+    messageData: any,
   ): Promise<ApiResponse> {
     return this.makeRequest(`/messages/conversations/${conversationId}`, {
       method: "POST",
@@ -638,7 +640,7 @@ class ApiService {
   }
 
   async updateCandidateCertifications(
-    certifications: any[]
+    certifications: any[],
   ): Promise<ApiResponse> {
     return this.makeRequest("/profiles/candidate/certifications", {
       method: "PUT",
@@ -677,7 +679,7 @@ class ApiService {
       reason: string;
       priority?: string;
       description?: string;
-    }
+    },
   ): Promise<ApiResponse> {
     return this.makeRequest("/jobs/report", {
       method: "POST",
@@ -719,12 +721,11 @@ class ApiService {
       ) {
         return response.data;
       }
-        return {
-          success: false,
-          message: "Invalid response format from server",
-          data: null,
-        };
-
+      return {
+        success: false,
+        message: "Invalid response format from server",
+        data: null,
+      };
     } catch (err: any) {
       return {
         success: false,
@@ -748,7 +749,7 @@ class ApiService {
 
   async generateCandidateResume(
     templateId: string,
-    options: any
+    options: any,
   ): Promise<ApiResponse> {
     return this.makeRequest("/profiles/candidate/resume/generate", {
       method: "POST",
@@ -758,7 +759,7 @@ class ApiService {
 
   async generateCandidateResumeForDownload(
     templateId: string,
-    options: any
+    options: any,
   ): Promise<ApiResponse> {
     return this.makeRequest(`/resume/${templateId}-generate-resume`, {
       method: "POST",
@@ -792,7 +793,7 @@ class ApiService {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           body: JSON.stringify({ userData }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -834,7 +835,7 @@ class ApiService {
     candidateId: string,
     jobId?: string,
     applicationId?: string,
-    viewerId?: string
+    viewerId?: string,
   ) => {
     let url = `/profiles/candidate/${candidateId}`;
 
@@ -852,7 +853,7 @@ class ApiService {
 
   async updateApplicationStatus(
     id: string,
-    status: string
+    status: string,
   ): Promise<ApiResponse> {
     return this.makeRequest(`/applications/${id}/status`, {
       method: "PATCH",
@@ -902,10 +903,13 @@ class ApiService {
   }
 
   async markConversationAsRead(conversationId: string): Promise<ApiResponse> {
-    return this.makeRequest(`/agent/messages/conversations/${conversationId}/read`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-    });
+    return this.makeRequest(
+      `/agent/messages/conversations/${conversationId}/read`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   async archiveConversation(conversationId: string): Promise<ApiResponse> {
@@ -914,7 +918,7 @@ class ApiService {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   }
 
@@ -924,7 +928,7 @@ class ApiService {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   }
 
@@ -934,7 +938,7 @@ class ApiService {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   }
 
@@ -944,15 +948,18 @@ class ApiService {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   }
 
   async blockConversation(conversationId: string): Promise<ApiResponse> {
-    return this.makeRequest(`/agent/messages/conversations/${conversationId}/block`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-    });
+    return this.makeRequest(
+      `/agent/messages/conversations/${conversationId}/block`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   async unblockConversation(conversationId: string): Promise<ApiResponse> {
@@ -961,7 +968,7 @@ class ApiService {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   }
 
@@ -1016,7 +1023,7 @@ class ApiService {
   }
 
   async getCandidatesDetail(
-    params: Record<string, any> = {}
+    params: Record<string, any> = {},
   ): Promise<ApiResponse> {
     const queryParams =
       Object.keys(params).length > 0
@@ -1028,7 +1035,7 @@ class ApiService {
   }
 
   async getMentorsDetail(
-    params: Record<string, any> = {}
+    params: Record<string, any> = {},
   ): Promise<ApiResponse> {
     const queryParams =
       Object.keys(params).length > 0
@@ -1040,7 +1047,7 @@ class ApiService {
   }
 
   async getCompaniesDetail(
-    params: Record<string, any> = {}
+    params: Record<string, any> = {},
   ): Promise<ApiResponse> {
     const queryParams =
       Object.keys(params).length > 0
@@ -1086,7 +1093,7 @@ class ApiService {
   }
 
   async updateSingleCompanyDetails(
-    data: CompanyProfileData
+    data: CompanyProfileData,
   ): Promise<ApiResponse> {
     return this.makeRequest(`/admin/update-company/${data.userId}`, {
       method: "PUT",
@@ -1109,7 +1116,7 @@ class ApiService {
 
   async getJobApplicants(
     id: string,
-    queryParams: { status?: string; search?: string } = {}
+    queryParams: { status?: string; search?: string } = {},
   ): Promise<ApiResponse> {
     const query = new URLSearchParams(queryParams).toString();
     const url = `/admin/job-applicants/${id}${query ? `?${query}` : ""}`;
@@ -1149,7 +1156,7 @@ class ApiService {
   }
   async updateUserProfilePhoto(
     id: string,
-    imageFile: File
+    imageFile: File,
   ): Promise<ApiResponse> {
     const formData = new FormData();
     formData.append("image", imageFile);
@@ -1160,7 +1167,7 @@ class ApiService {
     });
   }
   async getProfilePhoto(
-    userId: string
+    userId: string,
   ): Promise<ApiImageResponse<{ urls: Record<string, string> }>> {
     // calls your backend GET /api/candidates/:userId/profile-photo
     return this.makeRequest(`/candidates/${userId}/profile-photo`);
@@ -1173,7 +1180,7 @@ class ApiService {
 
   async updateAudioMuteSetting(
     userId: string,
-    audioMessageMuted: boolean
+    audioMessageMuted: boolean,
   ): Promise<ApiResponse> {
     return this.makeRequest(`/users/${userId}/audio-mute`, {
       method: "PUT",
@@ -1194,23 +1201,23 @@ class ApiService {
 
   async getDetailedMetrics(
     metricType: string,
-    dateRange: string
+    dateRange: string,
   ): Promise<ApiResponse> {
     return this.makeRequest(
-      `/admin/detailed/${metricType}?dateRange=${dateRange}`
+      `/admin/detailed/${metricType}?dateRange=${dateRange}`,
     );
   }
 
   async getLocationDistribution(dateRange: string): Promise<ApiResponse> {
     return this.makeRequest(
-      `/admin/location-distribution?dateRange=${dateRange}`
+      `/admin/location-distribution?dateRange=${dateRange}`,
     );
   }
 
   // Upload company logo
   async updateCompanyLogo(
     userId: string,
-    imageFile: File
+    imageFile: File,
   ): Promise<ApiResponse> {
     const formData = new FormData();
     formData.append("file", imageFile); // Use "file" since multer expects that
@@ -1242,10 +1249,7 @@ class ApiService {
     });
   }
 
-  async resetPassword(
-    token: string,
-    password: string
-  ): Promise<ApiResponse> {
+  async resetPassword(token: string, password: string): Promise<ApiResponse> {
     return this.makeRequest("/auth/reset-password", {
       method: "POST",
       body: JSON.stringify({ token, password }),
@@ -1263,7 +1267,7 @@ class ApiService {
       `/profiles/candidate/resume/set-default/${resumeId}`,
       {
         method: "PUT",
-      }
+      },
     );
   }
   async unsetResumeDefault(resumeId: string): Promise<ApiResponse> {
@@ -1271,7 +1275,7 @@ class ApiService {
       `/profiles/candidate/resume/unset-default/${resumeId}`,
       {
         method: "PUT",
-      }
+      },
     );
   }
   async getDefaultResume(userId: string): Promise<ApiResponse> {
@@ -1306,7 +1310,7 @@ class ApiService {
     candidateData: any,
     jobData: any,
     companyData: any,
-    resumeUrl?: string
+    resumeUrl?: string,
   ): Promise<ApiResponse> {
     return this.makeRequest(`/interviews/ask-ai`, {
       method: "POST",
@@ -1385,7 +1389,7 @@ class ApiService {
 
   async updateCandidateTitleAndBio(
     title: string,
-    bio: string
+    bio: string,
   ): Promise<ApiResponse> {
     return this.makeRequest("/profiles/candidate/update-title-bio", {
       method: "PATCH",
@@ -1438,7 +1442,7 @@ class ApiService {
   }
   async updateCompanyTaglineAndDescription(
     tagline: string,
-    description: string
+    description: string,
   ): Promise<ApiResponse> {
     return this.makeRequest("/profiles/company/update-tagline-description", {
       method: "PATCH",
@@ -1461,7 +1465,7 @@ class ApiService {
   async analyzeTopApplicant(
     topCandidates: any,
     job: any,
-    recruiterQuestion: string
+    recruiterQuestion: string,
   ): Promise<ApiResponse> {
     return this.makeRequest("/profiles/company/ai-top-applicants-analysis", {
       method: "POST",
@@ -1515,11 +1519,7 @@ class ApiService {
       method: "GET",
     });
   }
-  async fetchStudentCourseById(
-    id: string,
-    page = 1,
-    limit = 10
-  ): Promise<any> {
+  async fetchStudentCourseById(id: string, page = 1, limit = 10): Promise<any> {
     const query = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
@@ -1528,13 +1528,13 @@ class ApiService {
       `/courses/get-course-candidates/${id}?${query.toString()}`,
       {
         method: "GET",
-      }
+      },
     );
   }
 
   async fetchCandidateDetailedCourseById(
     id: string,
-    candidateId?: string
+    candidateId?: string,
   ): Promise<any> {
     const query = candidateId ? `?candidateId=${candidateId}` : "";
     return this.makeRequest(`/user-course-records/${id}${query}`, {
@@ -1576,7 +1576,7 @@ class ApiService {
       email?: string;
       role?: string;
       status?: string;
-    }
+    },
   ): Promise<ApiResponse> {
     return this.makeRequest(`/team/members/${memberId}`, {
       method: "PATCH",
@@ -1602,7 +1602,7 @@ class ApiService {
 
   async updateMemberPermissions(
     memberId: string,
-    permissions: string[]
+    permissions: string[],
   ): Promise<ApiResponse> {
     return this.makeRequest(`/team/members/${memberId}/permissions`, {
       method: "PUT",
@@ -1617,12 +1617,12 @@ class ApiService {
   async getCompanyNote(
     applicationId: string,
     jobId: string,
-    params?: any
+    params?: any,
   ): Promise<ApiResponse> {
     const baseParams = { jobId, ...params };
     const queryParams = new URLSearchParams(baseParams).toString();
     return this.makeRequest(
-      `/applications/${applicationId}/note?${queryParams}`
+      `/applications/${applicationId}/note?${queryParams}`,
     );
   }
 
@@ -1642,14 +1642,14 @@ class ApiService {
 
   async getCompanyWebinars(
     companyId: string,
-    status?: string
+    status?: string,
   ): Promise<ApiImageResponse> {
     const queryParams = new URLSearchParams();
     queryParams.append("companyId", companyId);
     if (status) queryParams.append("status", status);
 
     return this.makeRequest(
-      `/webinar/company/webinars?${queryParams.toString()}`
+      `/webinar/company/webinars?${queryParams.toString()}`,
     );
   }
 
@@ -1833,7 +1833,7 @@ class ApiService {
     } catch (error: any) {
       showErrorToast(
         "Failed to update lesson progress:",
-        error.message || error
+        error.message || error,
       );
       return { success: false, error: error?.message || "Unexpected error" };
     }
@@ -1866,7 +1866,7 @@ class ApiService {
       statusFilter?: string;
       currentPage?: number;
       limit?: number;
-    }
+    },
   ): Promise<any> {
     const query = new URLSearchParams();
 
@@ -1883,7 +1883,7 @@ class ApiService {
       `/courses/get-courses-by-creator?userId=${userId}&${query.toString()}`,
       {
         method: "GET",
-      }
+      },
     );
   }
 
@@ -1925,7 +1925,7 @@ class ApiService {
   async uploadKYCFile(
     files: File[],
     expectedName: string,
-    userId: string
+    userId: string,
   ): Promise<ApiResponse> {
     const formData = new FormData();
     files.forEach((file) => formData.append("files", file)); // Matches multer.array('files')
@@ -1946,7 +1946,7 @@ class ApiService {
   }
   async updatePlan(
     planId: string,
-    planData: Partial<any>
+    planData: Partial<any>,
   ): Promise<ApiResponse> {
     return this.makeRequest(`/plans/${planId}`, {
       method: "PUT",
@@ -1962,7 +1962,7 @@ class ApiService {
 
   async updatePlanStatus(
     planId: string,
-    isActive: boolean
+    isActive: boolean,
   ): Promise<ApiResponse> {
     return this.makeRequest(`/plans/${planId}/status`, {
       method: "PUT",
@@ -1972,7 +1972,7 @@ class ApiService {
 
   async updateSubscription(
     planId: string,
-    planData: any
+    planData: any,
   ): Promise<ApiResponse> {
     return this.makeRequest(`/plans/${planId}`, {
       method: "PUT",
@@ -1994,7 +1994,7 @@ class ApiService {
   }
 
   async getAllPlans(
-    featureType?: "candidate-features" | "mentor-features" | "company-features"
+    featureType?: "candidate-features" | "mentor-features" | "company-features",
   ): Promise<ApiResponse> {
     // Build the URL with query param if featureType is provided
     let url = "/plans/all-plans";
@@ -2027,7 +2027,7 @@ class ApiService {
 
   async updateTokenAction(
     id: string,
-    payload: { tokensRequired: number; enabled: boolean }
+    payload: { tokensRequired: number; enabled: boolean },
   ): Promise<ApiResponse> {
     return this.makeRequest(`/token-configs/${id}`, {
       method: "PUT",
@@ -2078,7 +2078,7 @@ class ApiService {
 
   async updateMentorProfilePhoto(
     id: string,
-    imageFile: File
+    imageFile: File,
   ): Promise<ApiResponse> {
     const formData = new FormData();
     formData.append("image", imageFile);
@@ -2090,7 +2090,7 @@ class ApiService {
   }
 
   async getMentorProfilePhoto(
-    userId: string
+    userId: string,
   ): Promise<ApiImageResponse<{ urls: Record<string, string> }>> {
     return this.makeRequest(`/mentor/${userId}/profile-photo`);
   }
@@ -2102,7 +2102,7 @@ class ApiService {
   }
 
   async updateMentorCertifications(
-    certifications: any[]
+    certifications: any[],
   ): Promise<ApiResponse> {
     return this.makeRequest("/mentor/profile/certifications", {
       method: "PUT",
@@ -2218,7 +2218,7 @@ class ApiService {
   }
 
   async getAllMenteesFeedback(
-    params: Record<string, any> = {}
+    params: Record<string, any> = {},
   ): Promise<ApiResponse> {
     const queryParams =
       Object.keys(params).length > 0
@@ -2240,7 +2240,7 @@ class ApiService {
   }
 
   async getAllMenteeSession(
-    params: Record<string, any> = {}
+    params: Record<string, any> = {},
   ): Promise<ApiResponse> {
     const queryParams =
       Object.keys(params).length > 0
@@ -2294,14 +2294,14 @@ class ApiService {
   }
   async deleteMentorRequest(
     requestId: string,
-    data: DeleteMentorRequestData
+    data: DeleteMentorRequestData,
   ): Promise<ApiResponse> {
     if (!requestId) {
       throw new Error("requestId is required to delete a mentor request");
     }
     if (!data.userId || !data.userRole) {
       throw new Error(
-        "userId and userRole are required to delete a mentor request"
+        "userId and userRole are required to delete a mentor request",
       );
     }
 
@@ -2404,7 +2404,7 @@ class ApiService {
       `/audit-logs${queryParams ? `?${queryParams}` : ""}`,
       {
         method: "GET",
-      }
+      },
     );
   }
 
@@ -2427,7 +2427,7 @@ class ApiService {
         {
           method: "POST",
           body: data,
-        }
+        },
       );
       return response; // ✅ success case
     } catch (error: any) {
@@ -2462,7 +2462,7 @@ class ApiService {
 
   // Automatically pass featureType
   async getAllTokenManagementData(
-    featureType?: "candidate-features" | "mentor-features" | "company-features"
+    featureType?: "candidate-features" | "mentor-features" | "company-features",
   ): Promise<ApiResponse> {
     let url = "/token-usage/token-action";
     if (featureType) url += `?featureType=${featureType}`;
@@ -2486,7 +2486,7 @@ class ApiService {
 
   async cancelSubscription(
     userId: string,
-    cancelReason: string
+    cancelReason: string,
   ): Promise<ApiResponse> {
     return this.makeRequest("/stripe/cancel-subscription", {
       method: "POST",
@@ -2507,7 +2507,7 @@ class ApiService {
 
   async attachPaymentMethod(
     userId: string,
-    paymentMethodId: string
+    paymentMethodId: string,
   ): Promise<ApiResponse> {
     return this.makeRequest("/stripe/attach-payment-method", {
       method: "POST",
@@ -2524,7 +2524,7 @@ class ApiService {
 
   async setDefaultPaymentMethod(
     userId: string,
-    paymentMethodId: string
+    paymentMethodId: string,
   ): Promise<ApiResponse> {
     return this.makeRequest("/stripe/set-default-payment-method", {
       method: "POST",
@@ -2534,7 +2534,7 @@ class ApiService {
 
   async deletePaymentMethod(
     userId: string,
-    paymentMethodId: string
+    paymentMethodId: string,
   ): Promise<ApiResponse> {
     return this.makeRequest("/stripe/delete-payment-method", {
       method: "POST",
@@ -2633,7 +2633,7 @@ class ApiService {
   }
 
   async getDiscoverPeople(
-    params: DiscoverPeopleParams = {}
+    params: DiscoverPeopleParams = {},
   ): Promise<ApiResponse> {
     const { search = "", location, industry, page, limit } = params;
 
@@ -2700,7 +2700,7 @@ class ApiService {
     return this.apiRequest<any>(
       `/candidates/videos`,
       { method: "POST", body: formData },
-      "json"
+      "json",
     );
   }
 
@@ -2712,7 +2712,7 @@ class ApiService {
     return this.apiRequest<any>(
       `/candidates/videos/${candidateId}/${type}`,
       { method: "DELETE" },
-      "json"
+      "json",
     );
   }
 
@@ -2724,7 +2724,7 @@ class ApiService {
     return this.apiRequest(
       `/candidates/videos/thumbnail/${candidateId}/${type}`,
       { method: "GET" },
-      "blob"
+      "blob",
     );
   }
 
@@ -2744,7 +2744,7 @@ class ApiService {
     return this.apiRequest<Record<string, CandidateVideoData>>(
       `/candidates/videos/${candidateId}`,
       { method: "GET" },
-      "json"
+      "json",
     );
   }
   async updateAutoApplyOptions(body: any): Promise<ApiResponse> {
@@ -2759,7 +2759,7 @@ class ApiService {
     return this.publicRequest(
       "/frontendRoutes/footer-links",
       { method: "GET" },
-      "json"
+      "json",
     );
   }
   async generateCoverLetter(body: any): Promise<ApiResponse> {
@@ -2823,7 +2823,7 @@ class ApiService {
 
   async compareCandidatesForJob(
     applicationIds: string[],
-    jobId?: string
+    jobId?: string,
   ): Promise<ApiResponse> {
     // If jobId is provided, append it as a query param
     const url = jobId
@@ -2836,6 +2836,31 @@ class ApiService {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ applicationIds }),
+    });
+  }
+
+  //  QR LOGIN API(s)
+  // Create QR token (new device)
+  async createQr(): Promise<ApiResponse> {
+    return this.makeRequest("/qr/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  // Approve QR (logged-in device)
+  async approveQr(token: string): Promise<ApiResponse> {
+    return this.makeRequest("/qr/approve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+  }
+
+  // Check QR status (new device polling)
+  async checkQrStatus(token: string): Promise<ApiResponse> {
+    return this.makeRequest(`/qr/check-status/${token}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
     });
   }
 }
