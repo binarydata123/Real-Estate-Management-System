@@ -22,7 +22,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
       <div
         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg
           ${isSender
-            ? "bg-blue-600 text-white"
+            ? "bg-[#0A2540] text-white"
             : isUnread
               ? "bg-indigo-50 text-gray-900"
               : "bg-gray-100 text-gray-900"

@@ -99,7 +99,7 @@ export default function Profile() {
             {...register("fullName")}
             className={`w-full px-4 py-2.5 border ${
               errors.fullName ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+            } rounded-xl focus:ring-2 focus:ring-[#0A2540] focus:border-[#0A2540] 
                        text-gray-900 placeholder-gray-400 transition-all duration-150`}
           />
           {errors.fullName && (
@@ -120,7 +120,7 @@ export default function Profile() {
             {...register("email")}
             className={`w-full px-4 py-2.5 border ${
               errors.email ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+            } rounded-xl focus:ring-2 focus:ring-[#0A2540] focus:border-[#0A2540] 
                        text-gray-900 placeholder-gray-400 transition-all duration-150`}
           />
           {errors.email && (
@@ -141,7 +141,7 @@ export default function Profile() {
             {...register("phoneNumber")}
             className={`w-full px-4 py-2.5 border ${
               errors.phoneNumber ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+            } rounded-xl focus:ring-2 focus:ring-[#0A2540] focus:border-[#0A2540] 
                        text-gray-900 placeholder-gray-400 transition-all duration-150`}
           />
           {errors.phoneNumber && (
@@ -162,7 +162,7 @@ export default function Profile() {
             {...register("whatsapp")}
             className={`w-full px-4 py-2.5 border ${
               errors.whatsapp ? "border-red-500" : "border-gray-200"
-            } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+            } rounded-xl focus:ring-2 focus:ring-[#0A2540] focus:border-[#0A2540] 
                        text-gray-900 placeholder-gray-400 transition-all duration-150`}
           />
           {errors.whatsapp && (
@@ -177,7 +177,7 @@ export default function Profile() {
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl shadow-sm
+            className="px-5 py-2.5 bg-[#0A2540] text-white rounded-xl shadow-sm
                      hover:bg-blue-700 transition-colors duration-150 font-medium disabled:opacity-60"
           >
             {loading ? "Saving..." : "Save Changes"}

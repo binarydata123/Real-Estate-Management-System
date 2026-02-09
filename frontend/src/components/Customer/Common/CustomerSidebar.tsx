@@ -66,7 +66,7 @@ export const CustomerSidebar = forwardRef<HTMLDivElement,SidebarProps>(({ isOpen
                             ) : ( */}
               <div
                 className="md:h-10 md:w-10 w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
-                style={{ backgroundColor: "#2563eb" }}
+                style={{ backgroundColor: "#0A2540" }}
               >
                 {user.agency?.name.charAt(0)}
               </div>
@@ -110,7 +110,7 @@ export const CustomerSidebar = forwardRef<HTMLDivElement,SidebarProps>(({ isOpen
               onClick={onClose}
               className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 isActive
-                  ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
+                  ? "bg-blue-50 text-[#0A2540] border-r-2 border-[#0A2540]"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >

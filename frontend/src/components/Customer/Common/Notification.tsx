@@ -209,7 +209,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 <div
                   key={notification._id}
                   className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                    !notification.isRead ? "bg-blue-50" : ""
+                    !notification.isRead ? "bg-indigo-50" : ""
                   }`}
                   onClick={() => {
                     handelMarkAsRead(notification._id);
@@ -229,7 +229,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                           {notification.title}
                         </p>
                         {!notification.isRead && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-[#0A2540] rounded-full"></div>
                         )}
                       </div>
                       <p className="text-sm text-gray-600 md:mt-1">

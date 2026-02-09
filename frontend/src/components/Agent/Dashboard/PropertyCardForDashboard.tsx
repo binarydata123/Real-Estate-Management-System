@@ -68,7 +68,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
       label: "Water Supply",
       value: Array.isArray(property.water_source)
         ? property.water_source.join(", ")
-        : property.water_source ?? "",
+        : (property.water_source ?? ""),
     });
   }
 
@@ -148,13 +148,29 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
     else if (index % 3 === 1) col2.push(item);
     else col3.push(item);
   });
-  const isGoogleMapsLink = (value?: string | number) => {
-    if (!value || typeof value !== "string") return false;
-    return (
-      value.includes("google.com/maps") || value.includes("maps.google.com")
-    );
-  };
 
+  let directionOrLocation = "";
+  const isGoogleMapsLink = (value?: string | number): boolean => {
+    if (!value || typeof value !== "string") return false;
+
+    try {
+      const url = new URL(value);
+      const q = url.searchParams.get("q");
+
+      if (q) {
+        directionOrLocation = `https://www.google.com/maps/dir/?api=1&destination=${q}`;
+        return true;
+      }
+
+      directionOrLocation = value;
+      return (
+        value.includes("google.com/maps") || value.includes("maps.google.com")
+      );
+    } catch {
+      directionOrLocation = value;
+      return false;
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden">
@@ -168,7 +184,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
           />
           <span
             className={`absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
-              property.status
+              property.status,
             )}`}
           >
             {property.status}
@@ -204,7 +220,7 @@ const PropertyCardForDashboard: React.FC<PropertyCardProps> = ({
                   {detail.label === "Location" &&
                   isGoogleMapsLink(detail.value) ? (
                     <a
-                      href={String(detail.value)}
+                      href={String(directionOrLocation)}
                       target="_blank"
                       rel="noopener noreferrer"
                       // className="inline-flex items-center mt-1 w-fit rounded-md border border-primary px-2 py-1 text-xs font-medium text-primary hover:bg-primary hover:text-white transition"
