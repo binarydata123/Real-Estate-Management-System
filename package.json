@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "framer-motion": "^12.23.26",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.555.0",
     "moment-timezone": "^0.6.0",
     "react-icons": "^5.5.0",

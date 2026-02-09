@@ -14,6 +14,7 @@ import InstallButton from "@/components/Common/InstallButton";
 import { getUnreadNotificationsCount } from "@/lib/Common/Notifications";
 import { showErrorToast } from "@/utils/toastHandler";
 import { getInitial } from "@/helper/getInitialForProfile";
+import { QrCodeIcon } from "lucide-react";
 
 interface HeaderProps {
   onMenuButtonClick: () => void;
@@ -68,15 +69,13 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
               <span
                 onClick={() => setShowNotifications(true)}
                 className="relative p-2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
-                aria-label="View notifications"
-              >
+                aria-label="View notifications">
                 <span className="sr-only">View notifications</span>
                 <BellIcon className="md:h-6 md:w-6 w-5 h-5 header-icon" />
                 {unreadCount > 0 && (
                   <span
                     className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"
-                    aria-hidden="true"
-                  ></span>
+                    aria-hidden="true"></span>
                 )}
               </span>
 
@@ -96,8 +95,7 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                   enterTo="opacity-100 scale-100"
                   leave="transition ease-in duration-100"
                   leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
+                  leaveTo="opacity-0 scale-95">
                   <Menu.Items className="absolute right-0 mt-3 w-64 bg-white shadow-xl rounded-2xl border border-gray-100 overflow-hidden z-50">
                     {/* User Info Section */}
                     <div className="px-4 py-4 bg-gray-50 border-b border-gray-100">
@@ -116,14 +114,24 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                             href="/agent/profile"
                             className={`${
                               active ? "bg-gray-100" : ""
-                            } flex items-center px-4 py-3 text-sm text-gray-700 transition`}
-                          >
+                            } flex items-center px-4 py-3 text-sm text-gray-700 transition`}>
                             <UserCircleIcon className="mr-3 h-5 w-5 text-gray-500" />
                             Account Profile
                           </Link>
                         )}
                       </Menu.Item>
-
+                      <Menu.Item>
+                        {({ active }) => (
+                          <Link
+                            href="/agent/qr"
+                            className={`${
+                              active ? "bg-gray-100" : ""
+                            } flex items-center px-4 py-3 text-sm text-gray-700 transition`}>
+                            <QrCodeIcon className="mr-3 h-4 w-4" />
+                          QR LOGIN
+                          </Link>
+                        )}
+                      </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
                           <Link
@@ -131,8 +139,7 @@ export const AgentHeader: React.FC<HeaderProps> = ({ onMenuButtonClick }) => {
                             onClick={signOut}
                             className={`${
                               active ? "bg-red-50" : ""
-                            } flex  items-center px-4 py-3 text-sm text-red-600 font-medium transition`}
-                          >
+                            } flex  items-center px-4 py-3 text-sm text-red-600 font-medium transition`}>
                             <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-red-500" />
                             Log Out
                           </Link>
