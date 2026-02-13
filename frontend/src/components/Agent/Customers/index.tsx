@@ -1,8 +1,8 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { PlusIcon, UserIcon } from "@heroicons/react/24/outline";
 import { AddCustomerForm } from "./AddCustomerForm";
-import { deleteCustomerById, getCustomers } from "@/lib/Agent/CustomerAPI";
+import { deleteCustomerById, getCustomers, sendVoiceCommand } from "@/lib/Agent/CustomerAPI";
 import { useAuth } from "@/context/AuthContext";
 import CustomerModal from "../../Common/CustomerModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialogBox";
@@ -14,10 +14,36 @@ import CustomerAssistant from "./CustomerAssistant";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import { formatPrice } from "@/utils/helperFunction";
 import { NoData } from "@/components/Common/NoData";
-import { Users } from "lucide-react";
+import { Users, Mic } from "lucide-react";
 import { AddMeetingForm } from "@/components/Agent/Meetings/AddMeetingForm";
 import { getPreferenceDetail } from "@/lib/Common/Preference";
 import { capitalizeFirstLetter } from "@/helper/capitalizeFirstLetter";
+
+interface ISpeechRecognitionEvent {
+  results: {
+    0: {
+      0: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+interface ISpeechRecognition extends EventTarget {
+  lang: string;
+  interimResults: boolean;
+  continuous?: boolean;
+  onstart: (() => void) | null;
+  onresult: ((event: ISpeechRecognitionEvent) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+
+interface ISpeechRecognitionConstructor {
+  new(): ISpeechRecognition;
+}
 
 export const Customers: React.FC = () => {
   const { user } = useAuth();
@@ -37,6 +63,7 @@ export const Customers: React.FC = () => {
   const [viewCustomer, setViewCustomer] = useState<CustomerFormData | null>(
     null
   );
+  const recognitionRef = React.useRef<any>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -46,6 +73,10 @@ export const Customers: React.FC = () => {
   const [openMeetingModal, setOpenMeetingModal] = useState(false);
   const [meetingCustomer, setMeetingCustomer] =
     useState<CustomerFormData | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [aiReply, setAiReply] = useState("");
+
+  const threadIdRef = React.useRef(`thread_${Date.now()}`);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -137,6 +168,89 @@ export const Customers: React.FC = () => {
     // setShowSelectionModal(false);
   };
 
+  const speak = (text: string) => {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    window.speechSynthesis.speak(speech);
+  };
+
+  // 🤖 Send Voice To LangChain
+  const sendToAgent = async (message: string) => {
+    try {
+      const res = await sendVoiceCommand(
+        message,
+        threadIdRef.current,
+        user?.agency?._id
+      );
+
+      setAiReply(res.reply);
+      speak(res.reply);
+      if (res.intent === "find_customer") {
+        setSearchTerm(res.name)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 🎤 Start Listening
+
+  const startListening = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Speech not supported in this browser");
+      return;
+    }
+
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+      setIsListening(false);
+      window.speechSynthesis.cancel();
+      return;
+    }
+
+    // 🔥 SINGLE instance create
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      console.log("🎤 MIC STARTED");
+      setIsListening(true);
+    };
+
+    recognition.onresult = async (event: any) => {
+      const transcript =
+        event.results[event.results.length - 1][0].transcript;
+
+      console.log("USER SAID:", transcript);
+
+      await sendToAgent(transcript);
+    };
+
+    recognition.onerror = (e: any) => {
+      console.log("MIC ERROR:", e);
+    };
+
+    recognition.onend = () => {
+      console.log("🎤 MIC ENDED");
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+
+    recognition.start();
+  };
+
+
+
+
   return (
     <div className="min-h-screen bg-[#F5F7FA] px-1 py-1">
       {/* Header Section */}
@@ -163,7 +277,7 @@ export const Customers: React.FC = () => {
                 <p className="text-sm sm:text-base text-white/80">
                   Manage and track your customer relationships
                 </p>
-                
+
                 {/* Divider */}
                 <div className="mt-3 h-px w-32 bg-gradient-to-r from-[#C9A24D] to-transparent" />
               </div>
@@ -182,11 +296,25 @@ export const Customers: React.FC = () => {
                   <PlusIcon className="h-5 w-5 mr-2 font-bold stroke-[2.5]" />
                   Add Customer
                 </button>
+                <button
+                  onClick={startListening}
+                  className={`flex items-center justify-center px-3 py-2.5 rounded-[8px] font-bold shadow-md transition-all
+  ${isListening ? "bg-red-500" : "bg-[#0A2540]"} text-white`}
+                >
+                  <Mic className="h-5 w-5 mr-2" />
+                  {isListening ? "Listening..." : "Voice AI"}
+                </button>
+
               </div>
             </div>
           )}
         </div>
       </div>
+      {aiReply && (
+        <div className="mt-3 bg-white/10 text-black px-3 py-2 rounded-lg text-sm">
+          🤖 {aiReply}
+        </div>
+      )}
 
       {/* Empty State */}
       {customers.length === 0 && !isFetching && (
@@ -236,10 +364,10 @@ export const Customers: React.FC = () => {
                             {customer.fullName}{" "}
                             {(customer as { isDeleted?: boolean })
                               .isDeleted && (
-                              <span className="text-red-500 text-sm">
-                                (Deleted)
-                              </span>
-                            )}
+                                <span className="text-red-500 text-sm">
+                                  (Deleted)
+                                </span>
+                              )}
                           </h3>
                           <div className="flex items-center text-sm text-gray-600 group/phone">
                             <a
@@ -262,7 +390,7 @@ export const Customers: React.FC = () => {
                             </p>
 
                             {customer?.minimumBudget ||
-                            customer?.maximumBudget ? (
+                              customer?.maximumBudget ? (
                               <p className="text-sm font-bold text-[#0A2540]">
                                 {formatBudget(
                                   customer?.minimumBudget,
@@ -388,21 +516,21 @@ export const Customers: React.FC = () => {
           initialData={
             editingCustomer
               ? {
-                  fullName: editingCustomer.fullName,
-                  phoneNumber: editingCustomer.phoneNumber ?? "",
-                  email: editingCustomer.email ?? "",
-                  whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
-                  minimumBudget: editingCustomer.minimumBudget
-                    ? Number(editingCustomer.minimumBudget)
-                    : undefined,
-                  maximumBudget: editingCustomer.maximumBudget
-                    ? Number(editingCustomer.maximumBudget)
-                    : undefined,
-                  leadSource: editingCustomer.leadSource ?? "website",
-                  initialNotes: editingCustomer.initialNotes ?? "",
-                  showAllProperty: editingCustomer.showAllProperty ?? false,
-                  agencyId: editingCustomer.agencyId?._id ?? "",
-                }
+                fullName: editingCustomer.fullName,
+                phoneNumber: editingCustomer.phoneNumber ?? "",
+                email: editingCustomer.email ?? "",
+                whatsAppNumber: editingCustomer.whatsAppNumber ?? "",
+                minimumBudget: editingCustomer.minimumBudget
+                  ? Number(editingCustomer.minimumBudget)
+                  : undefined,
+                maximumBudget: editingCustomer.maximumBudget
+                  ? Number(editingCustomer.maximumBudget)
+                  : undefined,
+                leadSource: editingCustomer.leadSource ?? "website",
+                initialNotes: editingCustomer.initialNotes ?? "",
+                showAllProperty: editingCustomer.showAllProperty ?? false,
+                agencyId: editingCustomer.agencyId?._id ?? "",
+              }
               : undefined
           }
           customerId={editingCustomer?._id}

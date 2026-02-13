@@ -51,3 +51,17 @@ export const getCustomersForDropDown = async (userId: string) => {
   );
   return response.data;
 };
+
+export const sendVoiceCommand = async (
+  message: string,
+  threadId: string,
+  agencyId?: string,
+) => {
+  const response = await api.post("/langchain/voice-assistant-save-customer", {
+    message,
+    threadId,
+    agencyId,
+  });
+
+  return response.data;
+};

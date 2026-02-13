@@ -8,6 +8,7 @@ import express from "express";
 import adminRoutes from "./Admin/index.js";
 import customerRoutes from "./Customer/index.js";
 import vapiRoutes from "./VAPIRoutes/index.js";
+import LangChainRoutes from "./LangChainRoutes/index.js";
 import { protect } from "../middleware/authMiddleware.js";
 import qrRoutes from "./QrLogin/index.js";
 const router = express.Router();
@@ -22,5 +23,7 @@ router.use("/assistant", assistantRoutes);
 router.use("/admin", adminRoutes);
 router.use("/customer", customerRoutes);
 router.use("/vapi", vapiRoutes);
+router.use("/langchain", LangChainRoutes);
 router.use("/qr", qrRoutes);
+
 export default router;
