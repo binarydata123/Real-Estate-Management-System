@@ -164,6 +164,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         expires: 365, // Keep user logged in for 1 year
         secure: process.env.NODE_ENV === "production",
       });
+      if(token){
+        localStorage.setItem("openClawToken", token);
+        localStorage.setItem("agencyId",userData.agency?._id || "")
+      }
       Cookies.set(ROLE_FOR_MIDDELEWARE, userData.role);
       return { data: { user: userData, session: newSession }, error: null };
     } catch (error) {

@@ -12,6 +12,7 @@ import { getDashboardData } from "@/lib/Agent/DashboarAPI";
 import { showErrorToast } from "@/utils/toastHandler";
 import HotCustomers from "./HotCustomers";
 import { Plus } from "lucide-react";
+import OpenClawWidget from "@/components/openClawWidget/OpenClawWidget";
 
 export interface customer {
   _id: string;
@@ -274,6 +275,8 @@ export const AgentDashboard = () => {
           }}
         />
       )}
+
+      <OpenClawWidget/>
     </div>
   );
 };

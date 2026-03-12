@@ -302,6 +302,8 @@ const registrationController = {
         success: true,
         message: "Login successful!",
         token: generateToken(user._id, user.role),
+        openClawToken: generateToken(user._id, user.role), // same token for openClaw
+        agency: user.agencyId,
         user: {
           _id: user._id,
           name: user.name || user.fullName,

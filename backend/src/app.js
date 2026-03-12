@@ -9,6 +9,7 @@ import { Server } from "socket.io";
 import http from "http";
 import vapiRoutes from "./routes/VAPIRoutes/index.js";
 import bodyParser from "body-parser";
+import openClawProxy from "./routes/openClawProxy/index.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -56,7 +57,9 @@ app.get("/", (req, res) => {
   res.send("Welcome to the Api");
 });
 
-// mount all routes under /api
+
+//openClaw routes
+app.use("/api/openclaw", openClawProxy);// mount all routes under /api
 app.use("/api", routes);
 app.use("/api/vapi", vapiRoutes);
 app.use("/images", express.static(path.join(__dirname, "storage")));

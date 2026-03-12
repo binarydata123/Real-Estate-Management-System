@@ -1,7 +1,7 @@
 import { Meetings } from "../../models/Agent/MeetingModel.js";
 import moment from "moment-timezone";
 
-export async function meetingStatusUpdateCronJob() {
+export async function meetingStatusUpdateCronJob () {
   try {
     // Always calculate time in IST
     const twoHoursAgo = moment().tz("Asia/Kolkata").subtract(2, "hours");
